@@ -1,0 +1,29 @@
+{
+  "lumiApp": {
+    "payoutRequest": {
+      "home": {
+        "title": "Payout Requests",
+        "refreshListLabel": "Refresh list",
+        "createLabel": "Create a new Payout Request",
+        "createOrEditLabel": "Create or edit a Payout Request",
+        "notFound": "No Payout Requests found"
+      },
+      "created": "A new Payout Request is created with identifier {{ param }}",
+      "updated": "A Payout Request is updated with identifier {{ param }}",
+      "deleted": "A Payout Request is deleted with identifier {{ param }}",
+      "delete": {
+        "question": "Are you sure you want to delete Payout Request {{ id }}?"
+      },
+      "detail": {
+        "title": "Payout Request"
+      },
+      "id": "ID",
+      "amount": "Amount",
+      "bankCode": "Bank Code",
+      "bankAccount": "Bank Account",
+      "status": "Status",
+      "createdAt": "Created At",
+      "wallet": "Wallet"
+    }
+  }
+}

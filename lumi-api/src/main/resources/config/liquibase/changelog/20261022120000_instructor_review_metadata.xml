@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <!-- Each column can also be added with scripts/sql/instructor_review_columns.sql. -->
+    <changeSet id="20261022120000-1" author="lumi">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <columnExists tableName="user_profile" columnName="instructor_rejection_reason"/>
+            </not>
+        </preConditions>
+        <addColumn tableName="user_profile">
+            <column name="instructor_rejection_reason" type="varchar(2000)">
+                <constraints nullable="true"/>
+            </column>
+        </addColumn>
+    </changeSet>
+
+    <changeSet id="20261022120000-2" author="lumi">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <columnExists tableName="user_profile" columnName="instructor_reviewed_at"/>
+            </not>
+        </preConditions>
+        <addColumn tableName="user_profile">
+            <column name="instructor_reviewed_at" type="timestamp">
+                <constraints nullable="true"/>
+            </column>
+        </addColumn>
+    </changeSet>
+
+    <changeSet id="20261022120000-3" author="lumi">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <columnExists tableName="user_profile" columnName="instructor_reviewed_by"/>
+            </not>
+        </preConditions>
+        <addColumn tableName="user_profile">
+            <column name="instructor_reviewed_by" type="varchar(50)">
+                <constraints nullable="true"/>
+            </column>
+        </addColumn>
+    </changeSet>
+</databaseChangeLog>

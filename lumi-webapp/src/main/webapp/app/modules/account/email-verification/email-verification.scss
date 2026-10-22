@@ -1,0 +1,209 @@
+/* ==========================================================================
+   LUMI Email Verification Styles
+   ========================================================================== */
+
+$lumi-navy: #102b59;
+$lumi-primary: #24a8e8;
+$lumi-primary-hover: #1b96d3;
+$lumi-secondary: #7894af;
+$lumi-border: #d3e8f6;
+$lumi-bg-page: #f3faff;
+
+.view-container:has(.verification-page-wrapper) {
+  padding: 0 !important;
+  max-width: 100% !important;
+
+  .jh-card {
+    border: none !important;
+    background: transparent !important;
+    padding: 0 !important;
+    box-shadow: none !important;
+  }
+}
+
+.verification-page-wrapper {
+  background-color: $lumi-bg-page;
+  min-height: calc(100vh - 66px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 48px 24px;
+  font-family:
+    'Nunito',
+    -apple-system,
+    BlinkMacSystemFont,
+    'Segoe UI',
+    Roboto,
+    sans-serif;
+}
+
+.verification-card {
+  max-width: 600px;
+  width: 100%;
+  background: #ffffff;
+  border-radius: 24px;
+  padding: 44px;
+  box-shadow: 0px 12px 40px rgba(37, 117, 163, 0.08);
+  border: 1px solid rgba(211, 232, 246, 0.7);
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  margin: 0 auto;
+
+  @media (max-width: 640px) {
+    padding: 28px 20px;
+  }
+}
+
+.verification-icon-header {
+  width: 56px;
+  height: 56px;
+  border-radius: 16px;
+  background-color: #e6f5ff;
+  color: $lumi-primary;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.sent-email-badge-card {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  background-color: #f7fbff;
+  border: 1px solid #d3e8f6;
+  border-radius: 14px;
+  padding: 16px 20px;
+
+  .email-icon-box {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background-color: #e6f5ff;
+    color: $lumi-primary;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    font-weight: 800;
+    flex-shrink: 0;
+  }
+
+  .email-address-text {
+    font-size: 15px;
+    font-weight: 800;
+    color: $lumi-navy;
+    word-break: break-all;
+  }
+
+  .email-status-pill {
+    margin-left: auto;
+    font-size: 11px;
+    font-weight: 800;
+    color: $lumi-primary;
+    background-color: #ffffff;
+    border: 1px solid #b0d3ee;
+    padding: 2px 8px;
+    border-radius: 999px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+}
+
+.otp-input-section {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+
+  .otp-label {
+    font-size: 14px;
+    font-weight: 800;
+    color: $lumi-navy;
+  }
+
+  .otp-input-row {
+    display: flex;
+    gap: 12px;
+
+    .otp-input {
+      flex: 1;
+      height: 48px;
+      border: 1px solid $lumi-border;
+      border-radius: 12px;
+      padding: 0 16px;
+      font-size: 18px;
+      font-weight: 800;
+      letter-spacing: 0.2em;
+      text-align: center;
+      color: $lumi-navy;
+      outline: none;
+
+      &:focus {
+        border-color: $lumi-primary;
+        box-shadow: 0 0 0 3px rgba(36, 168, 232, 0.18);
+      }
+    }
+
+    .btn-verify-otp {
+      height: 48px;
+      padding: 0 24px;
+      background-color: $lumi-primary;
+      color: #ffffff;
+      border: none;
+      border-radius: 12px;
+      font-size: 14px;
+      font-weight: 800;
+      cursor: pointer;
+      transition: all 0.2s ease;
+
+      &:hover:not(:disabled) {
+        background-color: $lumi-primary-hover;
+      }
+
+      &:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+      }
+    }
+  }
+}
+
+.instruction-steps-list {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.instruction-step-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+
+  .step-num-circle {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background-color: #e6f5ff;
+    color: $lumi-primary;
+    font-size: 13px;
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+
+  .step-title {
+    font-size: 14px;
+    font-weight: 800;
+    color: $lumi-navy;
+  }
+
+  .step-desc {
+    font-size: 13px;
+    font-weight: 600;
+    color: $lumi-secondary;
+    margin-top: 2px;
+  }
+}

@@ -1,0 +1,29 @@
+{
+  "lumiApp": {
+    "contentReport": {
+      "home": {
+        "title": "Content Reports",
+        "refreshListLabel": "Refresh list",
+        "createLabel": "Create a new Content Report",
+        "createOrEditLabel": "Create or edit a Content Report",
+        "notFound": "No Content Reports found"
+      },
+      "created": "A new Content Report is created with identifier {{ param }}",
+      "updated": "A Content Report is updated with identifier {{ param }}",
+      "deleted": "A Content Report is deleted with identifier {{ param }}",
+      "delete": {
+        "question": "Are you sure you want to delete Content Report {{ id }}?"
+      },
+      "detail": {
+        "title": "Content Report"
+      },
+      "id": "ID",
+      "targetType": "Target Type",
+      "targetId": "Target Id",
+      "reason": "Reason",
+      "status": "Status",
+      "createdAt": "Created At",
+      "reporter": "Reporter"
+    }
+  }
+}

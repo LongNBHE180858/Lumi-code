@@ -1,0 +1,26 @@
+{
+  "lumiApp": {
+    "knowledgeNode": {
+      "home": {
+        "title": "Knowledge Nodes",
+        "refreshListLabel": "Refresh list",
+        "createLabel": "Thêm mới một Knowledge Node",
+        "createOrEditLabel": "Thêm mới hoặc cập nhật Knowledge Node",
+        "notFound": "No Knowledge Nodes found"
+      },
+      "created": "Một Knowledge Node mới được tạo với định danh {{ param }}",
+      "updated": "Một Knowledge Node cập nhật với định danh {{ param }}",
+      "deleted": "Một Knowledge Node đã xóa với định danh {{ param }}",
+      "delete": {
+        "question": "Bạn có chắc là muốn xóa Knowledge Node {{ id }}?"
+      },
+      "detail": {
+        "title": "Knowledge Node"
+      },
+      "id": "ID",
+      "title": "Title",
+      "type": "Type",
+      "subject": "Subject"
+    }
+  }
+}

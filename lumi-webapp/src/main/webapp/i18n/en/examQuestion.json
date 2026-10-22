@@ -1,0 +1,27 @@
+{
+  "lumiApp": {
+    "examQuestion": {
+      "home": {
+        "title": "Exam Questions",
+        "refreshListLabel": "Refresh list",
+        "createLabel": "Create a new Exam Question",
+        "createOrEditLabel": "Create or edit a Exam Question",
+        "notFound": "No Exam Questions found"
+      },
+      "created": "A new Exam Question is created with identifier {{ param }}",
+      "updated": "A Exam Question is updated with identifier {{ param }}",
+      "deleted": "A Exam Question is deleted with identifier {{ param }}",
+      "delete": {
+        "question": "Are you sure you want to delete Exam Question {{ id }}?"
+      },
+      "detail": {
+        "title": "Exam Question"
+      },
+      "id": "ID",
+      "orderIndex": "Order Index",
+      "score": "Score",
+      "exam": "Exam",
+      "question": "Question"
+    }
+  }
+}

@@ -1,0 +1,25 @@
+{
+  "lumiApp": {
+    "assignmentStudent": {
+      "home": {
+        "title": "Assignment Students",
+        "refreshListLabel": "Refresh list",
+        "createLabel": "Thêm mới một Assignment Student",
+        "createOrEditLabel": "Thêm mới hoặc cập nhật Assignment Student",
+        "notFound": "No Assignment Students found"
+      },
+      "created": "Một Assignment Student mới được tạo với định danh {{ param }}",
+      "updated": "Một Assignment Student cập nhật với định danh {{ param }}",
+      "deleted": "Một Assignment Student đã xóa với định danh {{ param }}",
+      "delete": {
+        "question": "Bạn có chắc là muốn xóa Assignment Student {{ id }}?"
+      },
+      "detail": {
+        "title": "Assignment Student"
+      },
+      "id": "ID",
+      "student": "Student",
+      "assignment": "Assignment"
+    }
+  }
+}

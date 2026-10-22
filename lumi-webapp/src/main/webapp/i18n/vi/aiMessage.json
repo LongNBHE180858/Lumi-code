@@ -1,0 +1,27 @@
+{
+  "lumiApp": {
+    "aiMessage": {
+      "home": {
+        "title": "Ai Messages",
+        "refreshListLabel": "Refresh list",
+        "createLabel": "Thêm mới một Ai Message",
+        "createOrEditLabel": "Thêm mới hoặc cập nhật Ai Message",
+        "notFound": "No Ai Messages found"
+      },
+      "created": "Một Ai Message mới được tạo với định danh {{ param }}",
+      "updated": "Một Ai Message cập nhật với định danh {{ param }}",
+      "deleted": "Một Ai Message đã xóa với định danh {{ param }}",
+      "delete": {
+        "question": "Bạn có chắc là muốn xóa Ai Message {{ id }}?"
+      },
+      "detail": {
+        "title": "Ai Message"
+      },
+      "id": "ID",
+      "senderRole": "Sender Role",
+      "content": "Content",
+      "createdAt": "Created At",
+      "conversation": "Conversation"
+    }
+  }
+}

@@ -1,0 +1,27 @@
+{
+  "lumiApp": {
+    "instructorWallet": {
+      "home": {
+        "title": "Instructor Wallets",
+        "refreshListLabel": "Refresh list",
+        "createLabel": "Thêm mới một Instructor Wallet",
+        "createOrEditLabel": "Thêm mới hoặc cập nhật Instructor Wallet",
+        "notFound": "No Instructor Wallets found"
+      },
+      "created": "Một Instructor Wallet mới được tạo với định danh {{ param }}",
+      "updated": "Một Instructor Wallet cập nhật với định danh {{ param }}",
+      "deleted": "Một Instructor Wallet đã xóa với định danh {{ param }}",
+      "delete": {
+        "question": "Bạn có chắc là muốn xóa Instructor Wallet {{ id }}?"
+      },
+      "detail": {
+        "title": "Instructor Wallet"
+      },
+      "id": "ID",
+      "pendingAmount": "Pending Amount",
+      "availableAmount": "Available Amount",
+      "rowVersion": "Row Version",
+      "user": "User"
+    }
+  }
+}

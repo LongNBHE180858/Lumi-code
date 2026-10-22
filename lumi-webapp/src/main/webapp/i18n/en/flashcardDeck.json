@@ -1,0 +1,27 @@
+{
+  "lumiApp": {
+    "flashcardDeck": {
+      "home": {
+        "title": "Flashcard Decks",
+        "refreshListLabel": "Refresh list",
+        "createLabel": "Create a new Flashcard Deck",
+        "createOrEditLabel": "Create or edit a Flashcard Deck",
+        "notFound": "No Flashcard Decks found"
+      },
+      "created": "A new Flashcard Deck is created with identifier {{ param }}",
+      "updated": "A Flashcard Deck is updated with identifier {{ param }}",
+      "deleted": "A Flashcard Deck is deleted with identifier {{ param }}",
+      "delete": {
+        "question": "Are you sure you want to delete Flashcard Deck {{ id }}?"
+      },
+      "detail": {
+        "title": "Flashcard Deck"
+      },
+      "id": "ID",
+      "title": "Title",
+      "isPublic": "Is Public",
+      "owner": "Owner",
+      "subject": "Subject"
+    }
+  }
+}

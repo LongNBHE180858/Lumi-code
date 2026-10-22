@@ -1,0 +1,28 @@
+{
+  "lumiApp": {
+    "parentStudentLink": {
+      "home": {
+        "title": "Parent Student Links",
+        "refreshListLabel": "Refresh list",
+        "createLabel": "Create a new Parent Student Link",
+        "createOrEditLabel": "Create or edit a Parent Student Link",
+        "notFound": "No Parent Student Links found"
+      },
+      "created": "A new Parent Student Link is created with identifier {{ param }}",
+      "updated": "A Parent Student Link is updated with identifier {{ param }}",
+      "deleted": "A Parent Student Link is deleted with identifier {{ param }}",
+      "delete": {
+        "question": "Are you sure you want to delete Parent Student Link {{ id }}?"
+      },
+      "detail": {
+        "title": "Parent Student Link"
+      },
+      "id": "ID",
+      "linkCode": "Link Code",
+      "status": "Status",
+      "linkedAt": "Linked At",
+      "parent": "Parent",
+      "student": "Student"
+    }
+  }
+}

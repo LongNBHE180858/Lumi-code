@@ -1,0 +1,35 @@
+{
+  "lumiApp": {
+    "courseOrder": {
+      "home": {
+        "title": "Course Orders",
+        "refreshListLabel": "Refresh list",
+        "createLabel": "Create a new Course Order",
+        "createOrEditLabel": "Create or edit a Course Order",
+        "notFound": "No Course Orders found"
+      },
+      "created": "A new Course Order is created with identifier {{ param }}",
+      "updated": "A Course Order is updated with identifier {{ param }}",
+      "deleted": "A Course Order is deleted with identifier {{ param }}",
+      "delete": {
+        "question": "Are you sure you want to delete Course Order {{ id }}?"
+      },
+      "detail": {
+        "title": "Course Order"
+      },
+      "id": "ID",
+      "originalPrice": "Original Price",
+      "discountAmount": "Discount Amount",
+      "finalPrice": "Final Price",
+      "revenueSplitRate": "Revenue Split Rate",
+      "status": "Status",
+      "idempotencyKey": "Idempotency Key",
+      "rowVersion": "Row Version",
+      "createdAt": "Created At",
+      "student": "Student",
+      "course": "Course",
+      "plan": "Plan",
+      "coupon": "Coupon"
+    }
+  }
+}

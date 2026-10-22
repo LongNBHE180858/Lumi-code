@@ -1,0 +1,31 @@
+{
+  "lumiApp": {
+    "examAttempt": {
+      "home": {
+        "title": "Exam Attempts",
+        "refreshListLabel": "Refresh list",
+        "createLabel": "Thêm mới một Exam Attempt",
+        "createOrEditLabel": "Thêm mới hoặc cập nhật Exam Attempt",
+        "notFound": "No Exam Attempts found"
+      },
+      "created": "Một Exam Attempt mới được tạo với định danh {{ param }}",
+      "updated": "Một Exam Attempt cập nhật với định danh {{ param }}",
+      "deleted": "Một Exam Attempt đã xóa với định danh {{ param }}",
+      "delete": {
+        "question": "Bạn có chắc là muốn xóa Exam Attempt {{ id }}?"
+      },
+      "detail": {
+        "title": "Exam Attempt"
+      },
+      "id": "ID",
+      "startTime": "Start Time",
+      "endTime": "End Time",
+      "score": "Score",
+      "status": "Status",
+      "rowVersion": "Row Version",
+      "student": "Student",
+      "exam": "Exam",
+      "proctorSession": "Proctor Session"
+    }
+  }
+}

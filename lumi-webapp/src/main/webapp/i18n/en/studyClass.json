@@ -1,0 +1,35 @@
+{
+  "lumiApp": {
+    "studyClass": {
+      "home": {
+        "title": "Study Classes",
+        "refreshListLabel": "Refresh list",
+        "createLabel": "Create a new Study Class",
+        "createOrEditLabel": "Create or edit a Study Class",
+        "notFound": "No Study Classes found"
+      },
+      "created": "A new Study Class is created with identifier {{ param }}",
+      "updated": "A Study Class is updated with identifier {{ param }}",
+      "deleted": "A Study Class is deleted with identifier {{ param }}",
+      "delete": {
+        "question": "Are you sure you want to delete Study Class {{ id }}?"
+      },
+      "detail": {
+        "title": "Study Class"
+      },
+      "id": "ID",
+      "name": "Name",
+      "description": "Description",
+      "joinCode": "Join Code",
+      "joinMode": "Join Mode",
+      "maxStudents": "Max Students",
+      "currentStudents": "Current Students",
+      "status": "Status",
+      "isDeleted": "Is Deleted",
+      "createdAt": "Created At",
+      "instructor": "Instructor",
+      "subject": "Subject",
+      "grade": "Grade"
+    }
+  }
+}

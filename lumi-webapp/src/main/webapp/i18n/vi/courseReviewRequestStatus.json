@@ -1,0 +1,9 @@
+{
+  "lumiApp": {
+    "CourseReviewRequestStatus": {
+      "PENDING": "Chờ duyệt",
+      "APPROVED": "Đã duyệt",
+      "REJECTED": "Cần chỉnh sửa"
+    }
+  }
+}

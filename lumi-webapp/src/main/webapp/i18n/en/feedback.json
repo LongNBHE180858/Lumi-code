@@ -1,0 +1,99 @@
+{
+  "lumiApp": {
+    "feedback": {
+      "home": {
+        "title": "Feedback Management",
+        "createTitle": "Submit Feedback",
+        "refreshListLabel": "Refresh",
+        "notFound": "No Feedbacks found"
+      },
+      "detail": {
+        "title": "Feedback Detail",
+        "sectionBasic": "Basic Information",
+        "sectionContext": "Learning Context",
+        "sectionProcessing": "Processing & Administration"
+      },
+      "submit": {
+        "title": "Submit feedback",
+        "subtitle": "Share feedback or an issue you encountered while learning with LUMI so we can improve your experience.",
+        "breadcrumbLabel": "Breadcrumb",
+        "home": "Home",
+        "support": "Support",
+        "back": "Go back",
+        "requiredFields": "Fields marked * are required",
+        "detailsHeading": "Feedback details",
+        "contactHeading": "Contact email",
+        "optional": "optional",
+        "courseSelectPlaceholder": "-- Select relevant course (optional) --",
+        "lessonSelectPlaceholder": "-- Select lesson (optional) --",
+        "lessonSelectPrompt": "Please select a course first",
+        "loadingCourses": "Loading courses...",
+        "loadingLessons": "Loading lessons...",
+        "coursesLoadError": "Unable to load courses. Reload the page to try again.",
+        "lessonsLoadError": "Unable to load lessons. Select the course again to retry.",
+        "courseLessonHint": "You can leave these blank if your feedback is not about a specific course or lesson.",
+        "titlePlaceholder": "Summarize what you would like to share",
+        "contentPlaceholder": "Describe your feedback or issue. If something went wrong, tell us what you were doing and what happened...",
+        "contentHint": "Be clear and specific so LUMI can understand your feedback.",
+        "emailPlaceholder": "example@domain.com",
+        "emailHint": "You can change this email to receive follow-up about your feedback.",
+        "confirmEmailCheckbox": "I confirm that the contact email above is correct.",
+        "securityNote": "Do not share passwords, payment information, or other sensitive details in your feedback.",
+        "requestFailed": "Unable to submit feedback. Please try again; your text has been kept.",
+        "reviewBeforeSubmit": "Review your feedback and contact email before submitting.",
+        "cancel": "Cancel",
+        "submitting": "Submitting...",
+        "successMessage": "Feedback submitted successfully",
+        "submitButton": "Submit Feedback"
+      },
+      "validation": {
+        "titleRequired": "Title is required",
+        "titleMaxLength": "Title must not exceed 255 characters",
+        "contentRequired": "Feedback content is required",
+        "contentMinLength": "Feedback content must be at least 10 characters",
+        "contentMaxLength": "Feedback content must not exceed 5,000 characters",
+        "contactEmailRequired": "Contact email is required",
+        "contactEmailInvalid": "Contact email is invalid or exceeds 254 characters",
+        "confirmEmailRequired": "You must confirm the contact email before submitting"
+      },
+      "admin": {
+        "title": "User Feedback Management",
+        "filterAll": "All",
+        "filterType": "Feedback Type",
+        "filterStatus": "Status",
+        "saveNotes": "Save Notes",
+        "changeStatus": "Change Status",
+        "deleteConfirm": "Are you sure you want to delete feedback #{{ id }}?",
+        "deletedAccount": "Tài khoản đã bị xóa",
+        "notesPlaceholder": "Enter internal processing notes (max 5,000 characters)...",
+        "notesSaved": "Notes saved successfully",
+        "statusUpdated": "Status updated successfully",
+        "deleted": "Feedback deleted successfully"
+      },
+      "id": "ID",
+      "type": "Type",
+      "title": "Title",
+      "content": "Content",
+      "contactEmail": "Contact Email",
+      "status": "Status",
+      "adminNotes": "Admin Notes",
+      "course": "Course",
+      "lesson": "Lesson",
+      "sender": "Sender",
+      "createdAt": "Submitted At",
+      "updatedAt": "Last Updated",
+      "types": {
+        "BUG_REPORT": "Bug Report",
+        "FEATURE_REQUEST": "Feature Request",
+        "UI_UX": "UI/UX",
+        "GENERAL": "General"
+      },
+      "statuses": {
+        "NEW": "New",
+        "IN_REVIEW": "In Review",
+        "RESOLVED": "Resolved",
+        "DISMISSED": "Dismissed"
+      }
+    }
+  }
+}

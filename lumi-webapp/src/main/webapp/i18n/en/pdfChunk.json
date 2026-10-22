@@ -1,0 +1,27 @@
+{
+  "lumiApp": {
+    "pdfChunk": {
+      "home": {
+        "title": "Pdf Chunks",
+        "refreshListLabel": "Refresh list",
+        "createLabel": "Create a new Pdf Chunk",
+        "createOrEditLabel": "Create or edit a Pdf Chunk",
+        "notFound": "No Pdf Chunks found"
+      },
+      "created": "A new Pdf Chunk is created with identifier {{ param }}",
+      "updated": "A Pdf Chunk is updated with identifier {{ param }}",
+      "deleted": "A Pdf Chunk is deleted with identifier {{ param }}",
+      "delete": {
+        "question": "Are you sure you want to delete Pdf Chunk {{ id }}?"
+      },
+      "detail": {
+        "title": "Pdf Chunk"
+      },
+      "id": "ID",
+      "pageNumber": "Page Number",
+      "chunkText": "Chunk Text",
+      "embedding": "Embedding",
+      "material": "Material"
+    }
+  }
+}

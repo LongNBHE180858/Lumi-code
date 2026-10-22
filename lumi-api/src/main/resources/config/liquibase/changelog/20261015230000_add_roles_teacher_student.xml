@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+    <changeSet id="20261015230000-2" author="lumi">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <sqlCheck expectedResult="1">
+                    select count(*) from jhi_authority where name = 'ROLE_STUDENT'
+                </sqlCheck>
+            </not>
+        </preConditions>
+        <insert tableName="jhi_authority">
+            <column name="name" value="ROLE_STUDENT"/>
+        </insert>
+    </changeSet>
+    <changeSet id="20261015230000-3" author="lumi">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <sqlCheck expectedResult="1">
+                    select count(*) from jhi_authority where name = 'ROLE_INSTRUCTOR'
+                </sqlCheck>
+            </not>
+        </preConditions>
+        <insert tableName="jhi_authority">
+            <column name="name" value="ROLE_INSTRUCTOR"/>
+        </insert>
+    </changeSet>
+    <changeSet id="20261015230000-4" author="lumi">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <sqlCheck expectedResult="1">
+                    select count(*) from jhi_authority where name = 'ROLE_PARENT'
+                </sqlCheck>
+            </not>
+        </preConditions>
+        <insert tableName="jhi_authority">
+            <column name="name" value="ROLE_PARENT"/>
+        </insert>
+    </changeSet>
+</databaseChangeLog>

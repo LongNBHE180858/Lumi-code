@@ -1,0 +1,25 @@
+{
+  "lumiApp": {
+    "assignmentStudent": {
+      "home": {
+        "title": "Assignment Students",
+        "refreshListLabel": "Refresh list",
+        "createLabel": "Create a new Assignment Student",
+        "createOrEditLabel": "Create or edit a Assignment Student",
+        "notFound": "No Assignment Students found"
+      },
+      "created": "A new Assignment Student is created with identifier {{ param }}",
+      "updated": "A Assignment Student is updated with identifier {{ param }}",
+      "deleted": "A Assignment Student is deleted with identifier {{ param }}",
+      "delete": {
+        "question": "Are you sure you want to delete Assignment Student {{ id }}?"
+      },
+      "detail": {
+        "title": "Assignment Student"
+      },
+      "id": "ID",
+      "student": "Student",
+      "assignment": "Assignment"
+    }
+  }
+}

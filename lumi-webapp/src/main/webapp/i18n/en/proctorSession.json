@@ -1,0 +1,27 @@
+{
+  "lumiApp": {
+    "proctorSession": {
+      "home": {
+        "title": "Proctor Sessions",
+        "refreshListLabel": "Refresh list",
+        "createLabel": "Create a new Proctor Session",
+        "createOrEditLabel": "Create or edit a Proctor Session",
+        "notFound": "No Proctor Sessions found"
+      },
+      "created": "A new Proctor Session is created with identifier {{ param }}",
+      "updated": "A Proctor Session is updated with identifier {{ param }}",
+      "deleted": "A Proctor Session is deleted with identifier {{ param }}",
+      "delete": {
+        "question": "Are you sure you want to delete Proctor Session {{ id }}?"
+      },
+      "detail": {
+        "title": "Proctor Session"
+      },
+      "id": "ID",
+      "faceVerified": "Face Verified",
+      "warningCount": "Warning Count",
+      "status": "Status",
+      "attempt": "Attempt"
+    }
+  }
+}

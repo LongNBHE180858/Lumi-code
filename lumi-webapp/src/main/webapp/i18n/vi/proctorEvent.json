@@ -1,0 +1,27 @@
+{
+  "lumiApp": {
+    "proctorEvent": {
+      "home": {
+        "title": "Proctor Events",
+        "refreshListLabel": "Refresh list",
+        "createLabel": "Thêm mới một Proctor Event",
+        "createOrEditLabel": "Thêm mới hoặc cập nhật Proctor Event",
+        "notFound": "No Proctor Events found"
+      },
+      "created": "Một Proctor Event mới được tạo với định danh {{ param }}",
+      "updated": "Một Proctor Event cập nhật với định danh {{ param }}",
+      "deleted": "Một Proctor Event đã xóa với định danh {{ param }}",
+      "delete": {
+        "question": "Bạn có chắc là muốn xóa Proctor Event {{ id }}?"
+      },
+      "detail": {
+        "title": "Proctor Event"
+      },
+      "id": "ID",
+      "violationType": "Violation Type",
+      "photoUrl": "Photo Url",
+      "occurredAt": "Occurred At",
+      "session": "Session"
+    }
+  }
+}

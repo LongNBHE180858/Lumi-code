@@ -1,0 +1,29 @@
+{
+  "lumiApp": {
+    "classMaterial": {
+      "home": {
+        "title": "Class Materials",
+        "refreshListLabel": "Refresh list",
+        "createLabel": "Thêm mới một Class Material",
+        "createOrEditLabel": "Thêm mới hoặc cập nhật Class Material",
+        "notFound": "No Class Materials found"
+      },
+      "created": "Một Class Material mới được tạo với định danh {{ param }}",
+      "updated": "Một Class Material cập nhật với định danh {{ param }}",
+      "deleted": "Một Class Material đã xóa với định danh {{ param }}",
+      "delete": {
+        "question": "Bạn có chắc là muốn xóa Class Material {{ id }}?"
+      },
+      "detail": {
+        "title": "Class Material"
+      },
+      "id": "ID",
+      "title": "Title",
+      "fileType": "File Type",
+      "fileUrl": "File Url",
+      "fileSizeBytes": "File Size Bytes",
+      "uploadedAt": "Uploaded At",
+      "studyClass": "Study Class"
+    }
+  }
+}

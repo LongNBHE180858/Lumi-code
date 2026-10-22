@@ -1,0 +1,25 @@
+{
+  "lumiApp": {
+    "grade": {
+      "home": {
+        "title": "Grades",
+        "refreshListLabel": "Refresh list",
+        "createLabel": "Thêm mới một Grade",
+        "createOrEditLabel": "Thêm mới hoặc cập nhật Grade",
+        "notFound": "No Grades found"
+      },
+      "created": "Một Grade mới được tạo với định danh {{ param }}",
+      "updated": "Một Grade cập nhật với định danh {{ param }}",
+      "deleted": "Một Grade đã xóa với định danh {{ param }}",
+      "delete": {
+        "question": "Bạn có chắc là muốn xóa Grade {{ id }}?"
+      },
+      "detail": {
+        "title": "Grade"
+      },
+      "id": "ID",
+      "level": "Level",
+      "name": "Name"
+    }
+  }
+}

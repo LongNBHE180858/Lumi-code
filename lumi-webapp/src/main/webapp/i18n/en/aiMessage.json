@@ -1,0 +1,27 @@
+{
+  "lumiApp": {
+    "aiMessage": {
+      "home": {
+        "title": "Ai Messages",
+        "refreshListLabel": "Refresh list",
+        "createLabel": "Create a new Ai Message",
+        "createOrEditLabel": "Create or edit a Ai Message",
+        "notFound": "No Ai Messages found"
+      },
+      "created": "A new Ai Message is created with identifier {{ param }}",
+      "updated": "A Ai Message is updated with identifier {{ param }}",
+      "deleted": "A Ai Message is deleted with identifier {{ param }}",
+      "delete": {
+        "question": "Are you sure you want to delete Ai Message {{ id }}?"
+      },
+      "detail": {
+        "title": "Ai Message"
+      },
+      "id": "ID",
+      "senderRole": "Sender Role",
+      "content": "Content",
+      "createdAt": "Created At",
+      "conversation": "Conversation"
+    }
+  }
+}

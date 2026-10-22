@@ -1,0 +1,27 @@
+{
+  "lumiApp": {
+    "flashcardDeck": {
+      "home": {
+        "title": "Flashcard Decks",
+        "refreshListLabel": "Refresh list",
+        "createLabel": "Thêm mới một Flashcard Deck",
+        "createOrEditLabel": "Thêm mới hoặc cập nhật Flashcard Deck",
+        "notFound": "No Flashcard Decks found"
+      },
+      "created": "Một Flashcard Deck mới được tạo với định danh {{ param }}",
+      "updated": "Một Flashcard Deck cập nhật với định danh {{ param }}",
+      "deleted": "Một Flashcard Deck đã xóa với định danh {{ param }}",
+      "delete": {
+        "question": "Bạn có chắc là muốn xóa Flashcard Deck {{ id }}?"
+      },
+      "detail": {
+        "title": "Flashcard Deck"
+      },
+      "id": "ID",
+      "title": "Title",
+      "isPublic": "Is Public",
+      "owner": "Owner",
+      "subject": "Subject"
+    }
+  }
+}

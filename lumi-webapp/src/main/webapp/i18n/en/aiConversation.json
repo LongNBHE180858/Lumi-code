@@ -1,0 +1,27 @@
+{
+  "lumiApp": {
+    "aiConversation": {
+      "home": {
+        "title": "Ai Conversations",
+        "refreshListLabel": "Refresh list",
+        "createLabel": "Create a new Ai Conversation",
+        "createOrEditLabel": "Create or edit a Ai Conversation",
+        "notFound": "No Ai Conversations found"
+      },
+      "created": "A new Ai Conversation is created with identifier {{ param }}",
+      "updated": "A Ai Conversation is updated with identifier {{ param }}",
+      "deleted": "A Ai Conversation is deleted with identifier {{ param }}",
+      "delete": {
+        "question": "Are you sure you want to delete Ai Conversation {{ id }}?"
+      },
+      "detail": {
+        "title": "Ai Conversation"
+      },
+      "id": "ID",
+      "type": "Type",
+      "createdAt": "Created At",
+      "user": "User",
+      "lesson": "Lesson"
+    }
+  }
+}

@@ -1,0 +1,45 @@
+{
+  "lumiApp": {
+    "course": {
+      "home": {
+        "title": "Courses",
+        "refreshListLabel": "Refresh list",
+        "createLabel": "Create a new Course",
+        "createOrEditLabel": "Create or edit a Course",
+        "notFound": "No Courses found"
+      },
+      "created": "A new Course is created with identifier {{ param }}",
+      "updated": "A Course is updated with identifier {{ param }}",
+      "deleted": "A Course is deleted with identifier {{ param }}",
+      "delete": {
+        "question": "Are you sure you want to delete Course {{ id }}?"
+      },
+      "detail": {
+        "title": "Course"
+      },
+      "id": "ID",
+      "title": "Title",
+      "description": "Description",
+      "thumbnailUrl": "Thumbnail Url",
+      "price": "Price",
+      "validDurationDays": "Valid Duration Days",
+      "status": "Status",
+      "isDeleted": "Is Deleted",
+      "createdAt": "Created At",
+      "updatedAt": "Updated At",
+      "author": "Author",
+      "category": "Category",
+      "subject": "Subject",
+      "grade": "Grade",
+      "shortDescription": "Short description",
+      "bookSeries": "Textbook series",
+      "targetAudience": "Target audience",
+      "prerequisites": "Prerequisites",
+      "learningObjectives": "Learning objectives (one per line)",
+      "introVideoUrl": "Intro video URL",
+      "accessDurationValue": "Access duration",
+      "accessDurationUnit": "Access duration unit",
+      "version": "Version"
+    }
+  }
+}

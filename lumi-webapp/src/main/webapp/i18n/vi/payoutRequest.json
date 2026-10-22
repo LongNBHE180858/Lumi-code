@@ -1,0 +1,29 @@
+{
+  "lumiApp": {
+    "payoutRequest": {
+      "home": {
+        "title": "Payout Requests",
+        "refreshListLabel": "Refresh list",
+        "createLabel": "Thêm mới một Payout Request",
+        "createOrEditLabel": "Thêm mới hoặc cập nhật Payout Request",
+        "notFound": "No Payout Requests found"
+      },
+      "created": "Một Payout Request mới được tạo với định danh {{ param }}",
+      "updated": "Một Payout Request cập nhật với định danh {{ param }}",
+      "deleted": "Một Payout Request đã xóa với định danh {{ param }}",
+      "delete": {
+        "question": "Bạn có chắc là muốn xóa Payout Request {{ id }}?"
+      },
+      "detail": {
+        "title": "Payout Request"
+      },
+      "id": "ID",
+      "amount": "Amount",
+      "bankCode": "Bank Code",
+      "bankAccount": "Bank Account",
+      "status": "Status",
+      "createdAt": "Created At",
+      "wallet": "Wallet"
+    }
+  }
+}

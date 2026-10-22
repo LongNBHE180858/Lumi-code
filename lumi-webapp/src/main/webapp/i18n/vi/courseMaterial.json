@@ -1,0 +1,31 @@
+{
+  "lumiApp": {
+    "courseMaterial": {
+      "home": {
+        "title": "Course Materials",
+        "refreshListLabel": "Refresh list",
+        "createLabel": "Thêm mới một Course Material",
+        "createOrEditLabel": "Thêm mới hoặc cập nhật Course Material",
+        "notFound": "No Course Materials found"
+      },
+      "created": "Một Course Material mới được tạo với định danh {{ param }}",
+      "updated": "Một Course Material cập nhật với định danh {{ param }}",
+      "deleted": "Một Course Material đã xóa với định danh {{ param }}",
+      "delete": {
+        "question": "Bạn có chắc là muốn xóa Course Material {{ id }}?"
+      },
+      "detail": {
+        "title": "Course Material"
+      },
+      "id": "ID",
+      "fileType": "File Type",
+      "fileUrl": "File Url",
+      "fileSizeBytes": "File Size Bytes",
+      "lesson": "Lesson",
+      "fileName": "Tên file",
+      "displayName": "Tên hiển thị",
+      "mimeType": "Loại MIME",
+      "orderIndex": "Thứ tự"
+    }
+  }
+}

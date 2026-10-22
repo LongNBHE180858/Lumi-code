@@ -1,0 +1,29 @@
+{
+  "lumiApp": {
+    "authSession": {
+      "home": {
+        "title": "Auth Sessions",
+        "refreshListLabel": "Refresh list",
+        "createLabel": "Thêm mới một Auth Session",
+        "createOrEditLabel": "Thêm mới hoặc cập nhật Auth Session",
+        "notFound": "No Auth Sessions found"
+      },
+      "created": "Một Auth Session mới được tạo với định danh {{ param }}",
+      "updated": "Một Auth Session cập nhật với định danh {{ param }}",
+      "deleted": "Một Auth Session đã xóa với định danh {{ param }}",
+      "delete": {
+        "question": "Bạn có chắc là muốn xóa Auth Session {{ id }}?"
+      },
+      "detail": {
+        "title": "Auth Session"
+      },
+      "id": "ID",
+      "deviceInfo": "Device Info",
+      "refreshToken": "Refresh Token",
+      "expiresAt": "Expires At",
+      "isRevoked": "Is Revoked",
+      "createdAt": "Created At",
+      "user": "User"
+    }
+  }
+}

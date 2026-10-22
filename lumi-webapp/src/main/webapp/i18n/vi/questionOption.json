@@ -1,0 +1,26 @@
+{
+  "lumiApp": {
+    "questionOption": {
+      "home": {
+        "title": "Question Options",
+        "refreshListLabel": "Refresh list",
+        "createLabel": "Thêm mới một Question Option",
+        "createOrEditLabel": "Thêm mới hoặc cập nhật Question Option",
+        "notFound": "No Question Options found"
+      },
+      "created": "Một Question Option mới được tạo với định danh {{ param }}",
+      "updated": "Một Question Option cập nhật với định danh {{ param }}",
+      "deleted": "Một Question Option đã xóa với định danh {{ param }}",
+      "delete": {
+        "question": "Bạn có chắc là muốn xóa Question Option {{ id }}?"
+      },
+      "detail": {
+        "title": "Question Option"
+      },
+      "id": "ID",
+      "content": "Content",
+      "isCorrect": "Is Correct",
+      "question": "Question"
+    }
+  }
+}

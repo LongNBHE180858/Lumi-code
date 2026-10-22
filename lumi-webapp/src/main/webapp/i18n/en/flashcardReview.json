@@ -1,0 +1,27 @@
+{
+  "lumiApp": {
+    "flashcardReview": {
+      "home": {
+        "title": "Flashcard Reviews",
+        "refreshListLabel": "Refresh list",
+        "createLabel": "Create a new Flashcard Review",
+        "createOrEditLabel": "Create or edit a Flashcard Review",
+        "notFound": "No Flashcard Reviews found"
+      },
+      "created": "A new Flashcard Review is created with identifier {{ param }}",
+      "updated": "A Flashcard Review is updated with identifier {{ param }}",
+      "deleted": "A Flashcard Review is deleted with identifier {{ param }}",
+      "delete": {
+        "question": "Are you sure you want to delete Flashcard Review {{ id }}?"
+      },
+      "detail": {
+        "title": "Flashcard Review"
+      },
+      "id": "ID",
+      "nextReviewAt": "Next Review At",
+      "intervalDays": "Interval Days",
+      "student": "Student",
+      "flashcard": "Flashcard"
+    }
+  }
+}

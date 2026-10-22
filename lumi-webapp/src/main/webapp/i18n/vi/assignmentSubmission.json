@@ -1,0 +1,30 @@
+{
+  "lumiApp": {
+    "assignmentSubmission": {
+      "home": {
+        "title": "Assignment Submissions",
+        "refreshListLabel": "Refresh list",
+        "createLabel": "Thêm mới một Assignment Submission",
+        "createOrEditLabel": "Thêm mới hoặc cập nhật Assignment Submission",
+        "notFound": "No Assignment Submissions found"
+      },
+      "created": "Một Assignment Submission mới được tạo với định danh {{ param }}",
+      "updated": "Một Assignment Submission cập nhật với định danh {{ param }}",
+      "deleted": "Một Assignment Submission đã xóa với định danh {{ param }}",
+      "delete": {
+        "question": "Bạn có chắc là muốn xóa Assignment Submission {{ id }}?"
+      },
+      "detail": {
+        "title": "Assignment Submission"
+      },
+      "id": "ID",
+      "content": "Content",
+      "score": "Score",
+      "teacherFeedback": "Teacher Feedback",
+      "status": "Status",
+      "submittedAt": "Submitted At",
+      "student": "Student",
+      "assignment": "Assignment"
+    }
+  }
+}

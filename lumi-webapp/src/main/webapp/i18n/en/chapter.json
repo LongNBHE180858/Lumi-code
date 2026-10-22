@@ -1,0 +1,26 @@
+{
+  "lumiApp": {
+    "chapter": {
+      "home": {
+        "title": "Chapters",
+        "refreshListLabel": "Refresh list",
+        "createLabel": "Create a new Chapter",
+        "createOrEditLabel": "Create or edit a Chapter",
+        "notFound": "No Chapters found"
+      },
+      "created": "A new Chapter is created with identifier {{ param }}",
+      "updated": "A Chapter is updated with identifier {{ param }}",
+      "deleted": "A Chapter is deleted with identifier {{ param }}",
+      "delete": {
+        "question": "Are you sure you want to delete Chapter {{ id }}?"
+      },
+      "detail": {
+        "title": "Chapter"
+      },
+      "id": "ID",
+      "title": "Title",
+      "orderIndex": "Order Index",
+      "course": "Course"
+    }
+  }
+}

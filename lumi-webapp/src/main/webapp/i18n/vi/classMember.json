@@ -1,0 +1,27 @@
+{
+  "lumiApp": {
+    "classMember": {
+      "home": {
+        "title": "Class Members",
+        "refreshListLabel": "Refresh list",
+        "createLabel": "Thêm mới một Class Member",
+        "createOrEditLabel": "Thêm mới hoặc cập nhật Class Member",
+        "notFound": "No Class Members found"
+      },
+      "created": "Một Class Member mới được tạo với định danh {{ param }}",
+      "updated": "Một Class Member cập nhật với định danh {{ param }}",
+      "deleted": "Một Class Member đã xóa với định danh {{ param }}",
+      "delete": {
+        "question": "Bạn có chắc là muốn xóa Class Member {{ id }}?"
+      },
+      "detail": {
+        "title": "Class Member"
+      },
+      "id": "ID",
+      "status": "Status",
+      "joinedAt": "Joined At",
+      "student": "Student",
+      "studyClass": "Study Class"
+    }
+  }
+}

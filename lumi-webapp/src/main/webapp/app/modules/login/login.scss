@@ -1,0 +1,512 @@
+/* ==========================================================================
+   LUMI Login Page Styles (Pixel-matched with Figma Specs & UXUI prototype)
+   ========================================================================== */
+
+$lumi-login-bg-page: #f3faff;
+$lumi-login-bg-card: #ffffff;
+$lumi-login-bg-illustration: #e6f5ff;
+
+$lumi-login-primary: #24a8e8;
+$lumi-login-primary-hover: #1b96d3;
+$lumi-login-primary-active: #1480b5;
+$lumi-login-primary-light: #eaf6fc;
+
+$lumi-login-navy: #102b59;
+$lumi-login-secondary: #7894af;
+$lumi-login-placeholder: #91abc2;
+$lumi-login-white: #ffffff;
+
+$lumi-login-border-input: #d3e8f6;
+$lumi-login-border-input-focus: #24a8e8;
+$lumi-login-border-card: rgba(220, 235, 246, 0.4);
+
+$lumi-login-font:
+  'Nunito',
+  -apple-system,
+  BlinkMacSystemFont,
+  'Segoe UI',
+  Roboto,
+  Helvetica,
+  Arial,
+  sans-serif;
+
+$lumi-login-shadow-card: 0px 12px 40px rgba(37, 117, 163, 0.08);
+$lumi-login-shadow-input-focus: 0 0 0 3px rgba(36, 168, 232, 0.18);
+$lumi-login-shadow-button-hover: 0 6px 18px rgba(36, 168, 232, 0.35);
+
+$lumi-login-radius-badge: 10px;
+$lumi-login-radius-input: 12px;
+$lumi-login-radius-card: 24px;
+$lumi-login-radius-illustration: 24px;
+$lumi-login-radius-button: 999px;
+
+// Reset view-container when on login page for edge-to-edge layout
+.view-container:has(.lumi-login-page) {
+  padding: 0 !important;
+  max-width: 100% !important;
+
+  .jh-card {
+    border: none !important;
+    background: transparent !important;
+    padding: 0 !important;
+    box-shadow: none !important;
+  }
+}
+
+.lumi-login-page {
+  font-family: $lumi-login-font;
+  background-color: $lumi-login-bg-page;
+  color: $lumi-login-navy;
+  min-height: calc(100vh - 66px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 48px;
+  overflow-x: hidden;
+
+  // Animations
+  @keyframes loginFadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(8px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .login-fade-in {
+    animation: loginFadeIn 0.4s ease-out forwards;
+  }
+
+  /* Main Grid Layout */
+  .login-main-grid {
+    max-width: 1280px;
+    width: 100%;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 696px 472px;
+    gap: 64px;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* Left Hero Column */
+  .login-hero-column {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+  }
+
+  .login-hero-text {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .login-hero-title {
+    font-size: 38px;
+    font-weight: 900;
+    line-height: 1.2;
+    color: $lumi-login-navy;
+    letter-spacing: -0.02em;
+    margin: 0;
+  }
+
+  .login-hero-desc {
+    font-size: 16px;
+    font-weight: 600;
+    line-height: 1.55;
+    color: $lumi-login-secondary;
+    margin: 0;
+  }
+
+  .login-illustration-card {
+    width: 100%;
+    height: 360px;
+    background-color: $lumi-login-bg-illustration;
+    border-radius: $lumi-login-radius-illustration;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    position: relative;
+    box-shadow: 0 4px 20px rgba(36, 168, 232, 0.08);
+
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.4s ease;
+    }
+
+    &:hover img {
+      transform: scale(1.02);
+    }
+  }
+
+  /* Benefit Badges */
+  .login-benefit-row {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+
+  .login-benefit-badge {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 4px 6px;
+    border-radius: $lumi-login-radius-badge;
+    transition: transform 0.15s ease;
+
+    &:hover {
+      transform: translateY(-2px);
+    }
+
+    .badge-icon-wrap {
+      width: 36px;
+      height: 36px;
+      border-radius: $lumi-login-radius-badge;
+      background-color: $lumi-login-white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 2px 8px rgba(16, 43, 89, 0.06);
+      flex-shrink: 0;
+
+      svg,
+      img {
+        width: 19px;
+        height: 19px;
+      }
+    }
+
+    .badge-text {
+      font-size: 13px;
+      font-weight: 700;
+      line-height: 1.45;
+      color: $lumi-login-navy;
+      white-space: nowrap;
+    }
+  }
+
+  /* Right Login Card Column */
+  .login-card {
+    background-color: $lumi-login-bg-card;
+    border-radius: $lumi-login-radius-card;
+    padding: 40px;
+    box-shadow: $lumi-login-shadow-card;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    width: 100%;
+    max-width: 472px;
+    border: 1px solid $lumi-login-border-card;
+  }
+
+  .login-card-header {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+
+    .card-title {
+      font-size: 28px;
+      font-weight: 900;
+      line-height: 1.36;
+      color: $lumi-login-navy;
+      margin: 0;
+    }
+
+    .card-subtitle {
+      font-size: 16px;
+      font-weight: 600;
+      line-height: 1.36;
+      color: $lumi-login-secondary;
+      margin: 0;
+    }
+  }
+
+  /* Alerts */
+  .login-alert-danger {
+    padding: 12px 16px;
+    border-radius: 10px;
+    font-size: 13px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background-color: #fef2f2;
+    color: #b91c1c;
+    border: 1px solid #fecaca;
+    animation: loginFadeIn 0.3s ease;
+  }
+
+  .login-alert-success {
+    padding: 12px 16px;
+    border-radius: 10px;
+    font-size: 13px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background-color: #ecfdf5;
+    color: #065f46;
+    border: 1px solid #a7f3d0;
+    animation: loginFadeIn 0.3s ease;
+  }
+
+  /* Form Elements */
+  .login-form-inner {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+  }
+
+  .login-field-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+
+    .field-label {
+      font-size: 14px;
+      font-weight: 800;
+      line-height: 1.36;
+      color: $lumi-login-navy;
+      margin: 0;
+      display: flex;
+      align-items: center;
+
+      .required-star {
+        color: $lumi-login-primary;
+        margin-left: 3px;
+      }
+    }
+
+    .field-input-wrap {
+      position: relative;
+      display: flex;
+      align-items: center;
+      background-color: #ffffff;
+      border: 1px solid $lumi-login-border-input;
+      border-radius: $lumi-login-radius-input;
+      height: 52px;
+      padding: 0 16px;
+      transition: all 0.15s ease;
+
+      &:hover {
+        border-color: #b0d3ee;
+      }
+
+      &:focus-within {
+        border-color: $lumi-login-border-input-focus;
+        box-shadow: $lumi-login-shadow-input-focus;
+      }
+
+      &.input-error {
+        border-color: #ef4444;
+        box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.15);
+      }
+
+      .field-input {
+        width: 100%;
+        height: 100%;
+        border: none !important;
+        background: transparent !important;
+        outline: none !important;
+        box-shadow: none !important;
+        font-size: 14px;
+        font-weight: 600;
+        color: $lumi-login-navy;
+
+        &:focus {
+          border: none !important;
+          outline: none !important;
+          box-shadow: none !important;
+        }
+
+        &::placeholder {
+          color: $lumi-login-placeholder;
+          font-weight: 600;
+        }
+
+        &:-webkit-autofill,
+        &:-webkit-autofill:hover,
+        &:-webkit-autofill:focus,
+        &:-webkit-autofill:active {
+          -webkit-text-fill-color: $lumi-login-navy !important;
+          -webkit-box-shadow: 0 0 0 1000px #ffffff inset !important;
+          box-shadow: 0 0 0 1000px #ffffff inset !important;
+          transition: background-color 5000s ease-in-out 0s;
+        }
+      }
+
+      .password-eye-btn {
+        background: none;
+        border: none;
+        cursor: pointer;
+        padding: 4px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: $lumi-login-secondary;
+        transition:
+          color 0.15s ease,
+          transform 0.15s ease;
+
+        &:hover {
+          color: $lumi-login-primary;
+          transform: scale(1.1);
+        }
+      }
+    }
+  }
+
+  .login-password-section {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+
+    .forgot-link {
+      align-self: flex-end;
+      font-size: 14px;
+      font-weight: 800;
+      color: $lumi-login-primary;
+      text-decoration: none;
+      transition: color 0.15s ease;
+
+      &:hover {
+        color: $lumi-login-primary-hover;
+        text-decoration: underline;
+      }
+    }
+  }
+
+  /* Remember me checkbox */
+  .login-remember-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+
+    input[type='checkbox'] {
+      width: 17px;
+      height: 17px;
+      accent-color: $lumi-login-primary;
+      cursor: pointer;
+      border-radius: 4px;
+    }
+
+    .remember-label {
+      font-size: 13px;
+      font-weight: 600;
+      color: $lumi-login-secondary;
+      cursor: pointer;
+      user-select: none;
+    }
+  }
+
+  /* Submit button */
+  .btn-submit-login {
+    width: 100%;
+    height: 52px;
+    background-color: $lumi-login-primary;
+    color: $lumi-login-white;
+    border: 1px solid $lumi-login-primary;
+    border-radius: $lumi-login-radius-button;
+    font-size: 15px;
+    font-weight: 800;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: all 0.25s ease;
+    margin-top: 4px;
+
+    &:hover:not(:disabled) {
+      background-color: $lumi-login-primary-hover;
+      border-color: $lumi-login-primary-hover;
+      box-shadow: $lumi-login-shadow-button-hover;
+      transform: translateY(-1px);
+    }
+
+    &:active:not(:disabled) {
+      background-color: $lumi-login-primary-active;
+      transform: translateY(0);
+    }
+
+    &:disabled {
+      opacity: 0.7;
+      cursor: not-allowed;
+    }
+  }
+
+  /* Register Prompt */
+  .login-register-prompt {
+    text-align: center;
+    font-size: 14px;
+    font-weight: 500;
+    color: $lumi-login-secondary;
+    margin: 0;
+
+    .register-link {
+      font-weight: 800;
+      color: $lumi-login-primary;
+      text-decoration: none;
+      margin-left: 5px;
+      transition: color 0.15s ease;
+
+      &:hover {
+        color: $lumi-login-primary-hover;
+        text-decoration: underline;
+      }
+    }
+  }
+
+  /* Responsive layout */
+  @media (max-width: 1240px) {
+    .login-main-grid {
+      grid-template-columns: 1fr 450px;
+      gap: 40px;
+    }
+  }
+
+  @media (max-width: 1024px) {
+    padding: 30px 24px;
+
+    .login-main-grid {
+      grid-template-columns: 1fr;
+      max-width: 600px;
+      gap: 36px;
+    }
+
+    .login-card {
+      max-width: 100%;
+    }
+  }
+
+  @media (max-width: 640px) {
+    padding: 20px 16px;
+
+    .login-hero-title {
+      font-size: 28px;
+    }
+
+    .login-illustration-card {
+      height: 240px;
+    }
+
+    .login-card {
+      padding: 28px 20px;
+    }
+
+    .login-benefit-row {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 12px;
+    }
+  }
+}

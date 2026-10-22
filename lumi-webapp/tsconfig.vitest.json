@@ -1,0 +1,8 @@
+{
+  "extends": "./tsconfig.json",
+  "exclude": [],
+  "compilerOptions": {
+    "composite": true,
+    "types": ["node", "vitest", "vite/client"]
+  }
+}

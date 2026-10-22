@@ -1,0 +1,7 @@
+export enum ClassJoinMode {
+  INVITE_ONLY = 'INVITE_ONLY',
+
+  CODE_APPROVAL = 'CODE_APPROVAL',
+
+  CODE_AUTO = 'CODE_AUTO',
+}

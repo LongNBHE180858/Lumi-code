@@ -1,0 +1,11 @@
+{
+  "lumiApp": {
+    "TransactionType": {
+      "null": "",
+      "SALE": "SALE",
+      "REFUND": "REFUND",
+      "PAYOUT": "PAYOUT",
+      "ADJUSTMENT": "ADJUSTMENT"
+    }
+  }
+}

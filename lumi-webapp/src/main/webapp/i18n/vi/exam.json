@@ -1,0 +1,31 @@
+{
+  "lumiApp": {
+    "exam": {
+      "home": {
+        "title": "Exams",
+        "refreshListLabel": "Refresh list",
+        "createLabel": "Thêm mới một Exam",
+        "createOrEditLabel": "Thêm mới hoặc cập nhật Exam",
+        "notFound": "No Exams found"
+      },
+      "created": "Một Exam mới được tạo với định danh {{ param }}",
+      "updated": "Một Exam cập nhật với định danh {{ param }}",
+      "deleted": "Một Exam đã xóa với định danh {{ param }}",
+      "delete": {
+        "question": "Bạn có chắc là muốn xóa Exam {{ id }}?"
+      },
+      "detail": {
+        "title": "Exam"
+      },
+      "id": "ID",
+      "title": "Title",
+      "durationMinutes": "Duration Minutes",
+      "passScore": "Pass Score",
+      "maxAttempts": "Max Attempts",
+      "shuffleQuestions": "Shuffle Questions",
+      "status": "Status",
+      "isDeleted": "Is Deleted",
+      "studyClass": "Study Class"
+    }
+  }
+}

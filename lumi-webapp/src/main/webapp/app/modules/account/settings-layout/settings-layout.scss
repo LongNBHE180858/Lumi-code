@@ -1,0 +1,252 @@
+/* ==========================================================================
+   LUMI Account Settings Layout Styles (Matching UXUI & Figma Prototype)
+   ========================================================================== */
+
+$lumi-navy: #102b59;
+$lumi-primary: #24a8e8;
+$lumi-primary-hover: #1b96d3;
+$lumi-secondary: #7894af;
+$lumi-border: #d3e8f6;
+$lumi-border-light: rgba(220, 235, 246, 0.6);
+$lumi-bg-card: #ffffff;
+$lumi-bg-page: #f3faff;
+$lumi-radius-card: 24px;
+$lumi-radius-input: 12px;
+
+.view-container:has(.settings-page-container) {
+  padding: 0 !important;
+  max-width: 100% !important;
+
+  .jh-card {
+    border: none !important;
+    background: transparent !important;
+    padding: 0 !important;
+    box-shadow: none !important;
+  }
+}
+
+.settings-page-wrapper {
+  background-color: $lumi-bg-page;
+  min-height: calc(100vh - 66px);
+  padding: 36px 48px 60px;
+  font-family:
+    'Nunito',
+    -apple-system,
+    BlinkMacSystemFont,
+    'Segoe UI',
+    Roboto,
+    sans-serif;
+  color: $lumi-navy;
+}
+
+.settings-page-container {
+  max-width: 1240px;
+  width: 100%;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+/* Breadcrumbs */
+.breadcrumb-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  color: $lumi-secondary;
+
+  .breadcrumb-item {
+    color: $lumi-secondary;
+    text-decoration: none;
+    transition: color 0.15s ease;
+
+    &:hover {
+      color: $lumi-primary;
+    }
+
+    &.active {
+      color: $lumi-navy;
+      font-weight: 700;
+    }
+  }
+
+  .breadcrumb-sep {
+    color: #b0d3ee;
+  }
+}
+
+/* Header Banner */
+.settings-header-banner {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+
+  .settings-page-title {
+    font-size: 28px;
+    font-weight: 900;
+    color: $lumi-navy;
+    margin: 0;
+  }
+
+  .settings-page-desc {
+    font-size: 15px;
+    font-weight: 600;
+    color: $lumi-secondary;
+    margin: 0;
+  }
+}
+
+/* 2-Column Grid */
+.settings-grid {
+  display: grid;
+  grid-template-columns: 290px 1fr;
+  gap: 32px;
+  align-items: flex-start;
+}
+
+/* Sidebar */
+.settings-sidebar-card {
+  background: $lumi-bg-card;
+  border-radius: $lumi-radius-card;
+  padding: 24px 20px;
+  border: 1px solid $lumi-border-light;
+  box-shadow: 0px 8px 30px rgba(37, 117, 163, 0.06);
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+
+  .sidebar-user-block {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid $lumi-border-light;
+
+    .sidebar-user-name {
+      font-size: 16px;
+      font-weight: 800;
+      color: $lumi-navy;
+    }
+
+    .sidebar-user-email {
+      font-size: 13px;
+      font-weight: 600;
+      color: $lumi-secondary;
+      word-break: break-all;
+    }
+
+    .sidebar-user-status {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      margin-top: 6px;
+      font-size: 11px;
+      font-weight: 700;
+      color: #059669;
+      background: #ecfdf5;
+      padding: 2px 10px;
+      border-radius: 999px;
+      align-self: flex-start;
+
+      &::before {
+        content: '';
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background-color: #10b981;
+      }
+    }
+  }
+
+  .sidebar-nav-list {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+
+    .sidebar-nav-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 14px;
+      border-radius: 12px;
+      font-size: 14px;
+      font-weight: 700;
+      color: $lumi-secondary;
+      cursor: pointer;
+      text-decoration: none;
+      transition: all 0.15s ease;
+
+      &:hover {
+        background-color: #f7fbff;
+        color: $lumi-primary;
+      }
+
+      &.active {
+        background-color: #e6f5ff;
+        color: $lumi-primary;
+        font-weight: 800;
+      }
+    }
+  }
+}
+
+/* Content Area */
+.settings-content-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.settings-card {
+  background: $lumi-bg-card;
+  border-radius: $lumi-radius-card;
+  padding: 36px 40px;
+  border: 1px solid $lumi-border-light;
+  box-shadow: 0px 8px 30px rgba(37, 117, 163, 0.06);
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+
+  .settings-card-head {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+
+    .settings-card-title {
+      font-size: 22px;
+      font-weight: 800;
+      color: $lumi-navy;
+      margin: 0;
+    }
+
+    .settings-card-subtitle {
+      font-size: 14px;
+      font-weight: 600;
+      color: $lumi-secondary;
+      margin: 0;
+    }
+  }
+}
+
+.lumi-divider {
+  height: 1px;
+  width: 100%;
+  background-color: rgba(211, 232, 246, 0.6);
+  margin: 4px 0;
+}
+
+@media (max-width: 1024px) {
+  .settings-page-wrapper {
+    padding: 24px 20px 40px;
+  }
+
+  .settings-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .settings-card {
+    padding: 24px 20px;
+  }
+}

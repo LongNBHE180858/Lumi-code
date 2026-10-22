@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd
+                        http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
+    <changeSet id="20261018174000-1" author="lumi">
+        <createTable tableName="email_otp">
+            <column name="id" type="bigint">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="email" type="varchar(255)">
+                <constraints nullable="false" />
+            </column>
+            <column name="otp_code" type="varchar(10)">
+                <constraints nullable="false" />
+            </column>
+            <column name="purpose" type="varchar(50)">
+                <constraints nullable="false" />
+            </column>
+            <column name="expires_at" type="${datetimeType}">
+                <constraints nullable="false" />
+            </column>
+            <column name="is_used" type="boolean" defaultValueBoolean="false">
+                <constraints nullable="false" />
+            </column>
+            <column name="verified_at" type="${datetimeType}">
+                <constraints nullable="true" />
+            </column>
+            <column name="created_at" type="${datetimeType}">
+                <constraints nullable="false" />
+            </column>
+            <column name="ip_address" type="varchar(45)">
+                <constraints nullable="true" />
+            </column>
+        </createTable>
+
+        <createIndex indexName="idx_email_otp_lookup" tableName="email_otp">
+            <column name="email"/>
+            <column name="purpose"/>
+            <column name="is_used"/>
+        </createIndex>
+    </changeSet>
+</databaseChangeLog>

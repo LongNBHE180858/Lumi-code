@@ -1,0 +1,74 @@
+{
+  "lumiApp": {
+    "wishlist": {
+      "home": {
+        "title": "Favorite courses",
+        "refreshListLabel": "Refresh list",
+        "createLabel": "Create a new Wishlist",
+        "createOrEditLabel": "Create or edit a Wishlist",
+        "notFound": "No Wishlists found"
+      },
+      "screen": {
+        "home": "Home",
+        "breadcrumbLabel": "Breadcrumb",
+        "description": "Save courses you are interested in and find the right class and textbook to start learning with LUMI.",
+        "exploreCourses": "Explore courses",
+        "addCourse": "Add a favorite course",
+        "accountNavigation": "Learning navigation",
+        "myCourses": "My courses",
+        "favorites": "Favorites",
+        "enrollmentHistory": "Enrollment history",
+        "searchLabel": "Search your favorites",
+        "searchPlaceholder": "Enter a course or author name",
+        "gradeLabel": "Grade",
+        "allGrades": "All grades (1–9)",
+        "subjectLabel": "Subject",
+        "allSubjects": "All subjects",
+        "sortLabel": "Sort by",
+        "sortRecent": "Recently saved",
+        "sortOldest": "Oldest saved",
+        "sortPriceAsc": "Price: low to high",
+        "sortPriceDesc": "Price: high to low",
+        "sortTitle": "Course name: A–Z",
+        "resultCount": "{{count}} saved courses",
+        "priceUnit": "Full-course price • Currency: VND",
+        "requestFailed": "The request failed.",
+        "loadError": "Unable to load favorites: {{message}}",
+        "retry": "Retry",
+        "loading": "Loading favorites…",
+        "emptyTitle": "Your favorites list is empty",
+        "emptyDescription": "Explore courses that suit you and save them to find them easily later.",
+        "noMatchesTitle": "No matching courses found",
+        "noMatchesDescription": "Try changing your search term or filters.",
+        "clearFilters": "Clear filters",
+        "courseUnavailable": "Course is no longer available",
+        "unclassified": "Unclassified",
+        "authorLabel": "Posted by",
+        "accessDuration": "Access for {{days}} days",
+        "priceUnavailable": "Price not available",
+        "savedAt": "Saved",
+        "viewDetails": "View details",
+        "viewFavoriteDetails": "View favorite details: {{title}}",
+        "editFavorite": "Edit favorite: {{title}}",
+        "enroll": "Enroll",
+        "enrollmentUnavailable": "Student enrollment is not integrated yet.",
+        "removeFavorite": "Remove {{title}} from favorites",
+        "removeFavoriteLabel": "Remove from favorites",
+        "enrollmentNote": "Student enrollment is not integrated yet. Saving a favorite does not enroll you; review the course details before enrolling."
+      },
+      "created": "A new Wishlist is created with identifier {{ param }}",
+      "updated": "A Wishlist is updated with identifier {{ param }}",
+      "deleted": "A Wishlist is deleted with identifier {{ param }}",
+      "delete": {
+        "question": "Are you sure you want to delete Wishlist {{ id }}?"
+      },
+      "detail": {
+        "title": "Wishlist"
+      },
+      "id": "ID",
+      "createdAt": "Created At",
+      "student": "Student",
+      "course": "Course"
+    }
+  }
+}

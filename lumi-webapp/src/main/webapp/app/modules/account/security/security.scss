@@ -1,0 +1,116 @@
+/* ==========================================================================
+   LUMI Account Security & Sessions Styles
+   ========================================================================== */
+
+$lumi-navy: #102b59;
+$lumi-primary: #24a8e8;
+$lumi-secondary: #7894af;
+$lumi-border: #d3e8f6;
+
+.session-table-header {
+  display: grid;
+  grid-template-columns: 2fr 1.2fr 1.2fr 0.8fr;
+  padding: 0 20px;
+  font-size: 12px;
+  font-weight: 700;
+  color: $lumi-secondary;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+
+  @media (max-width: 900px) {
+    display: none;
+  }
+}
+
+.session-list-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.session-row {
+  display: grid;
+  grid-template-columns: 2fr 1.2fr 1.2fr 0.8fr;
+  align-items: center;
+  padding: 16px 20px;
+  border-radius: 14px;
+  border: 1px solid rgba(211, 232, 246, 0.6);
+  background: #ffffff;
+  transition: all 0.15s ease;
+
+  &:hover {
+    border-color: #b0d3ee;
+    box-shadow: 0 4px 12px rgba(37, 117, 163, 0.04);
+  }
+
+  &.current {
+    background-color: #f3faff;
+    border-color: #b0d3ee;
+  }
+
+  @media (max-width: 900px) {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+}
+
+.session-device-wrap {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.session-icon-box {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  background-color: #e6f5ff;
+  color: $lumi-primary;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+
+  svg {
+    width: 20px;
+    height: 20px;
+  }
+}
+
+.session-device-name {
+  font-size: 14px;
+  font-weight: 800;
+  color: $lumi-navy;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.badge-current-session {
+  font-size: 11px;
+  font-weight: 700;
+  color: $lumi-primary;
+  background-color: #ffffff;
+  border: 1px solid #b0d3ee;
+  padding: 1px 8px;
+  border-radius: 999px;
+}
+
+.session-client-info {
+  font-size: 12px;
+  font-weight: 600;
+  color: $lumi-secondary;
+  margin-top: 2px;
+  word-break: break-word;
+}
+
+.session-meta-text {
+  font-size: 13px;
+  font-weight: 600;
+  color: $lumi-navy;
+}
+
+.session-meta-sub {
+  font-size: 12px;
+  color: $lumi-secondary;
+}

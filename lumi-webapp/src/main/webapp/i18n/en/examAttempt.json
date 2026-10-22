@@ -1,0 +1,31 @@
+{
+  "lumiApp": {
+    "examAttempt": {
+      "home": {
+        "title": "Exam Attempts",
+        "refreshListLabel": "Refresh list",
+        "createLabel": "Create a new Exam Attempt",
+        "createOrEditLabel": "Create or edit a Exam Attempt",
+        "notFound": "No Exam Attempts found"
+      },
+      "created": "A new Exam Attempt is created with identifier {{ param }}",
+      "updated": "A Exam Attempt is updated with identifier {{ param }}",
+      "deleted": "A Exam Attempt is deleted with identifier {{ param }}",
+      "delete": {
+        "question": "Are you sure you want to delete Exam Attempt {{ id }}?"
+      },
+      "detail": {
+        "title": "Exam Attempt"
+      },
+      "id": "ID",
+      "startTime": "Start Time",
+      "endTime": "End Time",
+      "score": "Score",
+      "status": "Status",
+      "rowVersion": "Row Version",
+      "student": "Student",
+      "exam": "Exam",
+      "proctorSession": "Proctor Session"
+    }
+  }
+}

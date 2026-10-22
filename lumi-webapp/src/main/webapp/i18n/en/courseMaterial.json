@@ -1,0 +1,31 @@
+{
+  "lumiApp": {
+    "courseMaterial": {
+      "home": {
+        "title": "Course Materials",
+        "refreshListLabel": "Refresh list",
+        "createLabel": "Create a new Course Material",
+        "createOrEditLabel": "Create or edit a Course Material",
+        "notFound": "No Course Materials found"
+      },
+      "created": "A new Course Material is created with identifier {{ param }}",
+      "updated": "A Course Material is updated with identifier {{ param }}",
+      "deleted": "A Course Material is deleted with identifier {{ param }}",
+      "delete": {
+        "question": "Are you sure you want to delete Course Material {{ id }}?"
+      },
+      "detail": {
+        "title": "Course Material"
+      },
+      "id": "ID",
+      "fileType": "File Type",
+      "fileUrl": "File Url",
+      "fileSizeBytes": "File Size Bytes",
+      "lesson": "Lesson",
+      "fileName": "File name",
+      "displayName": "Display name",
+      "mimeType": "MIME type",
+      "orderIndex": "Order index"
+    }
+  }
+}

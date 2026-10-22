@@ -1,0 +1,389 @@
+﻿$admin-blue: #24a8e8;
+$admin-navy: #102b59;
+$admin-muted: #7894af;
+$admin-border: #d3e8f6;
+$admin-pale: #e6f5ff;
+
+.admin-page-content {
+  min-width: 0;
+  padding: 24px;
+}
+
+.app-container:has(.admin-layout) {
+  padding-top: 0 !important;
+
+  #app-header,
+  #app-footer {
+    display: none;
+  }
+
+  .view-container {
+    padding: 0;
+    height: auto;
+    overflow: visible;
+  }
+
+  .jh-card {
+    padding: 0 !important;
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
+  }
+}
+
+.admin-layout {
+  display: grid;
+  grid-template-columns: 240px minmax(0, 1fr);
+  min-height: 100vh;
+  background: #f3faff;
+  color: $admin-navy;
+  font-family: 'Nunito', sans-serif;
+  font-size: 14px;
+  font-weight: 400;
+
+  * {
+    box-sizing: border-box;
+  }
+
+  h2,
+  p {
+    margin: 0;
+  }
+
+  button,
+  input,
+  select {
+    font: inherit;
+  }
+
+  button {
+    cursor: pointer;
+  }
+
+  a {
+    text-decoration: none;
+  }
+
+  svg.lucide {
+    flex: none;
+    stroke-width: 1.7;
+  }
+}
+
+.admin-sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  min-height: 900px;
+  padding: 24px 16px 16px;
+  background: #fff;
+  border-right: 1px solid $admin-border;
+}
+
+.admin-brand {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding-left: 12px;
+
+  span {
+    color: $admin-muted;
+    font-size: 12px;
+    font-weight: 600;
+  }
+}
+
+.admin-brand-logo {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  width: max-content;
+  height: 46px;
+
+  .admin-brand-mark {
+    position: relative;
+    display: grid;
+    place-items: center;
+    width: 38px;
+    height: 38px;
+    border-radius: 11px;
+    background: $admin-blue;
+    color: #fff;
+    font-size: 27px;
+    font-weight: 900;
+    line-height: 1;
+
+    svg {
+      position: absolute;
+      top: -4px;
+      right: -5px;
+      color: #70c64f;
+      fill: #70c64f;
+      stroke: #70c64f;
+    }
+  }
+
+  strong {
+    color: $admin-navy;
+    font-size: 25px;
+    font-weight: 900;
+    letter-spacing: 0.5px;
+    line-height: 1;
+  }
+}
+
+.admin-mobile-menu-button {
+  display: none;
+}
+
+.admin-sidebar-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.admin-nav-group {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+
+  h2 {
+    padding-left: 0;
+    margin-bottom: 4px;
+    color: $admin-muted;
+    font-size: 11px;
+    font-weight: 700;
+    line-height: 17px;
+  }
+}
+
+.admin-nav-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  height: 40px;
+  padding: 0 12px;
+  border: 0;
+  border-radius: 12px;
+  color: $admin-muted;
+  font-size: 14px;
+  font-weight: 600;
+  white-space: nowrap;
+
+  &.active,
+  &:hover:is(a) {
+    background: $admin-pale;
+    color: $admin-blue;
+  }
+}
+
+.admin-sidebar-bottom {
+  margin-top: auto;
+  padding-top: 12px;
+  border-top: 1px solid $admin-border;
+}
+
+.admin-workspace {
+  min-width: 0;
+}
+
+.admin-utility-header {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 24px;
+  height: 64px;
+  padding: 0 24px;
+  background: #fff;
+  border-bottom: 1px solid $admin-border;
+}
+
+.admin-search {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 256px;
+  height: 36px;
+  padding: 0 12px;
+  background: #f3faff;
+  border: 1px solid $admin-border;
+  border-radius: 12px;
+
+  >svg {
+    color: $admin-muted;
+  }
+
+  input {
+    width: 100%;
+    min-width: 0;
+    padding: 0;
+    border: 0;
+    outline: 0;
+    background: transparent;
+    color: $admin-navy;
+    font-size: 13px;
+
+    &::placeholder {
+      color: $admin-muted;
+      opacity: 1;
+    }
+  }
+}
+
+.admin-header-divider {
+  width: 1px;
+  height: 28px;
+  background: $admin-border;
+}
+
+.admin-header-popover-anchor {
+  position: relative;
+}
+
+.admin-notification-button,
+.admin-profile-button {
+  display: flex;
+  align-items: center;
+  padding: 0;
+  border: 0;
+  background: transparent;
+}
+
+.admin-notification-button {
+  position: relative;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  color: $admin-navy;
+}
+
+.admin-notification-dot {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  width: 7px;
+  height: 7px;
+  border: 1.5px solid #fff;
+  border-radius: 50%;
+  background: $admin-blue;
+}
+
+.admin-profile-button {
+  gap: 12px;
+  color: $admin-navy;
+  text-align: left;
+}
+
+.admin-avatar {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: $admin-pale;
+  color: $admin-blue;
+}
+
+.admin-profile-label {
+  display: flex;
+  flex-direction: column;
+  line-height: normal;
+  white-space: nowrap;
+
+  strong {
+    font-size: 14px;
+    font-weight: 700;
+  }
+
+  small {
+    color: $admin-muted;
+    font-size: 12px;
+  }
+}
+
+.admin-popover {
+  position: absolute;
+  z-index: 10;
+  top: calc(100% + 12px);
+  right: 0;
+  width: 230px;
+  padding: 16px;
+  border: 1px solid $admin-border;
+  border-radius: 12px;
+  background: #fff;
+  box-shadow: 0 12px 36px rgba(16, 43, 89, 0.12);
+
+  strong {
+    display: block;
+    margin-bottom: 6px;
+  }
+
+  p {
+    color: $admin-muted;
+    font-size: 13px;
+  }
+
+  a {
+    color: $admin-navy;
+  }
+}
+
+.admin-profile-popover {
+  width: 150px;
+}
+
+@media (max-width: 700px) {
+  .admin-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-sidebar {
+    min-height: 0;
+    padding: 12px 16px;
+  }
+
+  .admin-brand {
+    padding-left: 0;
+  }
+
+  .admin-mobile-menu-button {
+    position: absolute;
+    top: 4px;
+    right: 0;
+    display: grid;
+    place-items: center;
+    padding: 0 8px;
+    border: 0;
+    background: transparent;
+    color: $admin-navy;
+  }
+
+  .admin-sidebar-nav,
+  .admin-sidebar-bottom {
+    display: none;
+  }
+
+  .admin-sidebar-open .admin-sidebar-nav,
+  .admin-sidebar-open .admin-sidebar-bottom {
+    display: flex;
+  }
+
+  .admin-utility-header {
+    gap: 12px;
+    padding: 0 16px;
+  }
+
+  .admin-search {
+    flex: 1;
+    width: auto;
+  }
+
+  .admin-profile-label,
+  .admin-profile-button>svg,
+  .admin-header-divider {
+    display: none;
+  }
+}

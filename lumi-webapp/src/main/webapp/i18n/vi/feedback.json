@@ -1,0 +1,99 @@
+{
+  "lumiApp": {
+    "feedback": {
+      "home": {
+        "title": "Quản lý phản hồi",
+        "createTitle": "Gửi phản hồi",
+        "refreshListLabel": "Làm mới",
+        "notFound": "Không tìm thấy phản hồi nào"
+      },
+      "detail": {
+        "title": "Chi tiết phản hồi",
+        "sectionBasic": "Thông tin phản hồi",
+        "sectionContext": "Ngữ cảnh học tập",
+        "sectionProcessing": "Xử lý & Quản trị"
+      },
+      "submit": {
+        "title": "Gửi phản hồi",
+        "subtitle": "Chia sẻ góp ý hoặc vấn đề bạn gặp khi học cùng LUMI để chúng tôi cải thiện trải nghiệm học tập.",
+        "breadcrumbLabel": "Đường dẫn",
+        "home": "Trang chủ",
+        "support": "Hỗ trợ",
+        "back": "Quay lại",
+        "requiredFields": "Các trường có dấu * là bắt buộc",
+        "detailsHeading": "Chi tiết phản hồi",
+        "contactHeading": "Email liên hệ",
+        "optional": "tùy chọn",
+        "courseSelectPlaceholder": "-- Chọn khóa học liên quan (tùy chọn) --",
+        "lessonSelectPlaceholder": "-- Chọn bài học (tùy chọn) --",
+        "lessonSelectPrompt": "Vui lòng chọn khóa học trước",
+        "loadingCourses": "Đang tải khóa học...",
+        "loadingLessons": "Đang tải bài học...",
+        "coursesLoadError": "Không thể tải danh sách khóa học. Vui lòng tải lại trang để thử lại.",
+        "lessonsLoadError": "Không thể tải danh sách bài học. Vui lòng chọn lại khóa học để thử lại.",
+        "courseLessonHint": "Có thể bỏ qua nếu phản hồi không liên quan đến một khóa học hoặc bài học.",
+        "titlePlaceholder": "Tóm tắt điều bạn muốn chia sẻ",
+        "contentPlaceholder": "Mô tả góp ý hoặc vấn đề bạn gặp. Nếu có lỗi, hãy cho biết bạn đang làm gì và điều gì đã xảy ra...",
+        "contentHint": "Viết rõ và cụ thể để LUMI hiểu phản hồi của bạn.",
+        "emailPlaceholder": "example@domain.com",
+        "emailHint": "Bạn có thể đổi email để nhận trao đổi về phản hồi này.",
+        "confirmEmailCheckbox": "Tôi xác nhận email liên hệ ở trên là chính xác",
+        "securityNote": "Không chia sẻ mật khẩu, thông tin thanh toán hoặc thông tin nhạy cảm trong phản hồi.",
+        "requestFailed": "Không thể gửi phản hồi. Vui lòng thử lại; nội dung của bạn vẫn được giữ nguyên.",
+        "reviewBeforeSubmit": "Kiểm tra nội dung và email liên hệ trước khi gửi.",
+        "cancel": "Hủy",
+        "submitting": "Đang gửi...",
+        "successMessage": "Gửi phản hồi thành công",
+        "submitButton": "Gửi phản hồi"
+      },
+      "validation": {
+        "titleRequired": "Tiêu đề là bắt buộc",
+        "titleMaxLength": "Tiêu đề không được vượt quá 255 ký tự",
+        "contentRequired": "Nội dung phản hồi là bắt buộc",
+        "contentMinLength": "Nội dung phản hồi phải có ít nhất 10 ký tự",
+        "contentMaxLength": "Nội dung phản hồi không được vượt quá 5.000 ký tự",
+        "contactEmailRequired": "Email liên hệ là bắt buộc",
+        "contactEmailInvalid": "Email liên hệ không hợp lệ hoặc vượt quá 254 ký tự",
+        "confirmEmailRequired": "Bạn cần xác nhận email liên hệ trước khi gửi"
+      },
+      "admin": {
+        "title": "Quản lý phản hồi người dùng",
+        "filterAll": "Tất cả",
+        "filterType": "Loại phản hồi",
+        "filterStatus": "Trạng thái",
+        "saveNotes": "Lưu ghi chú",
+        "changeStatus": "Chuyển trạng thái",
+        "deleteConfirm": "Bạn có chắc chắn muốn xóa phản hồi #{{ id }} này không?",
+        "deletedAccount": "Tài khoản đã bị xóa",
+        "notesPlaceholder": "Nhập ghi chú xử lý nội bộ (tối đa 5.000 ký tự)...",
+        "notesSaved": "Đã lưu ghi chú thành công",
+        "statusUpdated": "Đã cập nhật trạng thái thành công",
+        "deleted": "Đã xóa phản hồi thành công"
+      },
+      "id": "Mã",
+      "type": "Loại phản hồi",
+      "title": "Tiêu đề",
+      "content": "Nội dung phản hồi",
+      "contactEmail": "Email liên hệ",
+      "status": "Trạng thái",
+      "adminNotes": "Ghi chú nội bộ",
+      "course": "Khóa học",
+      "lesson": "Bài học",
+      "sender": "Người gửi",
+      "createdAt": "Thời gian gửi",
+      "updatedAt": "Cập nhật lúc",
+      "types": {
+        "BUG_REPORT": "Báo lỗi",
+        "FEATURE_REQUEST": "Đề xuất tính năng",
+        "UI_UX": "Góp ý giao diện",
+        "GENERAL": "Góp ý chung"
+      },
+      "statuses": {
+        "NEW": "Mới tiếp nhận",
+        "IN_REVIEW": "Đang xử lý",
+        "RESOLVED": "Đã giải quyết",
+        "DISMISSED": "Đã đóng"
+      }
+    }
+  }
+}

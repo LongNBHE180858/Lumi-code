@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+    <changeSet id="20261021000000-1" author="codex" dbms="postgresql">
+        <sql>CREATE UNIQUE INDEX ux_review_request_pending_course ON course_review_requests (course_id) WHERE status = 'PENDING'</sql>
+        <rollback><sql>DROP INDEX ux_review_request_pending_course</sql></rollback>
+    </changeSet>
+</databaseChangeLog>

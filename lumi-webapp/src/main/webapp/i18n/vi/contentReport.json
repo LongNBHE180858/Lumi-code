@@ -1,0 +1,29 @@
+{
+  "lumiApp": {
+    "contentReport": {
+      "home": {
+        "title": "Content Reports",
+        "refreshListLabel": "Refresh list",
+        "createLabel": "Thêm mới một Content Report",
+        "createOrEditLabel": "Thêm mới hoặc cập nhật Content Report",
+        "notFound": "No Content Reports found"
+      },
+      "created": "Một Content Report mới được tạo với định danh {{ param }}",
+      "updated": "Một Content Report cập nhật với định danh {{ param }}",
+      "deleted": "Một Content Report đã xóa với định danh {{ param }}",
+      "delete": {
+        "question": "Bạn có chắc là muốn xóa Content Report {{ id }}?"
+      },
+      "detail": {
+        "title": "Content Report"
+      },
+      "id": "ID",
+      "targetType": "Target Type",
+      "targetId": "Target Id",
+      "reason": "Reason",
+      "status": "Status",
+      "createdAt": "Created At",
+      "reporter": "Reporter"
+    }
+  }
+}

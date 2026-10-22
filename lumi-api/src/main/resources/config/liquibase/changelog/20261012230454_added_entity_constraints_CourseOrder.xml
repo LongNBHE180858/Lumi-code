@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd
+                        http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
+    <!--
+        Added the constraints for entity CourseOrder.
+    -->
+    <changeSet id="20261012230454-2" author="jhipster">
+
+        <addForeignKeyConstraint baseColumnNames="student_id"
+                                 baseTableName="course_order"
+                                 constraintName="fk_course_order__student_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="jhi_user"
+                                 />
+
+        <addForeignKeyConstraint baseColumnNames="course_id"
+                                 baseTableName="course_order"
+                                 constraintName="fk_course_order__course_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="course"
+                                 />
+
+        <addForeignKeyConstraint baseColumnNames="plan_id"
+                                 baseTableName="course_order"
+                                 constraintName="fk_course_order__plan_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="system_plan"
+                                 />
+
+        <addForeignKeyConstraint baseColumnNames="coupon_id"
+                                 baseTableName="course_order"
+                                 constraintName="fk_course_order__coupon_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="coupon"
+                                 />
+    </changeSet>
+</databaseChangeLog>

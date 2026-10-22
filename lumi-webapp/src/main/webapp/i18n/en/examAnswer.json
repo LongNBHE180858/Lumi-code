@@ -1,0 +1,29 @@
+{
+  "lumiApp": {
+    "examAnswer": {
+      "home": {
+        "title": "Exam Answers",
+        "refreshListLabel": "Refresh list",
+        "createLabel": "Create a new Exam Answer",
+        "createOrEditLabel": "Create or edit a Exam Answer",
+        "notFound": "No Exam Answers found"
+      },
+      "created": "A new Exam Answer is created with identifier {{ param }}",
+      "updated": "A Exam Answer is updated with identifier {{ param }}",
+      "deleted": "A Exam Answer is deleted with identifier {{ param }}",
+      "delete": {
+        "question": "Are you sure you want to delete Exam Answer {{ id }}?"
+      },
+      "detail": {
+        "title": "Exam Answer"
+      },
+      "id": "ID",
+      "textAnswer": "Text Answer",
+      "isCorrect": "Is Correct",
+      "score": "Score",
+      "attempt": "Attempt",
+      "question": "Question",
+      "option": "Option"
+    }
+  }
+}

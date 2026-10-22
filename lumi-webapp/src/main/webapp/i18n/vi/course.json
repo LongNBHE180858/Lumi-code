@@ -1,0 +1,45 @@
+{
+  "lumiApp": {
+    "course": {
+      "home": {
+        "title": "Courses",
+        "refreshListLabel": "Refresh list",
+        "createLabel": "Thêm mới một Course",
+        "createOrEditLabel": "Thêm mới hoặc cập nhật Course",
+        "notFound": "No Courses found"
+      },
+      "created": "Một Course mới được tạo với định danh {{ param }}",
+      "updated": "Một Course cập nhật với định danh {{ param }}",
+      "deleted": "Một Course đã xóa với định danh {{ param }}",
+      "delete": {
+        "question": "Bạn có chắc là muốn xóa Course {{ id }}?"
+      },
+      "detail": {
+        "title": "Course"
+      },
+      "id": "ID",
+      "title": "Title",
+      "description": "Description",
+      "thumbnailUrl": "Thumbnail Url",
+      "price": "Price",
+      "validDurationDays": "Valid Duration Days",
+      "status": "Status",
+      "isDeleted": "Is Deleted",
+      "createdAt": "Created At",
+      "updatedAt": "Updated At",
+      "author": "Author",
+      "category": "Category",
+      "subject": "Subject",
+      "grade": "Grade",
+      "shortDescription": "Mô tả ngắn",
+      "bookSeries": "Bộ sách giáo khoa",
+      "targetAudience": "Đối tượng học",
+      "prerequisites": "Điều kiện học trước",
+      "learningObjectives": "Mục tiêu học tập (mỗi dòng một mục tiêu)",
+      "introVideoUrl": "URL video giới thiệu",
+      "accessDurationValue": "Thời hạn truy cập",
+      "accessDurationUnit": "Đơn vị thời hạn",
+      "version": "Phiên bản"
+    }
+  }
+}

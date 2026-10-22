@@ -1,0 +1,28 @@
+{
+  "lumiApp": {
+    "studentStreak": {
+      "home": {
+        "title": "Student Streaks",
+        "refreshListLabel": "Refresh list",
+        "createLabel": "Create a new Student Streak",
+        "createOrEditLabel": "Create or edit a Student Streak",
+        "notFound": "No Student Streaks found"
+      },
+      "created": "A new Student Streak is created with identifier {{ param }}",
+      "updated": "A Student Streak is updated with identifier {{ param }}",
+      "deleted": "A Student Streak is deleted with identifier {{ param }}",
+      "delete": {
+        "question": "Are you sure you want to delete Student Streak {{ id }}?"
+      },
+      "detail": {
+        "title": "Student Streak"
+      },
+      "id": "ID",
+      "currentStreak": "Current Streak",
+      "longestStreak": "Longest Streak",
+      "gemsBalance": "Gems Balance",
+      "lastActiveDate": "Last Active Date",
+      "user": "User"
+    }
+  }
+}

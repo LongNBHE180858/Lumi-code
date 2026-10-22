@@ -1,0 +1,29 @@
+{
+  "lumiApp": {
+    "authSession": {
+      "home": {
+        "title": "Auth Sessions",
+        "refreshListLabel": "Refresh list",
+        "createLabel": "Create a new Auth Session",
+        "createOrEditLabel": "Create or edit a Auth Session",
+        "notFound": "No Auth Sessions found"
+      },
+      "created": "A new Auth Session is created with identifier {{ param }}",
+      "updated": "A Auth Session is updated with identifier {{ param }}",
+      "deleted": "A Auth Session is deleted with identifier {{ param }}",
+      "delete": {
+        "question": "Are you sure you want to delete Auth Session {{ id }}?"
+      },
+      "detail": {
+        "title": "Auth Session"
+      },
+      "id": "ID",
+      "deviceInfo": "Device Info",
+      "refreshToken": "Refresh Token",
+      "expiresAt": "Expires At",
+      "isRevoked": "Is Revoked",
+      "createdAt": "Created At",
+      "user": "User"
+    }
+  }
+}

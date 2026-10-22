@@ -1,0 +1,25 @@
+{
+  "lumiApp": {
+    "subject": {
+      "home": {
+        "title": "Subjects",
+        "refreshListLabel": "Refresh list",
+        "createLabel": "Thêm mới một Subject",
+        "createOrEditLabel": "Thêm mới hoặc cập nhật Subject",
+        "notFound": "No Subjects found"
+      },
+      "created": "Một Subject mới được tạo với định danh {{ param }}",
+      "updated": "Một Subject cập nhật với định danh {{ param }}",
+      "deleted": "Một Subject đã xóa với định danh {{ param }}",
+      "delete": {
+        "question": "Bạn có chắc là muốn xóa Subject {{ id }}?"
+      },
+      "detail": {
+        "title": "Subject"
+      },
+      "id": "ID",
+      "name": "Name",
+      "description": "Description"
+    }
+  }
+}

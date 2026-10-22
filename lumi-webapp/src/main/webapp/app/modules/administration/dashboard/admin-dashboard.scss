@@ -1,0 +1,309 @@
+﻿$admin-blue: #24a8e8;
+$admin-navy: #102b59;
+$admin-muted: #7894af;
+$admin-border: #d3e8f6;
+$admin-pale: #e6f5ff;
+
+.admin-main {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  padding: 24px;
+}
+
+.admin-statistics,
+.admin-analytics,
+.admin-monitoring {
+  display: grid;
+  gap: 24px;
+}
+
+.admin-statistics {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.admin-analytics {
+  grid-template-columns: minmax(0, 728px) minmax(0, 1fr);
+}
+
+.admin-growth-card,
+.admin-distribution-card {
+  height: 304px;
+  padding: 24px;
+}
+
+.admin-period-select {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 32px;
+  padding: 0 12px;
+  border: 1px solid $admin-border;
+  border-radius: 8px;
+
+  select {
+    appearance: none;
+    padding: 0;
+    border: 0;
+    outline: 0;
+    background: transparent;
+    color: $admin-navy;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+
+  svg {
+    pointer-events: none;
+    color: $admin-muted;
+  }
+}
+
+.admin-growth-chart {
+  position: relative;
+  width: 680px;
+  height: 200px;
+}
+
+.admin-chart-plot {
+  position: relative;
+  width: 100%;
+  height: 164px;
+}
+
+.admin-chart-tick {
+  position: absolute;
+  left: 56px;
+  width: 600px;
+  height: 1px;
+  background: rgba(211, 232, 246, 0.65);
+
+  span {
+    position: absolute;
+    top: -8px;
+    left: -56px;
+    width: 42px;
+    color: $admin-muted;
+    font-size: 12px;
+    text-align: right;
+  }
+}
+
+.admin-chart-series {
+  position: absolute;
+  top: 44px;
+  left: 56px;
+  width: 600px;
+  height: 120px;
+}
+
+.admin-chart-value {
+  position: absolute;
+  top: 13px;
+  right: 15px;
+  color: $admin-blue;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.admin-chart-months {
+  position: absolute;
+  top: 180px;
+  left: 26px;
+  display: flex;
+  justify-content: space-between;
+  width: 660px;
+  color: $admin-muted;
+  font-size: 12px;
+
+  span {
+    width: 60px;
+    text-align: center;
+  }
+}
+
+.admin-distribution-card {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+
+  h2 {
+    font-size: 17px;
+    font-weight: 700;
+    line-height: 24px;
+  }
+}
+
+.admin-donut-chart {
+  position: relative;
+  width: 136px;
+  height: 136px;
+  margin: 0 auto;
+  border-radius: 50%;
+  background: conic-gradient(#7894af 0 0.32%, #102b59 0.32% 4.49%, $admin-blue 4.49% 100%);
+
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 15.6px;
+    border-radius: 50%;
+    background: #fff;
+  }
+
+  div {
+    position: absolute;
+    z-index: 1;
+    top: 43px;
+    left: 21px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 94px;
+    line-height: normal;
+
+    strong {
+      font-size: 24px;
+      font-weight: 800;
+    }
+
+    span {
+      color: $admin-muted;
+      font-size: 12px;
+      white-space: nowrap;
+    }
+  }
+}
+
+.admin-legend {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.admin-legend-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  line-height: normal;
+
+  .admin-legend-marker {
+    flex: none;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+  }
+
+  .admin-legend-marker-student {
+    background: $admin-blue;
+  }
+
+  .admin-legend-marker-instructor {
+    background: $admin-navy;
+  }
+
+  .admin-legend-marker-admin {
+    background: $admin-muted;
+  }
+
+  > span {
+    flex: 1;
+    color: $admin-muted;
+    font-size: 13px;
+  }
+
+  strong {
+    font-size: 13px;
+    font-weight: 700;
+  }
+
+  small {
+    width: 58px;
+    color: $admin-muted;
+    font-size: 12px;
+    text-align: right;
+  }
+}
+
+.admin-monitoring {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.admin-sample-note {
+  color: $admin-muted;
+  font-size: 12px;
+}
+
+.admin-dialog-backdrop {
+  position: fixed;
+  z-index: 100;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background: rgba(16, 43, 89, 0.32);
+}
+
+.admin-dialog {
+  position: relative;
+  width: min(600px, 100%);
+  padding: 8px;
+  box-shadow: 0 20px 60px rgba(16, 43, 89, 0.18);
+
+  .admin-monitoring-card {
+    height: auto;
+    border: 0;
+  }
+
+  .admin-text-action {
+    display: none;
+  }
+}
+
+.admin-dialog-close {
+  position: absolute;
+  z-index: 1;
+  top: 9px;
+  right: 16px;
+  border: 0;
+  background: transparent;
+  color: $admin-muted;
+  display: grid;
+  place-items: center;
+}
+
+@media (max-width: 1220px) {
+  .admin-analytics {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-growth-card {
+    overflow-x: auto;
+  }
+
+  .admin-distribution-card {
+    height: auto;
+    min-height: 304px;
+  }
+}
+
+@media (max-width: 1050px) {
+  .admin-statistics {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .admin-monitoring {
+    grid-template-columns: 1fr;
+  }
+}
+@media (max-width: 700px) {
+  .admin-main {
+    gap: 16px;
+    padding: 16px;
+  }
+
+  .admin-statistics,
+  .admin-analytics,
+  .admin-monitoring {
+    gap: 16px;
+  }
+}

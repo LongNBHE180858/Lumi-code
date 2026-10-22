@@ -1,0 +1,29 @@
+{
+  "lumiApp": {
+    "question": {
+      "home": {
+        "title": "Questions",
+        "refreshListLabel": "Refresh list",
+        "createLabel": "Thêm mới một Question",
+        "createOrEditLabel": "Thêm mới hoặc cập nhật Question",
+        "notFound": "No Questions found"
+      },
+      "created": "Một Question mới được tạo với định danh {{ param }}",
+      "updated": "Một Question cập nhật với định danh {{ param }}",
+      "deleted": "Một Question đã xóa với định danh {{ param }}",
+      "delete": {
+        "question": "Bạn có chắc là muốn xóa Question {{ id }}?"
+      },
+      "detail": {
+        "title": "Question"
+      },
+      "id": "ID",
+      "content": "Content",
+      "type": "Type",
+      "difficulty": "Difficulty",
+      "explanation": "Explanation",
+      "isDeleted": "Is Deleted",
+      "bank": "Bank"
+    }
+  }
+}

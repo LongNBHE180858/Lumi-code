@@ -1,0 +1,27 @@
+{
+  "lumiApp": {
+    "proctorEvent": {
+      "home": {
+        "title": "Proctor Events",
+        "refreshListLabel": "Refresh list",
+        "createLabel": "Create a new Proctor Event",
+        "createOrEditLabel": "Create or edit a Proctor Event",
+        "notFound": "No Proctor Events found"
+      },
+      "created": "A new Proctor Event is created with identifier {{ param }}",
+      "updated": "A Proctor Event is updated with identifier {{ param }}",
+      "deleted": "A Proctor Event is deleted with identifier {{ param }}",
+      "delete": {
+        "question": "Are you sure you want to delete Proctor Event {{ id }}?"
+      },
+      "detail": {
+        "title": "Proctor Event"
+      },
+      "id": "ID",
+      "violationType": "Violation Type",
+      "photoUrl": "Photo Url",
+      "occurredAt": "Occurred At",
+      "session": "Session"
+    }
+  }
+}

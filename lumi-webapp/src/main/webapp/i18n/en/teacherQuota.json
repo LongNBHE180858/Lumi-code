@@ -1,0 +1,29 @@
+{
+  "lumiApp": {
+    "teacherQuota": {
+      "home": {
+        "title": "Teacher Quotas",
+        "refreshListLabel": "Refresh list",
+        "createLabel": "Create a new Teacher Quota",
+        "createOrEditLabel": "Create or edit a Teacher Quota",
+        "notFound": "No Teacher Quotas found"
+      },
+      "created": "A new Teacher Quota is created with identifier {{ param }}",
+      "updated": "A Teacher Quota is updated with identifier {{ param }}",
+      "deleted": "A Teacher Quota is deleted with identifier {{ param }}",
+      "delete": {
+        "question": "Are you sure you want to delete Teacher Quota {{ id }}?"
+      },
+      "detail": {
+        "title": "Teacher Quota"
+      },
+      "id": "ID",
+      "planExpiresAt": "Plan Expires At",
+      "usedStorageBytes": "Used Storage Bytes",
+      "aiUsedCount": "Ai Used Count",
+      "rowVersion": "Row Version",
+      "user": "User",
+      "currentPlan": "Current Plan"
+    }
+  }
+}

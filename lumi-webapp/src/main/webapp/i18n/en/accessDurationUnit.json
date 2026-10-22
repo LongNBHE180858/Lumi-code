@@ -1,0 +1,9 @@
+{
+  "lumiApp": {
+    "AccessDurationUnit": {
+      "DAY": "Days",
+      "MONTH": "Months",
+      "YEAR": "Years"
+    }
+  }
+}

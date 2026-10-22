@@ -1,0 +1,27 @@
+{
+  "lumiApp": {
+    "aiConversation": {
+      "home": {
+        "title": "Ai Conversations",
+        "refreshListLabel": "Refresh list",
+        "createLabel": "Thêm mới một Ai Conversation",
+        "createOrEditLabel": "Thêm mới hoặc cập nhật Ai Conversation",
+        "notFound": "No Ai Conversations found"
+      },
+      "created": "Một Ai Conversation mới được tạo với định danh {{ param }}",
+      "updated": "Một Ai Conversation cập nhật với định danh {{ param }}",
+      "deleted": "Một Ai Conversation đã xóa với định danh {{ param }}",
+      "delete": {
+        "question": "Bạn có chắc là muốn xóa Ai Conversation {{ id }}?"
+      },
+      "detail": {
+        "title": "Ai Conversation"
+      },
+      "id": "ID",
+      "type": "Type",
+      "createdAt": "Created At",
+      "user": "User",
+      "lesson": "Lesson"
+    }
+  }
+}

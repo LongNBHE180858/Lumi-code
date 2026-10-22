@@ -1,0 +1,29 @@
+{
+  "lumiApp": {
+    "refund": {
+      "home": {
+        "title": "Refunds",
+        "refreshListLabel": "Refresh list",
+        "createLabel": "Thêm mới một Refund",
+        "createOrEditLabel": "Thêm mới hoặc cập nhật Refund",
+        "notFound": "No Refunds found"
+      },
+      "created": "Một Refund mới được tạo với định danh {{ param }}",
+      "updated": "Một Refund cập nhật với định danh {{ param }}",
+      "deleted": "Một Refund đã xóa với định danh {{ param }}",
+      "delete": {
+        "question": "Bạn có chắc là muốn xóa Refund {{ id }}?"
+      },
+      "detail": {
+        "title": "Refund"
+      },
+      "id": "ID",
+      "amount": "Amount",
+      "reason": "Reason",
+      "status": "Status",
+      "createdAt": "Created At",
+      "order": "Order",
+      "payment": "Payment"
+    }
+  }
+}

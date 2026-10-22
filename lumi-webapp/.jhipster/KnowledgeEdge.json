@@ -1,0 +1,36 @@
+{
+  "annotations": {
+    "changelogDate": "20261012231722"
+  },
+  "applications": ["*"],
+  "dto": "mapstruct",
+  "fields": [
+    {
+      "fieldName": "relationType",
+      "fieldType": "String",
+      "fieldValidateRules": ["required", "maxlength"],
+      "fieldValidateRulesMaxlength": "50"
+    }
+  ],
+  "jpaMetamodelFiltering": true,
+  "name": "KnowledgeEdge",
+  "relationships": [
+    {
+      "otherEntityField": "title",
+      "otherEntityName": "knowledgeNode",
+      "relationshipName": "fromNode",
+      "relationshipSide": "left",
+      "relationshipType": "many-to-one",
+      "relationshipValidateRules": "required"
+    },
+    {
+      "otherEntityField": "title",
+      "otherEntityName": "knowledgeNode",
+      "relationshipName": "toNode",
+      "relationshipSide": "left",
+      "relationshipType": "many-to-one",
+      "relationshipValidateRules": "required"
+    }
+  ],
+  "service": "serviceImpl"
+}

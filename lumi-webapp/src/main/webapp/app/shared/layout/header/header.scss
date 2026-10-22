@@ -1,0 +1,428 @@
+/* ==========================================================================
+LUMI Header Styles (Based on Figma Design)
+========================================================================== */
+
+$lumi-primary: #24a8e8;
+$lumi-primary-dark: #1994cf;
+$lumi-navy: #102b59;
+$lumi-muted: #7894af;
+$lumi-border: #d3e8f6;
+$lumi-border-light: #e6f0f8;
+$lumi-bg-light: #f3faff;
+
+#app-header {
+  font-family:
+    'Nunito',
+    -apple-system,
+    BlinkMacSystemFont,
+    'Segoe UI',
+    Roboto,
+    sans-serif;
+}
+
+/* Dev Ribbon */
+.ribbon {
+  background-color: rgba(220, 53, 69, 0.85);
+  left: -3.5em;
+  transform: rotate(-45deg);
+  overflow: hidden;
+  position: absolute;
+  top: 40px;
+  white-space: nowrap;
+  width: 15em;
+  z-index: 9000;
+  pointer-events: none;
+  opacity: 0.9;
+  a {
+    color: #fff;
+    display: block;
+    font-weight: 600;
+    font-size: 11px;
+    margin: 1px 0;
+    padding: 6px 50px;
+    text-align: center;
+    text-decoration: none;
+    text-shadow: 0 0 3px rgba(0, 0, 0, 0.4);
+    pointer-events: none;
+  }
+}
+
+/* Navbar */
+.lumi-navbar.jh-navbar {
+  background-color: #ffffff;
+  border-bottom: 1px solid $lumi-border-light;
+  box-shadow: 0 2px 12px rgba(16, 43, 89, 0.04);
+  height: 66px;
+  padding: 0 64px;
+  transition: all 0.2s ease;
+
+  @media (max-width: 991px) {
+    padding: 0 20px;
+    height: auto;
+    min-height: 66px;
+  }
+
+  .brand-logo {
+    padding: 0;
+    margin-right: 32px;
+    &:hover {
+      text-decoration: none;
+    }
+    .brand-icon {
+      height: 44px;
+      display: flex;
+      align-items: center;
+      .lumi-logo-img {
+        max-height: 42px;
+        width: auto;
+        object-fit: contain;
+      }
+    }
+  }
+
+  /* Center Navigation Links */
+  .lumi-nav-links {
+    display: flex;
+    align-items: center;
+    gap: 28px;
+    margin: 0;
+    padding: 0;
+
+    @media (max-width: 991px) {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 16px 0;
+      width: 100%;
+    }
+
+    .lumi-nav-item {
+      position: relative;
+      height: 66px;
+      display: flex;
+      align-items: center;
+
+      @media (max-width: 991px) {
+        height: auto;
+        width: 100%;
+      }
+
+      .lumi-nav-link {
+        color: $lumi-muted;
+        font-weight: 600;
+        font-size: 14px;
+        padding: 6px 4px;
+        text-decoration: none;
+        transition: color 0.15s ease-in-out;
+        display: flex;
+        align-items: center;
+
+        &:hover {
+          color: $lumi-primary;
+        }
+
+        &.active {
+          color: $lumi-primary;
+          font-weight: 700;
+        }
+      }
+
+      .active-indicator {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: 2.5px;
+        background-color: $lumi-primary;
+        border-radius: 2px 2px 0 0;
+
+        @media (max-width: 991px) {
+          display: none;
+        }
+      }
+    }
+  }
+
+  /* Right Header Actions */
+  .lumi-header-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+
+    @media (max-width: 991px) {
+      flex-direction: column;
+      align-items: stretch;
+      gap: 10px;
+      padding-top: 12px;
+      border-top: 1px solid $lumi-border-light;
+      width: 100%;
+    }
+
+    .lumi-btn-login {
+      background-color: #ffffff;
+      color: $lumi-primary;
+      border: 1px solid $lumi-border;
+      border-radius: 999px;
+      font-weight: 700;
+      font-size: 13.5px;
+      height: 38px;
+      padding: 0 22px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      text-decoration: none;
+      transition: all 0.2s ease;
+      white-space: nowrap;
+
+      &:hover {
+        background-color: $lumi-bg-light;
+        border-color: $lumi-primary;
+        color: $lumi-primary;
+      }
+    }
+
+    .lumi-btn-register {
+      background-color: $lumi-primary;
+      color: #ffffff;
+      border: 1px solid $lumi-primary;
+      border-radius: 999px;
+      font-weight: 700;
+      font-size: 13.5px;
+      height: 38px;
+      padding: 0 22px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      text-decoration: none;
+      box-shadow: 0 2px 8px rgba(36, 168, 232, 0.2);
+      transition: all 0.2s ease;
+      white-space: nowrap;
+
+      &:hover {
+        background-color: $lumi-primary-dark;
+        border-color: $lumi-primary-dark;
+        color: #ffffff;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(36, 168, 232, 0.3);
+      }
+    }
+
+    .lumi-notification-btn {
+      width: 40px;
+      height: 40px;
+      min-width: 40px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background-color: #ffffff;
+      border: 1px solid $lumi-border;
+      border-radius: 10px;
+      position: relative;
+      cursor: pointer;
+      padding: 0;
+      transition: all 0.2s ease;
+
+      &:hover {
+        background-color: $lumi-bg-light;
+        border-color: $lumi-primary;
+        transform: translateY(-1px);
+        box-shadow: 0 2px 8px rgba(36, 168, 232, 0.15);
+      }
+
+      .lumi-bell-icon {
+        width: 18px;
+        height: 20px;
+        display: block;
+      }
+
+      .lumi-notification-dot {
+        position: absolute;
+        top: 7px;
+        right: 8px;
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background-color: $lumi-primary;
+      }
+    }
+  }
+
+  /* Account Dropdown (Figma #355:1803, #355:1807, #355:1809) */
+  .lumi-account-dropdown {
+    position: relative;
+
+    .dropdown-toggle.lumi-account-trigger {
+      background: transparent;
+      border: none;
+      padding: 4px 6px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      cursor: pointer;
+      text-decoration: none;
+      transition: background-color 0.15s ease;
+
+      &::after {
+        display: none !important;
+      }
+
+      &:hover,
+      &:focus {
+        background-color: $lumi-bg-light;
+      }
+    }
+
+    &.show .lumi-chevron-down {
+      transform: rotate(180deg);
+    }
+
+    .lumi-avatar-circle {
+      width: 40px;
+      height: 40px;
+      min-width: 40px;
+      border-radius: 99px;
+      background-color: #e6f5ff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      user-select: none;
+
+      .lumi-avatar-initials {
+        font-family: 'Nunito', sans-serif;
+        font-weight: 700;
+        font-size: 13px;
+        color: $lumi-primary;
+        line-height: 1;
+      }
+    }
+
+    .lumi-user-info {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 2px;
+      text-align: left;
+      line-height: 1.2;
+
+      .lumi-user-name {
+        font-family: 'Nunito', sans-serif;
+        font-weight: 700;
+        font-size: 13px;
+        color: $lumi-navy;
+        white-space: nowrap;
+      }
+
+      .lumi-user-role {
+        font-family: 'Nunito', sans-serif;
+        font-weight: 600;
+        font-size: 11px;
+        color: $lumi-muted;
+        white-space: nowrap;
+      }
+    }
+
+    .lumi-chevron-down {
+      width: 10px;
+      height: 6px;
+      margin-left: 2px;
+      transition: transform 0.2s ease;
+      display: block;
+    }
+
+    .dropdown-menu.lumi-account-dropdown-menu {
+      border: 1px solid $lumi-border-light;
+      border-radius: 12px;
+      box-shadow: 0 10px 28px rgba(16, 43, 89, 0.08);
+      padding: 8px;
+      min-width: 190px;
+      margin-top: 8px;
+    }
+  }
+
+  /* Dropdown Menus (Account, Admin, Entities, Locale) */
+  .nav-item.dropdown {
+    display: flex;
+    align-items: center;
+
+    .dropdown-toggle {
+      color: $lumi-muted;
+      font-weight: 600;
+      font-size: 14px;
+      padding: 8px 12px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      border-radius: 8px;
+      transition: all 0.15s ease;
+
+      &:hover,
+      &:focus {
+        color: $lumi-primary;
+        background-color: $lumi-bg-light;
+      }
+
+      &::after {
+        border-top-color: currentColor;
+        vertical-align: 0.15em;
+      }
+    }
+
+    .dropdown-menu {
+      border: 1px solid $lumi-border-light;
+      border-radius: 12px;
+      box-shadow: 0 10px 28px rgba(16, 43, 89, 0.08);
+      padding: 8px;
+      margin-top: 8px;
+      background-color: #ffffff;
+
+      .dropdown-item {
+        color: $lumi-navy;
+        font-weight: 600;
+        font-size: 13.5px;
+        padding: 8px 14px;
+        border-radius: 8px;
+        transition: all 0.15s ease;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+
+        &:hover,
+        &:focus,
+        &.active {
+          background-color: $lumi-bg-light;
+          color: $lumi-primary;
+        }
+      }
+    }
+  }
+
+  /* Mobile Navbar Collapse */
+  .navbar-collapse {
+    @media (max-width: 991px) {
+      background-color: #ffffff;
+      padding: 16px;
+      border-radius: 16px;
+      box-shadow: 0 12px 32px rgba(16, 43, 89, 0.12);
+      border: 1px solid $lumi-border-light;
+      margin-top: 12px;
+      margin-bottom: 12px;
+    }
+  }
+
+  .navbar-toggler {
+    border-color: $lumi-border;
+    color: $lumi-primary;
+    padding: 6px 10px;
+    border-radius: 8px;
+
+    &:focus {
+      box-shadow: 0 0 0 3px rgba(36, 168, 232, 0.2);
+    }
+  }
+}
+
+.loading-bar {
+  height: 3px;
+  z-index: 1031;
+}

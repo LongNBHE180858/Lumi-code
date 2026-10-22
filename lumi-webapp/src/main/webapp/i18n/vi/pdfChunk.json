@@ -1,0 +1,27 @@
+{
+  "lumiApp": {
+    "pdfChunk": {
+      "home": {
+        "title": "Pdf Chunks",
+        "refreshListLabel": "Refresh list",
+        "createLabel": "Thêm mới một Pdf Chunk",
+        "createOrEditLabel": "Thêm mới hoặc cập nhật Pdf Chunk",
+        "notFound": "No Pdf Chunks found"
+      },
+      "created": "Một Pdf Chunk mới được tạo với định danh {{ param }}",
+      "updated": "Một Pdf Chunk cập nhật với định danh {{ param }}",
+      "deleted": "Một Pdf Chunk đã xóa với định danh {{ param }}",
+      "delete": {
+        "question": "Bạn có chắc là muốn xóa Pdf Chunk {{ id }}?"
+      },
+      "detail": {
+        "title": "Pdf Chunk"
+      },
+      "id": "ID",
+      "pageNumber": "Page Number",
+      "chunkText": "Chunk Text",
+      "embedding": "Embedding",
+      "material": "Material"
+    }
+  }
+}

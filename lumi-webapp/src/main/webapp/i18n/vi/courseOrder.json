@@ -1,0 +1,35 @@
+{
+  "lumiApp": {
+    "courseOrder": {
+      "home": {
+        "title": "Course Orders",
+        "refreshListLabel": "Refresh list",
+        "createLabel": "Thêm mới một Course Order",
+        "createOrEditLabel": "Thêm mới hoặc cập nhật Course Order",
+        "notFound": "No Course Orders found"
+      },
+      "created": "Một Course Order mới được tạo với định danh {{ param }}",
+      "updated": "Một Course Order cập nhật với định danh {{ param }}",
+      "deleted": "Một Course Order đã xóa với định danh {{ param }}",
+      "delete": {
+        "question": "Bạn có chắc là muốn xóa Course Order {{ id }}?"
+      },
+      "detail": {
+        "title": "Course Order"
+      },
+      "id": "ID",
+      "originalPrice": "Original Price",
+      "discountAmount": "Discount Amount",
+      "finalPrice": "Final Price",
+      "revenueSplitRate": "Revenue Split Rate",
+      "status": "Status",
+      "idempotencyKey": "Idempotency Key",
+      "rowVersion": "Row Version",
+      "createdAt": "Created At",
+      "student": "Student",
+      "course": "Course",
+      "plan": "Plan",
+      "coupon": "Coupon"
+    }
+  }
+}

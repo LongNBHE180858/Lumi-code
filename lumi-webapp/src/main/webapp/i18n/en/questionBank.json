@@ -1,0 +1,25 @@
+{
+  "lumiApp": {
+    "questionBank": {
+      "home": {
+        "title": "Question Banks",
+        "refreshListLabel": "Refresh list",
+        "createLabel": "Create a new Question Bank",
+        "createOrEditLabel": "Create or edit a Question Bank",
+        "notFound": "No Question Banks found"
+      },
+      "created": "A new Question Bank is created with identifier {{ param }}",
+      "updated": "A Question Bank is updated with identifier {{ param }}",
+      "deleted": "A Question Bank is deleted with identifier {{ param }}",
+      "delete": {
+        "question": "Are you sure you want to delete Question Bank {{ id }}?"
+      },
+      "detail": {
+        "title": "Question Bank"
+      },
+      "id": "ID",
+      "name": "Name",
+      "instructor": "Instructor"
+    }
+  }
+}

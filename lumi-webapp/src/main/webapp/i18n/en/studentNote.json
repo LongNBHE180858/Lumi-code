@@ -1,0 +1,28 @@
+{
+  "lumiApp": {
+    "studentNote": {
+      "home": {
+        "title": "Student Notes",
+        "refreshListLabel": "Refresh list",
+        "createLabel": "Create a new Student Note",
+        "createOrEditLabel": "Create or edit a Student Note",
+        "notFound": "No Student Notes found"
+      },
+      "created": "A new Student Note is created with identifier {{ param }}",
+      "updated": "A Student Note is updated with identifier {{ param }}",
+      "deleted": "A Student Note is deleted with identifier {{ param }}",
+      "delete": {
+        "question": "Are you sure you want to delete Student Note {{ id }}?"
+      },
+      "detail": {
+        "title": "Student Note"
+      },
+      "id": "ID",
+      "videoTimestamp": "Video Timestamp",
+      "content": "Content",
+      "createdAt": "Created At",
+      "student": "Student",
+      "lesson": "Lesson"
+    }
+  }
+}

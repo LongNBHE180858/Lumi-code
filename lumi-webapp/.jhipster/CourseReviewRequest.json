@@ -1,0 +1,77 @@
+{
+  "annotations": {
+    "changelogDate": "20261019000000"
+  },
+  "applications": ["*"],
+  "dto": "mapstruct",
+  "fields": [
+    {
+      "fieldName": "courseVersion",
+      "fieldType": "Long",
+      "fieldValidateRules": ["required"]
+    },
+    {
+      "fieldName": "status",
+      "fieldType": "CourseReviewRequestStatus",
+      "fieldValidateRules": ["required"],
+      "fieldValues": "PENDING,APPROVED,REJECTED"
+    },
+    {
+      "fieldName": "submissionNote",
+      "fieldType": "String",
+      "fieldValidateRules": ["maxlength"],
+      "fieldValidateRulesMaxlength": "5000"
+    },
+    {
+      "fieldName": "rightsConfirmedAt",
+      "fieldType": "Instant",
+      "fieldValidateRules": ["required"]
+    },
+    {
+      "fieldName": "submittedAt",
+      "fieldType": "Instant",
+      "fieldValidateRules": ["required"]
+    },
+    {
+      "fieldName": "reviewedAt",
+      "fieldType": "Instant"
+    },
+    {
+      "fieldName": "reviewerFeedback",
+      "fieldType": "String",
+      "fieldValidateRules": ["maxlength"],
+      "fieldValidateRulesMaxlength": "5000"
+    }
+  ],
+  "name": "CourseReviewRequest",
+  "relationships": [
+    {
+      "relationshipName": "course",
+      "otherEntityName": "course",
+      "otherEntityField": "title",
+      "relationshipType": "many-to-one",
+      "relationshipSide": "left",
+      "relationshipValidateRules": "required"
+    },
+    {
+      "relationshipName": "submittedBy",
+      "otherEntityName": "user",
+      "otherEntityField": "login",
+      "relationshipType": "many-to-one",
+      "relationshipSide": "left",
+      "relationshipValidateRules": "required",
+      "relationshipWithBuiltInEntity": true
+    },
+    {
+      "relationshipName": "reviewedBy",
+      "otherEntityName": "user",
+      "otherEntityField": "login",
+      "relationshipType": "many-to-one",
+      "relationshipSide": "left",
+      "relationshipWithBuiltInEntity": true
+    }
+  ],
+  "service": "serviceImpl",
+  "searchEngine": "no",
+  "entityTableName": "course_review_requests"
+}

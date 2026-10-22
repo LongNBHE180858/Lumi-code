@@ -1,0 +1,29 @@
+{
+  "lumiApp": {
+    "teacherVerification": {
+      "home": {
+        "title": "Teacher Verifications",
+        "refreshListLabel": "Refresh list",
+        "createLabel": "Thêm mới một Teacher Verification",
+        "createOrEditLabel": "Thêm mới hoặc cập nhật Teacher Verification",
+        "notFound": "No Teacher Verifications found"
+      },
+      "created": "Một Teacher Verification mới được tạo với định danh {{ param }}",
+      "updated": "Một Teacher Verification cập nhật với định danh {{ param }}",
+      "deleted": "Một Teacher Verification đã xóa với định danh {{ param }}",
+      "delete": {
+        "question": "Bạn có chắc là muốn xóa Teacher Verification {{ id }}?"
+      },
+      "detail": {
+        "title": "Teacher Verification"
+      },
+      "id": "ID",
+      "identityDocumentUrl": "Identity Document Url",
+      "verificationStatus": "Verification Status",
+      "notes": "Notes",
+      "submittedAt": "Submitted At",
+      "approvedAt": "Approved At",
+      "user": "User"
+    }
+  }
+}

@@ -1,0 +1,29 @@
+{
+  "lumiApp": {
+    "classMaterial": {
+      "home": {
+        "title": "Class Materials",
+        "refreshListLabel": "Refresh list",
+        "createLabel": "Create a new Class Material",
+        "createOrEditLabel": "Create or edit a Class Material",
+        "notFound": "No Class Materials found"
+      },
+      "created": "A new Class Material is created with identifier {{ param }}",
+      "updated": "A Class Material is updated with identifier {{ param }}",
+      "deleted": "A Class Material is deleted with identifier {{ param }}",
+      "delete": {
+        "question": "Are you sure you want to delete Class Material {{ id }}?"
+      },
+      "detail": {
+        "title": "Class Material"
+      },
+      "id": "ID",
+      "title": "Title",
+      "fileType": "File Type",
+      "fileUrl": "File Url",
+      "fileSizeBytes": "File Size Bytes",
+      "uploadedAt": "Uploaded At",
+      "studyClass": "Study Class"
+    }
+  }
+}

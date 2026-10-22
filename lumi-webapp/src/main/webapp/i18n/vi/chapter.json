@@ -1,0 +1,26 @@
+{
+  "lumiApp": {
+    "chapter": {
+      "home": {
+        "title": "Chapters",
+        "refreshListLabel": "Refresh list",
+        "createLabel": "Thêm mới một Chapter",
+        "createOrEditLabel": "Thêm mới hoặc cập nhật Chapter",
+        "notFound": "No Chapters found"
+      },
+      "created": "Một Chapter mới được tạo với định danh {{ param }}",
+      "updated": "Một Chapter cập nhật với định danh {{ param }}",
+      "deleted": "Một Chapter đã xóa với định danh {{ param }}",
+      "delete": {
+        "question": "Bạn có chắc là muốn xóa Chapter {{ id }}?"
+      },
+      "detail": {
+        "title": "Chapter"
+      },
+      "id": "ID",
+      "title": "Title",
+      "orderIndex": "Order Index",
+      "course": "Course"
+    }
+  }
+}

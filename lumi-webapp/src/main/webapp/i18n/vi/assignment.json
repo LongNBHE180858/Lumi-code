@@ -1,0 +1,30 @@
+{
+  "lumiApp": {
+    "assignment": {
+      "home": {
+        "title": "Assignments",
+        "refreshListLabel": "Refresh list",
+        "createLabel": "Thêm mới một Assignment",
+        "createOrEditLabel": "Thêm mới hoặc cập nhật Assignment",
+        "notFound": "No Assignments found"
+      },
+      "created": "Một Assignment mới được tạo với định danh {{ param }}",
+      "updated": "Một Assignment cập nhật với định danh {{ param }}",
+      "deleted": "Một Assignment đã xóa với định danh {{ param }}",
+      "delete": {
+        "question": "Bạn có chắc là muốn xóa Assignment {{ id }}?"
+      },
+      "detail": {
+        "title": "Assignment"
+      },
+      "id": "ID",
+      "title": "Title",
+      "instructions": "Instructions",
+      "dueAt": "Due At",
+      "maxScore": "Max Score",
+      "allowLate": "Allow Late",
+      "isDeleted": "Is Deleted",
+      "studyClass": "Study Class"
+    }
+  }
+}

@@ -1,0 +1,29 @@
+{
+  "lumiApp": {
+    "examAnswer": {
+      "home": {
+        "title": "Exam Answers",
+        "refreshListLabel": "Refresh list",
+        "createLabel": "Thêm mới một Exam Answer",
+        "createOrEditLabel": "Thêm mới hoặc cập nhật Exam Answer",
+        "notFound": "No Exam Answers found"
+      },
+      "created": "Một Exam Answer mới được tạo với định danh {{ param }}",
+      "updated": "Một Exam Answer cập nhật với định danh {{ param }}",
+      "deleted": "Một Exam Answer đã xóa với định danh {{ param }}",
+      "delete": {
+        "question": "Bạn có chắc là muốn xóa Exam Answer {{ id }}?"
+      },
+      "detail": {
+        "title": "Exam Answer"
+      },
+      "id": "ID",
+      "textAnswer": "Text Answer",
+      "isCorrect": "Is Correct",
+      "score": "Score",
+      "attempt": "Attempt",
+      "question": "Question",
+      "option": "Option"
+    }
+  }
+}

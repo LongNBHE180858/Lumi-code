@@ -1,0 +1,137 @@
+package com.lumi.service.dto;
+
+import com.lumi.domain.enumeration.TransactionType;
+import jakarta.validation.constraints.*;
+import java.io.Serializable;
+import java.math.BigDecimal;
+import java.time.Instant;
+import java.util.Objects;
+
+/**
+ * A DTO for the {@link com.lumi.domain.WalletTransaction} entity.
+ */
+@SuppressWarnings("common-java:DuplicatedBlocks")
+public class WalletTransactionDTO implements Serializable {
+
+    private Long id;
+
+    @NotNull
+    private TransactionType type;
+
+    @NotNull
+    private BigDecimal amount;
+
+    @NotNull
+    @Size(max = 20)
+    private String status;
+
+    @Size(max = 200)
+    private String idempotencyKey;
+
+    private Instant occurredAt;
+
+    @NotNull
+    private InstructorWalletDTO wallet;
+
+    private CourseOrderDTO order;
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public TransactionType getType() {
+        return type;
+    }
+
+    public void setType(TransactionType type) {
+        this.type = type;
+    }
+
+    public BigDecimal getAmount() {
+        return amount;
+    }
+
+    public void setAmount(BigDecimal amount) {
+        this.amount = amount;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    public String getIdempotencyKey() {
+        return idempotencyKey;
+    }
+
+    public void setIdempotencyKey(String idempotencyKey) {
+        this.idempotencyKey = idempotencyKey;
+    }
+
+    public Instant getOccurredAt() {
+        return occurredAt;
+    }
+
+    public void setOccurredAt(Instant occurredAt) {
+        this.occurredAt = occurredAt;
+    }
+
+    public InstructorWalletDTO getWallet() {
+        return wallet;
+    }
+
+    public void setWallet(InstructorWalletDTO wallet) {
+        this.wallet = wallet;
+    }
+
+    public CourseOrderDTO getOrder() {
+        return order;
+    }
+
+    public void setOrder(CourseOrderDTO order) {
+        this.order = order;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof WalletTransactionDTO)) {
+            return false;
+        }
+
+        WalletTransactionDTO walletTransactionDTO = (WalletTransactionDTO) o;
+        if (this.id == null) {
+            return false;
+        }
+        return Objects.equals(this.id, walletTransactionDTO.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(this.id);
+    }
+
+    // prettier-ignore
+    @Override
+    public String toString() {
+        return "WalletTransactionDTO{" +
+            "id=" + getId() +
+            ", type='" + getType() + "'" +
+            ", amount=" + getAmount() +
+            ", status='" + getStatus() + "'" +
+            ", idempotencyKey='" + getIdempotencyKey() + "'" +
+            ", occurredAt='" + getOccurredAt() + "'" +
+            ", wallet=" + getWallet() +
+            ", order=" + getOrder() +
+            "}";
+    }
+}

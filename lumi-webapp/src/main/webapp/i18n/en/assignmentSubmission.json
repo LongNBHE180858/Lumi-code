@@ -1,0 +1,30 @@
+{
+  "lumiApp": {
+    "assignmentSubmission": {
+      "home": {
+        "title": "Assignment Submissions",
+        "refreshListLabel": "Refresh list",
+        "createLabel": "Create a new Assignment Submission",
+        "createOrEditLabel": "Create or edit a Assignment Submission",
+        "notFound": "No Assignment Submissions found"
+      },
+      "created": "A new Assignment Submission is created with identifier {{ param }}",
+      "updated": "A Assignment Submission is updated with identifier {{ param }}",
+      "deleted": "A Assignment Submission is deleted with identifier {{ param }}",
+      "delete": {
+        "question": "Are you sure you want to delete Assignment Submission {{ id }}?"
+      },
+      "detail": {
+        "title": "Assignment Submission"
+      },
+      "id": "ID",
+      "content": "Content",
+      "score": "Score",
+      "teacherFeedback": "Teacher Feedback",
+      "status": "Status",
+      "submittedAt": "Submitted At",
+      "student": "Student",
+      "assignment": "Assignment"
+    }
+  }
+}

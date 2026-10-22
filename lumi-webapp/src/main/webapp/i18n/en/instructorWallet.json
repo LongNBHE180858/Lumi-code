@@ -1,0 +1,27 @@
+{
+  "lumiApp": {
+    "instructorWallet": {
+      "home": {
+        "title": "Instructor Wallets",
+        "refreshListLabel": "Refresh list",
+        "createLabel": "Create a new Instructor Wallet",
+        "createOrEditLabel": "Create or edit a Instructor Wallet",
+        "notFound": "No Instructor Wallets found"
+      },
+      "created": "A new Instructor Wallet is created with identifier {{ param }}",
+      "updated": "A Instructor Wallet is updated with identifier {{ param }}",
+      "deleted": "A Instructor Wallet is deleted with identifier {{ param }}",
+      "delete": {
+        "question": "Are you sure you want to delete Instructor Wallet {{ id }}?"
+      },
+      "detail": {
+        "title": "Instructor Wallet"
+      },
+      "id": "ID",
+      "pendingAmount": "Pending Amount",
+      "availableAmount": "Available Amount",
+      "rowVersion": "Row Version",
+      "user": "User"
+    }
+  }
+}

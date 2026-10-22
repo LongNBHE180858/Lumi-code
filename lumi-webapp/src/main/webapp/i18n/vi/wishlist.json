@@ -1,0 +1,74 @@
+{
+  "lumiApp": {
+    "wishlist": {
+      "home": {
+        "title": "Khóa học yêu thích",
+        "refreshListLabel": "Làm mới danh sách",
+        "createLabel": "Thêm khóa học vào yêu thích",
+        "createOrEditLabel": "Thêm mới hoặc cập nhật Wishlist",
+        "notFound": "Chưa có khóa học nào trong danh sách yêu thích"
+      },
+      "screen": {
+        "home": "Trang chủ",
+        "breadcrumbLabel": "Đường dẫn",
+        "description": "Lưu lại khóa học bạn quan tâm, chọn đúng lớp và bộ sách để bắt đầu học cùng LUMI.",
+        "exploreCourses": "Khám phá khóa học",
+        "addCourse": "Thêm khóa học yêu thích",
+        "accountNavigation": "Điều hướng học tập",
+        "myCourses": "Khóa học của tôi",
+        "favorites": "Yêu thích",
+        "enrollmentHistory": "Lịch sử đăng ký",
+        "searchLabel": "Tìm trong danh sách yêu thích",
+        "searchPlaceholder": "Nhập tên khóa học hoặc người đăng",
+        "gradeLabel": "Khối lớp",
+        "allGrades": "Tất cả lớp (1–9)",
+        "subjectLabel": "Môn học",
+        "allSubjects": "Tất cả môn học",
+        "sortLabel": "Sắp xếp",
+        "sortRecent": "Mới lưu gần đây",
+        "sortOldest": "Lưu từ lâu nhất",
+        "sortPriceAsc": "Giá thấp đến cao",
+        "sortPriceDesc": "Giá cao đến thấp",
+        "sortTitle": "Tên khóa học A–Z",
+        "resultCount": "{{count}} khóa học đã lưu",
+        "priceUnit": "Học phí trọn khóa • Đơn vị: VNĐ",
+        "requestFailed": "Đã xảy ra lỗi khi tải dữ liệu.",
+        "loadError": "Không thể tải danh sách yêu thích: {{message}}",
+        "retry": "Thử lại",
+        "loading": "Đang tải danh sách yêu thích…",
+        "emptyTitle": "Danh sách yêu thích đang trống",
+        "emptyDescription": "Khám phá khóa học phù hợp và lưu lại để dễ dàng tìm thấy sau này.",
+        "noMatchesTitle": "Không tìm thấy khóa học phù hợp",
+        "noMatchesDescription": "Hãy thử thay đổi từ khóa hoặc bộ lọc.",
+        "clearFilters": "Xóa bộ lọc",
+        "courseUnavailable": "Khóa học không còn khả dụng",
+        "unclassified": "Chưa phân loại",
+        "authorLabel": "Người đăng",
+        "accessDuration": "Truy cập {{days}} ngày",
+        "priceUnavailable": "Chưa cập nhật học phí",
+        "savedAt": "Đã lưu",
+        "viewDetails": "Xem chi tiết",
+        "viewFavoriteDetails": "Xem chi tiết mục yêu thích: {{title}}",
+        "editFavorite": "Chỉnh sửa mục yêu thích: {{title}}",
+        "enroll": "Đăng ký học",
+        "enrollmentUnavailable": "Luồng đăng ký học viên chưa được tích hợp.",
+        "removeFavorite": "Bỏ {{title}} khỏi danh sách yêu thích",
+        "removeFavoriteLabel": "Bỏ khỏi yêu thích",
+        "enrollmentNote": "Chức năng đăng ký học viên chưa được tích hợp. Lưu yêu thích chưa phải là đăng ký học; hãy xem chi tiết khóa học trước khi đăng ký."
+      },
+      "created": "Một Wishlist mới được tạo với định danh {{ param }}",
+      "updated": "Một Wishlist cập nhật với định danh {{ param }}",
+      "deleted": "Một Wishlist đã xóa với định danh {{ param }}",
+      "delete": {
+        "question": "Bạn có chắc là muốn xóa Wishlist {{ id }}?"
+      },
+      "detail": {
+        "title": "Chi tiết yêu thích"
+      },
+      "id": "Mã",
+      "createdAt": "Thời gian thêm",
+      "student": "Học viên",
+      "course": "Khóa học"
+    }
+  }
+}

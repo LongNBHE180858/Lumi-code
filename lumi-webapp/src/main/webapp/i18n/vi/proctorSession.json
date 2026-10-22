@@ -1,0 +1,27 @@
+{
+  "lumiApp": {
+    "proctorSession": {
+      "home": {
+        "title": "Proctor Sessions",
+        "refreshListLabel": "Refresh list",
+        "createLabel": "Thêm mới một Proctor Session",
+        "createOrEditLabel": "Thêm mới hoặc cập nhật Proctor Session",
+        "notFound": "No Proctor Sessions found"
+      },
+      "created": "Một Proctor Session mới được tạo với định danh {{ param }}",
+      "updated": "Một Proctor Session cập nhật với định danh {{ param }}",
+      "deleted": "Một Proctor Session đã xóa với định danh {{ param }}",
+      "delete": {
+        "question": "Bạn có chắc là muốn xóa Proctor Session {{ id }}?"
+      },
+      "detail": {
+        "title": "Proctor Session"
+      },
+      "id": "ID",
+      "faceVerified": "Face Verified",
+      "warningCount": "Warning Count",
+      "status": "Status",
+      "attempt": "Attempt"
+    }
+  }
+}

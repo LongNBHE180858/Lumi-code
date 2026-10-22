@@ -1,0 +1,29 @@
+{
+  "lumiApp": {
+    "teacherVerification": {
+      "home": {
+        "title": "Teacher Verifications",
+        "refreshListLabel": "Refresh list",
+        "createLabel": "Create a new Teacher Verification",
+        "createOrEditLabel": "Create or edit a Teacher Verification",
+        "notFound": "No Teacher Verifications found"
+      },
+      "created": "A new Teacher Verification is created with identifier {{ param }}",
+      "updated": "A Teacher Verification is updated with identifier {{ param }}",
+      "deleted": "A Teacher Verification is deleted with identifier {{ param }}",
+      "delete": {
+        "question": "Are you sure you want to delete Teacher Verification {{ id }}?"
+      },
+      "detail": {
+        "title": "Teacher Verification"
+      },
+      "id": "ID",
+      "identityDocumentUrl": "Identity Document Url",
+      "verificationStatus": "Verification Status",
+      "notes": "Notes",
+      "submittedAt": "Submitted At",
+      "approvedAt": "Approved At",
+      "user": "User"
+    }
+  }
+}

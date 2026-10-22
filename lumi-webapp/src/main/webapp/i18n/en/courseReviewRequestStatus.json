@@ -1,0 +1,9 @@
+{
+  "lumiApp": {
+    "CourseReviewRequestStatus": {
+      "PENDING": "Pending",
+      "APPROVED": "Approved",
+      "REJECTED": "Rejected"
+    }
+  }
+}

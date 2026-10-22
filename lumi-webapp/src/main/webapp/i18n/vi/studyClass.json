@@ -1,0 +1,35 @@
+{
+  "lumiApp": {
+    "studyClass": {
+      "home": {
+        "title": "Study Classes",
+        "refreshListLabel": "Refresh list",
+        "createLabel": "Thêm mới một Study Class",
+        "createOrEditLabel": "Thêm mới hoặc cập nhật Study Class",
+        "notFound": "No Study Classes found"
+      },
+      "created": "Một Study Class mới được tạo với định danh {{ param }}",
+      "updated": "Một Study Class cập nhật với định danh {{ param }}",
+      "deleted": "Một Study Class đã xóa với định danh {{ param }}",
+      "delete": {
+        "question": "Bạn có chắc là muốn xóa Study Class {{ id }}?"
+      },
+      "detail": {
+        "title": "Study Class"
+      },
+      "id": "ID",
+      "name": "Name",
+      "description": "Description",
+      "joinCode": "Join Code",
+      "joinMode": "Join Mode",
+      "maxStudents": "Max Students",
+      "currentStudents": "Current Students",
+      "status": "Status",
+      "isDeleted": "Is Deleted",
+      "createdAt": "Created At",
+      "instructor": "Instructor",
+      "subject": "Subject",
+      "grade": "Grade"
+    }
+  }
+}

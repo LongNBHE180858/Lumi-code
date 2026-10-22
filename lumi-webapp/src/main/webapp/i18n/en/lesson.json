@@ -1,0 +1,34 @@
+{
+  "lumiApp": {
+    "lesson": {
+      "home": {
+        "title": "Lessons",
+        "refreshListLabel": "Refresh list",
+        "createLabel": "Create a new Lesson",
+        "createOrEditLabel": "Create or edit a Lesson",
+        "notFound": "No Lessons found"
+      },
+      "created": "A new Lesson is created with identifier {{ param }}",
+      "updated": "A Lesson is updated with identifier {{ param }}",
+      "deleted": "A Lesson is deleted with identifier {{ param }}",
+      "delete": {
+        "question": "Are you sure you want to delete Lesson {{ id }}?"
+      },
+      "detail": {
+        "title": "Lesson"
+      },
+      "id": "ID",
+      "title": "Title",
+      "contentType": "Content Type",
+      "orderIndex": "Order Index",
+      "isPreview": "Is Preview",
+      "durationMinutes": "Duration Minutes",
+      "status": "Status",
+      "chapter": "Chapter",
+      "description": "Description",
+      "videoUrl": "Optional video URL",
+      "videoFileName": "Video file name",
+      "videoSizeBytes": "Video size (bytes)"
+    }
+  }
+}

@@ -1,0 +1,585 @@
+enum AccessDurationUnit {
+  DAY, MONTH, YEAR
+}
+enum CourseReviewRequestStatus {
+  PENDING, APPROVED, REJECTED
+}
+
+enum RecordStatus {
+  DRAFT, PENDING, ACTIVE, HIDDEN, ARCHIVED, BLOCKED
+}
+enum InstructorApplicationStatus {
+  DRAFT, PENDING, ACTIVE, REJECTED, HIDDEN, ARCHIVED, BLOCKED
+}
+
+enum OrderStatus {
+  PENDING, PAID, CANCELLED, REFUNDED
+}
+
+enum TransactionType {
+  SALE, REFUND, PAYOUT, ADJUSTMENT
+}
+
+enum ClassJoinMode {
+  INVITE_ONLY, CODE_APPROVAL, CODE_AUTO
+}
+
+// --- PHẦN HỆ 1: AUTH & USER ---
+entity UserProfile {
+  phoneNumber String unique maxlength(20)
+  bio String maxlength(5000)
+  schoolName String maxlength(255)
+  gradeLevel Integer min(1) max(12)
+  is2faEnabled Boolean
+  instructorStatus InstructorApplicationStatus
+  instructorRejectionReason String maxlength(2000)
+  instructorReviewedAt Instant
+  instructorReviewedBy String maxlength(50)
+  updatedAt Instant
+}
+
+entity TeacherVerification {
+  identityDocumentUrl String required maxlength(1000)
+  verificationStatus String maxlength(20)
+  notes String maxlength(5000)
+  submittedAt Instant
+  approvedAt Instant
+}
+
+entity ParentStudentLink {
+  linkCode String required unique maxlength(10)
+  status String maxlength(20)
+  linkedAt Instant
+}
+
+entity AuthSession {
+  deviceInfo String maxlength(255)
+  refreshToken String unique maxlength(255)
+  expiresAt Instant required
+  isRevoked Boolean
+  createdAt Instant
+}
+
+// --- PHẦN HỆ 2: COURSE PUBLIC (Marketplace) ---
+entity Category {
+  name String required unique maxlength(100)
+  description String maxlength(5000)
+  active Boolean required
+}
+
+entity Subject {
+  name String required unique maxlength(100)
+  description String maxlength(5000)
+  active Boolean required
+}
+
+entity Grade {
+  level Integer required unique min(1) max(12)
+  name String required maxlength(50)
+  active Boolean required
+}
+
+entity Tag {
+  name String required unique maxlength(100)
+  active Boolean required
+}
+
+entity Course {
+  shortDescription String maxlength(1000)
+  bookSeries String maxlength(100)
+  targetAudience String maxlength(1000)
+  prerequisites String maxlength(1000)
+  learningObjectives TextBlob
+  introVideoUrl String maxlength(1000)
+  accessDurationValue Integer min(1)
+  accessDurationUnit AccessDurationUnit
+  version Long min(0)
+  title String required maxlength(255)
+  description String maxlength(5000)
+  thumbnailUrl String maxlength(1000)
+  price BigDecimal min(0)
+  validDurationDays Integer min(1)
+  status RecordStatus
+  isDeleted Boolean
+  createdAt Instant
+  updatedAt Instant
+}
+
+entity Chapter {
+  title String required maxlength(255)
+  orderIndex Integer required min(0)
+}
+
+entity Lesson {
+  description TextBlob
+  videoUrl String maxlength(1000)
+  videoFileName String maxlength(255)
+  videoSizeBytes Long min(0)
+  title String required maxlength(255)
+  contentType String required maxlength(20)
+  orderIndex Integer required min(0)
+  isPreview Boolean
+  durationMinutes Integer min(0)
+  status RecordStatus
+}
+
+entity CourseMaterial {
+  fileName String maxlength(255)
+  displayName String maxlength(255)
+  mimeType String maxlength(100)
+  orderIndex Integer min(0)
+  fileType String required maxlength(20)
+  fileUrl String required maxlength(1000)
+  fileSizeBytes Long min(0)
+}
+
+entity CourseReviewRequest (course_review_requests) {
+  courseVersion Long required
+  status CourseReviewRequestStatus required
+  submissionNote String maxlength(5000)
+  rightsConfirmedAt Instant required
+  submittedAt Instant required
+  reviewedAt Instant
+  reviewerFeedback String maxlength(5000)
+}
+
+entity CourseEnrollment {
+  progressPercent BigDecimal min(0) max(100)
+  status String maxlength(20)
+  enrolledAt Instant
+  expiresAt Instant required
+}
+
+entity Wishlist {
+  createdAt Instant
+}
+
+entity CourseReview {
+  rating Integer min(1) max(5)
+  content String maxlength(5000)
+  createdAt Instant
+}
+
+// --- PHẦN HỆ 3: CLASS PRIVATE (Lớp học) ---
+entity StudyClass {
+  name String required maxlength(255)
+  description String maxlength(5000)
+  joinCode String unique maxlength(10)
+  joinMode ClassJoinMode
+  maxStudents Integer min(1)
+  currentStudents Integer min(0)
+  status RecordStatus
+  isDeleted Boolean
+  createdAt Instant
+}
+
+entity ClassMember {
+  status String maxlength(20)
+  joinedAt Instant
+}
+
+entity ClassMaterial {
+  title String required maxlength(255)
+  fileType String required maxlength(20)
+  fileUrl String required maxlength(1000)
+  fileSizeBytes Long required min(0)
+  uploadedAt Instant
+}
+
+// --- PHẦN HỆ 4: FINANCE & PREMIUM ---
+entity SystemPlan {
+  name String required maxlength(100)
+  price BigDecimal required min(0)
+  durationDays Integer required min(1)
+  storageQuotaMb Long required min(0)
+  aiGenerationLimit Integer required min(0)
+  maxClasses Integer required min(1)
+}
+
+entity TeacherQuota {
+  planExpiresAt Instant
+  usedStorageBytes Long min(0)
+  aiUsedCount Integer min(0)
+  rowVersion Long min(0)
+}
+
+entity Coupon {
+  code String required unique maxlength(50)
+  discountPercent Integer min(1) max(100)
+  maxUses Integer min(1)
+  usedCount Integer min(0)
+  validTo Instant
+}
+
+entity CourseOrder {
+  originalPrice BigDecimal required min(0)
+  discountAmount BigDecimal min(0)
+  finalPrice BigDecimal required min(0)
+  revenueSplitRate String maxlength(10)
+  status OrderStatus
+  idempotencyKey String unique maxlength(200)
+  rowVersion Long min(0)
+  createdAt Instant
+}
+
+entity Payment {
+  gateway String required maxlength(50)
+  transactionNo String unique maxlength(255)
+  amount BigDecimal required min(0)
+  status String maxlength(20)
+  paidAt Instant
+}
+
+entity Refund {
+  amount BigDecimal required min(0)
+  reason String maxlength(5000)
+  status String maxlength(20)
+  createdAt Instant
+}
+
+entity InstructorWallet {
+  pendingAmount BigDecimal min(0)
+  availableAmount BigDecimal min(0)
+  rowVersion Long min(0)
+}
+
+entity WalletTransaction {
+  type TransactionType required
+  amount BigDecimal required
+  status String required maxlength(20)
+  idempotencyKey String unique maxlength(200)
+  occurredAt Instant
+}
+
+entity PayoutRequest {
+  amount BigDecimal required min(0.01)
+  bankCode String required maxlength(50)
+  bankAccount String required maxlength(100)
+  status String maxlength(20)
+  createdAt Instant
+}
+
+// --- PHẦN HỆ 5: ASSESSMENTS (Khảo thí & Bài tập) ---
+entity QuestionBank {
+  name String required maxlength(255)
+}
+
+entity Question {
+  content String required maxlength(5000)
+  type String required maxlength(20)
+  difficulty Integer min(1) max(5)
+  explanation String maxlength(5000)
+  isDeleted Boolean
+}
+
+entity QuestionOption {
+  content String required maxlength(5000)
+  isCorrect Boolean
+}
+
+entity Exam {
+  title String required maxlength(255)
+  durationMinutes Integer required min(1)
+  passScore BigDecimal required min(0)
+  maxAttempts Integer min(1)
+  shuffleQuestions Boolean
+  status RecordStatus
+  isDeleted Boolean
+}
+
+entity ExamQuestion {
+  orderIndex Integer required min(0)
+  score BigDecimal required min(0)
+}
+
+entity Assignment {
+  title String required maxlength(255)
+  instructions String maxlength(5000)
+  dueAt Instant
+  maxScore BigDecimal min(0)
+  allowLate Boolean
+  isDeleted Boolean
+}
+
+// Explicit assignment recipients; this was missing from the previous 54 entities.
+entity AssignmentStudent {
+}
+
+entity AssignmentSubmission {
+  content String maxlength(5000)
+  score BigDecimal min(0)
+  teacherFeedback String maxlength(5000)
+  status String maxlength(20)
+  submittedAt Instant
+}
+
+entity ExamAttempt {
+  startTime Instant required
+  endTime Instant
+  score BigDecimal min(0)
+  status String maxlength(20)
+  rowVersion Long min(0)
+}
+
+entity ExamAnswer {
+  textAnswer String maxlength(5000)
+  isCorrect Boolean
+  score BigDecimal min(0)
+}
+
+// --- PHẦN HỆ 6: ANTI-CHEAT ---
+entity ProctorSession {
+  faceVerified Boolean
+  warningCount Integer min(0)
+  status String maxlength(20)
+}
+
+entity ProctorEvent {
+  violationType String required maxlength(50)
+  photoUrl String maxlength(1000)
+  occurredAt Instant
+}
+
+// --- PHẦN HỆ 7: ADVANCED LEARNING (AI, Notes, Flashcards) ---
+entity StudentNote {
+  videoTimestamp Integer min(0)
+  content String required maxlength(5000)
+  createdAt Instant
+}
+
+entity StudentStreak {
+  currentStreak Integer min(0)
+  longestStreak Integer min(0)
+  gemsBalance Integer min(0)
+  lastActiveDate LocalDate
+}
+
+entity FlashcardDeck {
+  title String required maxlength(255)
+  isPublic Boolean
+}
+
+entity Flashcard {
+  frontText String required maxlength(5000)
+  backText String required maxlength(5000)
+}
+
+entity FlashcardReview {
+  nextReviewAt Instant
+  intervalDays BigDecimal min(0)
+}
+
+entity KnowledgeNode {
+  title String required maxlength(255)
+  type String maxlength(50)
+}
+
+entity KnowledgeEdge {
+  relationType String required maxlength(50)
+}
+
+entity PdfChunk {
+  pageNumber Integer min(1)
+  chunkText String required maxlength(5000)
+  embedding String maxlength(5000)
+}
+
+entity AiConversation {
+  type String required maxlength(50)
+  createdAt Instant
+}
+
+entity AiMessage {
+  senderRole String required maxlength(20)
+  content String required maxlength(5000)
+  createdAt Instant
+}
+
+// --- PHẦN HỆ 8: COMMUNITY, NOTIFICATION & LOGS ---
+entity Discussion {
+  title String required maxlength(255)
+  content String required maxlength(5000)
+  createdAt Instant
+}
+
+entity DiscussionReply {
+  content String required maxlength(5000)
+  createdAt Instant
+}
+
+entity SupportTicket {
+  type String required maxlength(50)
+  subject String required maxlength(255)
+  status String maxlength(20)
+  createdAt Instant
+}
+
+entity TicketMessage {
+  content String required maxlength(5000)
+  createdAt Instant
+}
+
+entity ContentReport {
+  targetType String required maxlength(50)
+  targetId Long required
+  reason String required maxlength(5000)
+  status String maxlength(20)
+  createdAt Instant
+}
+
+entity Notification {
+  title String required maxlength(255)
+  content String required maxlength(5000)
+  isRead Boolean
+  type String required maxlength(50)
+  createdAt Instant
+}
+
+entity AuditLog {
+  action String required maxlength(100)
+  targetEntity String required maxlength(50)
+  targetId String required maxlength(100)
+  ipAddress String maxlength(50)
+  details String maxlength(5000) // Dùng để lưu chuỗi JSON giá trị cũ/mới
+  occurredAt Instant
+}
+
+// ============================================================================
+// RELATIONSHIPS CONFIGURATION (Mối quan hệ)
+// ============================================================================
+
+// 1. One-to-One nối sang bảng JHI_USER
+relationship OneToOne {
+  UserProfile{user(login) required} to User with builtInEntity
+  InstructorWallet{user(login) required} to User with builtInEntity
+  TeacherVerification{user(login) required} to User with builtInEntity
+  TeacherQuota{user(login) required} to User with builtInEntity
+  StudentStreak{user(login) required} to User with builtInEntity
+  ProctorSession{attempt required} to ExamAttempt
+}
+
+// 2. Many-to-One nối sang bảng JHI_USER
+relationship ManyToOne {
+  ParentStudentLink{parent(login) required} to User with builtInEntity
+  ParentStudentLink{student(login) required} to User with builtInEntity
+  AuthSession{user(login) required} to User with builtInEntity
+
+  Course{author(login) required} to User with builtInEntity
+  CourseEnrollment{student(login) required} to User with builtInEntity
+  Wishlist{student(login) required} to User with builtInEntity
+  CourseReview{student(login) required} to User with builtInEntity
+
+  StudyClass{instructor(login) required} to User with builtInEntity
+  ClassMember{student(login) required} to User with builtInEntity
+
+  Coupon{instructor(login)} to User with builtInEntity
+  CourseOrder{student(login) required} to User with builtInEntity
+
+  QuestionBank{instructor(login) required} to User with builtInEntity
+  AssignmentStudent{student(login) required} to User with builtInEntity
+  AssignmentSubmission{student(login) required} to User with builtInEntity
+  ExamAttempt{student(login) required} to User with builtInEntity
+
+  StudentNote{student(login) required} to User with builtInEntity
+  FlashcardDeck{owner(login) required} to User with builtInEntity
+  FlashcardReview{student(login) required} to User with builtInEntity
+  AiConversation{user(login) required} to User with builtInEntity
+
+  Discussion{student(login) required} to User with builtInEntity
+  DiscussionReply{user(login) required} to User with builtInEntity
+  SupportTicket{user(login) required} to User with builtInEntity
+  TicketMessage{sender(login) required} to User with builtInEntity
+  ContentReport{reporter(login) required} to User with builtInEntity
+  Notification{user(login) required} to User with builtInEntity
+  AuditLog{actor(login)} to User with builtInEntity
+}
+
+// 3. Many-to-One nội bộ giữa các Entity
+relationship ManyToOne {
+  Category{parent(name)} to Category
+  Course{category(name)} to Category
+  Course{subject(name)} to Subject
+  Course{grade(name)} to Grade
+
+  Chapter{course(title) required} to Course
+  Lesson{chapter(title) required} to Chapter
+  CourseMaterial{lesson(title) required} to Lesson
+  CourseEnrollment{course(title) required} to Course
+  Wishlist{course(title) required} to Course
+  CourseReview{course(title) required} to Course
+
+  CourseReviewRequest{course(title) required} to Course
+  CourseReviewRequest{submittedBy(login) required} to User with builtInEntity
+  CourseReviewRequest{reviewedBy(login)} to User with builtInEntity
+
+  StudyClass{subject(name)} to Subject
+  StudyClass{grade(name)} to Grade
+  ClassMember{studyClass(name) required} to StudyClass
+  ClassMaterial{studyClass(name) required} to StudyClass
+
+  TeacherQuota{currentPlan(name)} to SystemPlan
+  CourseOrder{course(title)} to Course
+  CourseOrder{plan(name)} to SystemPlan
+  CourseOrder{coupon(code)} to Coupon
+  Payment{order required} to CourseOrder
+  Refund{order required} to CourseOrder
+  Refund{payment required} to Payment
+  WalletTransaction{wallet required} to InstructorWallet
+  WalletTransaction{order} to CourseOrder
+  PayoutRequest{wallet required} to InstructorWallet
+
+  Question{bank(name)} to QuestionBank
+  QuestionOption{question required} to Question
+  Exam{studyClass(name)} to StudyClass
+  ExamQuestion{exam(title) required} to Exam
+  ExamQuestion{question required} to Question
+  Assignment{studyClass(name) required} to StudyClass
+  AssignmentStudent{assignment(title) required} to Assignment
+  AssignmentSubmission{assignment(title) required} to Assignment
+  ExamAttempt{exam(title) required} to Exam
+  ExamAnswer{attempt required} to ExamAttempt
+  ExamAnswer{question required} to Question
+  ExamAnswer{option} to QuestionOption
+
+  ProctorEvent{session required} to ProctorSession
+  StudentNote{lesson(title) required} to Lesson
+  Flashcard{deck(title) required} to FlashcardDeck
+  FlashcardDeck{subject(name)} to Subject
+  FlashcardReview{flashcard required} to Flashcard
+  KnowledgeNode{subject(name)} to Subject
+  KnowledgeEdge{fromNode(title) required} to KnowledgeNode
+  KnowledgeEdge{toNode(title) required} to KnowledgeNode
+  PdfChunk{material required} to CourseMaterial
+  AiConversation{lesson(title)} to Lesson
+  AiMessage{conversation required} to AiConversation
+
+  Discussion{lesson(title) required} to Lesson
+  DiscussionReply{discussion(title) required} to Discussion
+  DiscussionReply{parent} to DiscussionReply
+  TicketMessage{ticket(subject) required} to SupportTicket
+}
+
+relationship ManyToMany {
+  Course{tags(name)} to Tag
+}
+
+// ============================================================================
+// GLOBAL ARCHITECTURE OPTIONS (Cấu hình MapStruct, Service, Pagination)
+// ============================================================================
+
+dto * with mapstruct
+service * with serviceImpl
+filter *
+
+// --- Cấu hình Phân trang Infinite-Scroll (Cuộn vô hạn) ---
+paginate AuthSession, ProctorEvent, AiMessage, WalletTransaction, ExamAnswer, DiscussionReply, TicketMessage, ContentReport, Notification, AuditLog with infinite-scroll
+
+// --- Cấu hình Phân trang Chuẩn (Phân trang danh sách) ---
+paginate UserProfile, Category, Subject, Grade, Tag, Course, CourseEnrollment, CourseReview, StudyClass, ClassMember, TeacherVerification with pagination
+paginate SystemPlan, Coupon, CourseOrder, Payment, Refund, PayoutRequest, QuestionBank, Question, Exam, ExamAttempt, Assignment, AssignmentSubmission with pagination
+paginate StudentNote, FlashcardDeck, Flashcard, KnowledgeNode, AiConversation, Discussion, SupportTicket, Lesson, Chapter, CourseMaterial, ClassMaterial with pagination
+paginate AssignmentStudent with pagination
+
+// Custom persistence: Course.learningObjectives is List<String> mapped to PostgreSQL JSONB.
+// JDL TextBlob is only a generator placeholder; preserve the custom mapping.
+// Course.version uses JPA @Version; preserve it when regenerating.

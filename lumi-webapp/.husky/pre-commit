@@ -1,0 +1,6 @@
+if [ -z "$(command -v lint-staged)" ]; then
+    echo 'Running package manager install'
+    ./npmw install
+fi
+
+lint-staged --max-arg-length 4000 --relative

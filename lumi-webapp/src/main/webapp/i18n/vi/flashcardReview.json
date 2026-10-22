@@ -1,0 +1,27 @@
+{
+  "lumiApp": {
+    "flashcardReview": {
+      "home": {
+        "title": "Flashcard Reviews",
+        "refreshListLabel": "Refresh list",
+        "createLabel": "Thêm mới một Flashcard Review",
+        "createOrEditLabel": "Thêm mới hoặc cập nhật Flashcard Review",
+        "notFound": "No Flashcard Reviews found"
+      },
+      "created": "Một Flashcard Review mới được tạo với định danh {{ param }}",
+      "updated": "Một Flashcard Review cập nhật với định danh {{ param }}",
+      "deleted": "Một Flashcard Review đã xóa với định danh {{ param }}",
+      "delete": {
+        "question": "Bạn có chắc là muốn xóa Flashcard Review {{ id }}?"
+      },
+      "detail": {
+        "title": "Flashcard Review"
+      },
+      "id": "ID",
+      "nextReviewAt": "Next Review At",
+      "intervalDays": "Interval Days",
+      "student": "Student",
+      "flashcard": "Flashcard"
+    }
+  }
+}

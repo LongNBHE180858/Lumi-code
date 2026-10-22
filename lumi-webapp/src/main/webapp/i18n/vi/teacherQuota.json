@@ -1,0 +1,29 @@
+{
+  "lumiApp": {
+    "teacherQuota": {
+      "home": {
+        "title": "Teacher Quotas",
+        "refreshListLabel": "Refresh list",
+        "createLabel": "Thêm mới một Teacher Quota",
+        "createOrEditLabel": "Thêm mới hoặc cập nhật Teacher Quota",
+        "notFound": "No Teacher Quotas found"
+      },
+      "created": "Một Teacher Quota mới được tạo với định danh {{ param }}",
+      "updated": "Một Teacher Quota cập nhật với định danh {{ param }}",
+      "deleted": "Một Teacher Quota đã xóa với định danh {{ param }}",
+      "delete": {
+        "question": "Bạn có chắc là muốn xóa Teacher Quota {{ id }}?"
+      },
+      "detail": {
+        "title": "Teacher Quota"
+      },
+      "id": "ID",
+      "planExpiresAt": "Plan Expires At",
+      "usedStorageBytes": "Used Storage Bytes",
+      "aiUsedCount": "Ai Used Count",
+      "rowVersion": "Row Version",
+      "user": "User",
+      "currentPlan": "Current Plan"
+    }
+  }
+}
