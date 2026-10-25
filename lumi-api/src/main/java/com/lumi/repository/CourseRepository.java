@@ -25,7 +25,6 @@ public interface CourseRepository extends JpaRepository<Course, Long>, JpaSpecif
       and c.grade.level between 1 and 9
       and (:keyword = '' or locate(lower(:keyword), lower(c.title)) > 0)
       and (:subjectId is null or c.subject.id = :subjectId)
-      and (:tagId is null or exists (select 1 from Course tagged join tagged.tags tag where tagged.id = c.id and tag.id = :tagId))
       and (:filterGrades = false or c.grade.id in (:gradeIds))
       and (
           :feeType = 'ALL'
@@ -46,7 +45,6 @@ public interface CourseRepository extends JpaRepository<Course, Long>, JpaSpecif
     Page<Course> browse(
         @Param("keyword") String keyword,
         @Param("subjectId") Long subjectId,
-        @Param("tagId") Long tagId,
         @Param("filterGrades") boolean filterGrades,
         @Param("gradeIds") List<Long> gradeIds,
         @Param("feeType") String feeType,

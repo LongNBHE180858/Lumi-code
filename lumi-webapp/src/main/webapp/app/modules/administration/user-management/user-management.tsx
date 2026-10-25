@@ -6,15 +6,15 @@ import {
   ArrowDown,
   ArrowUp,
   ArrowUpDown,
+  ChevronDown,
   ChevronLeft,
   ChevronRight,
   ChevronsLeft,
   ChevronsRight,
   Eye,
-  Pencil,
   Plus,
   RefreshCw,
-  Trash2,
+  Search,
 } from 'lucide-react';
 
 import { APP_DATE_FORMAT } from 'app/config/constants';
@@ -23,12 +23,8 @@ import { Authority } from 'app/shared/jhipster/constants';
 import { overridePaginationStateWithQueryParams } from 'app/shared/util/entity-utils';
 import { ASC, DESC, SORT } from 'app/shared/util/pagination.constants';
 
-import { getAdminCounts, getUsersAsAdmin, updateUser } from './user-management.reducer';
+import { getUsersAsAdmin, setUserActivation } from './user-management.reducer';
 import { MANAGED_ROLES, getManagedRole, getManagedRoleLabel } from './user-role';
-
-interface UserManagementProps {
-  searchValue: string;
-}
 
 const USERS_PER_PAGE = 10;
 const roleFromQuery = (search: string): Authority | '' => {
@@ -36,7 +32,7 @@ const roleFromQuery = (search: string): Authority | '' => {
   return MANAGED_ROLES.find(value => value === role) ?? '';
 };
 
-export const UserManagement = ({ searchValue }: UserManagementProps) => {
+export const UserManagement = () => {
   const dispatch = useAppDispatch();
 
   const pageLocation = useLocation();
@@ -46,29 +42,44 @@ export const UserManagement = ({ searchValue }: UserManagementProps) => {
     overridePaginationStateWithQueryParams(getPaginationState(pageLocation, USERS_PER_PAGE, 'id'), pageLocation.search),
   );
   const [roleFilter, setRoleFilter] = useState<Authority | ''>(() => roleFromQuery(pageLocation.search));
+  const selectedRoleClass = roleFilter ? `admin-user-role-${roleFilter.toLowerCase().replace('role_', '')}` : '';
+  const [searchInput, setSearchInput] = useState('');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [activationPendingLogin, setActivationPendingLogin] = useState<string | null>(null);
+  const [activationError, setActivationError] = useState<string | null>(null);
 
   const getUsersFromProps = () => {
-    dispatch(
+    const request = dispatch(
       getUsersAsAdmin({
         page: pagination.activePage - 1,
         size: pagination.itemsPerPage,
         sort: `${pagination.sort},${pagination.order}`,
         role: roleFilter || undefined,
+        search: searchQuery || undefined,
       }),
     );
     const endURL = `?page=${pagination.activePage}&sort=${pagination.sort},${pagination.order}${roleFilter ? `&role=${roleFilter}` : ''}`;
     if (pageLocation.search !== endURL) {
       navigate(`${pageLocation.pathname}${endURL}`);
     }
+    return request;
   };
 
   useEffect(() => {
-    getUsersFromProps();
-  }, [pagination.activePage, pagination.order, pagination.sort, roleFilter]);
+    const request = getUsersFromProps();
+    return () => request.abort();
+  }, [pagination.activePage, pagination.order, pagination.sort, roleFilter, searchQuery]);
 
   useEffect(() => {
-    dispatch(getAdminCounts());
-  }, [dispatch]);
+    const timeout = window.setTimeout(() => {
+      const query = searchInput.trim();
+      if (query !== searchQuery) {
+        setSearchQuery(query);
+        setPagination(current => (current.activePage === 1 ? current : { ...current, activePage: 1 }));
+      }
+    }, 300);
+    return () => window.clearTimeout(timeout);
+  }, [searchInput, searchQuery]);
 
   useEffect(() => {
     const params = new URLSearchParams(pageLocation.search);
@@ -101,33 +112,22 @@ export const UserManagement = ({ searchValue }: UserManagementProps) => {
 
   const handleSyncList = () => {
     getUsersFromProps();
-    dispatch(getAdminCounts());
   };
 
-  const toggleActive = user => () => {
-    dispatch(
-      updateUser({
-        ...user,
-        activated: !user.activated,
-      }),
-    ).then(result => {
-      if (updateUser.fulfilled.match(result)) {
-        getUsersFromProps();
-      }
-    });
+  const toggleActivation = async (login: string, activated: boolean) => {
+    setActivationPendingLogin(login);
+    setActivationError(null);
+    const result = await dispatch(setUserActivation({ login, activated }));
+    if (setUserActivation.rejected.match(result)) {
+      setActivationError(`Không thể cập nhật trạng thái tài khoản ${login}. Vui lòng thử lại.`);
+    }
+    setActivationPendingLogin(null);
   };
 
-  const account = useAppSelector(state => state.authentication.account);
   const users = useAppSelector(state => state.userManagement.users);
   const totalItems = useAppSelector(state => state.userManagement.totalItems);
   const loading = useAppSelector(state => state.userManagement.loading);
-  const adminCounts = useAppSelector(state => state.userManagement.adminCounts);
-  const searchTerm = searchValue.trim().toLocaleLowerCase('vi');
-  const visibleUsers = searchTerm
-    ? users.filter(user =>
-        [user.login, user.email, user.firstName, user.lastName].some(value => value?.toLocaleLowerCase('vi').includes(searchTerm)),
-      )
-    : users;
+  const visibleUsers = users;
   const totalPages = Math.ceil(totalItems / pagination.itemsPerPage);
   const pageCount = Math.min(5, totalPages);
   const firstVisiblePage = Math.max(1, Math.min(pagination.activePage - 2, totalPages - pageCount + 1));
@@ -161,24 +161,21 @@ export const UserManagement = ({ searchValue }: UserManagementProps) => {
           </Link>
         </div>
       </div>
-      <div className="admin-user-role-filter">
-        <label htmlFor="admin-user-role-filter">Vai trò</label>
-        <select
-          id="admin-user-role-filter"
-          value={roleFilter}
-          onChange={event => {
-            setRoleFilter(event.target.value as Authority | '');
-            setPagination(current => ({ ...current, activePage: 1 }));
-          }}
-        >
-          <option value="">Tất cả</option>
-          {MANAGED_ROLES.map(role => (
-            <option key={role} value={role}>
-              {getManagedRoleLabel(role)}
-            </option>
-          ))}
-        </select>
+      <div className="admin-user-search">
+        <Search size={18} aria-hidden="true" />
+        <input
+          type="search"
+          value={searchInput}
+          onChange={event => setSearchInput(event.target.value)}
+          placeholder="Tìm theo tên hoặc email"
+          aria-label="Tìm tài khoản theo tên hoặc email"
+        />
       </div>
+      {activationError && (
+        <p className="admin-user-activation-error" role="alert">
+          {activationError}
+        </p>
+      )}
       <Table responsive className="admin-user-table">
         <thead>
           <tr>
@@ -191,33 +188,46 @@ export const UserManagement = ({ searchValue }: UserManagementProps) => {
             <th className="hand" onClick={sort('email')}>
               <Translate contentKey="userManagement.email">Email</Translate> {getSortIconByFieldName('email')}
             </th>
-            <th />
             <th className="hand admin-user-centered-column" onClick={sort('langKey')}>
               <Translate contentKey="userManagement.langKey">Lang Key</Translate> {getSortIconByFieldName('langKey')}
             </th>
             <th className="admin-user-centered-column">
-              <Translate contentKey="userManagement.profiles">Profiles</Translate>
+              <div className="admin-user-role-filter">
+                <label htmlFor="admin-user-role-filter">
+                  <Translate contentKey="userManagement.profiles">Role</Translate>
+                </label>
+                <span className={`admin-user-role admin-user-role-filter-chip ${selectedRoleClass}`}>
+                  <select
+                    id="admin-user-role-filter"
+                    value={roleFilter}
+                    onChange={event => {
+                      setRoleFilter(event.target.value as Authority | '');
+                      setPagination(current => ({ ...current, activePage: 1 }));
+                    }}
+                  >
+                    <option value="">Tất cả</option>
+                    {MANAGED_ROLES.map(role => (
+                      <option key={role} value={role}>
+                        {getManagedRoleLabel(role)}
+                      </option>
+                    ))}
+                  </select>
+                  <ChevronDown size={12} aria-hidden="true" />
+                </span>
+              </div>
             </th>
             <th className="hand" onClick={sort('createdDate')}>
               <Translate contentKey="userManagement.createdDate">Created Date</Translate> {getSortIconByFieldName('createdDate')}
             </th>
-            <th className="hand" onClick={sort('lastModifiedBy')}>
-              <Translate contentKey="userManagement.lastModifiedBy">Last Modified By</Translate> {getSortIconByFieldName('lastModifiedBy')}
-            </th>
-            <th id="modified-date-sort" className="hand" onClick={sort('lastModifiedDate')}>
-              <Translate contentKey="userManagement.lastModifiedDate">Last Modified Date</Translate>{' '}
-              {getSortIconByFieldName('lastModifiedDate')}
+            <th className="admin-user-centered-column">
+              <Translate contentKey="userManagement.status">Status</Translate>
             </th>
             <th />
           </tr>
         </thead>
         <tbody>
           {visibleUsers.map(user => {
-            const isSelf = Boolean(account.login && user.login && account.login.toLowerCase() === user.login.toLowerCase());
             const isAdmin = user.authorities?.includes(Authority.ADMIN);
-            const isLastAdmin =
-              isAdmin && (!adminCounts || adminCounts.adminCount <= 1 || (user.activated && adminCounts.activeAdminCount <= 1));
-            const isProtected = isSelf || isLastAdmin;
             const statusClass = user.activated ? 'admin-user-status-active' : 'admin-user-status-inactive';
             const statusLabel = user.activated ? (
               <Translate contentKey="userManagement.activated">Activated</Translate>
@@ -234,15 +244,6 @@ export const UserManagement = ({ searchValue }: UserManagementProps) => {
                 </td>
                 <td title={user.login}>{user.login}</td>
                 <td title={user.email}>{user.email}</td>
-                <td>
-                  {isProtected ? (
-                    <span className={`admin-user-status ${statusClass}`}>{statusLabel}</span>
-                  ) : (
-                    <Button variant="link" className={`admin-user-status ${statusClass}`} onClick={toggleActive(user)}>
-                      {statusLabel}
-                    </Button>
-                  )}
-                </td>
                 <td className="admin-user-centered-column">{user.langKey}</td>
                 <td className="admin-user-centered-column">
                   <span
@@ -252,10 +253,23 @@ export const UserManagement = ({ searchValue }: UserManagementProps) => {
                   </span>
                 </td>
                 <td>{user.createdDate && <TextFormat value={user.createdDate} type="date" format={APP_DATE_FORMAT} blankOnInvalid />}</td>
-                <td title={user.lastModifiedBy}>{user.lastModifiedBy}</td>
-                <td>
-                  {user.lastModifiedDate && (
-                    <TextFormat value={user.lastModifiedDate} type="date" format={APP_DATE_FORMAT} blankOnInvalid />
+                <td className="admin-user-centered-column">
+                  {isAdmin ? (
+                    <span className={`admin-user-status ${statusClass}`}>{statusLabel}</span>
+                  ) : (
+                    <Button
+                      variant="link"
+                      className={`admin-user-status ${statusClass}`}
+                      onClick={() => {
+                        if (user.login) void toggleActivation(user.login, !user.activated);
+                      }}
+                      disabled={activationPendingLogin !== null || !user.login}
+                      aria-label={`${user.activated ? 'Tạm khóa' : 'Kích hoạt'} tài khoản ${user.login}`}
+                      title={user.activated ? 'Tạm khóa tài khoản' : 'Kích hoạt tài khoản'}
+                      data-cy="entityActivationButton"
+                    >
+                      {statusLabel}
+                    </Button>
                   )}
                 </td>
                 <td className="text-end">
@@ -274,36 +288,6 @@ export const UserManagement = ({ searchValue }: UserManagementProps) => {
                         <Translate contentKey="entity.action.view">View</Translate>
                       </span>
                     </Button>
-                    <Button
-                      as={Link as any}
-                      to={`${user.login}/edit`}
-                      variant="link"
-                      size="sm"
-                      className="admin-user-row-action"
-                      aria-label="Sửa thông tin tài khoản"
-                      data-cy="entityEditButton"
-                    >
-                      <Pencil size={16} className="align-middle" aria-hidden="true" />{' '}
-                      <span className="d-none d-md-inline">
-                        <Translate contentKey="entity.action.edit">Edit</Translate>
-                      </span>
-                    </Button>
-                    {!isProtected && (
-                      <Button
-                        as={Link as any}
-                        to={`${user.login}/delete`}
-                        variant="link"
-                        size="sm"
-                        className="admin-user-row-action admin-user-row-action-danger"
-                        aria-label="Xóa tài khoản"
-                        data-cy="entityDeleteButton"
-                      >
-                        <Trash2 size={16} className="align-middle" aria-hidden="true" />{' '}
-                        <span className="d-none d-md-inline">
-                          <Translate contentKey="entity.action.delete">Delete</Translate>
-                        </span>
-                      </Button>
-                    )}
                   </div>
                 </td>
               </tr>
@@ -311,19 +295,19 @@ export const UserManagement = ({ searchValue }: UserManagementProps) => {
           })}
           {!loading && visibleUsers.length === 0 && (
             <tr>
-              <td colSpan={10} className="admin-user-empty">
-                {searchTerm ? 'Không tìm thấy người dùng trong trang hiện tại.' : 'Chưa có người dùng.'}
+              <td colSpan={8} className="admin-user-empty">
+                {searchQuery ? 'Không tìm thấy tài khoản theo tên hoặc email.' : 'Chưa có người dùng.'}
               </td>
             </tr>
           )}
         </tbody>
       </Table>
-      {searchTerm && (
+      {searchQuery && (
         <p className="admin-user-management-search-count" role="status">
-          Tìm thấy {visibleUsers.length} người dùng trong trang hiện tại.
+          Tìm thấy {totalItems} tài khoản.
         </p>
       )}
-      {!searchTerm && !!totalItems && (
+      {!!totalItems && (
         <div className={users.length > 0 ? 'admin-user-pagination-footer' : 'd-none'}>
           <div className="admin-user-item-count">
             Hiển thị {(pagination.activePage - 1) * pagination.itemsPerPage + 1}–

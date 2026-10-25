@@ -55,10 +55,6 @@ public class UserProfile implements Serializable {
     @Column(name = "instructor_reviewed_at")
     private Instant instructorReviewedAt;
 
-    @Size(max = 50)
-    @Column(name = "instructor_reviewed_by", length = 50)
-    private String instructorReviewedBy;
-
     @Column(name = "updated_at")
     private Instant updatedAt;
 
@@ -174,14 +170,6 @@ public class UserProfile implements Serializable {
 
     public void setInstructorReviewedAt(Instant instructorReviewedAt) {
         this.instructorReviewedAt = instructorReviewedAt;
-    }
-
-    public String getInstructorReviewedBy() {
-        return instructorReviewedBy;
-    }
-
-    public void setInstructorReviewedBy(String instructorReviewedBy) {
-        this.instructorReviewedBy = instructorReviewedBy;
     }
 
     public Instant getUpdatedAt() {

@@ -10,11 +10,9 @@ import static org.mockito.Mockito.when;
 import com.lumi.domain.Category;
 import com.lumi.domain.Grade;
 import com.lumi.domain.Subject;
-import com.lumi.domain.Tag;
 import com.lumi.repository.CategoryRepository;
 import com.lumi.repository.GradeRepository;
 import com.lumi.repository.SubjectRepository;
-import com.lumi.repository.TagRepository;
 import com.lumi.service.dto.CatalogItemDTO;
 import java.util.List;
 import java.util.Optional;
@@ -38,9 +36,6 @@ class AdminCatalogServiceTest {
     @Mock
     private CategoryRepository categories;
 
-    @Mock
-    private TagRepository tags;
-
     @InjectMocks
     private AdminService service;
 
@@ -53,17 +48,6 @@ class AdminCatalogServiceTest {
 
         assertThat(result.active()).isFalse();
         assertThat(subject.getActive()).isFalse();
-    }
-
-    @Test
-    void rejectDuplicateTagName() {
-        Tag existing = new Tag();
-        existing.setName("Ôn thi");
-        when(tags.findByNameIgnoreCase("Ôn thi")).thenReturn(Optional.of(existing));
-
-        assertThatThrownBy(() -> service.saveCatalog("tags", null, new CatalogItemDTO(null, " Ôn thi ", null, null, null, null)))
-            .isInstanceOf(ResponseStatusException.class)
-            .satisfies(error -> assertThat(((ResponseStatusException) error).getStatusCode()).isEqualTo(HttpStatus.CONFLICT));
     }
 
     @Test
@@ -160,6 +144,13 @@ class AdminCatalogServiceTest {
     @Test
     void rejectsUnknownCatalogKind() {
         assertThatThrownBy(() -> service.getCatalog("unknown"))
+            .isInstanceOf(ResponseStatusException.class)
+            .satisfies(error -> assertThat(((ResponseStatusException) error).getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND));
+    }
+
+    @Test
+    void rejectsRemovedTagCatalogKind() {
+        assertThatThrownBy(() -> service.getCatalog("tags"))
             .isInstanceOf(ResponseStatusException.class)
             .satisfies(error -> assertThat(((ResponseStatusException) error).getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND));
     }

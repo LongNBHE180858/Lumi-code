@@ -77,13 +77,13 @@ class InstructorApplicationResourceIT {
     }
 
     @Test
-    void approvesOnceAndRecordsReviewer() throws Exception {
+    void approvesOnceAndRecordsDecisionTime() throws Exception {
         Long userId = createApplication(true);
 
         mvc.perform(post("/api/admin/instructor-applications/{userId}/approve", userId))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.status").value("ACTIVE"))
-            .andExpect(jsonPath("$.reviewedBy").value("reviewer"))
+            .andExpect(jsonPath("$.reviewedBy").doesNotExist())
             .andExpect(jsonPath("$.reviewedAt").exists());
         mvc.perform(post("/api/admin/instructor-applications/{userId}/approve", userId)).andExpect(status().isConflict());
     }

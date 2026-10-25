@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+    <changeSet id="20261022180000-1" author="lumi">
+        <preConditions onFail="MARK_RAN">
+            <columnExists tableName="user_profile" columnName="instructor_reviewed_by"/>
+        </preConditions>
+        <dropColumn tableName="user_profile" columnName="instructor_reviewed_by"/>
+    </changeSet>
+</databaseChangeLog>

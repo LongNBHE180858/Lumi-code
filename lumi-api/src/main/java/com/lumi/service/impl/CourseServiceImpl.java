@@ -21,12 +21,10 @@ import com.lumi.service.dto.CourseOverviewResponse;
 import com.lumi.service.dto.CourseRatingSummaryDTO;
 import com.lumi.service.dto.CourseReviewsResponse;
 import com.lumi.service.dto.InstructorPublicProfileDTO;
-import com.lumi.service.dto.TagSummaryDTO;
 import com.lumi.service.mapper.CourseMapper;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.*;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -137,15 +135,7 @@ public class CourseServiceImpl implements CourseService {
 
         Pageable paging = PageRequest.of(pageable.getPageNumber(), pageSize, Sort.by(Sort.Order.desc("createdAt"), Sort.Order.desc("id")));
 
-        Page<Course> courses = courseRepository.browse(
-            keyword,
-            request.getSubjectId(),
-            request.getTagId(),
-            filterGrades,
-            gradeIds,
-            feeType,
-            paging
-        );
+        Page<Course> courses = courseRepository.browse(keyword, request.getSubjectId(), filterGrades, gradeIds, feeType, paging);
 
         Map<Long, Long> lessonCounts = getLessonCounts(courses.getContent());
 
@@ -213,14 +203,6 @@ public class CourseServiceImpl implements CourseService {
             .gradeId(grade.getId())
             .gradeLevel(grade.getLevel())
             .gradeName(grade.getName())
-            .tags(
-                course
-                    .getTags()
-                    .stream()
-                    .map(tag -> new TagSummaryDTO(tag.getId(), tag.getName()))
-                    .sorted(Comparator.comparing(TagSummaryDTO::name))
-                    .toList()
-            )
             .price(course.getPrice())
             .validDurationDays(course.getValidDurationDays())
             .author(getPublicAuthor(course.getAuthor()))

@@ -19,7 +19,6 @@ public record InstructorApplicationDTO(
     InstructorApplicationStatus status,
     Instant submittedAt,
     Instant reviewedAt,
-    String reviewedBy,
     String rejectionReason
 ) {
     public static InstructorApplicationDTO from(UserProfile profile) {
@@ -37,7 +36,6 @@ public record InstructorApplicationDTO(
             profile.getInstructorStatus(),
             user.getCreatedDate(),
             profile.getInstructorReviewedAt(),
-            profile.getInstructorReviewedBy(),
             profile.getInstructorRejectionReason()
         );
     }

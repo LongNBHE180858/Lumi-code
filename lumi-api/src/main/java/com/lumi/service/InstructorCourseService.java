@@ -162,32 +162,6 @@ public class InstructorCourseService {
         return changed(course);
     }
 
-    @Transactional(readOnly = true)
-    public List<TagItem> tags(Long id) {
-        return owned(id)
-            .getTags()
-            .stream()
-            .map(tag -> new TagItem(tag.getId(), tag.getName()))
-            .sorted(Comparator.comparing(TagItem::name))
-            .toList();
-    }
-
-    public Builder tags(Long id, TagsInput input) {
-        Course course = editable(id, input.version());
-        if (new HashSet<>(input.tagIds()).size() != input.tagIds().size()) throw invalid("Duplicate tagIds");
-        Set<Long> existing = course.getTags().stream().map(Tag::getId).collect(Collectors.toSet());
-        Set<Tag> selected = new HashSet<>();
-        for (Long tagId : input.tagIds()) {
-            Tag tag = em.find(Tag.class, tagId);
-            if (tag == null) throw invalid("tagId not found");
-            if (!Boolean.TRUE.equals(tag.getActive()) && !existing.contains(tagId)) throw invalid("tagId is inactive");
-            selected.add(tag);
-        }
-        course.getTags().clear();
-        course.getTags().addAll(selected);
-        return changed(course);
-    }
-
     public Builder pricing(Long id, Pricing input) {
         Course course = editable(id, input.version());
         course.setPrice(input.price());

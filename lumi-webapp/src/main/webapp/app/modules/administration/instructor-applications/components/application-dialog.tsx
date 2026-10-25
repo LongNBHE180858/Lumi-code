@@ -84,12 +84,6 @@ const ApplicationDialog = ({
             <dd>{formatDate(selected.reviewedAt)}</dd>
           </div>
         )}
-        {selected.reviewedBy && (
-          <div>
-            <dt>Admin xử lý</dt>
-            <dd>{selected.reviewedBy}</dd>
-          </div>
-        )}
         {selected.rejectionReason && (
           <div>
             <dt>Lý do từ chối</dt>

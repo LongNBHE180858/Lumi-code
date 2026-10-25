@@ -4,15 +4,9 @@
       "title": "Users",
       "refreshListLabel": "Refresh list",
       "createLabel": "Create a new user",
-      "editLabel": "Edit user",
       "notFound": "No user found"
     },
     "created": "A new user is created with identifier {{ param }}",
-    "updated": "A user is updated with identifier {{ param }}",
-    "deleted": "A user is deleted with identifier {{ param }}",
-    "delete": {
-      "question": "Are you sure you want to delete user {{ login }}?"
-    },
     "detail": {
       "title": "User"
     },
@@ -21,13 +15,13 @@
     "firstName": "First name",
     "lastName": "Last name",
     "email": "Email",
+    "status": "Status",
     "imageUrl": "Image",
     "activated": "Activated",
-    "deactivated": "Deactivated",
+    "deactivated": "Temporarily locked",
     "profiles": "Role",
     "businessRole": "Account role",
     "businessRoleHint": "Choose one role for this account. Basic sign-in access is granted automatically.",
-    "protectedAdminRole": "You cannot change your own admin role or the last administrator's role.",
     "rolesUnavailable": "Loading roles or unable to connect to the role API.",
     "roles": {
       "student": "Student",

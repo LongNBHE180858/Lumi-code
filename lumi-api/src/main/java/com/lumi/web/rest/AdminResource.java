@@ -10,6 +10,7 @@ import com.lumi.service.dto.AdminUserDTO;
 import com.lumi.service.dto.CatalogItemDTO;
 import com.lumi.service.dto.InstructorApplicationDTO;
 import com.lumi.service.dto.RejectInstructorApplicationRequest;
+import com.lumi.service.dto.UserActivationRequest;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Pattern;
 import java.net.URI;
@@ -28,7 +29,6 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -93,6 +93,7 @@ public class AdminResource {
     @GetMapping("/users")
     public ResponseEntity<List<AdminUserDTO>> getAllUsers(
         @RequestParam(required = false) String role,
+        @RequestParam(required = false) String search,
         @org.springdoc.core.annotations.ParameterObject Pageable pageable
     ) {
         LOG.debug("REST request to get all Users");
@@ -109,16 +110,11 @@ public class AdminResource {
                 return ResponseEntity.badRequest().build();
             }
         }
-        Page<AdminUserDTO> page = adminService.getAllUsers(selectedRole, pageable);
+        Page<AdminUserDTO> page = adminService.getAllUsers(selectedRole, search, pageable);
 
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
 
         return new ResponseEntity<>(page.getContent(), headers, HttpStatus.OK);
-    }
-
-    @GetMapping("/users/admin-counts")
-    public Map<String, Long> getAdminCounts() {
-        return Map.of("adminCount", adminService.countAdmins(), "activeAdminCount", adminService.countActiveAdmins());
     }
 
     // READ: GET /api/admin/users/{login}
@@ -131,32 +127,12 @@ public class AdminResource {
         return ResponseUtil.wrapOrNotFound(user);
     }
 
-    // UPDATE: PUT /api/admin/users hoặc /api/admin/users/{login}
-    @PutMapping({ "/users", "/users/{login}" })
-    public ResponseEntity<AdminUserDTO> updateUser(
-        @PathVariable(name = "login", required = false) @Pattern(regexp = Constants.LOGIN_REGEX) String login,
-        @Valid @RequestBody AdminUserDTO userDTO
+    @PatchMapping("/users/{login}/activation")
+    public AdminUserDTO setUserActivation(
+        @PathVariable("login") @Pattern(regexp = Constants.LOGIN_REGEX) String login,
+        @Valid @RequestBody UserActivationRequest request
     ) {
-        LOG.debug("REST request to update User: {}", userDTO);
-
-        Optional<AdminUserDTO> updatedUser = adminService.updateUser(userDTO);
-
-        return ResponseUtil.wrapOrNotFound(
-            updatedUser,
-            HeaderUtil.createAlert(applicationName, "userManagement.updated", userDTO.getLogin())
-        );
-    }
-
-    // DELETE: DELETE /api/admin/users/{login}
-    @DeleteMapping("/users/{login}")
-    public ResponseEntity<Void> deleteUser(@PathVariable("login") @Pattern(regexp = Constants.LOGIN_REGEX) String login) {
-        LOG.debug("REST request to delete User: {}", login);
-
-        adminService.deleteUser(login);
-
-        return ResponseEntity.noContent()
-            .headers(HeaderUtil.createAlert(applicationName, "userManagement.deleted", login))
-            .build();
+        return adminService.setUserActivation(login, request.activated());
     }
 
     @GetMapping("/roles")

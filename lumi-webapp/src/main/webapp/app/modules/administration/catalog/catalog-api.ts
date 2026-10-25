@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-export type CatalogKind = 'categories' | 'subjects' | 'grades' | 'tags';
+export type CatalogKind = 'categories' | 'subjects' | 'grades';
 
 export interface CatalogItem {
   id: number;

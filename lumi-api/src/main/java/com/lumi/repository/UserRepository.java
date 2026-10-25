@@ -47,7 +47,13 @@ public interface UserRepository extends JpaRepository<User, Long> {
     @Query(
         """
         select u from User u
-        where (:role = 'ROLE_ADMIN' and exists (select a from u.authorities a where a.name = 'ROLE_ADMIN'))
+        where (lower(u.firstName) like :search escape '!'
+               or lower(u.lastName) like :search escape '!'
+               or lower(concat(concat(coalesce(u.firstName, ''), ' '), coalesce(u.lastName, ''))) like :search escape '!'
+               or lower(concat(concat(coalesce(u.lastName, ''), ' '), coalesce(u.firstName, ''))) like :search escape '!'
+               or lower(u.email) like :search escape '!')
+          and (:role = ''
+           or (:role = 'ROLE_ADMIN' and exists (select a from u.authorities a where a.name = 'ROLE_ADMIN'))
            or (:role = 'ROLE_INSTRUCTOR'
                and exists (select a from u.authorities a where a.name = 'ROLE_INSTRUCTOR')
                and not exists (select a from u.authorities a where a.name = 'ROLE_ADMIN'))
@@ -55,14 +61,8 @@ public interface UserRepository extends JpaRepository<User, Long> {
                and exists (select a from u.authorities a where a.name = 'ROLE_PARENT')
                and not exists (select a from u.authorities a where a.name in ('ROLE_ADMIN', 'ROLE_INSTRUCTOR')))
            or (:role = 'ROLE_STUDENT'
-               and not exists (select a from u.authorities a where a.name in ('ROLE_ADMIN', 'ROLE_INSTRUCTOR', 'ROLE_PARENT')))
+               and not exists (select a from u.authorities a where a.name in ('ROLE_ADMIN', 'ROLE_INSTRUCTOR', 'ROLE_PARENT'))))
         """
     )
-    Page<User> findAllByManagedRole(@Param("role") String role, Pageable pageable);
-
-    @Query("select count(distinct u.id) from User u join u.authorities a where a.name = :authority")
-    long countUsersWithAuthority(@Param("authority") String authority);
-
-    @Query("select count(distinct u.id) from User u join u.authorities a where a.name = :authority and u.activated = true")
-    long countActiveUsersWithAuthority(@Param("authority") String authority);
+    Page<User> findAllByManagedRoleAndSearch(@Param("role") String role, @Param("search") String search, Pageable pageable);
 }

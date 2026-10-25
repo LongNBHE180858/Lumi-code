@@ -8,13 +8,9 @@ const usersUrl = 'api/users';
 const adminUsersUrl = 'api/admin/users';
 const authoritiesUrl = 'api/admin/roles';
 
-export interface AdminCounts {
-  adminCount: number;
-  activeAdminCount: number;
-}
-
 export interface AdminUserQueryParams extends IQueryParams {
   role?: Authority;
+  search?: string;
 }
 
 const withPagination = (url: string, { page, size, sort }: IQueryParams) =>
@@ -23,9 +19,7 @@ const withPagination = (url: string, { page, size, sort }: IQueryParams) =>
 export const userApi = {
   getUsers: (params: IQueryParams) => axios.get<IUser[]>(withPagination(usersUrl, params)),
 
-  getUsersAsAdmin: (params: AdminUserQueryParams) => axios.get<IUser[]>(adminUsersUrl, { params }),
-
-  getAdminCounts: () => axios.get<AdminCounts>(`${adminUsersUrl}/admin-counts`),
+  getUsersAsAdmin: (params: AdminUserQueryParams, signal?: AbortSignal) => axios.get<IUser[]>(adminUsersUrl, { params, signal }),
 
   getRoles: () => axios.get<string[]>(authoritiesUrl),
 
@@ -33,7 +27,6 @@ export const userApi = {
 
   createUser: (user: IUser) => axios.post<IUser>(adminUsersUrl, user),
 
-  updateUser: (user: IUser) => axios.put<IUser>(adminUsersUrl, user),
-
-  deleteUser: (login: string) => axios.delete<IUser>(`${adminUsersUrl}/${login}`),
+  setUserActivation: (login: string, activated: boolean) =>
+    axios.patch<IUser>(`${adminUsersUrl}/${encodeURIComponent(login)}/activation`, { activated }),
 };

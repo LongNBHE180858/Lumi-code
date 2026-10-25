@@ -129,4 +129,6 @@
     <include file="config/liquibase/changelog/20261021000000_unique_pending_course_review.xml" relativeToChangelogFile="false"/>
     <include file="config/liquibase/changelog/20261022120000_instructor_review_metadata.xml" relativeToChangelogFile="false"/>
     <include file="config/liquibase/changelog/20261022160000_catalog_management.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20261022170000_remove_course_tags.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20261022180000_remove_instructor_reviewer.xml" relativeToChangelogFile="false"/>
 </databaseChangeLog>

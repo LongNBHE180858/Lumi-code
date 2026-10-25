@@ -5,7 +5,7 @@ import type { IUser } from 'app/shared/model/user.model';
 import { IQueryParams, serializeAxiosError } from 'app/shared/reducers/reducer.utils';
 
 import { userApi } from './user-api';
-import type { AdminCounts, AdminUserQueryParams } from './user-api';
+import type { AdminUserQueryParams } from './user-api';
 
 const initialState = {
   loading: false,
@@ -16,18 +16,15 @@ const initialState = {
   updating: false,
   updateSuccess: false,
   totalItems: 0,
-  adminCounts: null as AdminCounts | null,
 };
 
 // Async Actions
 
 export const getUsers = createAsyncThunk('userManagement/fetch_users', (params: IQueryParams) => userApi.getUsers(params));
 
-export const getUsersAsAdmin = createAsyncThunk('userManagement/fetch_users_as_admin', (params: AdminUserQueryParams) =>
-  userApi.getUsersAsAdmin(params),
+export const getUsersAsAdmin = createAsyncThunk('userManagement/fetch_users_as_admin', (params: AdminUserQueryParams, { signal }) =>
+  userApi.getUsersAsAdmin(params, signal),
 );
-export const getAdminCounts = createAsyncThunk('userManagement/fetch_admin_counts', () => userApi.getAdminCounts());
-
 export const getRoles = createAsyncThunk('userManagement/fetch_roles', () => userApi.getRoles());
 
 export const getUser = createAsyncThunk('userManagement/fetch_user', (login: string) => userApi.getUser(login), {
@@ -39,30 +36,14 @@ export const createUser = createAsyncThunk(
   async (user: IUser, thunkAPI) => {
     const result = await userApi.createUser(user);
     thunkAPI.dispatch(getUsersAsAdmin({}));
-    thunkAPI.dispatch(getAdminCounts());
     return result;
   },
   { serializeError: serializeAxiosError },
 );
 
-export const updateUser = createAsyncThunk(
-  'userManagement/update_user',
-  async (user: IUser, thunkAPI) => {
-    const result = await userApi.updateUser(user);
-    thunkAPI.dispatch(getAdminCounts());
-    return result;
-  },
-  { serializeError: serializeAxiosError },
-);
-
-export const deleteUser = createAsyncThunk(
-  'userManagement/delete_user',
-  async (login: string, thunkAPI) => {
-    const result = await userApi.deleteUser(login);
-    thunkAPI.dispatch(getUsersAsAdmin({}));
-    thunkAPI.dispatch(getAdminCounts());
-    return result;
-  },
+export const setUserActivation = createAsyncThunk(
+  'userManagement/set_user_activation',
+  ({ login, activated }: { login: string; activated: boolean }) => userApi.setUserActivation(login, activated),
   { serializeError: serializeAxiosError },
 );
 
@@ -87,30 +68,23 @@ export const UserManagementSlice = createSlice({
       .addCase(getRoles.rejected, state => {
         state.authorities = [];
       })
-      .addCase(getAdminCounts.fulfilled, (state, action) => {
-        state.adminCounts = action.payload.data;
-      })
-      .addCase(getAdminCounts.pending, state => {
-        state.adminCounts = null;
-      })
-      .addCase(getAdminCounts.rejected, state => {
-        state.adminCounts = null;
-      })
       .addCase(getUser.fulfilled, (state, action) => {
         state.loading = false;
         state.user = action.payload.data;
       })
-      .addCase(deleteUser.fulfilled, state => {
-        state.updating = false;
-        state.updateSuccess = true;
-        state.user = defaultValue;
+      .addCase(setUserActivation.fulfilled, (state, action) => {
+        const updatedUser = action.payload.data;
+        state.users = state.users.map(user => (user.login === updatedUser.login ? updatedUser : user));
+        if (state.user.login === updatedUser.login) {
+          state.user = updatedUser;
+        }
       })
       .addMatcher(isFulfilled(getUsers, getUsersAsAdmin), (state, action) => {
         state.loading = false;
         state.users = action.payload.data;
         state.totalItems = Number.parseInt(action.payload.headers['x-total-count'], 10);
       })
-      .addMatcher(isFulfilled(createUser, updateUser), (state, action) => {
+      .addMatcher(isFulfilled(createUser), (state, action) => {
         state.updating = false;
         state.loading = false;
         state.updateSuccess = true;
@@ -121,12 +95,13 @@ export const UserManagementSlice = createSlice({
         state.updateSuccess = false;
         state.loading = true;
       })
-      .addMatcher(isPending(createUser, updateUser, deleteUser), state => {
+      .addMatcher(isPending(createUser), state => {
         state.errorMessage = null;
         state.updateSuccess = false;
         state.updating = true;
       })
-      .addMatcher(isRejected(getUsers, getUsersAsAdmin, getUser, getRoles, createUser, updateUser, deleteUser), (state, action) => {
+      .addMatcher(isRejected(getUsers, getUsersAsAdmin, getUser, getRoles, createUser, setUserActivation), (state, action) => {
+        if (action.meta?.aborted) return;
         state.loading = false;
         state.updating = false;
         state.updateSuccess = false;

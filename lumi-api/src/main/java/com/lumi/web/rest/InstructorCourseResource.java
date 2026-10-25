@@ -42,16 +42,6 @@ public class InstructorCourseResource {
         return service.category(courseId, input);
     }
 
-    @GetMapping("/{courseId}/tags")
-    public List<TagItem> tags(@PathVariable Long courseId) {
-        return service.tags(courseId);
-    }
-
-    @PutMapping("/{courseId}/tags")
-    public Builder tags(@PathVariable Long courseId, @Valid @RequestBody TagsInput input) {
-        return service.tags(courseId, input);
-    }
-
     @GetMapping("/{courseId}/review")
     public ReviewState review(@PathVariable Long courseId) {
         return service.get(courseId).review();

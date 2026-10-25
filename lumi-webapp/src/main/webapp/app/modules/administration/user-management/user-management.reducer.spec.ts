@@ -8,14 +8,12 @@ import { defaultValue } from 'app/shared/model/user.model';
 
 import userManagement, {
   createUser,
-  deleteUser,
-  getAdminCounts,
   getRoles,
   getUser,
   getUsers,
   getUsersAsAdmin,
   reset,
-  updateUser,
+  setUserActivation,
 } from './user-management.reducer';
 
 describe('User management reducer tests', () => {
@@ -35,7 +33,6 @@ describe('User management reducer tests', () => {
       updating: false,
       updateSuccess: false,
       totalItems: 0,
-      adminCounts: null,
     });
     expect(isEmpty(state.users)).toBe(true);
     expect(isEmpty(state.authorities)).toBe(true);
@@ -70,7 +67,7 @@ describe('User management reducer tests', () => {
     });
 
     it('should set state to updating', () => {
-      testMultipleTypes([createUser.pending.type, updateUser.pending.type, deleteUser.pending.type], {}, state => {
+      testMultipleTypes([createUser.pending.type], {}, state => {
         expect(state).toMatchObject({
           errorMessage: null,
           updateSuccess: false,
@@ -89,8 +86,7 @@ describe('User management reducer tests', () => {
           getUser.rejected.type,
           getRoles.rejected.type,
           createUser.rejected.type,
-          updateUser.rejected.type,
-          deleteUser.rejected.type,
+          setUserActivation.rejected.type,
         ],
         { message: 'something happened' },
         state => {
@@ -141,16 +137,8 @@ describe('User management reducer tests', () => {
       expect(userManagement(toTest, { type: getRoles.rejected.type, error: { message: 'offline' } }).authorities).toEqual([]);
     });
 
-    it('stores admin counts and clears stale counts when refreshing', () => {
-      const counts = { adminCount: 2, activeAdminCount: 1 };
-      const loaded = userManagement(undefined, { type: getAdminCounts.fulfilled.type, payload: { data: counts } });
-
-      expect(loaded.adminCounts).toEqual(counts);
-      expect(userManagement(loaded, { type: getAdminCounts.pending.type }).adminCounts).toBeNull();
-    });
-
     it('should set state to successful update', () => {
-      testMultipleTypes([createUser.fulfilled.type, updateUser.fulfilled.type], { data: 'some handsome user' }, types => {
+      testMultipleTypes([createUser.fulfilled.type], { data: 'some handsome user' }, types => {
         expect(types).toMatchObject({
           updating: false,
           updateSuccess: true,
@@ -159,14 +147,27 @@ describe('User management reducer tests', () => {
       });
     });
 
-    it('should set state to successful update with an empty user', () => {
-      const toTest = userManagement(undefined, { type: deleteUser.fulfilled.type });
-
-      expect(toTest).toMatchObject({
-        updating: false,
-        updateSuccess: true,
+    it('updates only the toggled account in the list', () => {
+      const initial = userManagement(undefined, {
+        type: getUsersAsAdmin.fulfilled.type,
+        payload: {
+          data: [
+            { login: 'learner', activated: true },
+            { login: 'other', activated: true },
+          ],
+          headers: { 'x-total-count': '2' },
+        },
       });
-      expect(toTest.user).toEqual(defaultValue);
+
+      const next = userManagement(initial, {
+        type: setUserActivation.fulfilled.type,
+        payload: { data: { login: 'learner', activated: false } },
+      });
+
+      expect(next.users).toEqual([
+        { login: 'learner', activated: false },
+        { login: 'other', activated: true },
+      ]);
     });
   });
 
@@ -181,7 +182,6 @@ describe('User management reducer tests', () => {
         updating: false,
         updateSuccess: false,
         totalItems: 0,
-        adminCounts: null,
       };
       const initialStateNew = {
         ...initialState,
@@ -203,9 +203,8 @@ describe('User management reducer tests', () => {
         reducer: (state = [], action) => [...state, action],
       });
       axios.get = vi.fn().mockResolvedValue(resolvedObject);
-      axios.put = vi.fn().mockResolvedValue(resolvedObject);
       axios.post = vi.fn().mockResolvedValue(resolvedObject);
-      axios.delete = vi.fn().mockResolvedValue(resolvedObject);
+      axios.patch = vi.fn().mockResolvedValue(resolvedObject);
     });
 
     it('dispatches FETCH_USERS_AS_ADMIN_PENDING and FETCH_USERS_AS_ADMIN_FULFILLED actions', async () => {
@@ -223,10 +222,11 @@ describe('User management reducer tests', () => {
     });
 
     it('dispatches FETCH_USERS_AS_ADMIN_PENDING and FETCH_USERS_AS_ADMIN_FULFILLED actions with pagination options', async () => {
-      const arg = { page: 1, size: 20, sort: 'id,desc' };
+      const arg = { page: 1, size: 20, sort: 'id,desc', role: Authority.STUDENT, search: 'Lucia Nguyen' };
 
       const result = await getUsersAsAdmin(arg)(dispatch, getState, extra);
 
+      expect(axios.get).toHaveBeenCalledWith('api/admin/users', { params: arg, signal: expect.any(AbortSignal) });
       expect(dispatch).toHaveBeenCalledWith(
         expect.objectContaining({
           type: getUsersAsAdmin.pending.type,
@@ -265,11 +265,11 @@ describe('User management reducer tests', () => {
     });
 
     it('dispatches FETCH_ROLES_PENDING and FETCH_ROLES_FULFILLED actions', async () => {
-      axios.get = vi.fn().mockResolvedValue({ data: [Authority.ADMIN, Authority.INSTRUCTOR, Authority.STUDENT, Authority.PARENT] });
+      axios.get = vi.fn().mockResolvedValue({ data: [Authority.INSTRUCTOR, Authority.STUDENT, Authority.PARENT] });
       const result = await getRoles()(dispatch, getState, extra);
 
       expect(axios.get).toHaveBeenCalledWith('api/admin/roles');
-      expect(result.payload.data).toEqual([Authority.ADMIN, Authority.INSTRUCTOR, Authority.STUDENT, Authority.PARENT]);
+      expect(result.payload.data).toEqual([Authority.INSTRUCTOR, Authority.STUDENT, Authority.PARENT]);
       expect(dispatch).toHaveBeenCalledWith(
         expect.objectContaining({
           type: getRoles.pending.type,
@@ -305,30 +305,11 @@ describe('User management reducer tests', () => {
       expect(createUser.fulfilled.match(result)).toBe(true);
     });
 
-    it('dispatches UPDATE_USER_PENDING and UPDATE_USER_FULFILLED actions', async () => {
-      const arg = { login: username };
+    it('sends only the activation state to the account endpoint', async () => {
+      const result = await setUserActivation({ login: 'learner', activated: false })(dispatch, getState, extra);
 
-      const result = await updateUser(arg)(dispatch, getState, extra);
-
-      expect(dispatch).toHaveBeenCalledWith(
-        expect.objectContaining({
-          type: updateUser.pending.type,
-          meta: expect.objectContaining({ requestStatus: 'pending' }),
-        }),
-      );
-      expect(updateUser.fulfilled.match(result)).toBe(true);
-    });
-
-    it('dispatches DELETE_USER_PENDING and DELETE_USER_FULFILLED actions', async () => {
-      const result = await deleteUser(username)(dispatch, getState, extra);
-
-      expect(dispatch).toHaveBeenCalledWith(
-        expect.objectContaining({
-          type: deleteUser.pending.type,
-          meta: expect.objectContaining({ requestStatus: 'pending' }),
-        }),
-      );
-      expect(deleteUser.fulfilled.match(result)).toBe(true);
+      expect(axios.patch).toHaveBeenCalledWith('api/admin/users/learner/activation', { activated: false });
+      expect(setUserActivation.fulfilled.match(result)).toBe(true);
     });
 
     it('dispatches RESET actions', async () => {

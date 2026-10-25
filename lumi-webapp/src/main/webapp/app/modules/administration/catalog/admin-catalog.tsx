@@ -13,7 +13,6 @@ const tabs: { kind: CatalogKind; label: string; singular: string }[] = [
   { kind: 'categories', label: 'Danh mục khóa học', singular: 'danh mục' },
   { kind: 'subjects', label: 'Môn học', singular: 'môn học' },
   { kind: 'grades', label: 'Khối lớp', singular: 'khối lớp' },
-  { kind: 'tags', label: 'Thẻ (tag)', singular: 'thẻ' },
 ];
 const pageSize = 10;
 const emptyInput: CatalogInput = { name: '', description: '', level: null, parentId: null };
@@ -84,7 +83,7 @@ const AdminCatalog = () => {
   const visiblePageCount = Math.min(5, pageCount);
   const firstVisiblePage = Math.max(0, Math.min(currentPage - 2, pageCount - visiblePageCount));
   const visiblePages = Array.from({ length: visiblePageCount }, (_, index) => firstVisiblePage + index);
-  const columnCount = kind === 'categories' ? 5 : kind === 'tags' ? 3 : 4;
+  const columnCount = kind === 'categories' ? 5 : 4;
 
   const changeKind = (next: CatalogKind) => {
     setKind(next);

@@ -24,7 +24,6 @@ public class CourseOverviewResponse {
     private Long gradeId;
     private Integer gradeLevel;
     private String gradeName;
-    private List<TagSummaryDTO> tags;
     private BigDecimal price;
     private Integer validDurationDays;
 

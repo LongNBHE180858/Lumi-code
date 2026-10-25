@@ -17,7 +17,6 @@ export interface InstructorApplication {
   status: InstructorApplicationStatus;
   submittedAt: string | null;
   reviewedAt: string | null;
-  reviewedBy: string | null;
   rejectionReason: string | null;
 }
 

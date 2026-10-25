@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Route, useLocation } from 'react-router';
+import React from 'react';
+import { Route } from 'react-router';
 
 import ErrorBoundaryRoutes from 'app/shared/error/error-boundary-routes';
 
@@ -14,18 +14,10 @@ import InstructorApplications from './instructor-applications/instructor-applica
 import AdminCatalog from './catalog/admin-catalog';
 
 const AdminUserManagement = () => {
-  const [searchValue, setSearchValue] = useState('');
-  const { pathname } = useLocation();
-  const isUserList = pathname.replace(/\/$/, '').endsWith('/user-management');
-
   return (
-    <AdminLayout
-      searchValue={searchValue}
-      onSearchChange={isUserList ? setSearchValue : undefined}
-      searchLabel="Tìm người dùng trong trang hiện tại"
-    >
+    <AdminLayout>
       <main className="admin-page-content">
-        <UserManagement searchValue={searchValue} />
+        <UserManagement />
       </main>
     </AdminLayout>
   );

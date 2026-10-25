@@ -74,18 +74,6 @@ public class Course implements Serializable {
     @ManyToOne(fetch = FetchType.LAZY)
     private Grade grade;
 
-    @ManyToMany
-    @JoinTable(name = "course_tag", joinColumns = @JoinColumn(name = "course_id"), inverseJoinColumns = @JoinColumn(name = "tag_id"))
-    private java.util.Set<Tag> tags = new java.util.HashSet<>();
-
-    public java.util.Set<Tag> getTags() {
-        return tags;
-    }
-
-    public void setTags(java.util.Set<Tag> tags) {
-        this.tags = tags;
-    }
-
     @Size(max = 1000)
     @Column(name = "short_description", length = 1000)
     private String shortDescription;

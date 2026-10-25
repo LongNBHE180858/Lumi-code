@@ -14,8 +14,6 @@ public class CourseBrowseRequest {
 
     private Long subjectId;
 
-    private Long tagId;
-
     private List<Long> gradeIds;
 
     @Builder.Default

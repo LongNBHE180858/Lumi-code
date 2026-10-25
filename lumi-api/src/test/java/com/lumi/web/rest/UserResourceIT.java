@@ -39,24 +39,13 @@ import tools.jackson.databind.ObjectMapper;
 class UserResourceIT {
 
     private static final String DEFAULT_LOGIN = "johndoe";
-    private static final String UPDATED_LOGIN = "jhipster";
-
     private static final Long DEFAULT_ID = 1L;
 
     private static final String DEFAULT_EMAIL = "johndoe@localhost";
-    private static final String UPDATED_EMAIL = "jhipster@localhost";
-
     private static final String DEFAULT_FIRSTNAME = "john";
-    private static final String UPDATED_FIRSTNAME = "jhipsterFirstName";
-
     private static final String DEFAULT_LASTNAME = "doe";
-    private static final String UPDATED_LASTNAME = "jhipsterLastName";
-
     private static final String DEFAULT_IMAGEURL = "http://placehold.it/50x50";
-    private static final String UPDATED_IMAGEURL = "http://placehold.it/40x40";
-
     private static final String DEFAULT_LANGKEY = "en";
-    private static final String UPDATED_LANGKEY = "fr";
 
     @Autowired
     private ObjectMapper om;
@@ -121,7 +110,6 @@ class UserResourceIT {
     @AfterEach
     void cleanupAndCheck() {
         adminService.deleteUser(DEFAULT_LOGIN);
-        adminService.deleteUser(UPDATED_LOGIN);
         adminService.deleteUser(user.getLogin());
         adminService.deleteUser("anotherlogin");
         assertThat(userRepository.count()).isEqualTo(numberOfUsers);
@@ -206,19 +194,17 @@ class UserResourceIT {
 
     @Test
     @Transactional
-    void adminCanChangeStudentToInstructor() throws Exception {
-        userRepository.saveAndFlush(user);
-        AdminUserDTO userDTO = new AdminUserDTO(user);
-        userDTO.setAuthorities(Set.of(AuthoritiesConstants.USER, AuthoritiesConstants.INSTRUCTOR));
+    void adminCannotCreateAnotherAdmin() throws Exception {
+        AdminUserDTO userDTO = new AdminUserDTO();
+        userDTO.setLogin(DEFAULT_LOGIN);
+        userDTO.setEmail(DEFAULT_EMAIL);
+        userDTO.setAuthorities(Set.of(AuthoritiesConstants.ADMIN));
 
         restUserMockMvc
-            .perform(put("/api/admin/users").contentType(MediaType.APPLICATION_JSON).content(om.writeValueAsBytes(userDTO)))
-            .andExpect(status().isOk());
+            .perform(post("/api/admin/users").contentType(MediaType.APPLICATION_JSON).content(om.writeValueAsBytes(userDTO)))
+            .andExpect(status().isBadRequest());
 
-        Set<String> assignedRoles = new AdminUserDTO(
-            userRepository.findOneWithAuthoritiesByLogin(DEFAULT_LOGIN).orElseThrow()
-        ).getAuthorities();
-        assertThat(assignedRoles).containsExactlyInAnyOrder(AuthoritiesConstants.USER, AuthoritiesConstants.INSTRUCTOR);
+        assertThat(userRepository.findOneByLogin(DEFAULT_LOGIN)).isEmpty();
     }
 
     @Test
@@ -254,10 +240,10 @@ class UserResourceIT {
         restUserMockMvc
             .perform(get("/api/admin/roles"))
             .andExpect(status().isOk())
-            .andExpect(jsonPath("$[0]").value(AuthoritiesConstants.ADMIN))
-            .andExpect(jsonPath("$[1]").value(AuthoritiesConstants.INSTRUCTOR))
-            .andExpect(jsonPath("$[2]").value(AuthoritiesConstants.STUDENT))
-            .andExpect(jsonPath("$[3]").value(AuthoritiesConstants.PARENT));
+            .andExpect(jsonPath("$[0]").value(AuthoritiesConstants.INSTRUCTOR))
+            .andExpect(jsonPath("$[1]").value(AuthoritiesConstants.STUDENT))
+            .andExpect(jsonPath("$[2]").value(AuthoritiesConstants.PARENT))
+            .andExpect(jsonPath("$.length()").value(3));
     }
 
     @Test
@@ -382,6 +368,38 @@ class UserResourceIT {
 
     @Test
     @Transactional
+    void searchUsersByFullNameOrEmailBeforePagination() throws Exception {
+        user.setFirstName("Lucia");
+        user.setLastName("Nguyen");
+        user.setEmail("lucia.unique@example.com");
+        userRepository.saveAndFlush(user);
+
+        User other = createEntity();
+        other.setFirstName("Another");
+        other.setLastName("Person");
+        userRepository.saveAndFlush(other);
+
+        restUserMockMvc
+            .perform(get("/api/admin/users").param("search", "lUcIa nGuYeN").param("size", "1").param("sort", "id,desc"))
+            .andExpect(status().isOk())
+            .andExpect(header().string("X-Total-Count", "1"))
+            .andExpect(jsonPath("$.[0].login").value(user.getLogin()));
+
+        restUserMockMvc
+            .perform(get("/api/admin/users").param("search", "Nguyen Lucia"))
+            .andExpect(status().isOk())
+            .andExpect(header().string("X-Total-Count", "1"))
+            .andExpect(jsonPath("$.[0].login").value(user.getLogin()));
+
+        restUserMockMvc
+            .perform(get("/api/admin/users").param("search", "UNIQUE@EXAMPLE").param("role", "ROLE_STUDENT"))
+            .andExpect(status().isOk())
+            .andExpect(header().string("X-Total-Count", "1"))
+            .andExpect(jsonPath("$.[0].email").value("lucia.unique@example.com"));
+    }
+
+    @Test
+    @Transactional
     void getUser() throws Exception {
         // Initialize the database
         userRepository.saveAndFlush(user);
@@ -411,310 +429,80 @@ class UserResourceIT {
 
     @Test
     @Transactional
-    void updateUser() throws Exception {
-        // Initialize the database
-        userRepository.saveAndFlush(user);
-        int databaseSizeBeforeUpdate = userRepository.findAll().size();
-
-        // Update the user
-        User updatedUser = userRepository.findById(user.getId()).orElseThrow();
-
-        AdminUserDTO userDTO = new AdminUserDTO();
-        userDTO.setId(updatedUser.getId());
-        userDTO.setLogin(updatedUser.getLogin());
-        userDTO.setFirstName(UPDATED_FIRSTNAME);
-        userDTO.setLastName(UPDATED_LASTNAME);
-        userDTO.setEmail(UPDATED_EMAIL);
-        userDTO.setActivated(updatedUser.isActivated());
-        userDTO.setImageUrl(UPDATED_IMAGEURL);
-        userDTO.setLangKey(UPDATED_LANGKEY);
-        userDTO.setCreatedBy(updatedUser.getCreatedBy());
-        userDTO.setCreatedDate(updatedUser.getCreatedDate());
-        userDTO.setLastModifiedBy(updatedUser.getLastModifiedBy());
-        userDTO.setLastModifiedDate(updatedUser.getLastModifiedDate());
-        userDTO.setAuthorities(Set.of(AuthoritiesConstants.USER));
-
-        restUserMockMvc
-            .perform(put("/api/admin/users").contentType(MediaType.APPLICATION_JSON).content(om.writeValueAsBytes(userDTO)))
-            .andExpect(status().isOk());
-
-        // Validate the User in the database
-        assertPersistedUsers(users -> {
-            assertThat(users).hasSize(databaseSizeBeforeUpdate);
-            User testUser = users
-                .stream()
-                .filter(usr -> usr.getId().equals(updatedUser.getId()))
-                .findFirst()
-                .orElseThrow();
-            assertThat(testUser.getFirstName()).isEqualTo(UPDATED_FIRSTNAME);
-            assertThat(testUser.getLastName()).isEqualTo(UPDATED_LASTNAME);
-            assertThat(testUser.getEmail()).isEqualTo(UPDATED_EMAIL);
-            assertThat(testUser.getImageUrl()).isEqualTo(UPDATED_IMAGEURL);
-            assertThat(testUser.getLangKey()).isEqualTo(UPDATED_LANGKEY);
-        });
-    }
-
-    @Test
-    @Transactional
-    void updateUserLogin() throws Exception {
-        // Initialize the database
-        userRepository.saveAndFlush(user);
-        int databaseSizeBeforeUpdate = userRepository.findAll().size();
-
-        // Update the user
-        User updatedUser = userRepository.findById(user.getId()).orElseThrow();
-
-        AdminUserDTO userDTO = new AdminUserDTO();
-        userDTO.setId(updatedUser.getId());
-        userDTO.setLogin(UPDATED_LOGIN);
-        userDTO.setFirstName(UPDATED_FIRSTNAME);
-        userDTO.setLastName(UPDATED_LASTNAME);
-        userDTO.setEmail(UPDATED_EMAIL);
-        userDTO.setActivated(updatedUser.isActivated());
-        userDTO.setImageUrl(UPDATED_IMAGEURL);
-        userDTO.setLangKey(UPDATED_LANGKEY);
-        userDTO.setCreatedBy(updatedUser.getCreatedBy());
-        userDTO.setCreatedDate(updatedUser.getCreatedDate());
-        userDTO.setLastModifiedBy(updatedUser.getLastModifiedBy());
-        userDTO.setLastModifiedDate(updatedUser.getLastModifiedDate());
-        userDTO.setAuthorities(Set.of(AuthoritiesConstants.USER));
-
-        restUserMockMvc
-            .perform(put("/api/admin/users").contentType(MediaType.APPLICATION_JSON).content(om.writeValueAsBytes(userDTO)))
-            .andExpect(status().isOk());
-
-        // Validate the User in the database
-        assertPersistedUsers(users -> {
-            assertThat(users).hasSize(databaseSizeBeforeUpdate);
-            User testUser = users
-                .stream()
-                .filter(usr -> usr.getId().equals(updatedUser.getId()))
-                .findFirst()
-                .orElseThrow();
-            assertThat(testUser.getLogin()).isEqualTo(UPDATED_LOGIN);
-            assertThat(testUser.getFirstName()).isEqualTo(UPDATED_FIRSTNAME);
-            assertThat(testUser.getLastName()).isEqualTo(UPDATED_LASTNAME);
-            assertThat(testUser.getEmail()).isEqualTo(UPDATED_EMAIL);
-            assertThat(testUser.getImageUrl()).isEqualTo(UPDATED_IMAGEURL);
-            assertThat(testUser.getLangKey()).isEqualTo(UPDATED_LANGKEY);
-        });
-    }
-
-    @Test
-    @Transactional
-    void updateUserExistingEmail() throws Exception {
-        // Initialize the database with 2 users
+    void adminCanTemporarilyLockAndReactivateUser() throws Exception {
         userRepository.saveAndFlush(user);
 
-        User anotherUser = new User();
-        anotherUser.setLogin("jhipster");
-        anotherUser.setPassword(RandomStringUtils.insecure().nextAlphanumeric(60));
-        anotherUser.setActivated(true);
-        anotherUser.setEmail("jhipster@localhost");
-        anotherUser.setFirstName("java");
-        anotherUser.setLastName("hipster");
-        anotherUser.setImageUrl("");
-        anotherUser.setLangKey("en");
-        userRepository.saveAndFlush(anotherUser);
-
-        // Update the user
-        User updatedUser = userRepository.findById(user.getId()).orElseThrow();
-
-        AdminUserDTO userDTO = new AdminUserDTO();
-        userDTO.setId(updatedUser.getId());
-        userDTO.setLogin(updatedUser.getLogin());
-        userDTO.setFirstName(updatedUser.getFirstName());
-        userDTO.setLastName(updatedUser.getLastName());
-        userDTO.setEmail("jhipster@localhost"); // this email should already be used by anotherUser
-        userDTO.setActivated(updatedUser.isActivated());
-        userDTO.setImageUrl(updatedUser.getImageUrl());
-        userDTO.setLangKey(updatedUser.getLangKey());
-        userDTO.setCreatedBy(updatedUser.getCreatedBy());
-        userDTO.setCreatedDate(updatedUser.getCreatedDate());
-        userDTO.setLastModifiedBy(updatedUser.getLastModifiedBy());
-        userDTO.setLastModifiedDate(updatedUser.getLastModifiedDate());
-        userDTO.setAuthorities(Set.of(AuthoritiesConstants.USER));
-
         restUserMockMvc
-            .perform(put("/api/admin/users").contentType(MediaType.APPLICATION_JSON).content(om.writeValueAsBytes(userDTO)))
-            .andExpect(status().isBadRequest());
-    }
-
-    @Test
-    @Transactional
-    void updateUserExistingLogin() throws Exception {
-        // Initialize the database
-        userRepository.saveAndFlush(user);
-
-        User anotherUser = new User();
-        anotherUser.setLogin("jhipster");
-        anotherUser.setPassword(RandomStringUtils.insecure().nextAlphanumeric(60));
-        anotherUser.setActivated(true);
-        anotherUser.setEmail("jhipster@localhost");
-        anotherUser.setFirstName("java");
-        anotherUser.setLastName("hipster");
-        anotherUser.setImageUrl("");
-        anotherUser.setLangKey("en");
-        userRepository.saveAndFlush(anotherUser);
-
-        // Update the user
-        User updatedUser = userRepository.findById(user.getId()).orElseThrow();
-
-        AdminUserDTO userDTO = new AdminUserDTO();
-        userDTO.setId(updatedUser.getId());
-        userDTO.setLogin("jhipster"); // this login should already be used by anotherUser
-        userDTO.setFirstName(updatedUser.getFirstName());
-        userDTO.setLastName(updatedUser.getLastName());
-        userDTO.setEmail(updatedUser.getEmail());
-        userDTO.setActivated(updatedUser.isActivated());
-        userDTO.setImageUrl(updatedUser.getImageUrl());
-        userDTO.setLangKey(updatedUser.getLangKey());
-        userDTO.setCreatedBy(updatedUser.getCreatedBy());
-        userDTO.setCreatedDate(updatedUser.getCreatedDate());
-        userDTO.setLastModifiedBy(updatedUser.getLastModifiedBy());
-        userDTO.setLastModifiedDate(updatedUser.getLastModifiedDate());
-        userDTO.setAuthorities(Set.of(AuthoritiesConstants.USER));
-
-        restUserMockMvc
-            .perform(put("/api/admin/users").contentType(MediaType.APPLICATION_JSON).content(om.writeValueAsBytes(userDTO)))
-            .andExpect(status().isBadRequest());
-    }
-
-    @Test
-    @Transactional
-    void deleteUser() throws Exception {
-        // Initialize the database
-        userRepository.saveAndFlush(user);
-        int databaseSizeBeforeDelete = userRepository.findAll().size();
-
-        // Delete the user
-        restUserMockMvc
-            .perform(delete("/api/admin/users/{login}", user.getLogin()).accept(MediaType.APPLICATION_JSON))
-            .andExpect(status().isNoContent());
-
-        assertThat(cacheManager.getCache(UserRepository.USERS_BY_LOGIN_CACHE).get(user.getLogin(), User.class)).isNull();
-
-        // Validate the database is empty
-        assertPersistedUsers(users -> assertThat(users).hasSize(databaseSizeBeforeDelete - 1));
-    }
-
-    @Test
-    @Transactional
-    void getAdminCounts() throws Exception {
-        restUserMockMvc
-            .perform(get("/api/admin/users/admin-counts"))
+            .perform(
+                patch("/api/admin/users/{login}/activation", user.getLogin())
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content("{\"activated\":false}")
+            )
             .andExpect(status().isOk())
-            .andExpect(jsonPath("$.adminCount").value(1))
-            .andExpect(jsonPath("$.activeAdminCount").value(1));
-    }
-
-    @Test
-    @Transactional
-    @WithMockUser(username = "admin", authorities = AuthoritiesConstants.ADMIN)
-    void cannotDeactivateOwnAdminAccount() throws Exception {
-        saveSecondAdmin();
-        AdminUserDTO adminDTO = new AdminUserDTO(userRepository.findOneWithAuthoritiesByLogin("admin").orElseThrow());
-        adminDTO.setActivated(false);
+            .andExpect(jsonPath("$.activated").value(false));
+        assertThat(userRepository.findOneByLogin(user.getLogin()).orElseThrow().isActivated()).isFalse();
 
         restUserMockMvc
-            .perform(put("/api/admin/users").contentType(MediaType.APPLICATION_JSON).content(om.writeValueAsBytes(adminDTO)))
-            .andExpect(status().isBadRequest());
-
-        assertThat(userRepository.findOneByLogin("admin").orElseThrow().isActivated()).isTrue();
-        userRepository.delete(user);
+            .perform(
+                patch("/api/admin/users/{login}/activation", user.getLogin())
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content("{\"activated\":true}")
+            )
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.activated").value(true));
+        assertThat(userRepository.findOneByLogin(user.getLogin()).orElseThrow().isActivated()).isTrue();
     }
 
     @Test
     @Transactional
-    @WithMockUser(username = "admin", authorities = AuthoritiesConstants.ADMIN)
-    void cannotDeleteOwnAdminAccount() throws Exception {
-        saveSecondAdmin();
-        restUserMockMvc.perform(delete("/api/admin/users/admin")).andExpect(status().isBadRequest());
-        assertThat(userRepository.findOneByLogin("admin")).isPresent();
-        userRepository.delete(user);
-    }
-
-    @Test
-    @Transactional
-    @WithMockUser(username = "admin", authorities = AuthoritiesConstants.ADMIN)
-    void cannotRemoveOwnAdminRole() throws Exception {
-        saveSecondAdmin();
-        AdminUserDTO adminDTO = new AdminUserDTO(userRepository.findOneWithAuthoritiesByLogin("admin").orElseThrow());
-        adminDTO.setAuthorities(Set.of(AuthoritiesConstants.USER));
-
+    void adminCannotLockAdminAccount() throws Exception {
         restUserMockMvc
-            .perform(put("/api/admin/users").contentType(MediaType.APPLICATION_JSON).content(om.writeValueAsBytes(adminDTO)))
+            .perform(patch("/api/admin/users/admin/activation").contentType(MediaType.APPLICATION_JSON).content("{\"activated\":false}"))
             .andExpect(status().isBadRequest());
-
-        assertThat(userRepository.findOneWithAuthoritiesByLogin("admin").orElseThrow().getAuthorities()).anyMatch(authority ->
-            AuthoritiesConstants.ADMIN.equals(authority.getName())
-        );
-        userRepository.delete(user);
-    }
-
-    @Test
-    @Transactional
-    void cannotDeleteLastAdmin() throws Exception {
-        restUserMockMvc.perform(delete("/api/admin/users/admin")).andExpect(status().isBadRequest());
-        assertThat(userRepository.findOneByLogin("admin")).isPresent();
-    }
-
-    @Test
-    @Transactional
-    void cannotDeactivateLastAdmin() throws Exception {
-        AdminUserDTO adminDTO = new AdminUserDTO(userRepository.findOneWithAuthoritiesByLogin("admin").orElseThrow());
-        adminDTO.setActivated(false);
-
-        restUserMockMvc
-            .perform(put("/api/admin/users").contentType(MediaType.APPLICATION_JSON).content(om.writeValueAsBytes(adminDTO)))
-            .andExpect(status().isBadRequest());
-
         assertThat(userRepository.findOneByLogin("admin").orElseThrow().isActivated()).isTrue();
     }
 
     @Test
-    @Transactional
-    void cannotDeleteOnlyActiveAdminWhenAnotherAdminIsInactive() throws Exception {
-        saveSecondAdmin();
-        user.setActivated(false);
-        userRepository.saveAndFlush(user);
-
-        restUserMockMvc.perform(delete("/api/admin/users/admin")).andExpect(status().isBadRequest());
-
-        assertThat(userRepository.findOneByLogin("admin")).isPresent();
-        userRepository.delete(user);
+    void activationRequestRequiresBooleanState() throws Exception {
+        restUserMockMvc
+            .perform(patch("/api/admin/users/{login}/activation", DEFAULT_LOGIN).contentType(MediaType.APPLICATION_JSON).content("{}"))
+            .andExpect(status().isBadRequest());
     }
 
     @Test
     @Transactional
-    void cannotRemoveLastAdminRole() throws Exception {
-        AdminUserDTO adminDTO = new AdminUserDTO(userRepository.findOneWithAuthoritiesByLogin("admin").orElseThrow());
-        adminDTO.setAuthorities(Set.of(AuthoritiesConstants.USER));
+    void adminCannotUpdateUsers() throws Exception {
+        userRepository.saveAndFlush(user);
+        AdminUserDTO request = new AdminUserDTO(user);
+        request.setFirstName("changed");
+        request.setActivated(false);
+        request.setAuthorities(Set.of(AuthoritiesConstants.ADMIN));
 
         restUserMockMvc
-            .perform(put("/api/admin/users").contentType(MediaType.APPLICATION_JSON).content(om.writeValueAsBytes(adminDTO)))
-            .andExpect(status().isBadRequest());
+            .perform(put("/api/admin/users").contentType(MediaType.APPLICATION_JSON).content(om.writeValueAsBytes(request)))
+            .andExpect(status().isMethodNotAllowed());
+        restUserMockMvc
+            .perform(
+                put("/api/admin/users/{login}", user.getLogin())
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(om.writeValueAsBytes(request))
+            )
+            .andExpect(status().isMethodNotAllowed());
 
-        assertThat(userRepository.findOneWithAuthoritiesByLogin("admin").orElseThrow().getAuthorities()).anyMatch(authority ->
-            AuthoritiesConstants.ADMIN.equals(authority.getName())
-        );
+        User unchanged = userRepository.findOneWithAuthoritiesByLogin(user.getLogin()).orElseThrow();
+        assertThat(unchanged.getFirstName()).isEqualTo(DEFAULT_FIRSTNAME);
+        assertThat(unchanged.isActivated()).isTrue();
+        assertThat(unchanged.getAuthorities()).noneMatch(authority -> AuthoritiesConstants.ADMIN.equals(authority.getName()));
     }
 
     @Test
     @Transactional
-    void canDeleteAnotherAdminWhenOneRemains() throws Exception {
-        saveSecondAdmin();
-
-        restUserMockMvc.perform(delete("/api/admin/users/{login}", user.getLogin())).andExpect(status().isNoContent());
-
-        assertThat(userRepository.findOneByLogin(user.getLogin())).isEmpty();
-        assertThat(userRepository.countActiveUsersWithAuthority(AuthoritiesConstants.ADMIN)).isEqualTo(1);
-    }
-
-    private void saveSecondAdmin() {
-        User admin = userRepository.findOneWithAuthoritiesByLogin("admin").orElseThrow();
-        user.setAuthorities(new HashSet<>(admin.getAuthorities()));
+    void adminCannotDeleteUsers() throws Exception {
         userRepository.saveAndFlush(user);
+
+        restUserMockMvc.perform(delete("/api/admin/users/{login}", user.getLogin())).andExpect(status().isMethodNotAllowed());
+
+        assertThat(userRepository.findOneByLogin(user.getLogin())).isPresent();
     }
 
     @Test

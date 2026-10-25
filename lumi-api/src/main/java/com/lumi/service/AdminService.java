@@ -5,7 +5,6 @@ import com.lumi.domain.Authority;
 import com.lumi.domain.Category;
 import com.lumi.domain.Grade;
 import com.lumi.domain.Subject;
-import com.lumi.domain.Tag;
 import com.lumi.domain.User;
 import com.lumi.domain.UserProfile;
 import com.lumi.domain.enumeration.InstructorApplicationStatus;
@@ -14,7 +13,6 @@ import com.lumi.repository.AuthorityRepository;
 import com.lumi.repository.CategoryRepository;
 import com.lumi.repository.GradeRepository;
 import com.lumi.repository.SubjectRepository;
-import com.lumi.repository.TagRepository;
 import com.lumi.repository.UserProfileRepository;
 import com.lumi.repository.UserRepository;
 import com.lumi.security.AuthoritiesConstants;
@@ -29,6 +27,7 @@ import java.time.Instant;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Locale;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
@@ -58,7 +57,6 @@ public class AdminService {
     private final CategoryRepository categoryRepository;
     private final SubjectRepository subjectRepository;
     private final GradeRepository gradeRepository;
-    private final TagRepository tagRepository;
 
     public AdminService(
         UserRepository userRepository,
@@ -68,8 +66,7 @@ public class AdminService {
         UserService userService,
         CategoryRepository categoryRepository,
         SubjectRepository subjectRepository,
-        GradeRepository gradeRepository,
-        TagRepository tagRepository
+        GradeRepository gradeRepository
     ) {
         this.userRepository = userRepository;
         this.userProfileRepository = userProfileRepository;
@@ -79,7 +76,6 @@ public class AdminService {
         this.categoryRepository = categoryRepository;
         this.subjectRepository = subjectRepository;
         this.gradeRepository = gradeRepository;
-        this.tagRepository = tagRepository;
     }
 
     @Transactional(readOnly = true)
@@ -103,12 +99,6 @@ public class AdminService {
                 .map(this::catalogItem)
                 .sorted(Comparator.comparing(CatalogItemDTO::name))
                 .toList();
-            case "tags" -> tagRepository
-                .findAll()
-                .stream()
-                .map(this::catalogItem)
-                .sorted(Comparator.comparing(CatalogItemDTO::name))
-                .toList();
             default -> throw catalogNotFound();
         };
     }
@@ -119,7 +109,6 @@ public class AdminService {
             case "subjects" -> saveSubject(id, name, input);
             case "grades" -> saveGrade(id, name, input);
             case "categories" -> saveCategory(id, name, input);
-            case "tags" -> saveTag(id, name);
             default -> throw catalogNotFound();
         };
     }
@@ -141,11 +130,6 @@ public class AdminService {
                 if (!active && categoryRepository.existsByParentIdAndActiveTrue(id)) {
                     throw new ResponseStatusException(HttpStatus.CONFLICT, "Deactivate child categories first");
                 }
-                item.setActive(active);
-                yield catalogItem(item);
-            }
-            case "tags" -> {
-                Tag item = tagRepository.findById(id).orElseThrow(this::missingCatalog);
                 item.setActive(active);
                 yield catalogItem(item);
             }
@@ -219,19 +203,6 @@ public class AdminService {
         return catalogItem(categoryRepository.save(item));
     }
 
-    private CatalogItemDTO saveTag(Long id, String name) {
-        Tag item = id == null ? new Tag() : tagRepository.findById(id).orElseThrow(this::missingCatalog);
-        boolean nameExists = tagRepository
-            .findByNameIgnoreCase(name)
-            .filter(other -> id == null || !Objects.equals(other.getId(), id))
-            .isPresent();
-        if (nameExists) {
-            throw duplicateCatalog();
-        }
-        item.setName(name);
-        return catalogItem(tagRepository.save(item));
-    }
-
     private ResponseStatusException catalogNotFound() {
         return new ResponseStatusException(HttpStatus.NOT_FOUND, "Catalog not found");
     }
@@ -257,13 +228,12 @@ public class AdminService {
         return new CatalogItemDTO(item.getId(), item.getName(), item.getDescription(), null, parentId, item.getActive());
     }
 
-    private CatalogItemDTO catalogItem(Tag item) {
-        return new CatalogItemDTO(item.getId(), item.getName(), null, null, null, item.getActive());
-    }
-
     public User createUser(AdminUserDTO userDTO) {
         if (userDTO.getId() != null) {
             throw new BadRequestAlertException("A new user cannot already have an ID", "userManagement", "idexists");
+        }
+        if (userDTO.getAuthorities() != null && userDTO.getAuthorities().contains(AuthoritiesConstants.ADMIN)) {
+            throw new BadRequestAlertException("Admin accounts cannot be created", "userManagement", "adminCreationDisabled");
         }
         if (userRepository.findOneByLogin(userDTO.getLogin().toLowerCase()).isPresent()) {
             throw new LoginAlreadyUsedException();
@@ -355,19 +325,16 @@ public class AdminService {
     }
 
     @Transactional(readOnly = true)
-    public Page<AdminUserDTO> getAllUsers(Role role, Pageable pageable) {
-        Page<User> users = role == null ? userRepository.findAll(pageable) : userRepository.findAllByManagedRole(role.name(), pageable);
+    public Page<AdminUserDTO> getAllUsers(Role role, String search, Pageable pageable) {
+        boolean hasSearch = search != null && !search.isBlank();
+        String searchPattern = !hasSearch
+            ? "%"
+            : "%" + search.trim().toLowerCase(Locale.ROOT).replace("!", "!!").replace("%", "!%").replace("_", "!_") + "%";
+        Page<User> users =
+            role == null && !hasSearch
+                ? userRepository.findAll(pageable)
+                : userRepository.findAllByManagedRoleAndSearch(role == null ? "" : role.name(), searchPattern, pageable);
         return users.map(AdminUserDTO::new);
-    }
-
-    @Transactional(readOnly = true)
-    public long countAdmins() {
-        return userRepository.countUsersWithAuthority(AuthoritiesConstants.ADMIN);
-    }
-
-    @Transactional(readOnly = true)
-    public long countActiveAdmins() {
-        return userRepository.countActiveUsersWithAuthority(AuthoritiesConstants.ADMIN);
     }
 
     @Transactional(readOnly = true)
@@ -375,9 +342,26 @@ public class AdminService {
         return userRepository.findOneWithAuthoritiesByLogin(login).map(AdminUserDTO::new);
     }
 
+    public AdminUserDTO setUserActivation(String login, boolean activated) {
+        User user = userRepository
+            .findOneWithAuthoritiesByLogin(login)
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
+        if (hasAdminRole(user)) {
+            throw new BadRequestAlertException("The admin account cannot be locked or activated", "userManagement", "adminAccessProtected");
+        }
+        userService.clearUserCaches(user);
+        user.setActivated(activated);
+        User savedUser = userRepository.save(user);
+        userService.clearUserCaches(savedUser);
+        return new AdminUserDTO(savedUser);
+    }
+
     @Transactional(readOnly = true)
     public List<String> getManagedRoles() {
-        return Arrays.stream(Role.values()).map(Role::name).toList();
+        return Arrays.stream(Role.values())
+            .filter(role -> role != Role.ROLE_ADMIN)
+            .map(Role::name)
+            .toList();
     }
 
     @Transactional(readOnly = true)
@@ -425,12 +409,11 @@ public class AdminService {
         if (profile.getInstructorStatus() != InstructorApplicationStatus.PENDING) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Instructor application has already been reviewed");
         }
-        String reviewer = SecurityUtils.getCurrentUserLogin().orElseThrow(() -> new AccessDeniedException("Admin login required"));
+        SecurityUtils.getCurrentUserLogin().orElseThrow(() -> new AccessDeniedException("Admin login required"));
         Instant now = Instant.now();
         profile.setInstructorStatus(decision);
         profile.setInstructorRejectionReason(reason);
         profile.setInstructorReviewedAt(now);
-        profile.setInstructorReviewedBy(reviewer);
         profile.setUpdatedAt(now);
         return InstructorApplicationDTO.from(userProfileRepository.saveAndFlush(profile));
     }
@@ -465,38 +448,20 @@ public class AdminService {
         boolean hasAdminRole = hasAdminRole(user);
         boolean keepsAdminRole =
             requestedUser.getAuthorities() != null && requestedUser.getAuthorities().contains(AuthoritiesConstants.ADMIN);
-
-        if (isCurrentUser(user) && (!requestedUser.isActivated() || (hasAdminRole && !keepsAdminRole))) {
-            throw new BadRequestAlertException("You cannot remove your own admin access", "userManagement", "selfAdminAccess");
+        if (!hasAdminRole && keepsAdminRole) {
+            throw new BadRequestAlertException("Admin access cannot be granted", "userManagement", "adminCreationDisabled");
         }
-
         boolean removesAdminRole = hasAdminRole && !keepsAdminRole;
         boolean deactivatesAdmin = hasAdminRole && user.isActivated() && !requestedUser.isActivated();
         if (removesAdminRole || deactivatesAdmin) {
-            lockAdminRole();
-            if (countAdmins() <= 1 || (user.isActivated() && countActiveAdmins() <= 1)) {
-                throw new BadRequestAlertException("The last admin cannot lose access", "userManagement", "lastAdmin");
-            }
+            throw new BadRequestAlertException("The admin account cannot lose access", "userManagement", "adminAccessProtected");
         }
     }
 
     private void preventProtectedAdminDeletion(User user) {
-        if (isCurrentUser(user)) {
-            throw new BadRequestAlertException("You cannot delete your own account", "userManagement", "selfDelete");
-        }
-
         if (hasAdminRole(user)) {
-            lockAdminRole();
-            if (countAdmins() <= 1 || (user.isActivated() && countActiveAdmins() <= 1)) {
-                throw new BadRequestAlertException("The last admin cannot be deleted", "userManagement", "lastAdmin");
-            }
+            throw new BadRequestAlertException("The admin account cannot be deleted", "userManagement", "adminDeleteProtected");
         }
-    }
-
-    private boolean isCurrentUser(User user) {
-        return SecurityUtils.getCurrentUserLogin()
-            .map(login -> login.equalsIgnoreCase(user.getLogin()))
-            .orElse(false);
     }
 
     private boolean hasAdminRole(User user) {
@@ -504,10 +469,6 @@ public class AdminService {
             .getAuthorities()
             .stream()
             .anyMatch(authority -> AuthoritiesConstants.ADMIN.equals(authority.getName()));
-    }
-
-    private void lockAdminRole() {
-        authorityRepository.lockByName(AuthoritiesConstants.ADMIN).orElseThrow(() -> new IllegalStateException("Admin role is missing"));
     }
 
     private Set<Authority> resolveManagedAuthorities(Set<String> requestedRoles) {

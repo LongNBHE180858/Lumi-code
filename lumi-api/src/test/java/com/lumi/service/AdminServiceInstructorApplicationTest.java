@@ -83,7 +83,6 @@ class AdminServiceInstructorApplicationTest {
         var result = adminService.approveInstructorApplication(42L);
 
         assertThat(result.status()).isEqualTo(InstructorApplicationStatus.ACTIVE);
-        assertThat(result.reviewedBy()).isEqualTo("reviewer");
         assertThat(result.reviewedAt()).isNotNull();
         assertThat(result.rejectionReason()).isNull();
     }
@@ -99,7 +98,6 @@ class AdminServiceInstructorApplicationTest {
 
         assertThat(result.status()).isEqualTo(InstructorApplicationStatus.REJECTED);
         assertThat(result.rejectionReason()).isEqualTo("Missing qualifications");
-        assertThat(result.reviewedBy()).isEqualTo("reviewer");
     }
 
     @Test

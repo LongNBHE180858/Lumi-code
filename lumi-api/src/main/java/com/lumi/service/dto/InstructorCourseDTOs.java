@@ -29,10 +29,6 @@ public final class InstructorCourseDTOs {
 
     public record CategoryInput(@NotNull @Min(0) Long version, Long categoryId) {}
 
-    public record TagsInput(@NotNull @Min(0) Long version, @NotNull List<@NotNull Long> tagIds) {}
-
-    public record TagItem(Long id, String name) {}
-
     public record ChapterInput(@NotNull @Min(0) Long version, @NotBlank @Size(max = 255) String title) {}
 
     /** VND, one-time payment; zero means free. Duration uses calendar units. */

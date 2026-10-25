@@ -3,15 +3,9 @@
     "home": {
       "title": "Tài khoản",
       "refreshListLabel": "Refresh list",
-      "createLabel": "Tạo tài khoản mới",
-      "editLabel": "Sửa thông tin tài khoản"
+      "createLabel": "Tạo tài khoản mới"
     },
     "created": "Một tài khoản mới đã được tạo với định danh {{ param }}",
-    "updated": "Một tài khoản đã được cập nhật với định danh {{ param }}",
-    "deleted": "Một tài khoản đã bị xóa với định danh {{ param }}",
-    "delete": {
-      "question": "Bạn có chắc chắn muốn xóa tài khoản {{ login }}?"
-    },
     "detail": {
       "title": "Tài khoản"
     },
@@ -19,12 +13,12 @@
     "firstName": "Tên",
     "lastName": "Họ",
     "email": "Email",
-    "activated": "Kích hoạt",
-    "deactivated": "Khóa",
+    "status": "Trạng thái",
+    "activated": "Đã kích hoạt",
+    "deactivated": "Tạm khóa",
     "profiles": "Vai trò",
     "businessRole": "Phân quyền tài khoản",
     "businessRoleHint": "Chọn một vai trò cho tài khoản. Quyền đăng nhập cơ bản được cấp tự động.",
-    "protectedAdminRole": "Không thể đổi quyền quản trị của chính mình hoặc quản trị viên cuối cùng.",
     "rolesUnavailable": "Đang tải vai trò hoặc không thể kết nối tới API phân quyền.",
     "roles": {
       "student": "Học sinh",

@@ -1,36 +1,28 @@
 import React, { useEffect } from 'react';
 import { Button, Col, Row } from 'react-bootstrap';
 import { Translate, ValidatedField, ValidatedForm, isEmail, translate } from 'react-jhipster';
-import { Link, useNavigate, useParams } from 'react-router';
-import { ArrowLeft, CircleAlert, Save } from 'lucide-react';
+import { Link, useNavigate } from 'react-router';
+import { ArrowLeft, Save } from 'lucide-react';
 
 import { useAppDispatch, useAppSelector } from 'app/config/store';
 import { languages, locales } from 'app/config/translation';
 import { Authority } from 'app/shared/jhipster/constants';
 
-import { createUser, getAdminCounts, getRoles, getUser, reset, updateUser } from './user-management.reducer';
-import { getManagedRole, getManagedRoleLabel, MANAGED_ROLES } from './user-role';
+import { createUser, getRoles, reset } from './user-management.reducer';
+import { getManagedRoleLabel, MANAGED_ROLES } from './user-role';
 
-export const UserManagementUpdate = () => {
+export const UserManagementCreate = () => {
   const dispatch = useAppDispatch();
 
   const navigate = useNavigate();
 
-  const { login } = useParams<'login'>();
-  const isNew = login === undefined;
-
   useEffect(() => {
-    if (isNew) {
-      dispatch(reset());
-    } else {
-      dispatch(getUser(login));
-      dispatch(getAdminCounts());
-    }
+    dispatch(reset());
     dispatch(getRoles());
     return () => {
       dispatch(reset());
     };
-  }, [login]);
+  }, [dispatch]);
 
   const handleClose = () => {
     navigate('/admin/user-management');
@@ -38,36 +30,19 @@ export const UserManagementUpdate = () => {
 
   const saveUser = values => {
     const { businessRole, ...userValues } = values;
-    const selectedRole = roleLocked ? Authority.ADMIN : businessRole;
     const payload = {
       ...userValues,
-      id: isNew ? undefined : user.id,
-      activated: roleLocked ? user.activated : userValues.activated,
-      authorities: [Authority.USER, selectedRole],
+      authorities: [Authority.USER, businessRole],
     };
-    if (isNew) {
-      dispatch(createUser(payload));
-    } else {
-      dispatch(updateUser(payload));
-    }
+    dispatch(createUser(payload));
   };
 
-  const user = useAppSelector(state => state.userManagement.user);
   const loading = useAppSelector(state => state.userManagement.loading);
   const updating = useAppSelector(state => state.userManagement.updating);
   const updateSuccess = useAppSelector(state => state.userManagement.updateSuccess);
-  const account = useAppSelector(state => state.authentication.account);
-  const adminCounts = useAppSelector(state => state.userManagement.adminCounts);
   const authorities = useAppSelector(state => state.userManagement.authorities);
-  const availableRoles = MANAGED_ROLES.filter(role => authorities.includes(role));
-  const currentRole = getManagedRole(user.authorities);
-  const isSelf = Boolean(!isNew && account.login && user.login && account.login.toLowerCase() === user.login.toLowerCase());
-  const isLastAdmin =
-    !isNew &&
-    currentRole === Authority.ADMIN &&
-    (!adminCounts || adminCounts.adminCount <= 1 || (user.activated && adminCounts.activeAdminCount <= 1));
-  const roleLocked = currentRole === Authority.ADMIN && (isSelf || isLastAdmin);
-  const formValues = { ...user, businessRole: currentRole };
+  const availableRoles = MANAGED_ROLES.filter(role => role !== Authority.ADMIN && authorities.includes(role));
+  const formValues = { businessRole: Authority.STUDENT };
 
   // Navigate back only once the request has completed, otherwise a concurrent request may observe a stale state.
   useEffect(() => {
@@ -81,11 +56,7 @@ export const UserManagementUpdate = () => {
       <Row className="justify-content-center">
         <Col md="8">
           <h1 data-cy="UserManagementCreateUpdateHeading">
-            {isNew ? (
-              <Translate contentKey="userManagement.home.createLabel">Create a new user</Translate>
-            ) : (
-              <Translate contentKey="userManagement.home.editLabel">Edit user</Translate>
-            )}
+            <Translate contentKey="userManagement.home.createLabel">Create a new user</Translate>
           </h1>
         </Col>
       </Row>
@@ -95,12 +66,6 @@ export const UserManagementUpdate = () => {
             <p>Loading...</p>
           ) : (
             <ValidatedForm mode="all" onSubmit={saveUser} defaultValues={formValues}>
-              {!isNew && user.id != null && (
-                <div className="admin-user-readonly-id" data-cy="id">
-                  <span>{translate('global.field.id')}</span>
-                  <strong>{user.id}</strong>
-                </div>
-              )}
               <ValidatedField
                 type="text"
                 name="login"
@@ -173,15 +138,6 @@ export const UserManagementUpdate = () => {
                   validate: v => isEmail(v) || translate('global.messages.validate.email.invalid'),
                 }}
               />
-              <ValidatedField
-                type="checkbox"
-                name="activated"
-                data-cy="activated"
-                check
-                value={true}
-                label={translate('userManagement.activated')}
-                disabled={roleLocked}
-              />
               <ValidatedField type="select" name="langKey" data-cy="langKey" label={translate('userManagement.langKey')}>
                 {locales.map(locale => (
                   <option value={locale} key={locale}>
@@ -189,26 +145,14 @@ export const UserManagementUpdate = () => {
                   </option>
                 ))}
               </ValidatedField>
-              <ValidatedField
-                type="select"
-                name="businessRole"
-                data-cy="businessRole"
-                label={translate('userManagement.businessRole')}
-                disabled={roleLocked}
-              >
+              <ValidatedField type="select" name="businessRole" data-cy="businessRole" label={translate('userManagement.businessRole')}>
                 {availableRoles.map(role => (
                   <option value={role} key={role}>
                     {getManagedRoleLabel(role)}
                   </option>
                 ))}
               </ValidatedField>
-              {availableRoles.length === 0 && <p className="admin-user-role-locked">{translate('userManagement.rolesUnavailable')}</p>}
-              {roleLocked && (
-                <p className="admin-user-role-locked">
-                  <CircleAlert size={16} aria-hidden="true" />
-                  <span>{translate('userManagement.protectedAdminRole')}</span>
-                </p>
-              )}
+              {availableRoles.length === 0 && <p className="admin-user-role-unavailable">{translate('userManagement.rolesUnavailable')}</p>}
               <div className="admin-user-form-actions">
                 <Button
                   as={Link as any}
@@ -242,4 +186,4 @@ export const UserManagementUpdate = () => {
   );
 };
 
-export default UserManagementUpdate;
+export default UserManagementCreate;

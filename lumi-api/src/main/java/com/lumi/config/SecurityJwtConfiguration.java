@@ -3,12 +3,15 @@ package com.lumi.config;
 import static com.lumi.security.SecurityUtils.JWT_ALGORITHM;
 
 import com.lumi.management.SecurityMetersService;
+import com.lumi.repository.UserRepository;
+import com.lumi.security.jwt.ActiveUserJwtDecoder;
 import com.nimbusds.jose.jwk.source.ImmutableSecret;
 import com.nimbusds.jose.util.Base64;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -28,9 +31,9 @@ public class SecurityJwtConfiguration {
     private String jwtKey;
 
     @Bean
-    public JwtDecoder jwtDecoder(SecurityMetersService metersService) {
+    public JwtDecoder jwtDecoder(SecurityMetersService metersService, ObjectProvider<UserRepository> userRepositoryProvider) {
         NimbusJwtDecoder jwtDecoder = NimbusJwtDecoder.withSecretKey(getSecretKey()).macAlgorithm(JWT_ALGORITHM).build();
-        return token -> {
+        JwtDecoder meteredDecoder = token -> {
             try {
                 return jwtDecoder.decode(token);
             } catch (Exception e) {
@@ -50,6 +53,9 @@ public class SecurityJwtConfiguration {
                 throw e;
             }
         };
+        // Security-only test contexts omit JPA; the running application has a UserRepository.
+        UserRepository userRepository = userRepositoryProvider.getIfAvailable();
+        return userRepository == null ? meteredDecoder : new ActiveUserJwtDecoder(meteredDecoder, userRepository);
     }
 
     @Bean

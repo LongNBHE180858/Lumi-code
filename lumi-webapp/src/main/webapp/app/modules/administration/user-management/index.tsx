@@ -4,23 +4,16 @@ import { Route } from 'react-router';
 import ErrorBoundaryRoutes from 'app/shared/error/error-boundary-routes';
 
 import UserManagement from './user-management';
-import UserManagementDeleteDialog from './user-management-delete-dialog';
 import UserManagementDetail from './user-management-detail';
-import UserManagementUpdate from './user-management-update';
+import UserManagementCreate from './user-management-create';
 import './user-management.scss';
 
-interface UserManagementRoutesProps {
-  searchValue: string;
-}
-
-const UserManagementRoutes = ({ searchValue }: UserManagementRoutesProps) => (
+const UserManagementRoutes = () => (
   <ErrorBoundaryRoutes>
-    <Route index element={<UserManagement searchValue={searchValue} />} />
-    <Route path="new" element={<UserManagementUpdate />} />
+    <Route index element={<UserManagement />} />
+    <Route path="new" element={<UserManagementCreate />} />
     <Route path=":login">
       <Route index element={<UserManagementDetail />} />
-      <Route path="edit" element={<UserManagementUpdate />} />
-      <Route path="delete" element={<UserManagementDeleteDialog />} />
     </Route>
   </ErrorBoundaryRoutes>
 );

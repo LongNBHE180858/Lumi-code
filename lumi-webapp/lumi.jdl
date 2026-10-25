@@ -34,7 +34,6 @@ entity UserProfile {
   instructorStatus InstructorApplicationStatus
   instructorRejectionReason String maxlength(2000)
   instructorReviewedAt Instant
-  instructorReviewedBy String maxlength(50)
   updatedAt Instant
 }
 
@@ -76,11 +75,6 @@ entity Subject {
 entity Grade {
   level Integer required unique min(1) max(12)
   name String required maxlength(50)
-  active Boolean required
-}
-
-entity Tag {
-  name String required unique maxlength(100)
   active Boolean required
 }
 
@@ -559,10 +553,6 @@ relationship ManyToOne {
   TicketMessage{ticket(subject) required} to SupportTicket
 }
 
-relationship ManyToMany {
-  Course{tags(name)} to Tag
-}
-
 // ============================================================================
 // GLOBAL ARCHITECTURE OPTIONS (Cấu hình MapStruct, Service, Pagination)
 // ============================================================================
@@ -575,7 +565,7 @@ filter *
 paginate AuthSession, ProctorEvent, AiMessage, WalletTransaction, ExamAnswer, DiscussionReply, TicketMessage, ContentReport, Notification, AuditLog with infinite-scroll
 
 // --- Cấu hình Phân trang Chuẩn (Phân trang danh sách) ---
-paginate UserProfile, Category, Subject, Grade, Tag, Course, CourseEnrollment, CourseReview, StudyClass, ClassMember, TeacherVerification with pagination
+paginate UserProfile, Category, Subject, Grade, Course, CourseEnrollment, CourseReview, StudyClass, ClassMember, TeacherVerification with pagination
 paginate SystemPlan, Coupon, CourseOrder, Payment, Refund, PayoutRequest, QuestionBank, Question, Exam, ExamAttempt, Assignment, AssignmentSubmission with pagination
 paginate StudentNote, FlashcardDeck, Flashcard, KnowledgeNode, AiConversation, Discussion, SupportTicket, Lesson, Chapter, CourseMaterial, ClassMaterial with pagination
 paginate AssignmentStudent with pagination

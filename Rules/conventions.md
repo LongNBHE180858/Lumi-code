@@ -1,0 +1,11 @@
+# Quy ước riêng
+- Giữ API của Tài khoản, Đơn giảng viên và Danh mục dưới `/api/admin/...` theo `AdminResource`/`AdminService`; FE gọi qua `user-api.ts`, `instructor-applications-api.ts`, `catalog-api.ts`.
+- Dùng `ROLE_INSTRUCTOR` và `ROLE_PARENT` ở cả BE/FE; `ROLE_TEACHER` và `ROLE_PARENTS` là tên cũ dễ làm lệch phân quyền.
+- Dùng `InstructorApplicationStatus` cho đơn giảng viên; đừng thay bằng `RecordStatus` của khóa học.
+- Hệ thống chỉ duy trì một tài khoản admin khởi tạo sẵn; không cho tạo thêm tài khoản `ROLE_ADMIN` từ UI/API. Quản lý tài khoản admin cho tạo, xem và kích hoạt/tạm khóa tài khoản thường qua API trạng thái riêng; không cho sửa thông tin, đổi role hoặc xóa qua UI/API. Tài khoản admin hiện có không được tạm khóa hay mất quyền.
+- Giữ giao diện admin hiện tại khi nối API hoặc tách component; dùng icon Lucide thay cho ảnh icon trong khu vực này.
+- Chỉ coi `categories`, `subjects`, `grades` là danh mục hiện hành; Tag khóa học đã bị gỡ khỏi code và API.
+- Phân biệt file đang có, mã nền JHipster và file mới dự kiến khi mô tả cấu trúc; đừng trình bày file dự kiến như đã tồn tại.
+- Đồng bộ hai `lumi.jdl` khi đổi mô hình; đừng chạy sinh lại JHipster tùy tiện vì có mã đã tùy biến.
+- Giữ dữ liệu mẫu do nhóm/JHipster có sẵn; đừng thêm seed hoặc sửa dữ liệu người khác nếu chưa được yêu cầu.
+- Đọc chi tiết DB tại `Rules/topics/database.md` trước mọi thay đổi schema hoặc migration.
