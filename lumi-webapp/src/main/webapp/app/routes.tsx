@@ -20,6 +20,8 @@ import InstructorProfile from 'app/modules/instructor-profile/instructor-profile
 import Courses from 'app/modules/courses/courses';
 import CourseDetail from 'app/modules/course-detail/course-detail';
 import FeedbackSubmit from 'app/entities/feedback/feedback-submit';
+import TicketList from 'app/modules/support-tickets/ticket-list';
+import TicketDetail from 'app/modules/support-tickets/ticket-detail';
 
 const loading = <div>loading ...</div>;
 
@@ -77,6 +79,26 @@ const AppRoutes = () => {
             element={
               <PrivateRoute hasAnyAuthorities={[Authority.ADMIN, Authority.USER]}>
                 <FeedbackSubmit />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="support-tickets"
+            element={
+              <PrivateRoute
+                hasAnyAuthorities={[Authority.ADMIN, Authority.USER, Authority.STUDENT, Authority.INSTRUCTOR, Authority.PARENT]}
+              >
+                <TicketList />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="support-tickets/:id"
+            element={
+              <PrivateRoute
+                hasAnyAuthorities={[Authority.ADMIN, Authority.USER, Authority.STUDENT, Authority.INSTRUCTOR, Authority.PARENT]}
+              >
+                <TicketDetail />
               </PrivateRoute>
             }
           />

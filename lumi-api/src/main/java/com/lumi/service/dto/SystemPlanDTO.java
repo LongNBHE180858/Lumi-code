@@ -33,7 +33,6 @@ public class SystemPlanDTO implements Serializable {
     @Min(value = 0)
     private Integer aiGenerationLimit;
 
-    @NotNull
     @Min(value = 1)
     private Integer maxClasses;
 

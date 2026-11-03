@@ -883,7 +883,7 @@ class CourseOrderResourceIT {
         SystemPlan plan;
         if (TestUtil.findAll(em, SystemPlan.class).isEmpty()) {
             courseOrderRepository.saveAndFlush(courseOrder);
-            plan = SystemPlanResourceIT.createEntity();
+            plan = com.lumi.domain.SystemPlanTestFixtures.createEntity();
         } else {
             plan = TestUtil.findAll(em, SystemPlan.class).getFirst();
         }

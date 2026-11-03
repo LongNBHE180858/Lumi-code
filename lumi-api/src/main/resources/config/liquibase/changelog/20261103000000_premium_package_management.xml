@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+    <changeSet id="20261103000000-1" author="lumi">
+        <addColumn tableName="system_plan">
+            <column name="package_type" type="varchar(40)"/>
+            <column name="package_key" type="varchar(36)"/>
+            <column name="revision" type="integer" defaultValueNumeric="1">
+                <constraints nullable="false"/>
+            </column>
+            <column name="current_revision" type="boolean" defaultValueBoolean="true">
+                <constraints nullable="false"/>
+            </column>
+            <column name="available" type="boolean" defaultValueBoolean="false">
+                <constraints nullable="false"/>
+            </column>
+        </addColumn>
+        <dropNotNullConstraint tableName="system_plan" columnName="max_classes" columnDataType="integer"/>
+        <createIndex tableName="system_plan" indexName="idx_system_plan_current_revision">
+            <column name="current_revision"/>
+        </createIndex>
+        <addUniqueConstraint tableName="system_plan" columnNames="package_key, revision" constraintName="uk_system_plan_package_revision"/>
+    </changeSet>
+</databaseChangeLog>

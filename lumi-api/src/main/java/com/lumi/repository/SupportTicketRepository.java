@@ -1,6 +1,7 @@
 package com.lumi.repository;
 
 import com.lumi.domain.SupportTicket;
+import jakarta.persistence.LockModeType;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.data.domain.Page;
@@ -16,6 +17,24 @@ import org.springframework.stereotype.Repository;
 public interface SupportTicketRepository extends JpaRepository<SupportTicket, Long>, JpaSpecificationExecutor<SupportTicket> {
     @Query("select supportTicket from SupportTicket supportTicket where supportTicket.user.login = ?#{authentication.name}")
     List<SupportTicket> findByUserIsCurrentUser();
+
+    @EntityGraph(attributePaths = "user")
+    Page<SupportTicket> findByUserId(Long userId, Pageable pageable);
+
+    @Query(
+        value = "select ticket from SupportTicket ticket join fetch ticket.user user where (:status is null or ticket.status = :status) and (:type is null or ticket.type = :type) and (:search is null or lower(ticket.subject) like :search or lower(user.login) like :search)",
+        countQuery = "select count(ticket) from SupportTicket ticket join ticket.user user where (:status is null or ticket.status = :status) and (:type is null or ticket.type = :type) and (:search is null or lower(ticket.subject) like :search or lower(user.login) like :search)"
+    )
+    Page<SupportTicket> findAdminPage(
+        @Param("status") String status,
+        @Param("type") String type,
+        @Param("search") String search,
+        Pageable pageable
+    );
+
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("select ticket from SupportTicket ticket join fetch ticket.user where ticket.id = :id")
+    Optional<SupportTicket> findByIdForUpdate(@Param("id") Long id);
 
     default Optional<SupportTicket> findOneWithEagerRelationships(Long id) {
         return this.findOneWithToOneRelationships(id);

@@ -7,15 +7,12 @@ import classMaterial from 'app/entities/class-material/class-material.reducer';
 import classMember from 'app/entities/class-member/class-member.reducer';
 import courseReview from 'app/entities/course-review/course-review.reducer';
 import studyClass from 'app/entities/study-class/study-class.reducer';
-import supportTicket from 'app/entities/support-ticket/support-ticket.reducer';
-import systemPlan from 'app/entities/system-plan/system-plan.reducer';
 import teacherQuota from 'app/entities/teacher-quota/teacher-quota.reducer';
 import coupon from 'app/entities/coupon/coupon.reducer';
 import courseOrder from 'app/entities/course-order/course-order.reducer';
 import payment from 'app/entities/payment/payment.reducer';
 import refund from 'app/entities/refund/refund.reducer';
 import instructorWallet from 'app/entities/instructor-wallet/instructor-wallet.reducer';
-import ticketMessage from 'app/entities/ticket-message/ticket-message.reducer';
 import walletTransaction from 'app/entities/wallet-transaction/wallet-transaction.reducer';
 import payoutRequest from 'app/entities/payout-request/payout-request.reducer';
 import questionBank from 'app/entities/question-bank/question-bank.reducer';
@@ -75,7 +72,6 @@ const entitiesReducers = {
   studyClass,
   classMember,
   classMaterial,
-  systemPlan,
   teacherQuota,
   coupon,
   courseOrder,
@@ -107,8 +103,6 @@ const entitiesReducers = {
   aiMessage,
   discussion,
   discussionReply,
-  supportTicket,
-  ticketMessage,
   contentReport,
   notification,
   auditLog,

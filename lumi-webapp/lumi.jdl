@@ -24,6 +24,10 @@ enum ClassJoinMode {
   INVITE_ONLY, CODE_APPROVAL, CODE_AUTO
 }
 
+enum PremiumPackageType {
+  PARENT_PERSONAL, PARENT_FAMILY, INSTRUCTOR_PERSONAL, INSTRUCTOR_CLASS
+}
+
 // --- PHẦN HỆ 1: AUTH & USER ---
 entity UserProfile {
   phoneNumber String unique maxlength(20)
@@ -187,7 +191,12 @@ entity SystemPlan {
   durationDays Integer required min(1)
   storageQuotaMb Long required min(0)
   aiGenerationLimit Integer required min(0)
-  maxClasses Integer required min(1)
+  maxClasses Integer min(1)
+  packageType PremiumPackageType
+  packageKey String maxlength(36)
+  revision Integer required min(1)
+  currentRevision Boolean required
+  available Boolean required
 }
 
 entity TeacherQuota {

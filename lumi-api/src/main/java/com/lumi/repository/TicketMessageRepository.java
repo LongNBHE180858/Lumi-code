@@ -17,6 +17,9 @@ public interface TicketMessageRepository extends JpaRepository<TicketMessage, Lo
     @Query("select ticketMessage from TicketMessage ticketMessage where ticketMessage.sender.login = ?#{authentication.name}")
     List<TicketMessage> findBySenderIsCurrentUser();
 
+    @EntityGraph(attributePaths = "sender")
+    Page<TicketMessage> findByTicketIdOrderByCreatedAtAscIdAsc(Long ticketId, Pageable pageable);
+
     default Optional<TicketMessage> findOneWithEagerRelationships(Long id) {
         return this.findOneWithToOneRelationships(id);
     }

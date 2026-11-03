@@ -184,7 +184,7 @@ export const CourseOrder = () => {
                   </td>
                   <td>{courseOrder.student ? courseOrder.student.login : ''}</td>
                   <td>{courseOrder.course ? <Link to={`/course/${courseOrder.course.id}`}>{courseOrder.course.title}</Link> : ''}</td>
-                  <td>{courseOrder.plan ? <Link to={`/system-plan/${courseOrder.plan.id}`}>{courseOrder.plan.name}</Link> : ''}</td>
+                  <td>{courseOrder.plan?.name ?? ''}</td>
                   <td>{courseOrder.coupon ? <Link to={`/coupon/${courseOrder.coupon.id}`}>{courseOrder.coupon.code}</Link> : ''}</td>
                   <td className="text-end">
                     <div className="btn-group flex-btn-group-container">

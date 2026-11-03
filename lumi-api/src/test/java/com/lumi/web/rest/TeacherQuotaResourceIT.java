@@ -560,7 +560,7 @@ class TeacherQuotaResourceIT {
         SystemPlan currentPlan;
         if (TestUtil.findAll(em, SystemPlan.class).isEmpty()) {
             teacherQuotaRepository.saveAndFlush(teacherQuota);
-            currentPlan = SystemPlanResourceIT.createEntity();
+            currentPlan = com.lumi.domain.SystemPlanTestFixtures.createEntity();
         } else {
             currentPlan = TestUtil.findAll(em, SystemPlan.class).getFirst();
         }

@@ -130,4 +130,5 @@
     <include file="config/liquibase/changelog/20261022120000_instructor_review_metadata.xml" relativeToChangelogFile="false"/>
     <include file="config/liquibase/changelog/20261022180000_remove_instructor_reviewer.xml" relativeToChangelogFile="false"/>
     <include file="config/liquibase/changelog/20261026100000_catalog_active_columns.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20261103000000_premium_package_management.xml" relativeToChangelogFile="false"/>
 </databaseChangeLog>

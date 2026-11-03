@@ -13,15 +13,12 @@ import ClassMaterial from './class-material';
 import ClassMember from './class-member';
 import CourseReview from './course-review';
 import StudyClass from './study-class';
-import SupportTicket from './support-ticket';
-import SystemPlan from './system-plan';
 import TeacherQuota from './teacher-quota';
 import Coupon from './coupon';
 import CourseOrder from './course-order';
 import Payment from './payment';
 import Refund from './refund';
 import InstructorWallet from './instructor-wallet';
-import TicketMessage from './ticket-message';
 import WalletTransaction from './wallet-transaction';
 import PayoutRequest from './payout-request';
 import QuestionBank from './question-bank';
@@ -85,7 +82,6 @@ export default () => {
         <Route path="/study-class/*" element={<StudyClass />} />
         <Route path="/class-member/*" element={<ClassMember />} />
         <Route path="/class-material/*" element={<ClassMaterial />} />
-        <Route path="/system-plan/*" element={<SystemPlan />} />
         <Route path="/teacher-quota/*" element={<TeacherQuota />} />
         <Route path="/coupon/*" element={<Coupon />} />
         <Route path="/course-order/*" element={<CourseOrder />} />
@@ -117,8 +113,6 @@ export default () => {
         <Route path="/ai-message/*" element={<AiMessage />} />
         <Route path="/discussion/*" element={<Discussion />} />
         <Route path="/discussion-reply/*" element={<DiscussionReply />} />
-        <Route path="/support-ticket/*" element={<SupportTicket />} />
-        <Route path="/ticket-message/*" element={<TicketMessage />} />
         <Route path="/content-report/*" element={<ContentReport />} />
         <Route path="/notification/*" element={<Notification />} />
         <Route path="/audit-log/*" element={<AuditLog />} />

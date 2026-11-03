@@ -58,9 +58,6 @@ const EntitiesMenu = () => {
       <MenuItem icon="asterisk" to="/class-material">
         <Translate contentKey="global.menu.entities.classMaterial" />
       </MenuItem>
-      <MenuItem icon="asterisk" to="/system-plan">
-        <Translate contentKey="global.menu.entities.systemPlan" />
-      </MenuItem>
       <MenuItem icon="asterisk" to="/teacher-quota">
         <Translate contentKey="global.menu.entities.teacherQuota" />
       </MenuItem>
@@ -153,12 +150,6 @@ const EntitiesMenu = () => {
       </MenuItem>
       <MenuItem icon="asterisk" to="/discussion-reply">
         <Translate contentKey="global.menu.entities.discussionReply" />
-      </MenuItem>
-      <MenuItem icon="asterisk" to="/support-ticket">
-        <Translate contentKey="global.menu.entities.supportTicket" />
-      </MenuItem>
-      <MenuItem icon="asterisk" to="/ticket-message">
-        <Translate contentKey="global.menu.entities.ticketMessage" />
       </MenuItem>
       <MenuItem icon="asterisk" to="/content-report">
         <Translate contentKey="global.menu.entities.contentReport" />

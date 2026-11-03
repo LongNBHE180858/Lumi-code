@@ -11,7 +11,9 @@ import {
   Leaf,
   LogOut,
   Menu,
+  MessageCircle,
   NotebookPen,
+  Package,
   Settings,
   UsersRound,
   Wallet,
@@ -36,6 +38,7 @@ const navigation: { title: string; items: NavItem[] }[] = [
   {
     title: 'KINH DOANH',
     items: [
+      { label: 'Gói Premium', icon: Package, to: '/admin/premium-packages' },
       { label: 'Doanh thu & Thanh toán', icon: Wallet },
       { label: 'Báo cáo & Thống kê', icon: ChartNoAxesCombined },
     ],
@@ -43,6 +46,7 @@ const navigation: { title: string; items: NavItem[] }[] = [
   {
     title: 'HỆ THỐNG',
     items: [
+      { label: 'Yêu cầu hỗ trợ', icon: MessageCircle, to: '/admin/support-tickets' },
       { label: 'Thông báo', icon: Bell },
       { label: 'Cài đặt hệ thống', icon: Settings },
     ],

@@ -1,5 +1,6 @@
 package com.lumi.domain;
 
+import com.lumi.domain.enumeration.PremiumPackageType;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import java.io.Serial;
@@ -48,10 +49,29 @@ public class SystemPlan implements Serializable {
     @Column(name = "ai_generation_limit", nullable = false)
     private Integer aiGenerationLimit;
 
+    @Min(value = 1)
+    @Column(name = "max_classes")
+    private Integer maxClasses;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "package_type", length = 40)
+    private PremiumPackageType packageType;
+
+    @Column(name = "package_key", length = 36)
+    private String packageKey;
+
     @NotNull
     @Min(value = 1)
-    @Column(name = "max_classes", nullable = false)
-    private Integer maxClasses;
+    @Column(name = "revision", nullable = false)
+    private Integer revision = 1;
+
+    @NotNull
+    @Column(name = "current_revision", nullable = false)
+    private Boolean currentRevision = true;
+
+    @NotNull
+    @Column(name = "available", nullable = false)
+    private Boolean available = false;
 
     // jhipster-needle-entity-add-field - JHipster will add fields here
 
@@ -144,6 +164,46 @@ public class SystemPlan implements Serializable {
 
     public void setMaxClasses(Integer maxClasses) {
         this.maxClasses = maxClasses;
+    }
+
+    public PremiumPackageType getPackageType() {
+        return packageType;
+    }
+
+    public void setPackageType(PremiumPackageType packageType) {
+        this.packageType = packageType;
+    }
+
+    public String getPackageKey() {
+        return packageKey;
+    }
+
+    public void setPackageKey(String packageKey) {
+        this.packageKey = packageKey;
+    }
+
+    public Integer getRevision() {
+        return revision;
+    }
+
+    public void setRevision(Integer revision) {
+        this.revision = revision;
+    }
+
+    public Boolean getCurrentRevision() {
+        return currentRevision;
+    }
+
+    public void setCurrentRevision(Boolean currentRevision) {
+        this.currentRevision = currentRevision;
+    }
+
+    public Boolean getAvailable() {
+        return available;
+    }
+
+    public void setAvailable(Boolean available) {
+        this.available = available;
     }
 
     // jhipster-needle-entity-add-getters-setters - JHipster will add getters and setters here

@@ -12,6 +12,9 @@ import UserManagement from './user-management';
 import AdminLayout from './layout/admin-layout';
 import InstructorApplications from './instructor-applications/instructor-applications';
 import AdminCatalog from './catalog/admin-catalog';
+import AdminPremiumPackages from './premium-packages/admin-premium-packages';
+import TicketList from 'app/modules/support-tickets/ticket-list';
+import TicketDetail from 'app/modules/support-tickets/ticket-detail';
 
 const AdminUserManagement = () => {
   return (
@@ -31,6 +34,9 @@ const AdministrationRoutes = () => (
       <Route path="user-management/*" element={<AdminUserManagement />} />
       <Route path="instructor-applications" element={<InstructorApplications />} />
       <Route path="catalog" element={<AdminCatalog />} />
+      <Route path="premium-packages" element={<AdminPremiumPackages />} />
+      <Route path="support-tickets" element={<TicketList admin />} />
+      <Route path="support-tickets/:id" element={<TicketDetail admin />} />
       <Route path="feedback" element={<FeedbackAdminList />} />
       <Route path="feedback/:id" element={<FeedbackAdminDetail />} />
       <Route path="health" element={<Health />} />

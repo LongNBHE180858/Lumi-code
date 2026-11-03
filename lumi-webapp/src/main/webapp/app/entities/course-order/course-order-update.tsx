@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Button, Col, FormText, Row } from 'react-bootstrap';
 import { Translate, ValidatedField, ValidatedForm, isNumber, translate } from 'react-jhipster';
 import { Link, useNavigate, useParams } from 'react-router';
@@ -8,9 +8,10 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useAppDispatch, useAppSelector } from 'app/config/store';
 import { getEntities as getCoupons } from 'app/entities/coupon/coupon.reducer';
 import { getEntities as getCourses } from 'app/entities/course/course.reducer';
-import { getEntities as getSystemPlans } from 'app/entities/system-plan/system-plan.reducer';
+import { premiumPackagesApi } from 'app/modules/administration/premium-packages/premium-packages-api';
 import { getUsers } from 'app/modules/administration/user-management/user-management.reducer';
 import { OrderStatus } from 'app/shared/model/enumerations/order-status.model';
+import type { ISystemPlan } from 'app/shared/model/system-plan.model';
 import { convertDateTimeFromServer, convertDateTimeToServer, displayDefaultDateTime } from 'app/shared/util/date-utils';
 
 import { createEntity, getEntity, reset, updateEntity } from './course-order.reducer';
@@ -25,7 +26,7 @@ export const CourseOrderUpdate = () => {
 
   const users = useAppSelector(state => state.userManagement.users);
   const courses = useAppSelector(state => state.course.entities);
-  const systemPlans = useAppSelector(state => state.systemPlan.entities);
+  const [systemPlans, setSystemPlans] = useState<ISystemPlan[]>([]);
   const coupons = useAppSelector(state => state.coupon.entities);
   const courseOrderEntity = useAppSelector(state => state.courseOrder.entity);
   const loading = useAppSelector(state => state.courseOrder.loading);
@@ -46,7 +47,10 @@ export const CourseOrderUpdate = () => {
 
     dispatch(getUsers({}));
     dispatch(getCourses({}));
-    dispatch(getSystemPlans({}));
+    premiumPackagesApi
+      .list(0, 100)
+      .then(response => setSystemPlans(response.data.map(plan => ({ id: plan.id, name: plan.name }))))
+      .catch(() => setSystemPlans([]));
     dispatch(getCoupons({}));
   }, []);
 
@@ -79,7 +83,7 @@ export const CourseOrderUpdate = () => {
       ...values,
       student: users.find(it => it.id.toString() === values.student?.toString()),
       course: courses.find(it => it.id.toString() === values.course?.toString()),
-      plan: systemPlans.find(it => it.id.toString() === values.plan?.toString()),
+      plan: systemPlans.find(it => it.id?.toString() === values.plan?.toString()),
       coupon: coupons.find(it => it.id.toString() === values.coupon?.toString()),
     };
 

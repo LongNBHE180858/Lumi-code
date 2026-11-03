@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Button, Col, FormText, Row } from 'react-bootstrap';
 import { Translate, ValidatedField, ValidatedForm, isNumber, translate } from 'react-jhipster';
 import { Link, useNavigate, useParams } from 'react-router';
@@ -6,9 +6,10 @@ import { Link, useNavigate, useParams } from 'react-router';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import { useAppDispatch, useAppSelector } from 'app/config/store';
-import { getEntities as getSystemPlans } from 'app/entities/system-plan/system-plan.reducer';
+import { premiumPackagesApi } from 'app/modules/administration/premium-packages/premium-packages-api';
 import { getUsers } from 'app/modules/administration/user-management/user-management.reducer';
 import { convertDateTimeFromServer, convertDateTimeToServer, displayDefaultDateTime } from 'app/shared/util/date-utils';
+import type { ISystemPlan } from 'app/shared/model/system-plan.model';
 
 import { createEntity, getEntity, reset, updateEntity } from './teacher-quota.reducer';
 
@@ -21,7 +22,7 @@ export const TeacherQuotaUpdate = () => {
   const isNew = id === undefined;
 
   const users = useAppSelector(state => state.userManagement.users);
-  const systemPlans = useAppSelector(state => state.systemPlan.entities);
+  const [systemPlans, setSystemPlans] = useState<ISystemPlan[]>([]);
   const teacherQuotaEntity = useAppSelector(state => state.teacherQuota.entity);
   const loading = useAppSelector(state => state.teacherQuota.loading);
   const updating = useAppSelector(state => state.teacherQuota.updating);
@@ -39,7 +40,10 @@ export const TeacherQuotaUpdate = () => {
     }
 
     dispatch(getUsers({}));
-    dispatch(getSystemPlans({}));
+    premiumPackagesApi
+      .list(0, 100)
+      .then(response => setSystemPlans(response.data.map(plan => ({ id: plan.id, name: plan.name }))))
+      .catch(() => setSystemPlans([]));
   }, []);
 
   useEffect(() => {
@@ -67,7 +71,7 @@ export const TeacherQuotaUpdate = () => {
       ...teacherQuotaEntity,
       ...values,
       user: users.find(it => it.id.toString() === values.user?.toString()),
-      currentPlan: systemPlans.find(it => it.id.toString() === values.currentPlan?.toString()),
+      currentPlan: systemPlans.find(it => it.id?.toString() === values.currentPlan?.toString()),
     };
 
     if (isNew) {

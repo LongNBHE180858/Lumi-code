@@ -87,6 +87,9 @@ const accountMenuItemsAuthenticated = (account: any = {}) => {
       <MenuItem icon="comment-dots" to="/feedback" data-cy="feedbackMenuItem">
         <Translate contentKey="global.menu.feedback">Feedback</Translate>
       </MenuItem>
+      <MenuItem icon="comment-dots" to="/support-tickets" data-cy="supportTicketsMenuItem">
+        Yêu cầu hỗ trợ
+      </MenuItem>
 
       {/* Menu dành cho Quản trị viên */}
       {isAdmin && (

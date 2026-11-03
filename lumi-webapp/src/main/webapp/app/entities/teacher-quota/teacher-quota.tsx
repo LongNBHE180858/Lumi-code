@@ -131,13 +131,7 @@ export const TeacherQuota = () => {
                   <td>{teacherQuota.aiUsedCount}</td>
                   <td>{teacherQuota.rowVersion}</td>
                   <td>{teacherQuota.user ? teacherQuota.user.login : ''}</td>
-                  <td>
-                    {teacherQuota.currentPlan ? (
-                      <Link to={`/system-plan/${teacherQuota.currentPlan.id}`}>{teacherQuota.currentPlan.name}</Link>
-                    ) : (
-                      ''
-                    )}
-                  </td>
+                  <td>{teacherQuota.currentPlan?.name ?? ''}</td>
                   <td className="text-end">
                     <div className="btn-group flex-btn-group-container">
                       <Button
