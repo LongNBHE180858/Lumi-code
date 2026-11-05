@@ -3,7 +3,9 @@
     "changelogDate": "20261012231647"
   },
   "applications": ["*"],
+  "documentation": "Lưu chương và thứ tự chương trong khóa học.",
   "dto": "mapstruct",
+  "entityTableName": "chapters",
   "fields": [
     {
       "fieldName": "title",
@@ -14,8 +16,7 @@
     {
       "fieldName": "orderIndex",
       "fieldType": "Integer",
-      "fieldValidateRules": ["required", "min"],
-      "fieldValidateRulesMin": "0"
+      "fieldValidateRules": ["required"]
     }
   ],
   "jpaMetamodelFiltering": true,
@@ -23,7 +24,6 @@
   "pagination": "pagination",
   "relationships": [
     {
-      "otherEntityField": "title",
       "otherEntityName": "course",
       "relationshipName": "course",
       "relationshipSide": "left",

@@ -54,9 +54,15 @@ public class WalletTransactionCriteria implements Serializable, Criteria {
 
     private InstantFilter occurredAt;
 
+    private StringFilter balanceBucket;
+
     private LongFilter walletId;
 
     private LongFilter orderId;
+
+    private LongFilter payoutRequestId;
+
+    private LongFilter refundId;
 
     private Boolean distinct;
 
@@ -69,8 +75,11 @@ public class WalletTransactionCriteria implements Serializable, Criteria {
         this.status = other.optionalStatus().map(StringFilter::copy).orElse(null);
         this.idempotencyKey = other.optionalIdempotencyKey().map(StringFilter::copy).orElse(null);
         this.occurredAt = other.optionalOccurredAt().map(InstantFilter::copy).orElse(null);
+        this.balanceBucket = other.optionalBalanceBucket().map(StringFilter::copy).orElse(null);
         this.walletId = other.optionalWalletId().map(LongFilter::copy).orElse(null);
         this.orderId = other.optionalOrderId().map(LongFilter::copy).orElse(null);
+        this.payoutRequestId = other.optionalPayoutRequestId().map(LongFilter::copy).orElse(null);
+        this.refundId = other.optionalRefundId().map(LongFilter::copy).orElse(null);
         this.distinct = other.distinct;
     }
 
@@ -193,6 +202,25 @@ public class WalletTransactionCriteria implements Serializable, Criteria {
         this.occurredAt = occurredAt;
     }
 
+    public StringFilter getBalanceBucket() {
+        return balanceBucket;
+    }
+
+    public Optional<StringFilter> optionalBalanceBucket() {
+        return Optional.ofNullable(balanceBucket);
+    }
+
+    public StringFilter balanceBucket() {
+        if (balanceBucket == null) {
+            setBalanceBucket(new StringFilter());
+        }
+        return balanceBucket;
+    }
+
+    public void setBalanceBucket(StringFilter balanceBucket) {
+        this.balanceBucket = balanceBucket;
+    }
+
     public LongFilter getWalletId() {
         return walletId;
     }
@@ -231,6 +259,44 @@ public class WalletTransactionCriteria implements Serializable, Criteria {
         this.orderId = orderId;
     }
 
+    public LongFilter getPayoutRequestId() {
+        return payoutRequestId;
+    }
+
+    public Optional<LongFilter> optionalPayoutRequestId() {
+        return Optional.ofNullable(payoutRequestId);
+    }
+
+    public LongFilter payoutRequestId() {
+        if (payoutRequestId == null) {
+            setPayoutRequestId(new LongFilter());
+        }
+        return payoutRequestId;
+    }
+
+    public void setPayoutRequestId(LongFilter payoutRequestId) {
+        this.payoutRequestId = payoutRequestId;
+    }
+
+    public LongFilter getRefundId() {
+        return refundId;
+    }
+
+    public Optional<LongFilter> optionalRefundId() {
+        return Optional.ofNullable(refundId);
+    }
+
+    public LongFilter refundId() {
+        if (refundId == null) {
+            setRefundId(new LongFilter());
+        }
+        return refundId;
+    }
+
+    public void setRefundId(LongFilter refundId) {
+        this.refundId = refundId;
+    }
+
     public Boolean getDistinct() {
         return distinct;
     }
@@ -266,15 +332,31 @@ public class WalletTransactionCriteria implements Serializable, Criteria {
             Objects.equals(status, that.status) &&
             Objects.equals(idempotencyKey, that.idempotencyKey) &&
             Objects.equals(occurredAt, that.occurredAt) &&
+            Objects.equals(balanceBucket, that.balanceBucket) &&
             Objects.equals(walletId, that.walletId) &&
             Objects.equals(orderId, that.orderId) &&
+            Objects.equals(payoutRequestId, that.payoutRequestId) &&
+            Objects.equals(refundId, that.refundId) &&
             Objects.equals(distinct, that.distinct)
         );
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, type, amount, status, idempotencyKey, occurredAt, walletId, orderId, distinct);
+        return Objects.hash(
+            id,
+            type,
+            amount,
+            status,
+            idempotencyKey,
+            occurredAt,
+            balanceBucket,
+            walletId,
+            orderId,
+            payoutRequestId,
+            refundId,
+            distinct
+        );
     }
 
     // prettier-ignore
@@ -287,8 +369,11 @@ public class WalletTransactionCriteria implements Serializable, Criteria {
             optionalStatus().map(f -> "status=" + f + ", ").orElse("") +
             optionalIdempotencyKey().map(f -> "idempotencyKey=" + f + ", ").orElse("") +
             optionalOccurredAt().map(f -> "occurredAt=" + f + ", ").orElse("") +
+            optionalBalanceBucket().map(f -> "balanceBucket=" + f + ", ").orElse("") +
             optionalWalletId().map(f -> "walletId=" + f + ", ").orElse("") +
             optionalOrderId().map(f -> "orderId=" + f + ", ").orElse("") +
+            optionalPayoutRequestId().map(f -> "payoutRequestId=" + f + ", ").orElse("") +
+            optionalRefundId().map(f -> "refundId=" + f + ", ").orElse("") +
             optionalDistinct().map(f -> "distinct=" + f + ", ").orElse("") +
         "}";
     }

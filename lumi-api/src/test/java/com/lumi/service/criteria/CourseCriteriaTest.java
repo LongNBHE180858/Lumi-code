@@ -73,16 +73,23 @@ class CourseCriteriaTest {
     private static void setAllFilters(CourseCriteria courseCriteria) {
         courseCriteria.id();
         courseCriteria.title();
-        courseCriteria.description();
         courseCriteria.thumbnailUrl();
         courseCriteria.price();
+        courseCriteria.shortDescription();
+        courseCriteria.bookSeries();
+        courseCriteria.targetAudience();
+        courseCriteria.prerequisites();
+        courseCriteria.introVideoUrl();
         courseCriteria.validDurationDays();
+        courseCriteria.accessDurationValue();
+        courseCriteria.accessDurationUnit();
+        courseCriteria.version();
         courseCriteria.status();
         courseCriteria.isDeleted();
         courseCriteria.createdAt();
         courseCriteria.updatedAt();
+        courseCriteria.storageLimitBytes();
         courseCriteria.authorId();
-        courseCriteria.categoryId();
         courseCriteria.subjectId();
         courseCriteria.gradeId();
         courseCriteria.distinct();
@@ -93,16 +100,23 @@ class CourseCriteriaTest {
             criteria ->
                 condition.apply(criteria.getId()) &&
                 condition.apply(criteria.getTitle()) &&
-                condition.apply(criteria.getDescription()) &&
                 condition.apply(criteria.getThumbnailUrl()) &&
                 condition.apply(criteria.getPrice()) &&
+                condition.apply(criteria.getShortDescription()) &&
+                condition.apply(criteria.getBookSeries()) &&
+                condition.apply(criteria.getTargetAudience()) &&
+                condition.apply(criteria.getPrerequisites()) &&
+                condition.apply(criteria.getIntroVideoUrl()) &&
                 condition.apply(criteria.getValidDurationDays()) &&
+                condition.apply(criteria.getAccessDurationValue()) &&
+                condition.apply(criteria.getAccessDurationUnit()) &&
+                condition.apply(criteria.getVersion()) &&
                 condition.apply(criteria.getStatus()) &&
                 condition.apply(criteria.getIsDeleted()) &&
                 condition.apply(criteria.getCreatedAt()) &&
                 condition.apply(criteria.getUpdatedAt()) &&
+                condition.apply(criteria.getStorageLimitBytes()) &&
                 condition.apply(criteria.getAuthorId()) &&
-                condition.apply(criteria.getCategoryId()) &&
                 condition.apply(criteria.getSubjectId()) &&
                 condition.apply(criteria.getGradeId()) &&
                 condition.apply(criteria.getDistinct()),
@@ -115,16 +129,23 @@ class CourseCriteriaTest {
             criteria ->
                 condition.apply(criteria.getId(), copy.getId()) &&
                 condition.apply(criteria.getTitle(), copy.getTitle()) &&
-                condition.apply(criteria.getDescription(), copy.getDescription()) &&
                 condition.apply(criteria.getThumbnailUrl(), copy.getThumbnailUrl()) &&
                 condition.apply(criteria.getPrice(), copy.getPrice()) &&
+                condition.apply(criteria.getShortDescription(), copy.getShortDescription()) &&
+                condition.apply(criteria.getBookSeries(), copy.getBookSeries()) &&
+                condition.apply(criteria.getTargetAudience(), copy.getTargetAudience()) &&
+                condition.apply(criteria.getPrerequisites(), copy.getPrerequisites()) &&
+                condition.apply(criteria.getIntroVideoUrl(), copy.getIntroVideoUrl()) &&
                 condition.apply(criteria.getValidDurationDays(), copy.getValidDurationDays()) &&
+                condition.apply(criteria.getAccessDurationValue(), copy.getAccessDurationValue()) &&
+                condition.apply(criteria.getAccessDurationUnit(), copy.getAccessDurationUnit()) &&
+                condition.apply(criteria.getVersion(), copy.getVersion()) &&
                 condition.apply(criteria.getStatus(), copy.getStatus()) &&
                 condition.apply(criteria.getIsDeleted(), copy.getIsDeleted()) &&
                 condition.apply(criteria.getCreatedAt(), copy.getCreatedAt()) &&
                 condition.apply(criteria.getUpdatedAt(), copy.getUpdatedAt()) &&
+                condition.apply(criteria.getStorageLimitBytes(), copy.getStorageLimitBytes()) &&
                 condition.apply(criteria.getAuthorId(), copy.getAuthorId()) &&
-                condition.apply(criteria.getCategoryId(), copy.getCategoryId()) &&
                 condition.apply(criteria.getSubjectId(), copy.getSubjectId()) &&
                 condition.apply(criteria.getGradeId(), copy.getGradeId()) &&
                 condition.apply(criteria.getDistinct(), copy.getDistinct()),

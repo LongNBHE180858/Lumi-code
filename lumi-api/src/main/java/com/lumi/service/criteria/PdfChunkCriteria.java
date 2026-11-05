@@ -28,9 +28,9 @@ public class PdfChunkCriteria implements Serializable, Criteria {
 
     private IntegerFilter pageNumber;
 
-    private StringFilter chunkText;
+    private IntegerFilter chunkIndex;
 
-    private StringFilter embedding;
+    private IntegerFilter indexVersion;
 
     private LongFilter materialId;
 
@@ -41,8 +41,8 @@ public class PdfChunkCriteria implements Serializable, Criteria {
     public PdfChunkCriteria(PdfChunkCriteria other) {
         this.id = other.optionalId().map(LongFilter::copy).orElse(null);
         this.pageNumber = other.optionalPageNumber().map(IntegerFilter::copy).orElse(null);
-        this.chunkText = other.optionalChunkText().map(StringFilter::copy).orElse(null);
-        this.embedding = other.optionalEmbedding().map(StringFilter::copy).orElse(null);
+        this.chunkIndex = other.optionalChunkIndex().map(IntegerFilter::copy).orElse(null);
+        this.indexVersion = other.optionalIndexVersion().map(IntegerFilter::copy).orElse(null);
         this.materialId = other.optionalMaterialId().map(LongFilter::copy).orElse(null);
         this.distinct = other.distinct;
     }
@@ -90,42 +90,42 @@ public class PdfChunkCriteria implements Serializable, Criteria {
         this.pageNumber = pageNumber;
     }
 
-    public StringFilter getChunkText() {
-        return chunkText;
+    public IntegerFilter getChunkIndex() {
+        return chunkIndex;
     }
 
-    public Optional<StringFilter> optionalChunkText() {
-        return Optional.ofNullable(chunkText);
+    public Optional<IntegerFilter> optionalChunkIndex() {
+        return Optional.ofNullable(chunkIndex);
     }
 
-    public StringFilter chunkText() {
-        if (chunkText == null) {
-            setChunkText(new StringFilter());
+    public IntegerFilter chunkIndex() {
+        if (chunkIndex == null) {
+            setChunkIndex(new IntegerFilter());
         }
-        return chunkText;
+        return chunkIndex;
     }
 
-    public void setChunkText(StringFilter chunkText) {
-        this.chunkText = chunkText;
+    public void setChunkIndex(IntegerFilter chunkIndex) {
+        this.chunkIndex = chunkIndex;
     }
 
-    public StringFilter getEmbedding() {
-        return embedding;
+    public IntegerFilter getIndexVersion() {
+        return indexVersion;
     }
 
-    public Optional<StringFilter> optionalEmbedding() {
-        return Optional.ofNullable(embedding);
+    public Optional<IntegerFilter> optionalIndexVersion() {
+        return Optional.ofNullable(indexVersion);
     }
 
-    public StringFilter embedding() {
-        if (embedding == null) {
-            setEmbedding(new StringFilter());
+    public IntegerFilter indexVersion() {
+        if (indexVersion == null) {
+            setIndexVersion(new IntegerFilter());
         }
-        return embedding;
+        return indexVersion;
     }
 
-    public void setEmbedding(StringFilter embedding) {
-        this.embedding = embedding;
+    public void setIndexVersion(IntegerFilter indexVersion) {
+        this.indexVersion = indexVersion;
     }
 
     public LongFilter getMaterialId() {
@@ -178,8 +178,8 @@ public class PdfChunkCriteria implements Serializable, Criteria {
         return (
             Objects.equals(id, that.id) &&
             Objects.equals(pageNumber, that.pageNumber) &&
-            Objects.equals(chunkText, that.chunkText) &&
-            Objects.equals(embedding, that.embedding) &&
+            Objects.equals(chunkIndex, that.chunkIndex) &&
+            Objects.equals(indexVersion, that.indexVersion) &&
             Objects.equals(materialId, that.materialId) &&
             Objects.equals(distinct, that.distinct)
         );
@@ -187,7 +187,7 @@ public class PdfChunkCriteria implements Serializable, Criteria {
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, pageNumber, chunkText, embedding, materialId, distinct);
+        return Objects.hash(id, pageNumber, chunkIndex, indexVersion, materialId, distinct);
     }
 
     // prettier-ignore
@@ -196,8 +196,8 @@ public class PdfChunkCriteria implements Serializable, Criteria {
         return "PdfChunkCriteria{" +
             optionalId().map(f -> "id=" + f + ", ").orElse("") +
             optionalPageNumber().map(f -> "pageNumber=" + f + ", ").orElse("") +
-            optionalChunkText().map(f -> "chunkText=" + f + ", ").orElse("") +
-            optionalEmbedding().map(f -> "embedding=" + f + ", ").orElse("") +
+            optionalChunkIndex().map(f -> "chunkIndex=" + f + ", ").orElse("") +
+            optionalIndexVersion().map(f -> "indexVersion=" + f + ", ").orElse("") +
             optionalMaterialId().map(f -> "materialId=" + f + ", ").orElse("") +
             optionalDistinct().map(f -> "distinct=" + f + ", ").orElse("") +
         "}";

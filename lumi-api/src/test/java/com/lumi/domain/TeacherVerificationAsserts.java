@@ -55,7 +55,8 @@ public class TeacherVerificationAsserts {
             )
             .satisfies(a -> assertThat(a.getNotes()).as("check notes").isEqualTo(expected.getNotes()))
             .satisfies(a -> assertThat(a.getSubmittedAt()).as("check submittedAt").isEqualTo(expected.getSubmittedAt()))
-            .satisfies(a -> assertThat(a.getApprovedAt()).as("check approvedAt").isEqualTo(expected.getApprovedAt()));
+            .satisfies(a -> assertThat(a.getApprovedAt()).as("check approvedAt").isEqualTo(expected.getApprovedAt()))
+            .satisfies(a -> assertThat(a.getReviewedAt()).as("check reviewedAt").isEqualTo(expected.getReviewedAt()));
     }
 
     /**

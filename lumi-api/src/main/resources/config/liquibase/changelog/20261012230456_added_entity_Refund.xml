@@ -10,14 +10,14 @@
         Added the entity Refund.
     -->
     <changeSet id="20261012230456-1" author="jhipster">
-        <createTable tableName="refund">
+        <createTable tableName="refunds" remarks="Lưu yêu cầu hoàn tiền, kết quả xử lý và việc thu hồi quyền học.">
             <column name="id" type="bigint">
                 <constraints primaryKey="true" nullable="false"/>
             </column>
             <column name="amount" type="decimal(21,2)">
                 <constraints nullable="false" />
             </column>
-            <column name="reason" type="varchar(5000)">
+            <column name="reason" type="${clobType}">
                 <constraints nullable="true" />
             </column>
             <column name="status" type="varchar(20)">
@@ -26,15 +26,32 @@
             <column name="created_at" type="${datetimeType}">
                 <constraints nullable="true" />
             </column>
+            <column name="processed_at" type="${datetimeType}">
+                <constraints nullable="true" />
+            </column>
+            <column name="review_note" type="${clobType}">
+                <constraints nullable="true" />
+            </column>
+            <column name="refund_reference" type="varchar(255)">
+                <constraints nullable="true" />
+            </column>
+            <column name="access_revoked_at" type="${datetimeType}">
+                <constraints nullable="true" />
+            </column>
             <column name="order_id" type="bigint">
                 <constraints nullable="false" />
             </column>
             <column name="payment_id" type="bigint">
                 <constraints nullable="false" />
             </column>
+            <column name="processed_by_id" type="bigint">
+                <constraints nullable="true" />
+            </column>
             <!-- jhipster-needle-liquibase-add-column - JHipster will add columns here -->
         </createTable>
-        <dropDefaultValue tableName="refund" columnName="created_at" columnDataType="${datetimeType}"/>
+        <dropDefaultValue tableName="refunds" columnName="created_at" columnDataType="${datetimeType}"/>
+        <dropDefaultValue tableName="refunds" columnName="processed_at" columnDataType="${datetimeType}"/>
+        <dropDefaultValue tableName="refunds" columnName="access_revoked_at" columnDataType="${datetimeType}"/>
     </changeSet>
 
     <!-- jhipster-needle-liquibase-add-changeset - JHipster will add changesets here -->
@@ -49,16 +66,20 @@
     -->
     <changeSet id="20261012230456-1-data" author="jhipster" context="faker">
         <loadData
-                  file="../fake-data/refund.csv"
+                  file="../fake-data/refunds.csv"
                   relativeToChangelogFile="true"
                   separator=";"
-                  tableName="refund"
+                  tableName="refunds"
                   usePreparedStatements="true">
             <column name="id" type="numeric"/>
             <column name="amount" type="numeric"/>
-            <column name="reason" type="string"/>
+            <column name="reason" type="clob"/>
             <column name="status" type="string"/>
             <column name="created_at" type="date"/>
+            <column name="processed_at" type="date"/>
+            <column name="review_note" type="clob"/>
+            <column name="refund_reference" type="string"/>
+            <column name="access_revoked_at" type="date"/>
             <column name="order_id" type="numeric"/>
             <column name="payment_id" type="numeric"/>
             <!-- jhipster-needle-liquibase-add-loadcolumn - JHipster (and/or extensions) can add load columns here -->

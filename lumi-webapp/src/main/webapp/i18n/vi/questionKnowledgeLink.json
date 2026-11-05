@@ -1,0 +1,26 @@
+{
+  "lumiApp": {
+    "questionKnowledgeLink": {
+      "home": {
+        "title": "Question Knowledge Links",
+        "refreshListLabel": "Refresh list",
+        "createLabel": "Thêm mới một Question Knowledge Link",
+        "createOrEditLabel": "Thêm mới hoặc cập nhật Question Knowledge Link",
+        "notFound": "No Question Knowledge Links found"
+      },
+      "created": "Một Question Knowledge Link mới được tạo với định danh {{ param }}",
+      "updated": "Một Question Knowledge Link cập nhật với định danh {{ param }}",
+      "deleted": "Một Question Knowledge Link đã xóa với định danh {{ param }}",
+      "delete": {
+        "question": "Bạn có chắc là muốn xóa Question Knowledge Link {{ id }}?"
+      },
+      "detail": {
+        "title": "Question Knowledge Link"
+      },
+      "id": "ID",
+      "weight": "Weight",
+      "question": "Question",
+      "knowledgeNode": "Knowledge Node"
+    }
+  }
+}

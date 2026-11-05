@@ -13,19 +13,18 @@ import org.mapstruct.*;
  */
 @Mapper(componentModel = "spring")
 public interface ClassMemberMapper extends EntityMapper<ClassMemberDTO, ClassMember> {
+    @Mapping(target = "studyClass", source = "studyClass", qualifiedByName = "studyClassId")
     @Mapping(target = "student", source = "student", qualifiedByName = "userLogin")
-    @Mapping(target = "studyClass", source = "studyClass", qualifiedByName = "studyClassName")
     ClassMemberDTO toDto(ClassMember s);
+
+    @Named("studyClassId")
+    @BeanMapping(ignoreByDefault = true)
+    @Mapping(target = "id", source = "id")
+    StudyClassDTO toDtoStudyClassId(StudyClass studyClass);
 
     @Named("userLogin")
     @BeanMapping(ignoreByDefault = true)
     @Mapping(target = "id", source = "id")
     @Mapping(target = "login", source = "login")
     UserDTO toDtoUserLogin(User user);
-
-    @Named("studyClassName")
-    @BeanMapping(ignoreByDefault = true)
-    @Mapping(target = "id", source = "id")
-    @Mapping(target = "name", source = "name")
-    StudyClassDTO toDtoStudyClassName(StudyClass studyClass);
 }

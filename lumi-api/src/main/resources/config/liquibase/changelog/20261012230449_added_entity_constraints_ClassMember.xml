@@ -10,18 +10,18 @@
     -->
     <changeSet id="20261012230449-2" author="jhipster">
 
-        <addForeignKeyConstraint baseColumnNames="student_id"
-                                 baseTableName="class_member"
-                                 constraintName="fk_class_member__student_id"
+        <addForeignKeyConstraint baseColumnNames="study_class_id"
+                                 baseTableName="class_members"
+                                 constraintName="fk_class_members__study_class_id"
                                  referencedColumnNames="id"
-                                 referencedTableName="jhi_user"
+                                 referencedTableName="classes"
                                  />
 
-        <addForeignKeyConstraint baseColumnNames="study_class_id"
-                                 baseTableName="class_member"
-                                 constraintName="fk_class_member__study_class_id"
+        <addForeignKeyConstraint baseColumnNames="student_id"
+                                 baseTableName="class_members"
+                                 constraintName="fk_class_members__student_id"
                                  referencedColumnNames="id"
-                                 referencedTableName="study_class"
+                                 referencedTableName="jhi_user"
                                  />
     </changeSet>
 </databaseChangeLog>

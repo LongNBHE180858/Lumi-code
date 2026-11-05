@@ -73,7 +73,6 @@ class StudyClassCriteriaTest {
     private static void setAllFilters(StudyClassCriteria studyClassCriteria) {
         studyClassCriteria.id();
         studyClassCriteria.name();
-        studyClassCriteria.description();
         studyClassCriteria.joinCode();
         studyClassCriteria.joinMode();
         studyClassCriteria.maxStudents();
@@ -81,6 +80,8 @@ class StudyClassCriteriaTest {
         studyClassCriteria.status();
         studyClassCriteria.isDeleted();
         studyClassCriteria.createdAt();
+        studyClassCriteria.joinCodeExpiresAt();
+        studyClassCriteria.updatedAt();
         studyClassCriteria.instructorId();
         studyClassCriteria.subjectId();
         studyClassCriteria.gradeId();
@@ -92,7 +93,6 @@ class StudyClassCriteriaTest {
             criteria ->
                 condition.apply(criteria.getId()) &&
                 condition.apply(criteria.getName()) &&
-                condition.apply(criteria.getDescription()) &&
                 condition.apply(criteria.getJoinCode()) &&
                 condition.apply(criteria.getJoinMode()) &&
                 condition.apply(criteria.getMaxStudents()) &&
@@ -100,6 +100,8 @@ class StudyClassCriteriaTest {
                 condition.apply(criteria.getStatus()) &&
                 condition.apply(criteria.getIsDeleted()) &&
                 condition.apply(criteria.getCreatedAt()) &&
+                condition.apply(criteria.getJoinCodeExpiresAt()) &&
+                condition.apply(criteria.getUpdatedAt()) &&
                 condition.apply(criteria.getInstructorId()) &&
                 condition.apply(criteria.getSubjectId()) &&
                 condition.apply(criteria.getGradeId()) &&
@@ -113,7 +115,6 @@ class StudyClassCriteriaTest {
             criteria ->
                 condition.apply(criteria.getId(), copy.getId()) &&
                 condition.apply(criteria.getName(), copy.getName()) &&
-                condition.apply(criteria.getDescription(), copy.getDescription()) &&
                 condition.apply(criteria.getJoinCode(), copy.getJoinCode()) &&
                 condition.apply(criteria.getJoinMode(), copy.getJoinMode()) &&
                 condition.apply(criteria.getMaxStudents(), copy.getMaxStudents()) &&
@@ -121,6 +122,8 @@ class StudyClassCriteriaTest {
                 condition.apply(criteria.getStatus(), copy.getStatus()) &&
                 condition.apply(criteria.getIsDeleted(), copy.getIsDeleted()) &&
                 condition.apply(criteria.getCreatedAt(), copy.getCreatedAt()) &&
+                condition.apply(criteria.getJoinCodeExpiresAt(), copy.getJoinCodeExpiresAt()) &&
+                condition.apply(criteria.getUpdatedAt(), copy.getUpdatedAt()) &&
                 condition.apply(criteria.getInstructorId(), copy.getInstructorId()) &&
                 condition.apply(criteria.getSubjectId(), copy.getSubjectId()) &&
                 condition.apply(criteria.getGradeId(), copy.getGradeId()) &&

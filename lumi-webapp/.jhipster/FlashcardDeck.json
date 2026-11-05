@@ -3,7 +3,9 @@
     "changelogDate": "20261012231718"
   },
   "applications": ["*"],
+  "documentation": "Lưu bộ flashcard, chủ sở hữu và phạm vi chia sẻ.",
   "dto": "mapstruct",
+  "entityTableName": "flashcard_decks",
   "fields": [
     {
       "fieldName": "title",
@@ -30,7 +32,6 @@
       "relationshipWithBuiltInEntity": true
     },
     {
-      "otherEntityField": "name",
       "otherEntityName": "subject",
       "relationshipName": "subject",
       "relationshipSide": "left",

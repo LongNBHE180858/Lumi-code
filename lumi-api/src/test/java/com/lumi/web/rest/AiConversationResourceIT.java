@@ -10,6 +10,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.lumi.IntegrationTest;
 import com.lumi.domain.AiConversation;
+import com.lumi.domain.LearningDocument;
 import com.lumi.domain.Lesson;
 import com.lumi.domain.User;
 import com.lumi.repository.AiConversationRepository;
@@ -53,6 +54,9 @@ class AiConversationResourceIT {
     private static final Instant DEFAULT_CREATED_AT = Instant.ofEpochMilli(0L);
     private static final Instant UPDATED_CREATED_AT = Instant.ofEpochMilli(1791835009362L);
 
+    private static final Instant DEFAULT_UPDATED_AT = Instant.ofEpochMilli(0L);
+    private static final Instant UPDATED_UPDATED_AT = Instant.ofEpochMilli(1791835009362L);
+
     private static final String ENTITY_API_URL = "/api/ai-conversations";
     private static final String ENTITY_API_URL_ID = ENTITY_API_URL + "/{id}";
 
@@ -94,7 +98,7 @@ class AiConversationResourceIT {
      * if they test an entity which requires the current entity.
      */
     public static AiConversation createEntity(EntityManager em) {
-        AiConversation aiConversation = new AiConversation().type(DEFAULT_TYPE).createdAt(DEFAULT_CREATED_AT);
+        AiConversation aiConversation = new AiConversation().type(DEFAULT_TYPE).createdAt(DEFAULT_CREATED_AT).updatedAt(DEFAULT_UPDATED_AT);
         // Add required entity
         User user = UserResourceIT.createEntity();
         em.persist(user);
@@ -110,7 +114,10 @@ class AiConversationResourceIT {
      * if they test an entity which requires the current entity.
      */
     public static AiConversation createUpdatedEntity(EntityManager em) {
-        AiConversation updatedAiConversation = new AiConversation().type(UPDATED_TYPE).createdAt(UPDATED_CREATED_AT);
+        AiConversation updatedAiConversation = new AiConversation()
+            .type(UPDATED_TYPE)
+            .createdAt(UPDATED_CREATED_AT)
+            .updatedAt(UPDATED_UPDATED_AT);
         // Add required entity
         User user = UserResourceIT.createEntity();
         em.persist(user);
@@ -193,6 +200,23 @@ class AiConversationResourceIT {
 
     @Test
     @Transactional
+    void checkUpdatedAtIsRequired() throws Exception {
+        long databaseSizeBeforeTest = getRepositoryCount();
+        // set the field null
+        aiConversation.setUpdatedAt(null);
+
+        // Create the AiConversation, which fails.
+        AiConversationDTO aiConversationDTO = aiConversationMapper.toDto(aiConversation);
+
+        restAiConversationMockMvc
+            .perform(post(ENTITY_API_URL).contentType(MediaType.APPLICATION_JSON).content(om.writeValueAsBytes(aiConversationDTO)))
+            .andExpect(status().isBadRequest());
+
+        assertSameRepositoryCount(databaseSizeBeforeTest);
+    }
+
+    @Test
+    @Transactional
     void getAllAiConversations() throws Exception {
         // Initialize the database
         insertedAiConversation = aiConversationRepository.saveAndFlush(aiConversation);
@@ -204,7 +228,8 @@ class AiConversationResourceIT {
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
             .andExpect(jsonPath("$.[*].id").value(hasItem(aiConversation.getId().intValue())))
             .andExpect(jsonPath("$.[*].type").value(hasItem(DEFAULT_TYPE)))
-            .andExpect(jsonPath("$.[*].createdAt").value(hasItem(DEFAULT_CREATED_AT.toString())));
+            .andExpect(jsonPath("$.[*].createdAt").value(hasItem(DEFAULT_CREATED_AT.toString())))
+            .andExpect(jsonPath("$.[*].updatedAt").value(hasItem(DEFAULT_UPDATED_AT.toString())));
     }
 
     @SuppressWarnings({ "unchecked" })
@@ -237,7 +262,8 @@ class AiConversationResourceIT {
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
             .andExpect(jsonPath("$.id").value(aiConversation.getId().intValue()))
             .andExpect(jsonPath("$.type").value(DEFAULT_TYPE))
-            .andExpect(jsonPath("$.createdAt").value(DEFAULT_CREATED_AT.toString()));
+            .andExpect(jsonPath("$.createdAt").value(DEFAULT_CREATED_AT.toString()))
+            .andExpect(jsonPath("$.updatedAt").value(DEFAULT_UPDATED_AT.toString()));
     }
 
     @Test
@@ -340,6 +366,39 @@ class AiConversationResourceIT {
 
     @Test
     @Transactional
+    void getAllAiConversationsByUpdatedAtIsEqualToSomething() throws Exception {
+        // Initialize the database
+        insertedAiConversation = aiConversationRepository.saveAndFlush(aiConversation);
+
+        // Get all the aiConversationList where updatedAt equals to
+        defaultAiConversationFiltering("updatedAt.equals=" + DEFAULT_UPDATED_AT, "updatedAt.equals=" + UPDATED_UPDATED_AT);
+    }
+
+    @Test
+    @Transactional
+    void getAllAiConversationsByUpdatedAtIsInShouldWork() throws Exception {
+        // Initialize the database
+        insertedAiConversation = aiConversationRepository.saveAndFlush(aiConversation);
+
+        // Get all the aiConversationList where updatedAt in
+        defaultAiConversationFiltering(
+            "updatedAt.in=" + DEFAULT_UPDATED_AT + "," + UPDATED_UPDATED_AT,
+            "updatedAt.in=" + UPDATED_UPDATED_AT
+        );
+    }
+
+    @Test
+    @Transactional
+    void getAllAiConversationsByUpdatedAtIsNullOrNotNull() throws Exception {
+        // Initialize the database
+        insertedAiConversation = aiConversationRepository.saveAndFlush(aiConversation);
+
+        // Get all the aiConversationList where updatedAt is not null
+        defaultAiConversationFiltering("updatedAt.specified=true", "updatedAt.specified=false");
+    }
+
+    @Test
+    @Transactional
     void getAllAiConversationsByUserIsEqualToSomething() throws Exception {
         User user;
         if (TestUtil.findAll(em, User.class).isEmpty()) {
@@ -382,6 +441,28 @@ class AiConversationResourceIT {
         defaultAiConversationShouldNotBeFound("lessonId.equals=" + (lessonId + 1));
     }
 
+    @Test
+    @Transactional
+    void getAllAiConversationsByDocumentIsEqualToSomething() throws Exception {
+        LearningDocument document;
+        if (TestUtil.findAll(em, LearningDocument.class).isEmpty()) {
+            aiConversationRepository.saveAndFlush(aiConversation);
+            document = LearningDocumentResourceIT.createEntity(em);
+        } else {
+            document = TestUtil.findAll(em, LearningDocument.class).getFirst();
+        }
+        em.persist(document);
+        em.flush();
+        aiConversation.setDocument(document);
+        aiConversationRepository.saveAndFlush(aiConversation);
+        Long documentId = document.getId();
+        // Get all the aiConversationList where document equals to documentId
+        defaultAiConversationShouldBeFound("documentId.equals=" + documentId);
+
+        // Get all the aiConversationList where document equals to (documentId + 1)
+        defaultAiConversationShouldNotBeFound("documentId.equals=" + (documentId + 1));
+    }
+
     private void defaultAiConversationFiltering(String shouldBeFound, String shouldNotBeFound) throws Exception {
         defaultAiConversationShouldBeFound(shouldBeFound);
         defaultAiConversationShouldNotBeFound(shouldNotBeFound);
@@ -397,7 +478,8 @@ class AiConversationResourceIT {
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
             .andExpect(jsonPath("$.[*].id").value(hasItem(aiConversation.getId().intValue())))
             .andExpect(jsonPath("$.[*].type").value(hasItem(DEFAULT_TYPE)))
-            .andExpect(jsonPath("$.[*].createdAt").value(hasItem(DEFAULT_CREATED_AT.toString())));
+            .andExpect(jsonPath("$.[*].createdAt").value(hasItem(DEFAULT_CREATED_AT.toString())))
+            .andExpect(jsonPath("$.[*].updatedAt").value(hasItem(DEFAULT_UPDATED_AT.toString())));
 
         // Check, that the count call also returns 1
         restAiConversationMockMvc
@@ -445,7 +527,7 @@ class AiConversationResourceIT {
         AiConversation updatedAiConversation = aiConversationRepository.findById(aiConversation.getId()).orElseThrow();
         // Disconnect from session so that the updates on updatedAiConversation are not directly saved in db
         em.detach(updatedAiConversation);
-        updatedAiConversation.type(UPDATED_TYPE).createdAt(UPDATED_CREATED_AT);
+        updatedAiConversation.type(UPDATED_TYPE).createdAt(UPDATED_CREATED_AT).updatedAt(UPDATED_UPDATED_AT);
         AiConversationDTO aiConversationDTO = aiConversationMapper.toDto(updatedAiConversation);
 
         restAiConversationMockMvc
@@ -535,7 +617,7 @@ class AiConversationResourceIT {
         AiConversation partialUpdatedAiConversation = new AiConversation();
         partialUpdatedAiConversation.setId(aiConversation.getId());
 
-        partialUpdatedAiConversation.type(UPDATED_TYPE);
+        partialUpdatedAiConversation.type(UPDATED_TYPE).updatedAt(UPDATED_UPDATED_AT);
 
         restAiConversationMockMvc
             .perform(
@@ -566,7 +648,7 @@ class AiConversationResourceIT {
         AiConversation partialUpdatedAiConversation = new AiConversation();
         partialUpdatedAiConversation.setId(aiConversation.getId());
 
-        partialUpdatedAiConversation.type(UPDATED_TYPE).createdAt(UPDATED_CREATED_AT);
+        partialUpdatedAiConversation.type(UPDATED_TYPE).createdAt(UPDATED_CREATED_AT).updatedAt(UPDATED_UPDATED_AT);
 
         restAiConversationMockMvc
             .perform(

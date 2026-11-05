@@ -12,7 +12,7 @@ import {
 import { expect, test } from '../../support/fixtures';
 
 const pdfChunkPageUrl = '/pdf-chunk';
-// const pdfChunkSample = {"chunkText":"ethyl avow"};
+// const pdfChunkSample = {"chunkText":"Li4vZmFrZS1kYXRhL2Jsb2IvaGlwc3Rlci50eHQ=","chunkIndex":19873,"indexVersion":27499};
 
 const pdfChunkApiUrl = '/api/pdf-chunks';
 
@@ -21,7 +21,7 @@ const entitiesRequest = (page: import('@playwright/test').Page) =>
 
 test.describe('PdfChunk e2e test', () => {
   let pdfChunk;
-  // let courseMaterial;
+  // let learningDocument;
 
   test.beforeEach(async ({ jhi }) => {
     const { username, password } = jhi.credentials();
@@ -31,11 +31,11 @@ test.describe('PdfChunk e2e test', () => {
   /* Disabled due to incompatibility
   test.beforeEach(async ({ jhi }) => {
     // create an instance at the required relationship entity:
-    courseMaterial = await (
+    learningDocument = await (
       await jhi.authenticatedRequest({
         method: 'POST',
-        url: '/api/course-materials',
-        body: {"fileType":"gah hollow hearten","fileUrl":"searchingly pluck oof","fileSizeBytes":16104},
+        url: '/api/learning-documents',
+        body: {"sourceType":"whether","title":"tasty","fileObjectKey":"reassuringly immediately","contentHash":"unto mechanically important","sourceVersion":32414,"processingStatus":"hollow geez","indexStatus":"at","extractedTextObjectKey":"terrorise","embeddingModel":"sparkling hm outside","errorMessage":"Li4vZmFrZS1kYXRhL2Jsb2IvaGlwc3Rlci50eHQ=","createdAt":"2026-11-02T13:19:36.514Z","updatedAt":"2026-11-02T10:07:54.030Z","bookSeries":"pish dereference","sourceMetadata":"Li4vZmFrZS1kYXRhL2Jsb2IvaGlwc3Rlci50eHQ="},
       })
     ).json();
   });
@@ -45,8 +45,8 @@ test.describe('PdfChunk e2e test', () => {
     // A url predicate rather than a glob: a glob's wildcards would close the "Disabled due to
     // incompatibility" block comment that wraps this section when the create test is skipped.
     await page.route(
-      url => url.pathname === '/api/course-materials',
-      route => route.fulfill({ status: 200, json: [courseMaterial].filter(Boolean) }),
+      url => url.pathname === '/api/learning-documents',
+      route => route.fulfill({ status: 200, json: [learningDocument].filter(Boolean) }),
     );
   });
    */
@@ -63,12 +63,12 @@ test.describe('PdfChunk e2e test', () => {
 
   /* Disabled due to incompatibility
   test.afterEach(async ({ jhi }) => {
-    if (courseMaterial) {
+    if (learningDocument) {
       await jhi.authenticatedRequest({
         method: 'DELETE',
-        url: `/api/course-materials/${courseMaterial.id}`,
+        url: `/api/learning-documents/${learningDocument.id}`,
       });
-      courseMaterial = undefined;
+      learningDocument = undefined;
     }
   });
    */
@@ -126,7 +126,7 @@ test.describe('PdfChunk e2e test', () => {
             url: '/api/pdf-chunks',
             body: {
               ...pdfChunkSample,
-              material: courseMaterial,
+              material: learningDocument,
             },
           })
         ).json();
@@ -136,6 +136,9 @@ test.describe('PdfChunk e2e test', () => {
           route =>
             route.fulfill({
               status: 200,
+              headers: {
+                link: '<http://localhost/api/pdf-chunks?page=0&size=20>; rel="last",<http://localhost/api/pdf-chunks?page=0&size=20>; rel="first"',
+              },
               json: [pdfChunk],
             }),
           { times: 1 },
@@ -214,11 +217,17 @@ test.describe('PdfChunk e2e test', () => {
       await page.locator(`[data-cy="pageNumber"]`).fill('32529');
       await expect(page.locator(`[data-cy="pageNumber"]`)).toHaveValue('32529');
 
-      await page.locator(`[data-cy="chunkText"]`).fill('from');
-      await expect(page.locator(`[data-cy="chunkText"]`)).toHaveValue('from');
+      await page.locator(`[data-cy="chunkText"]`).fill('../fake-data/blob/hipster.txt');
+      await expect(page.locator(`[data-cy="chunkText"]`)).toHaveValue(new RegExp('../fake-data/blob/hipster.txt'));
 
-      await page.locator(`[data-cy="embedding"]`).fill('offensively');
-      await expect(page.locator(`[data-cy="embedding"]`)).toHaveValue('offensively');
+      await page.locator(`[data-cy="embedding"]`).fill('../fake-data/blob/hipster.txt');
+      await expect(page.locator(`[data-cy="embedding"]`)).toHaveValue(new RegExp('../fake-data/blob/hipster.txt'));
+
+      await page.locator(`[data-cy="chunkIndex"]`).fill('10431');
+      await expect(page.locator(`[data-cy="chunkIndex"]`)).toHaveValue('10431');
+
+      await page.locator(`[data-cy="indexVersion"]`).fill('7362');
+      await expect(page.locator(`[data-cy="indexVersion"]`)).toHaveValue('7362');
 
       await page.locator(`[data-cy="material"]`).selectOption({ index: 1 });
 

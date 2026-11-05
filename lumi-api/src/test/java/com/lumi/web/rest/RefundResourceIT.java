@@ -5,6 +5,7 @@ import static com.lumi.web.rest.TestUtil.createUpdateProxyForBean;
 import static com.lumi.web.rest.TestUtil.sameNumber;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.hasItem;
+import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -12,19 +13,28 @@ import com.lumi.IntegrationTest;
 import com.lumi.domain.CourseOrder;
 import com.lumi.domain.Payment;
 import com.lumi.domain.Refund;
+import com.lumi.domain.User;
 import com.lumi.repository.RefundRepository;
+import com.lumi.repository.UserRepository;
+import com.lumi.service.RefundService;
 import com.lumi.service.dto.RefundDTO;
 import com.lumi.service.mapper.RefundMapper;
 import jakarta.persistence.EntityManager;
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicLong;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
@@ -35,13 +45,14 @@ import tools.jackson.databind.ObjectMapper;
  * Integration tests for the {@link RefundResource} REST controller.
  */
 @IntegrationTest
+@ExtendWith(MockitoExtension.class)
 @AutoConfigureMockMvc
 @WithMockUser
 class RefundResourceIT {
 
-    private static final BigDecimal DEFAULT_AMOUNT = new BigDecimal(0);
-    private static final BigDecimal UPDATED_AMOUNT = new BigDecimal(1);
-    private static final BigDecimal SMALLER_AMOUNT = new BigDecimal(0 - 1);
+    private static final BigDecimal DEFAULT_AMOUNT = new BigDecimal(1);
+    private static final BigDecimal UPDATED_AMOUNT = new BigDecimal(2);
+    private static final BigDecimal SMALLER_AMOUNT = new BigDecimal(1 - 1);
 
     private static final String DEFAULT_REASON = "AAAAAAAAAA";
     private static final String UPDATED_REASON = "BBBBBBBBBB";
@@ -51,6 +62,18 @@ class RefundResourceIT {
 
     private static final Instant DEFAULT_CREATED_AT = Instant.ofEpochMilli(0L);
     private static final Instant UPDATED_CREATED_AT = Instant.ofEpochMilli(1791835009362L);
+
+    private static final Instant DEFAULT_PROCESSED_AT = Instant.ofEpochMilli(0L);
+    private static final Instant UPDATED_PROCESSED_AT = Instant.ofEpochMilli(1791835009362L);
+
+    private static final String DEFAULT_REVIEW_NOTE = "AAAAAAAAAA";
+    private static final String UPDATED_REVIEW_NOTE = "BBBBBBBBBB";
+
+    private static final String DEFAULT_REFUND_REFERENCE = "AAAAAAAAAA";
+    private static final String UPDATED_REFUND_REFERENCE = "BBBBBBBBBB";
+
+    private static final Instant DEFAULT_ACCESS_REVOKED_AT = Instant.ofEpochMilli(0L);
+    private static final Instant UPDATED_ACCESS_REVOKED_AT = Instant.ofEpochMilli(1791835009362L);
 
     private static final String ENTITY_API_URL = "/api/refunds";
     private static final String ENTITY_API_URL_ID = ENTITY_API_URL + "/{id}";
@@ -65,7 +88,16 @@ class RefundResourceIT {
     private RefundRepository refundRepository;
 
     @Autowired
+    private UserRepository userRepository;
+
+    @Mock
+    private RefundRepository refundRepositoryMock;
+
+    @Autowired
     private RefundMapper refundMapper;
+
+    @Mock
+    private RefundService refundServiceMock;
 
     @Autowired
     private EntityManager em;
@@ -84,11 +116,19 @@ class RefundResourceIT {
      * if they test an entity which requires the current entity.
      */
     public static Refund createEntity(EntityManager em) {
-        Refund refund = new Refund().amount(DEFAULT_AMOUNT).reason(DEFAULT_REASON).status(DEFAULT_STATUS).createdAt(DEFAULT_CREATED_AT);
+        Refund refund = new Refund()
+            .amount(DEFAULT_AMOUNT)
+            .reason(DEFAULT_REASON)
+            .status(DEFAULT_STATUS)
+            .createdAt(DEFAULT_CREATED_AT)
+            .processedAt(DEFAULT_PROCESSED_AT)
+            .reviewNote(DEFAULT_REVIEW_NOTE)
+            .refundReference(DEFAULT_REFUND_REFERENCE)
+            .accessRevokedAt(DEFAULT_ACCESS_REVOKED_AT);
         // Add required entity
         CourseOrder courseOrder;
         if (TestUtil.findAll(em, CourseOrder.class).isEmpty()) {
-            courseOrder = CourseOrderResourceIT.createEntity(em);
+            courseOrder = CourseOrderTestFixtures.createEntity(em);
             em.persist(courseOrder);
             em.flush();
         } else {
@@ -98,7 +138,7 @@ class RefundResourceIT {
         // Add required entity
         Payment payment;
         if (TestUtil.findAll(em, Payment.class).isEmpty()) {
-            payment = PaymentResourceIT.createEntity(em);
+            payment = PaymentTestFixtures.createEntity(em);
             em.persist(payment);
             em.flush();
         } else {
@@ -119,11 +159,15 @@ class RefundResourceIT {
             .amount(UPDATED_AMOUNT)
             .reason(UPDATED_REASON)
             .status(UPDATED_STATUS)
-            .createdAt(UPDATED_CREATED_AT);
+            .createdAt(UPDATED_CREATED_AT)
+            .processedAt(UPDATED_PROCESSED_AT)
+            .reviewNote(UPDATED_REVIEW_NOTE)
+            .refundReference(UPDATED_REFUND_REFERENCE)
+            .accessRevokedAt(UPDATED_ACCESS_REVOKED_AT);
         // Add required entity
         CourseOrder courseOrder;
         if (TestUtil.findAll(em, CourseOrder.class).isEmpty()) {
-            courseOrder = CourseOrderResourceIT.createUpdatedEntity(em);
+            courseOrder = CourseOrderTestFixtures.createUpdatedEntity(em);
             em.persist(courseOrder);
             em.flush();
         } else {
@@ -133,7 +177,7 @@ class RefundResourceIT {
         // Add required entity
         Payment payment;
         if (TestUtil.findAll(em, Payment.class).isEmpty()) {
-            payment = PaymentResourceIT.createUpdatedEntity(em);
+            payment = PaymentTestFixtures.createUpdatedEntity(em);
             em.persist(payment);
             em.flush();
         } else {
@@ -230,7 +274,28 @@ class RefundResourceIT {
             .andExpect(jsonPath("$.[*].amount").value(hasItem(sameNumber(DEFAULT_AMOUNT))))
             .andExpect(jsonPath("$.[*].reason").value(hasItem(DEFAULT_REASON)))
             .andExpect(jsonPath("$.[*].status").value(hasItem(DEFAULT_STATUS)))
-            .andExpect(jsonPath("$.[*].createdAt").value(hasItem(DEFAULT_CREATED_AT.toString())));
+            .andExpect(jsonPath("$.[*].createdAt").value(hasItem(DEFAULT_CREATED_AT.toString())))
+            .andExpect(jsonPath("$.[*].processedAt").value(hasItem(DEFAULT_PROCESSED_AT.toString())))
+            .andExpect(jsonPath("$.[*].reviewNote").value(hasItem(DEFAULT_REVIEW_NOTE)))
+            .andExpect(jsonPath("$.[*].refundReference").value(hasItem(DEFAULT_REFUND_REFERENCE)))
+            .andExpect(jsonPath("$.[*].accessRevokedAt").value(hasItem(DEFAULT_ACCESS_REVOKED_AT.toString())));
+    }
+
+    @SuppressWarnings({ "unchecked" })
+    void getAllRefundsWithEagerRelationshipsIsEnabled() throws Exception {
+        when(refundServiceMock.findAllWithEagerRelationships(any())).thenReturn(new PageImpl(new ArrayList<>()));
+
+        restRefundMockMvc.perform(get(ENTITY_API_URL + "?eagerload=true")).andExpect(status().isOk());
+
+        verify(refundServiceMock, times(1)).findAllWithEagerRelationships(any());
+    }
+
+    @SuppressWarnings({ "unchecked" })
+    void getAllRefundsWithEagerRelationshipsIsNotEnabled() throws Exception {
+        when(refundServiceMock.findAllWithEagerRelationships(any())).thenReturn(new PageImpl(new ArrayList<>()));
+
+        restRefundMockMvc.perform(get(ENTITY_API_URL + "?eagerload=false")).andExpect(status().isOk());
+        verify(refundRepositoryMock, times(1)).findAll(any(Pageable.class));
     }
 
     @Test
@@ -248,7 +313,11 @@ class RefundResourceIT {
             .andExpect(jsonPath("$.amount").value(sameNumber(DEFAULT_AMOUNT)))
             .andExpect(jsonPath("$.reason").value(DEFAULT_REASON))
             .andExpect(jsonPath("$.status").value(DEFAULT_STATUS))
-            .andExpect(jsonPath("$.createdAt").value(DEFAULT_CREATED_AT.toString()));
+            .andExpect(jsonPath("$.createdAt").value(DEFAULT_CREATED_AT.toString()))
+            .andExpect(jsonPath("$.processedAt").value(DEFAULT_PROCESSED_AT.toString()))
+            .andExpect(jsonPath("$.reviewNote").value(DEFAULT_REVIEW_NOTE))
+            .andExpect(jsonPath("$.refundReference").value(DEFAULT_REFUND_REFERENCE))
+            .andExpect(jsonPath("$.accessRevokedAt").value(DEFAULT_ACCESS_REVOKED_AT.toString()));
     }
 
     @Test
@@ -338,56 +407,6 @@ class RefundResourceIT {
 
     @Test
     @Transactional
-    void getAllRefundsByReasonIsEqualToSomething() throws Exception {
-        // Initialize the database
-        insertedRefund = refundRepository.saveAndFlush(refund);
-
-        // Get all the refundList where reason equals to
-        defaultRefundFiltering("reason.equals=" + DEFAULT_REASON, "reason.equals=" + UPDATED_REASON);
-    }
-
-    @Test
-    @Transactional
-    void getAllRefundsByReasonIsInShouldWork() throws Exception {
-        // Initialize the database
-        insertedRefund = refundRepository.saveAndFlush(refund);
-
-        // Get all the refundList where reason in
-        defaultRefundFiltering("reason.in=" + DEFAULT_REASON + "," + UPDATED_REASON, "reason.in=" + UPDATED_REASON);
-    }
-
-    @Test
-    @Transactional
-    void getAllRefundsByReasonIsNullOrNotNull() throws Exception {
-        // Initialize the database
-        insertedRefund = refundRepository.saveAndFlush(refund);
-
-        // Get all the refundList where reason is not null
-        defaultRefundFiltering("reason.specified=true", "reason.specified=false");
-    }
-
-    @Test
-    @Transactional
-    void getAllRefundsByReasonContainsSomething() throws Exception {
-        // Initialize the database
-        insertedRefund = refundRepository.saveAndFlush(refund);
-
-        // Get all the refundList where reason contains
-        defaultRefundFiltering("reason.contains=" + DEFAULT_REASON, "reason.contains=" + UPDATED_REASON);
-    }
-
-    @Test
-    @Transactional
-    void getAllRefundsByReasonNotContainsSomething() throws Exception {
-        // Initialize the database
-        insertedRefund = refundRepository.saveAndFlush(refund);
-
-        // Get all the refundList where reason does not contain
-        defaultRefundFiltering("reason.doesNotContain=" + UPDATED_REASON, "reason.doesNotContain=" + DEFAULT_REASON);
-    }
-
-    @Test
-    @Transactional
     void getAllRefundsByStatusIsEqualToSomething() throws Exception {
         // Initialize the database
         insertedRefund = refundRepository.saveAndFlush(refund);
@@ -468,11 +487,139 @@ class RefundResourceIT {
 
     @Test
     @Transactional
+    void getAllRefundsByProcessedAtIsEqualToSomething() throws Exception {
+        // Initialize the database
+        insertedRefund = refundRepository.saveAndFlush(refund);
+
+        // Get all the refundList where processedAt equals to
+        defaultRefundFiltering("processedAt.equals=" + DEFAULT_PROCESSED_AT, "processedAt.equals=" + UPDATED_PROCESSED_AT);
+    }
+
+    @Test
+    @Transactional
+    void getAllRefundsByProcessedAtIsInShouldWork() throws Exception {
+        // Initialize the database
+        insertedRefund = refundRepository.saveAndFlush(refund);
+
+        // Get all the refundList where processedAt in
+        defaultRefundFiltering(
+            "processedAt.in=" + DEFAULT_PROCESSED_AT + "," + UPDATED_PROCESSED_AT,
+            "processedAt.in=" + UPDATED_PROCESSED_AT
+        );
+    }
+
+    @Test
+    @Transactional
+    void getAllRefundsByProcessedAtIsNullOrNotNull() throws Exception {
+        // Initialize the database
+        insertedRefund = refundRepository.saveAndFlush(refund);
+
+        // Get all the refundList where processedAt is not null
+        defaultRefundFiltering("processedAt.specified=true", "processedAt.specified=false");
+    }
+
+    @Test
+    @Transactional
+    void getAllRefundsByRefundReferenceIsEqualToSomething() throws Exception {
+        // Initialize the database
+        insertedRefund = refundRepository.saveAndFlush(refund);
+
+        // Get all the refundList where refundReference equals to
+        defaultRefundFiltering("refundReference.equals=" + DEFAULT_REFUND_REFERENCE, "refundReference.equals=" + UPDATED_REFUND_REFERENCE);
+    }
+
+    @Test
+    @Transactional
+    void getAllRefundsByRefundReferenceIsInShouldWork() throws Exception {
+        // Initialize the database
+        insertedRefund = refundRepository.saveAndFlush(refund);
+
+        // Get all the refundList where refundReference in
+        defaultRefundFiltering(
+            "refundReference.in=" + DEFAULT_REFUND_REFERENCE + "," + UPDATED_REFUND_REFERENCE,
+            "refundReference.in=" + UPDATED_REFUND_REFERENCE
+        );
+    }
+
+    @Test
+    @Transactional
+    void getAllRefundsByRefundReferenceIsNullOrNotNull() throws Exception {
+        // Initialize the database
+        insertedRefund = refundRepository.saveAndFlush(refund);
+
+        // Get all the refundList where refundReference is not null
+        defaultRefundFiltering("refundReference.specified=true", "refundReference.specified=false");
+    }
+
+    @Test
+    @Transactional
+    void getAllRefundsByRefundReferenceContainsSomething() throws Exception {
+        // Initialize the database
+        insertedRefund = refundRepository.saveAndFlush(refund);
+
+        // Get all the refundList where refundReference contains
+        defaultRefundFiltering(
+            "refundReference.contains=" + DEFAULT_REFUND_REFERENCE,
+            "refundReference.contains=" + UPDATED_REFUND_REFERENCE
+        );
+    }
+
+    @Test
+    @Transactional
+    void getAllRefundsByRefundReferenceNotContainsSomething() throws Exception {
+        // Initialize the database
+        insertedRefund = refundRepository.saveAndFlush(refund);
+
+        // Get all the refundList where refundReference does not contain
+        defaultRefundFiltering(
+            "refundReference.doesNotContain=" + UPDATED_REFUND_REFERENCE,
+            "refundReference.doesNotContain=" + DEFAULT_REFUND_REFERENCE
+        );
+    }
+
+    @Test
+    @Transactional
+    void getAllRefundsByAccessRevokedAtIsEqualToSomething() throws Exception {
+        // Initialize the database
+        insertedRefund = refundRepository.saveAndFlush(refund);
+
+        // Get all the refundList where accessRevokedAt equals to
+        defaultRefundFiltering(
+            "accessRevokedAt.equals=" + DEFAULT_ACCESS_REVOKED_AT,
+            "accessRevokedAt.equals=" + UPDATED_ACCESS_REVOKED_AT
+        );
+    }
+
+    @Test
+    @Transactional
+    void getAllRefundsByAccessRevokedAtIsInShouldWork() throws Exception {
+        // Initialize the database
+        insertedRefund = refundRepository.saveAndFlush(refund);
+
+        // Get all the refundList where accessRevokedAt in
+        defaultRefundFiltering(
+            "accessRevokedAt.in=" + DEFAULT_ACCESS_REVOKED_AT + "," + UPDATED_ACCESS_REVOKED_AT,
+            "accessRevokedAt.in=" + UPDATED_ACCESS_REVOKED_AT
+        );
+    }
+
+    @Test
+    @Transactional
+    void getAllRefundsByAccessRevokedAtIsNullOrNotNull() throws Exception {
+        // Initialize the database
+        insertedRefund = refundRepository.saveAndFlush(refund);
+
+        // Get all the refundList where accessRevokedAt is not null
+        defaultRefundFiltering("accessRevokedAt.specified=true", "accessRevokedAt.specified=false");
+    }
+
+    @Test
+    @Transactional
     void getAllRefundsByOrderIsEqualToSomething() throws Exception {
         CourseOrder order;
         if (TestUtil.findAll(em, CourseOrder.class).isEmpty()) {
             refundRepository.saveAndFlush(refund);
-            order = CourseOrderResourceIT.createEntity(em);
+            order = CourseOrderTestFixtures.createEntity(em);
         } else {
             order = TestUtil.findAll(em, CourseOrder.class).getFirst();
         }
@@ -494,7 +641,7 @@ class RefundResourceIT {
         Payment payment;
         if (TestUtil.findAll(em, Payment.class).isEmpty()) {
             refundRepository.saveAndFlush(refund);
-            payment = PaymentResourceIT.createEntity(em);
+            payment = PaymentTestFixtures.createEntity(em);
         } else {
             payment = TestUtil.findAll(em, Payment.class).getFirst();
         }
@@ -508,6 +655,28 @@ class RefundResourceIT {
 
         // Get all the refundList where payment equals to (paymentId + 1)
         defaultRefundShouldNotBeFound("paymentId.equals=" + (paymentId + 1));
+    }
+
+    @Test
+    @Transactional
+    void getAllRefundsByProcessedByIsEqualToSomething() throws Exception {
+        User processedBy;
+        if (TestUtil.findAll(em, User.class).isEmpty()) {
+            refundRepository.saveAndFlush(refund);
+            processedBy = UserResourceIT.createEntity();
+        } else {
+            processedBy = TestUtil.findAll(em, User.class).getFirst();
+        }
+        em.persist(processedBy);
+        em.flush();
+        refund.setProcessedBy(processedBy);
+        refundRepository.saveAndFlush(refund);
+        Long processedById = processedBy.getId();
+        // Get all the refundList where processedBy equals to processedById
+        defaultRefundShouldBeFound("processedById.equals=" + processedById);
+
+        // Get all the refundList where processedBy equals to (processedById + 1)
+        defaultRefundShouldNotBeFound("processedById.equals=" + (processedById + 1));
     }
 
     private void defaultRefundFiltering(String shouldBeFound, String shouldNotBeFound) throws Exception {
@@ -527,7 +696,11 @@ class RefundResourceIT {
             .andExpect(jsonPath("$.[*].amount").value(hasItem(sameNumber(DEFAULT_AMOUNT))))
             .andExpect(jsonPath("$.[*].reason").value(hasItem(DEFAULT_REASON)))
             .andExpect(jsonPath("$.[*].status").value(hasItem(DEFAULT_STATUS)))
-            .andExpect(jsonPath("$.[*].createdAt").value(hasItem(DEFAULT_CREATED_AT.toString())));
+            .andExpect(jsonPath("$.[*].createdAt").value(hasItem(DEFAULT_CREATED_AT.toString())))
+            .andExpect(jsonPath("$.[*].processedAt").value(hasItem(DEFAULT_PROCESSED_AT.toString())))
+            .andExpect(jsonPath("$.[*].reviewNote").value(hasItem(DEFAULT_REVIEW_NOTE)))
+            .andExpect(jsonPath("$.[*].refundReference").value(hasItem(DEFAULT_REFUND_REFERENCE)))
+            .andExpect(jsonPath("$.[*].accessRevokedAt").value(hasItem(DEFAULT_ACCESS_REVOKED_AT.toString())));
 
         // Check, that the count call also returns 1
         restRefundMockMvc
@@ -575,7 +748,15 @@ class RefundResourceIT {
         Refund updatedRefund = refundRepository.findById(refund.getId()).orElseThrow();
         // Disconnect from session so that the updates on updatedRefund are not directly saved in db
         em.detach(updatedRefund);
-        updatedRefund.amount(UPDATED_AMOUNT).reason(UPDATED_REASON).status(UPDATED_STATUS).createdAt(UPDATED_CREATED_AT);
+        updatedRefund
+            .amount(UPDATED_AMOUNT)
+            .reason(UPDATED_REASON)
+            .status(UPDATED_STATUS)
+            .createdAt(UPDATED_CREATED_AT)
+            .processedAt(UPDATED_PROCESSED_AT)
+            .reviewNote(UPDATED_REVIEW_NOTE)
+            .refundReference(UPDATED_REFUND_REFERENCE)
+            .accessRevokedAt(UPDATED_ACCESS_REVOKED_AT);
         RefundDTO refundDTO = refundMapper.toDto(updatedRefund);
 
         restRefundMockMvc
@@ -661,7 +842,11 @@ class RefundResourceIT {
         Refund partialUpdatedRefund = new Refund();
         partialUpdatedRefund.setId(refund.getId());
 
-        partialUpdatedRefund.reason(UPDATED_REASON);
+        partialUpdatedRefund
+            .reason(UPDATED_REASON)
+            .reviewNote(UPDATED_REVIEW_NOTE)
+            .refundReference(UPDATED_REFUND_REFERENCE)
+            .accessRevokedAt(UPDATED_ACCESS_REVOKED_AT);
 
         restRefundMockMvc
             .perform(
@@ -689,7 +874,15 @@ class RefundResourceIT {
         Refund partialUpdatedRefund = new Refund();
         partialUpdatedRefund.setId(refund.getId());
 
-        partialUpdatedRefund.amount(UPDATED_AMOUNT).reason(UPDATED_REASON).status(UPDATED_STATUS).createdAt(UPDATED_CREATED_AT);
+        partialUpdatedRefund
+            .amount(UPDATED_AMOUNT)
+            .reason(UPDATED_REASON)
+            .status(UPDATED_STATUS)
+            .createdAt(UPDATED_CREATED_AT)
+            .processedAt(UPDATED_PROCESSED_AT)
+            .reviewNote(UPDATED_REVIEW_NOTE)
+            .refundReference(UPDATED_REFUND_REFERENCE)
+            .accessRevokedAt(UPDATED_ACCESS_REVOKED_AT);
 
         restRefundMockMvc
             .perform(

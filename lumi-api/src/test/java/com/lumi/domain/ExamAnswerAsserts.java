@@ -50,7 +50,9 @@ public class ExamAnswerAsserts {
             .as("Verify ExamAnswer relevant properties")
             .satisfies(a -> assertThat(a.getTextAnswer()).as("check textAnswer").isEqualTo(expected.getTextAnswer()))
             .satisfies(a -> assertThat(a.getIsCorrect()).as("check isCorrect").isEqualTo(expected.getIsCorrect()))
-            .satisfies(a -> assertThat(a.getScore()).as("check score").usingComparator(bigDecimalCompareTo).isEqualTo(expected.getScore()));
+            .satisfies(a -> assertThat(a.getScore()).as("check score").usingComparator(bigDecimalCompareTo).isEqualTo(expected.getScore()))
+            .satisfies(a -> assertThat(a.getUpdatedAt()).as("check updatedAt").isEqualTo(expected.getUpdatedAt()))
+            .satisfies(a -> assertThat(a.getRowVersion()).as("check rowVersion").isEqualTo(expected.getRowVersion()));
     }
 
     /**

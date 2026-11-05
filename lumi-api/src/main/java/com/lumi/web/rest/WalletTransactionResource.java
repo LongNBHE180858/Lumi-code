@@ -1,10 +1,10 @@
 package com.lumi.web.rest;
 
 import com.lumi.repository.WalletTransactionRepository;
-import com.lumi.service.WalletTransactionQueryService;
 import com.lumi.service.WalletTransactionService;
 import com.lumi.service.criteria.WalletTransactionCriteria;
 import com.lumi.service.dto.WalletTransactionDTO;
+import com.lumi.service.query.WalletTransactionQueryService;
 import com.lumi.web.rest.errors.BadRequestAlertException;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;

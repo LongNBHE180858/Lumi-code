@@ -12,6 +12,7 @@ export interface IUserProfile {
   is2faEnabled?: boolean | null;
   instructorStatus?: keyof typeof RecordStatus | null;
   updatedAt?: dayjs.Dayjs | null;
+  birthDate?: dayjs.Dayjs | null;
   user?: IUser;
 }
 

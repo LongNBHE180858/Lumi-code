@@ -9,6 +9,9 @@ export interface IPayment {
   amount?: number;
   status?: string | null;
   paidAt?: dayjs.Dayjs | null;
+  paymentReference?: string | null;
+  providerEventId?: string | null;
+  receivedAt?: dayjs.Dayjs | null;
   order?: ICourseOrder;
 }
 

@@ -90,17 +90,35 @@ export const StudyClassDetail = () => {
             {studyClassEntity.createdAt ? <TextFormat value={studyClassEntity.createdAt} type="date" format={APP_DATE_FORMAT} /> : null}
           </dd>
           <dt>
+            <span id="joinCodeExpiresAt">
+              <Translate contentKey="lumiApp.studyClass.joinCodeExpiresAt">Join Code Expires At</Translate>
+            </span>
+          </dt>
+          <dd>
+            {studyClassEntity.joinCodeExpiresAt ? (
+              <TextFormat value={studyClassEntity.joinCodeExpiresAt} type="date" format={APP_DATE_FORMAT} />
+            ) : null}
+          </dd>
+          <dt>
+            <span id="updatedAt">
+              <Translate contentKey="lumiApp.studyClass.updatedAt">Updated At</Translate>
+            </span>
+          </dt>
+          <dd>
+            {studyClassEntity.updatedAt ? <TextFormat value={studyClassEntity.updatedAt} type="date" format={APP_DATE_FORMAT} /> : null}
+          </dd>
+          <dt>
             <Translate contentKey="lumiApp.studyClass.instructor">Instructor</Translate>
           </dt>
           <dd>{studyClassEntity.instructor ? studyClassEntity.instructor.login : ''}</dd>
           <dt>
             <Translate contentKey="lumiApp.studyClass.subject">Subject</Translate>
           </dt>
-          <dd>{studyClassEntity.subject ? studyClassEntity.subject.name : ''}</dd>
+          <dd>{studyClassEntity.subject ? studyClassEntity.subject.id : ''}</dd>
           <dt>
             <Translate contentKey="lumiApp.studyClass.grade">Grade</Translate>
           </dt>
-          <dd>{studyClassEntity.grade ? studyClassEntity.grade.name : ''}</dd>
+          <dd>{studyClassEntity.grade ? studyClassEntity.grade.id : ''}</dd>
         </dl>
         <Button as={Link as any} to="/study-class" replace variant="info" data-cy="entityDetailsBackButton">
           <FontAwesomeIcon icon="arrow-left" />{' '}

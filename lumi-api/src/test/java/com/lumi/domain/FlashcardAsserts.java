@@ -48,7 +48,8 @@ public class FlashcardAsserts {
         assertThat(actual)
             .as("Verify Flashcard relevant properties")
             .satisfies(a -> assertThat(a.getFrontText()).as("check frontText").isEqualTo(expected.getFrontText()))
-            .satisfies(a -> assertThat(a.getBackText()).as("check backText").isEqualTo(expected.getBackText()));
+            .satisfies(a -> assertThat(a.getBackText()).as("check backText").isEqualTo(expected.getBackText()))
+            .satisfies(a -> assertThat(a.getUpdatedAt()).as("check updatedAt").isEqualTo(expected.getUpdatedAt()));
     }
 
     /**
@@ -60,6 +61,7 @@ public class FlashcardAsserts {
     public static void assertFlashcardUpdatableRelationshipsEquals(Flashcard expected, Flashcard actual) {
         assertThat(actual)
             .as("Verify Flashcard relationships")
-            .satisfies(a -> assertThat(a.getDeck()).as("check deck").isEqualTo(expected.getDeck()));
+            .satisfies(a -> assertThat(a.getDeck()).as("check deck").isEqualTo(expected.getDeck()))
+            .satisfies(a -> assertThat(a.getAiContent()).as("check aiContent").isEqualTo(expected.getAiContent()));
     }
 }

@@ -11,10 +11,45 @@
     <changeSet id="20261012230501-2" author="jhipster">
 
         <addForeignKeyConstraint baseColumnNames="bank_id"
-                                 baseTableName="question"
-                                 constraintName="fk_question__bank_id"
+                                 baseTableName="questions"
+                                 constraintName="fk_questions__bank_id"
                                  referencedColumnNames="id"
-                                 referencedTableName="question_bank"
+                                 referencedTableName="question_banks"
+                                 />
+
+        <addForeignKeyConstraint baseColumnNames="created_by_id"
+                                 baseTableName="questions"
+                                 constraintName="fk_questions__created_by_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="jhi_user"
+                                 />
+
+        <addForeignKeyConstraint baseColumnNames="ai_content_id"
+                                 baseTableName="questions"
+                                 constraintName="fk_questions__ai_content_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="ai_generated_contents"
+                                 />
+
+        <addForeignKeyConstraint baseColumnNames="subject_id"
+                                 baseTableName="questions"
+                                 constraintName="fk_questions__subject_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="subjects"
+                                 />
+
+        <addForeignKeyConstraint baseColumnNames="grade_id"
+                                 baseTableName="questions"
+                                 constraintName="fk_questions__grade_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="grades"
+                                 />
+
+        <addForeignKeyConstraint baseColumnNames="previous_question_id"
+                                 baseTableName="questions"
+                                 constraintName="fk_questions__previous_question_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="questions"
                                  />
     </changeSet>
 </databaseChangeLog>

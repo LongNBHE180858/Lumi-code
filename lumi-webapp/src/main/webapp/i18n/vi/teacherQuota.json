@@ -22,7 +22,11 @@
       "usedStorageBytes": "Used Storage Bytes",
       "aiUsedCount": "Ai Used Count",
       "rowVersion": "Row Version",
-      "user": "User",
+      "effectiveStorageLimitBytes": "Effective Storage Limit Bytes",
+      "aiPeriodStartedAt": "Ai Period Started At",
+      "aiPeriodEndsAt": "Ai Period Ends At",
+      "updatedAt": "Updated At",
+      "instructor": "Instructor",
       "currentPlan": "Current Plan"
     }
   }

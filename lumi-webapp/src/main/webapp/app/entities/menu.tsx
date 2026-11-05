@@ -19,9 +19,6 @@ const EntitiesMenu = () => {
       <MenuItem icon="asterisk" to="/auth-session">
         <Translate contentKey="global.menu.entities.authSession" />
       </MenuItem>
-      <MenuItem icon="asterisk" to="/category">
-        <Translate contentKey="global.menu.entities.category" />
-      </MenuItem>
       <MenuItem icon="asterisk" to="/subject">
         <Translate contentKey="global.menu.entities.subject" />
       </MenuItem>
@@ -58,17 +55,8 @@ const EntitiesMenu = () => {
       <MenuItem icon="asterisk" to="/class-material">
         <Translate contentKey="global.menu.entities.classMaterial" />
       </MenuItem>
-      <MenuItem icon="asterisk" to="/teacher-quota">
-        <Translate contentKey="global.menu.entities.teacherQuota" />
-      </MenuItem>
-      <MenuItem icon="asterisk" to="/coupon">
-        <Translate contentKey="global.menu.entities.coupon" />
-      </MenuItem>
-      <MenuItem icon="asterisk" to="/course-order">
-        <Translate contentKey="global.menu.entities.courseOrder" />
-      </MenuItem>
-      <MenuItem icon="asterisk" to="/payment">
-        <Translate contentKey="global.menu.entities.payment" />
+      <MenuItem icon="asterisk" to="/system-plan">
+        <Translate contentKey="global.menu.entities.systemPlan" />
       </MenuItem>
       <MenuItem icon="asterisk" to="/refund">
         <Translate contentKey="global.menu.entities.refund" />
@@ -82,60 +70,6 @@ const EntitiesMenu = () => {
       <MenuItem icon="asterisk" to="/payout-request">
         <Translate contentKey="global.menu.entities.payoutRequest" />
       </MenuItem>
-      <MenuItem icon="asterisk" to="/question-bank">
-        <Translate contentKey="global.menu.entities.questionBank" />
-      </MenuItem>
-      <MenuItem icon="asterisk" to="/question">
-        <Translate contentKey="global.menu.entities.question" />
-      </MenuItem>
-      <MenuItem icon="asterisk" to="/question-option">
-        <Translate contentKey="global.menu.entities.questionOption" />
-      </MenuItem>
-      <MenuItem icon="asterisk" to="/exam">
-        <Translate contentKey="global.menu.entities.exam" />
-      </MenuItem>
-      <MenuItem icon="asterisk" to="/exam-question">
-        <Translate contentKey="global.menu.entities.examQuestion" />
-      </MenuItem>
-      <MenuItem icon="asterisk" to="/assignment">
-        <Translate contentKey="global.menu.entities.assignment" />
-      </MenuItem>
-      <MenuItem icon="asterisk" to="/assignment-submission">
-        <Translate contentKey="global.menu.entities.assignmentSubmission" />
-      </MenuItem>
-      <MenuItem icon="asterisk" to="/exam-attempt">
-        <Translate contentKey="global.menu.entities.examAttempt" />
-      </MenuItem>
-      <MenuItem icon="asterisk" to="/exam-answer">
-        <Translate contentKey="global.menu.entities.examAnswer" />
-      </MenuItem>
-      <MenuItem icon="asterisk" to="/proctor-session">
-        <Translate contentKey="global.menu.entities.proctorSession" />
-      </MenuItem>
-      <MenuItem icon="asterisk" to="/proctor-event">
-        <Translate contentKey="global.menu.entities.proctorEvent" />
-      </MenuItem>
-      <MenuItem icon="asterisk" to="/student-note">
-        <Translate contentKey="global.menu.entities.studentNote" />
-      </MenuItem>
-      <MenuItem icon="asterisk" to="/student-streak">
-        <Translate contentKey="global.menu.entities.studentStreak" />
-      </MenuItem>
-      <MenuItem icon="asterisk" to="/flashcard-deck">
-        <Translate contentKey="global.menu.entities.flashcardDeck" />
-      </MenuItem>
-      <MenuItem icon="asterisk" to="/flashcard">
-        <Translate contentKey="global.menu.entities.flashcard" />
-      </MenuItem>
-      <MenuItem icon="asterisk" to="/flashcard-review">
-        <Translate contentKey="global.menu.entities.flashcardReview" />
-      </MenuItem>
-      <MenuItem icon="asterisk" to="/knowledge-node">
-        <Translate contentKey="global.menu.entities.knowledgeNode" />
-      </MenuItem>
-      <MenuItem icon="asterisk" to="/knowledge-edge">
-        <Translate contentKey="global.menu.entities.knowledgeEdge" />
-      </MenuItem>
       <MenuItem icon="asterisk" to="/pdf-chunk">
         <Translate contentKey="global.menu.entities.pdfChunk" />
       </MenuItem>
@@ -145,23 +79,29 @@ const EntitiesMenu = () => {
       <MenuItem icon="asterisk" to="/ai-message">
         <Translate contentKey="global.menu.entities.aiMessage" />
       </MenuItem>
-      <MenuItem icon="asterisk" to="/discussion">
-        <Translate contentKey="global.menu.entities.discussion" />
-      </MenuItem>
-      <MenuItem icon="asterisk" to="/discussion-reply">
-        <Translate contentKey="global.menu.entities.discussionReply" />
-      </MenuItem>
       <MenuItem icon="asterisk" to="/content-report">
         <Translate contentKey="global.menu.entities.contentReport" />
       </MenuItem>
       <MenuItem icon="asterisk" to="/notification">
         <Translate contentKey="global.menu.entities.notification" />
       </MenuItem>
-      <MenuItem icon="asterisk" to="/audit-log">
-        <Translate contentKey="global.menu.entities.auditLog" />
+      <MenuItem icon="asterisk" to="/course-review-request">
+        <Translate contentKey="global.menu.entities.courseReviewRequest" />
       </MenuItem>
-      <MenuItem icon="asterisk" to="/assignment-student">
-        <Translate contentKey="global.menu.entities.assignmentStudent" />
+      <MenuItem icon="asterisk" to="/lesson-progress">
+        <Translate contentKey="global.menu.entities.lessonProgress" />
+      </MenuItem>
+      <MenuItem icon="asterisk" to="/student-knowledge-progress">
+        <Translate contentKey="global.menu.entities.studentKnowledgeProgress" />
+      </MenuItem>
+      <MenuItem icon="asterisk" to="/learning-document">
+        <Translate contentKey="global.menu.entities.learningDocument" />
+      </MenuItem>
+      <MenuItem icon="asterisk" to="/ai-generated-content">
+        <Translate contentKey="global.menu.entities.aiGeneratedContent" />
+      </MenuItem>
+      <MenuItem icon="asterisk" to="/question-knowledge-link">
+        <Translate contentKey="global.menu.entities.questionKnowledgeLink" />
       </MenuItem>
       {/* jhipster-needle-add-entity-to-menu - JHipster will add entities to the menu here */}
     </>

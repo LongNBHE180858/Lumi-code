@@ -48,7 +48,8 @@ public class AiConversationAsserts {
         assertThat(actual)
             .as("Verify AiConversation relevant properties")
             .satisfies(a -> assertThat(a.getType()).as("check type").isEqualTo(expected.getType()))
-            .satisfies(a -> assertThat(a.getCreatedAt()).as("check createdAt").isEqualTo(expected.getCreatedAt()));
+            .satisfies(a -> assertThat(a.getCreatedAt()).as("check createdAt").isEqualTo(expected.getCreatedAt()))
+            .satisfies(a -> assertThat(a.getUpdatedAt()).as("check updatedAt").isEqualTo(expected.getUpdatedAt()));
     }
 
     /**
@@ -60,6 +61,7 @@ public class AiConversationAsserts {
     public static void assertAiConversationUpdatableRelationshipsEquals(AiConversation expected, AiConversation actual) {
         assertThat(actual)
             .as("Verify AiConversation relationships")
-            .satisfies(a -> assertThat(a.getLesson()).as("check lesson").isEqualTo(expected.getLesson()));
+            .satisfies(a -> assertThat(a.getLesson()).as("check lesson").isEqualTo(expected.getLesson()))
+            .satisfies(a -> assertThat(a.getDocument()).as("check document").isEqualTo(expected.getDocument()));
     }
 }

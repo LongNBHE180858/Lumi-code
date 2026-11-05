@@ -66,13 +66,27 @@ export const CourseEnrollmentDetail = () => {
             ) : null}
           </dd>
           <dt>
+            <span id="updatedAt">
+              <Translate contentKey="lumiApp.courseEnrollment.updatedAt">Updated At</Translate>
+            </span>
+          </dt>
+          <dd>
+            {courseEnrollmentEntity.updatedAt ? (
+              <TextFormat value={courseEnrollmentEntity.updatedAt} type="date" format={APP_DATE_FORMAT} />
+            ) : null}
+          </dd>
+          <dt>
+            <Translate contentKey="lumiApp.courseEnrollment.course">Course</Translate>
+          </dt>
+          <dd>{courseEnrollmentEntity.course ? courseEnrollmentEntity.course.id : ''}</dd>
+          <dt>
             <Translate contentKey="lumiApp.courseEnrollment.student">Student</Translate>
           </dt>
           <dd>{courseEnrollmentEntity.student ? courseEnrollmentEntity.student.login : ''}</dd>
           <dt>
-            <Translate contentKey="lumiApp.courseEnrollment.course">Course</Translate>
+            <Translate contentKey="lumiApp.courseEnrollment.lastAccessedLesson">Last Accessed Lesson</Translate>
           </dt>
-          <dd>{courseEnrollmentEntity.course ? courseEnrollmentEntity.course.title : ''}</dd>
+          <dd>{courseEnrollmentEntity.lastAccessedLesson ? courseEnrollmentEntity.lastAccessedLesson.id : ''}</dd>
         </dl>
         <Button as={Link as any} to="/course-enrollment" replace variant="info" data-cy="entityDetailsBackButton">
           <FontAwesomeIcon icon="arrow-left" />{' '}

@@ -30,18 +30,14 @@ public interface FlashcardDeckRepository extends JpaRepository<FlashcardDeck, Lo
     }
 
     @Query(
-        value = "select flashcardDeck from FlashcardDeck flashcardDeck left join fetch flashcardDeck.owner left join fetch flashcardDeck.subject",
+        value = "select flashcardDeck from FlashcardDeck flashcardDeck left join fetch flashcardDeck.owner",
         countQuery = "select count(flashcardDeck) from FlashcardDeck flashcardDeck"
     )
     Page<FlashcardDeck> findAllWithToOneRelationships(Pageable pageable);
 
-    @Query(
-        "select flashcardDeck from FlashcardDeck flashcardDeck left join fetch flashcardDeck.owner left join fetch flashcardDeck.subject"
-    )
+    @Query("select flashcardDeck from FlashcardDeck flashcardDeck left join fetch flashcardDeck.owner")
     List<FlashcardDeck> findAllWithToOneRelationships();
 
-    @Query(
-        "select flashcardDeck from FlashcardDeck flashcardDeck left join fetch flashcardDeck.owner left join fetch flashcardDeck.subject where flashcardDeck.id =:id"
-    )
+    @Query("select flashcardDeck from FlashcardDeck flashcardDeck left join fetch flashcardDeck.owner where flashcardDeck.id =:id")
     Optional<FlashcardDeck> findOneWithToOneRelationships(@Param("id") Long id);
 }

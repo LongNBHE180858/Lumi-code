@@ -11,6 +11,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import com.lumi.IntegrationTest;
 import com.lumi.domain.CourseOrder;
 import com.lumi.domain.InstructorWallet;
+import com.lumi.domain.PayoutRequest;
+import com.lumi.domain.Refund;
 import com.lumi.domain.WalletTransaction;
 import com.lumi.domain.enumeration.TransactionType;
 import com.lumi.repository.WalletTransactionRepository;
@@ -56,6 +58,9 @@ class WalletTransactionResourceIT {
     private static final Instant DEFAULT_OCCURRED_AT = Instant.ofEpochMilli(0L);
     private static final Instant UPDATED_OCCURRED_AT = Instant.ofEpochMilli(1791835009362L);
 
+    private static final String DEFAULT_BALANCE_BUCKET = "AAAAAAAAAA";
+    private static final String UPDATED_BALANCE_BUCKET = "BBBBBBBBBB";
+
     private static final String ENTITY_API_URL = "/api/wallet-transactions";
     private static final String ENTITY_API_URL_ID = ENTITY_API_URL + "/{id}";
 
@@ -93,7 +98,8 @@ class WalletTransactionResourceIT {
             .amount(DEFAULT_AMOUNT)
             .status(DEFAULT_STATUS)
             .idempotencyKey(DEFAULT_IDEMPOTENCY_KEY)
-            .occurredAt(DEFAULT_OCCURRED_AT);
+            .occurredAt(DEFAULT_OCCURRED_AT)
+            .balanceBucket(DEFAULT_BALANCE_BUCKET);
         // Add required entity
         InstructorWallet instructorWallet;
         if (TestUtil.findAll(em, InstructorWallet.class).isEmpty()) {
@@ -119,7 +125,8 @@ class WalletTransactionResourceIT {
             .amount(UPDATED_AMOUNT)
             .status(UPDATED_STATUS)
             .idempotencyKey(UPDATED_IDEMPOTENCY_KEY)
-            .occurredAt(UPDATED_OCCURRED_AT);
+            .occurredAt(UPDATED_OCCURRED_AT)
+            .balanceBucket(UPDATED_BALANCE_BUCKET);
         // Add required entity
         InstructorWallet instructorWallet;
         if (TestUtil.findAll(em, InstructorWallet.class).isEmpty()) {
@@ -241,6 +248,23 @@ class WalletTransactionResourceIT {
 
     @Test
     @Transactional
+    void checkBalanceBucketIsRequired() throws Exception {
+        long databaseSizeBeforeTest = getRepositoryCount();
+        // set the field null
+        walletTransaction.setBalanceBucket(null);
+
+        // Create the WalletTransaction, which fails.
+        WalletTransactionDTO walletTransactionDTO = walletTransactionMapper.toDto(walletTransaction);
+
+        restWalletTransactionMockMvc
+            .perform(post(ENTITY_API_URL).contentType(MediaType.APPLICATION_JSON).content(om.writeValueAsBytes(walletTransactionDTO)))
+            .andExpect(status().isBadRequest());
+
+        assertSameRepositoryCount(databaseSizeBeforeTest);
+    }
+
+    @Test
+    @Transactional
     void getAllWalletTransactions() throws Exception {
         // Initialize the database
         insertedWalletTransaction = walletTransactionRepository.saveAndFlush(walletTransaction);
@@ -255,7 +279,8 @@ class WalletTransactionResourceIT {
             .andExpect(jsonPath("$.[*].amount").value(hasItem(sameNumber(DEFAULT_AMOUNT))))
             .andExpect(jsonPath("$.[*].status").value(hasItem(DEFAULT_STATUS)))
             .andExpect(jsonPath("$.[*].idempotencyKey").value(hasItem(DEFAULT_IDEMPOTENCY_KEY)))
-            .andExpect(jsonPath("$.[*].occurredAt").value(hasItem(DEFAULT_OCCURRED_AT.toString())));
+            .andExpect(jsonPath("$.[*].occurredAt").value(hasItem(DEFAULT_OCCURRED_AT.toString())))
+            .andExpect(jsonPath("$.[*].balanceBucket").value(hasItem(DEFAULT_BALANCE_BUCKET)));
     }
 
     @Test
@@ -274,7 +299,8 @@ class WalletTransactionResourceIT {
             .andExpect(jsonPath("$.amount").value(sameNumber(DEFAULT_AMOUNT)))
             .andExpect(jsonPath("$.status").value(DEFAULT_STATUS))
             .andExpect(jsonPath("$.idempotencyKey").value(DEFAULT_IDEMPOTENCY_KEY))
-            .andExpect(jsonPath("$.occurredAt").value(DEFAULT_OCCURRED_AT.toString()));
+            .andExpect(jsonPath("$.occurredAt").value(DEFAULT_OCCURRED_AT.toString()))
+            .andExpect(jsonPath("$.balanceBucket").value(DEFAULT_BALANCE_BUCKET));
     }
 
     @Test
@@ -539,6 +565,68 @@ class WalletTransactionResourceIT {
 
     @Test
     @Transactional
+    void getAllWalletTransactionsByBalanceBucketIsEqualToSomething() throws Exception {
+        // Initialize the database
+        insertedWalletTransaction = walletTransactionRepository.saveAndFlush(walletTransaction);
+
+        // Get all the walletTransactionList where balanceBucket equals to
+        defaultWalletTransactionFiltering(
+            "balanceBucket.equals=" + DEFAULT_BALANCE_BUCKET,
+            "balanceBucket.equals=" + UPDATED_BALANCE_BUCKET
+        );
+    }
+
+    @Test
+    @Transactional
+    void getAllWalletTransactionsByBalanceBucketIsInShouldWork() throws Exception {
+        // Initialize the database
+        insertedWalletTransaction = walletTransactionRepository.saveAndFlush(walletTransaction);
+
+        // Get all the walletTransactionList where balanceBucket in
+        defaultWalletTransactionFiltering(
+            "balanceBucket.in=" + DEFAULT_BALANCE_BUCKET + "," + UPDATED_BALANCE_BUCKET,
+            "balanceBucket.in=" + UPDATED_BALANCE_BUCKET
+        );
+    }
+
+    @Test
+    @Transactional
+    void getAllWalletTransactionsByBalanceBucketIsNullOrNotNull() throws Exception {
+        // Initialize the database
+        insertedWalletTransaction = walletTransactionRepository.saveAndFlush(walletTransaction);
+
+        // Get all the walletTransactionList where balanceBucket is not null
+        defaultWalletTransactionFiltering("balanceBucket.specified=true", "balanceBucket.specified=false");
+    }
+
+    @Test
+    @Transactional
+    void getAllWalletTransactionsByBalanceBucketContainsSomething() throws Exception {
+        // Initialize the database
+        insertedWalletTransaction = walletTransactionRepository.saveAndFlush(walletTransaction);
+
+        // Get all the walletTransactionList where balanceBucket contains
+        defaultWalletTransactionFiltering(
+            "balanceBucket.contains=" + DEFAULT_BALANCE_BUCKET,
+            "balanceBucket.contains=" + UPDATED_BALANCE_BUCKET
+        );
+    }
+
+    @Test
+    @Transactional
+    void getAllWalletTransactionsByBalanceBucketNotContainsSomething() throws Exception {
+        // Initialize the database
+        insertedWalletTransaction = walletTransactionRepository.saveAndFlush(walletTransaction);
+
+        // Get all the walletTransactionList where balanceBucket does not contain
+        defaultWalletTransactionFiltering(
+            "balanceBucket.doesNotContain=" + UPDATED_BALANCE_BUCKET,
+            "balanceBucket.doesNotContain=" + DEFAULT_BALANCE_BUCKET
+        );
+    }
+
+    @Test
+    @Transactional
     void getAllWalletTransactionsByWalletIsEqualToSomething() throws Exception {
         InstructorWallet wallet;
         if (TestUtil.findAll(em, InstructorWallet.class).isEmpty()) {
@@ -565,7 +653,7 @@ class WalletTransactionResourceIT {
         CourseOrder order;
         if (TestUtil.findAll(em, CourseOrder.class).isEmpty()) {
             walletTransactionRepository.saveAndFlush(walletTransaction);
-            order = CourseOrderResourceIT.createEntity(em);
+            order = CourseOrderTestFixtures.createEntity(em);
         } else {
             order = TestUtil.findAll(em, CourseOrder.class).getFirst();
         }
@@ -579,6 +667,50 @@ class WalletTransactionResourceIT {
 
         // Get all the walletTransactionList where order equals to (orderId + 1)
         defaultWalletTransactionShouldNotBeFound("orderId.equals=" + (orderId + 1));
+    }
+
+    @Test
+    @Transactional
+    void getAllWalletTransactionsByPayoutRequestIsEqualToSomething() throws Exception {
+        PayoutRequest payoutRequest;
+        if (TestUtil.findAll(em, PayoutRequest.class).isEmpty()) {
+            walletTransactionRepository.saveAndFlush(walletTransaction);
+            payoutRequest = PayoutRequestResourceIT.createEntity(em);
+        } else {
+            payoutRequest = TestUtil.findAll(em, PayoutRequest.class).getFirst();
+        }
+        em.persist(payoutRequest);
+        em.flush();
+        walletTransaction.setPayoutRequest(payoutRequest);
+        walletTransactionRepository.saveAndFlush(walletTransaction);
+        Long payoutRequestId = payoutRequest.getId();
+        // Get all the walletTransactionList where payoutRequest equals to payoutRequestId
+        defaultWalletTransactionShouldBeFound("payoutRequestId.equals=" + payoutRequestId);
+
+        // Get all the walletTransactionList where payoutRequest equals to (payoutRequestId + 1)
+        defaultWalletTransactionShouldNotBeFound("payoutRequestId.equals=" + (payoutRequestId + 1));
+    }
+
+    @Test
+    @Transactional
+    void getAllWalletTransactionsByRefundIsEqualToSomething() throws Exception {
+        Refund refund;
+        if (TestUtil.findAll(em, Refund.class).isEmpty()) {
+            walletTransactionRepository.saveAndFlush(walletTransaction);
+            refund = RefundResourceIT.createEntity(em);
+        } else {
+            refund = TestUtil.findAll(em, Refund.class).getFirst();
+        }
+        em.persist(refund);
+        em.flush();
+        walletTransaction.setRefund(refund);
+        walletTransactionRepository.saveAndFlush(walletTransaction);
+        Long refundId = refund.getId();
+        // Get all the walletTransactionList where refund equals to refundId
+        defaultWalletTransactionShouldBeFound("refundId.equals=" + refundId);
+
+        // Get all the walletTransactionList where refund equals to (refundId + 1)
+        defaultWalletTransactionShouldNotBeFound("refundId.equals=" + (refundId + 1));
     }
 
     private void defaultWalletTransactionFiltering(String shouldBeFound, String shouldNotBeFound) throws Exception {
@@ -599,7 +731,8 @@ class WalletTransactionResourceIT {
             .andExpect(jsonPath("$.[*].amount").value(hasItem(sameNumber(DEFAULT_AMOUNT))))
             .andExpect(jsonPath("$.[*].status").value(hasItem(DEFAULT_STATUS)))
             .andExpect(jsonPath("$.[*].idempotencyKey").value(hasItem(DEFAULT_IDEMPOTENCY_KEY)))
-            .andExpect(jsonPath("$.[*].occurredAt").value(hasItem(DEFAULT_OCCURRED_AT.toString())));
+            .andExpect(jsonPath("$.[*].occurredAt").value(hasItem(DEFAULT_OCCURRED_AT.toString())))
+            .andExpect(jsonPath("$.[*].balanceBucket").value(hasItem(DEFAULT_BALANCE_BUCKET)));
 
         // Check, that the count call also returns 1
         restWalletTransactionMockMvc
@@ -652,7 +785,8 @@ class WalletTransactionResourceIT {
             .amount(UPDATED_AMOUNT)
             .status(UPDATED_STATUS)
             .idempotencyKey(UPDATED_IDEMPOTENCY_KEY)
-            .occurredAt(UPDATED_OCCURRED_AT);
+            .occurredAt(UPDATED_OCCURRED_AT)
+            .balanceBucket(UPDATED_BALANCE_BUCKET);
         WalletTransactionDTO walletTransactionDTO = walletTransactionMapper.toDto(updatedWalletTransaction);
 
         restWalletTransactionMockMvc
@@ -742,7 +876,11 @@ class WalletTransactionResourceIT {
         WalletTransaction partialUpdatedWalletTransaction = new WalletTransaction();
         partialUpdatedWalletTransaction.setId(walletTransaction.getId());
 
-        partialUpdatedWalletTransaction.type(UPDATED_TYPE).amount(UPDATED_AMOUNT).idempotencyKey(UPDATED_IDEMPOTENCY_KEY);
+        partialUpdatedWalletTransaction
+            .type(UPDATED_TYPE)
+            .amount(UPDATED_AMOUNT)
+            .idempotencyKey(UPDATED_IDEMPOTENCY_KEY)
+            .balanceBucket(UPDATED_BALANCE_BUCKET);
 
         restWalletTransactionMockMvc
             .perform(
@@ -778,7 +916,8 @@ class WalletTransactionResourceIT {
             .amount(UPDATED_AMOUNT)
             .status(UPDATED_STATUS)
             .idempotencyKey(UPDATED_IDEMPOTENCY_KEY)
-            .occurredAt(UPDATED_OCCURRED_AT);
+            .occurredAt(UPDATED_OCCURRED_AT)
+            .balanceBucket(UPDATED_BALANCE_BUCKET);
 
         restWalletTransactionMockMvc
             .perform(

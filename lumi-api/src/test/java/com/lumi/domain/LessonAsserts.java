@@ -48,11 +48,18 @@ public class LessonAsserts {
         assertThat(actual)
             .as("Verify Lesson relevant properties")
             .satisfies(a -> assertThat(a.getTitle()).as("check title").isEqualTo(expected.getTitle()))
+            .satisfies(a -> assertThat(a.getDescription()).as("check description").isEqualTo(expected.getDescription()))
             .satisfies(a -> assertThat(a.getContentType()).as("check contentType").isEqualTo(expected.getContentType()))
+            .satisfies(a -> assertThat(a.getVideoUrl()).as("check videoUrl").isEqualTo(expected.getVideoUrl()))
+            .satisfies(a -> assertThat(a.getVideoFileName()).as("check videoFileName").isEqualTo(expected.getVideoFileName()))
+            .satisfies(a -> assertThat(a.getVideoSizeBytes()).as("check videoSizeBytes").isEqualTo(expected.getVideoSizeBytes()))
             .satisfies(a -> assertThat(a.getOrderIndex()).as("check orderIndex").isEqualTo(expected.getOrderIndex()))
             .satisfies(a -> assertThat(a.getIsPreview()).as("check isPreview").isEqualTo(expected.getIsPreview()))
             .satisfies(a -> assertThat(a.getDurationMinutes()).as("check durationMinutes").isEqualTo(expected.getDurationMinutes()))
-            .satisfies(a -> assertThat(a.getStatus()).as("check status").isEqualTo(expected.getStatus()));
+            .satisfies(a -> assertThat(a.getStatus()).as("check status").isEqualTo(expected.getStatus()))
+            .satisfies(a -> assertThat(a.getDurationSeconds()).as("check durationSeconds").isEqualTo(expected.getDurationSeconds()))
+            .satisfies(a -> assertThat(a.getVideoObjectKey()).as("check videoObjectKey").isEqualTo(expected.getVideoObjectKey()))
+            .satisfies(a -> assertThat(a.getUpdatedAt()).as("check updatedAt").isEqualTo(expected.getUpdatedAt()));
     }
 
     /**

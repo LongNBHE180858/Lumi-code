@@ -27,16 +27,16 @@ public interface InstructorWalletRepository extends JpaRepository<InstructorWall
     }
 
     @Query(
-        value = "select instructorWallet from InstructorWallet instructorWallet left join fetch instructorWallet.user",
+        value = "select instructorWallet from InstructorWallet instructorWallet left join fetch instructorWallet.instructor",
         countQuery = "select count(instructorWallet) from InstructorWallet instructorWallet"
     )
     Page<InstructorWallet> findAllWithToOneRelationships(Pageable pageable);
 
-    @Query("select instructorWallet from InstructorWallet instructorWallet left join fetch instructorWallet.user")
+    @Query("select instructorWallet from InstructorWallet instructorWallet left join fetch instructorWallet.instructor")
     List<InstructorWallet> findAllWithToOneRelationships();
 
     @Query(
-        "select instructorWallet from InstructorWallet instructorWallet left join fetch instructorWallet.user where instructorWallet.id =:id"
+        "select instructorWallet from InstructorWallet instructorWallet left join fetch instructorWallet.instructor where instructorWallet.id =:id"
     )
     Optional<InstructorWallet> findOneWithToOneRelationships(@Param("id") Long id);
 }

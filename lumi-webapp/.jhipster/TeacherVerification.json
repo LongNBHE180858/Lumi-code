@@ -3,7 +3,9 @@
     "changelogDate": "20261012231640"
   },
   "applications": ["*"],
+  "documentation": "Lưu hồ sơ xác minh giáo viên và kết quả xét duyệt.",
   "dto": "mapstruct",
+  "entityTableName": "teacher_verifications",
   "fields": [
     {
       "fieldName": "identityDocumentUrl",
@@ -19,9 +21,7 @@
     },
     {
       "fieldName": "notes",
-      "fieldType": "String",
-      "fieldValidateRules": ["maxlength"],
-      "fieldValidateRulesMaxlength": "5000"
+      "fieldType": "TextBlob"
     },
     {
       "fieldName": "submittedAt",
@@ -29,6 +29,10 @@
     },
     {
       "fieldName": "approvedAt",
+      "fieldType": "Instant"
+    },
+    {
+      "fieldName": "reviewedAt",
       "fieldType": "Instant"
     }
   ],
@@ -41,8 +45,16 @@
       "otherEntityName": "user",
       "relationshipName": "user",
       "relationshipSide": "left",
-      "relationshipType": "one-to-one",
+      "relationshipType": "many-to-one",
       "relationshipValidateRules": "required",
+      "relationshipWithBuiltInEntity": true
+    },
+    {
+      "otherEntityField": "login",
+      "otherEntityName": "user",
+      "relationshipName": "reviewedBy",
+      "relationshipSide": "left",
+      "relationshipType": "many-to-one",
       "relationshipWithBuiltInEntity": true
     }
   ],

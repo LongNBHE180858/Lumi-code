@@ -10,7 +10,7 @@
         Added the entity FlashcardReview.
     -->
     <changeSet id="20261012230515-1" author="jhipster">
-        <createTable tableName="flashcard_review">
+        <createTable tableName="flashcard_reviews" remarks="Lưu trạng thái ôn gần nhất và lịch ôn tiếp theo của học sinh theo flashcard.">
             <column name="id" type="bigint">
                 <constraints primaryKey="true" nullable="false"/>
             </column>
@@ -20,6 +20,15 @@
             <column name="interval_days" type="decimal(21,2)">
                 <constraints nullable="true" />
             </column>
+            <column name="last_reviewed_at" type="${datetimeType}">
+                <constraints nullable="true" />
+            </column>
+            <column name="last_rating" type="integer">
+                <constraints nullable="true" />
+            </column>
+            <column name="review_count" type="integer">
+                <constraints nullable="false" />
+            </column>
             <column name="student_id" type="bigint">
                 <constraints nullable="false" />
             </column>
@@ -28,7 +37,8 @@
             </column>
             <!-- jhipster-needle-liquibase-add-column - JHipster will add columns here -->
         </createTable>
-        <dropDefaultValue tableName="flashcard_review" columnName="next_review_at" columnDataType="${datetimeType}"/>
+        <dropDefaultValue tableName="flashcard_reviews" columnName="next_review_at" columnDataType="${datetimeType}"/>
+        <dropDefaultValue tableName="flashcard_reviews" columnName="last_reviewed_at" columnDataType="${datetimeType}"/>
     </changeSet>
 
     <!-- jhipster-needle-liquibase-add-changeset - JHipster will add changesets here -->
@@ -43,14 +53,17 @@
     -->
     <changeSet id="20261012230515-1-data" author="jhipster" context="faker">
         <loadData
-                  file="../fake-data/flashcard_review.csv"
+                  file="../fake-data/flashcard_reviews.csv"
                   relativeToChangelogFile="true"
                   separator=";"
-                  tableName="flashcard_review"
+                  tableName="flashcard_reviews"
                   usePreparedStatements="true">
             <column name="id" type="numeric"/>
             <column name="next_review_at" type="date"/>
             <column name="interval_days" type="numeric"/>
+            <column name="last_reviewed_at" type="date"/>
+            <column name="last_rating" type="numeric"/>
+            <column name="review_count" type="numeric"/>
             <column name="student_id" type="numeric"/>
             <column name="flashcard_id" type="numeric"/>
             <!-- jhipster-needle-liquibase-add-loadcolumn - JHipster (and/or extensions) can add load columns here -->

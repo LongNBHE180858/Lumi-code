@@ -20,8 +20,11 @@
       "id": "ID",
       "status": "Status",
       "joinedAt": "Joined At",
-      "student": "Student",
-      "studyClass": "Study Class"
+      "requestedAt": "Requested At",
+      "leftAt": "Left At",
+      "updatedAt": "Updated At",
+      "studyClass": "Study Class",
+      "student": "Student"
     }
   }
 }

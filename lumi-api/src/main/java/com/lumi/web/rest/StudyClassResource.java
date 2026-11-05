@@ -1,10 +1,14 @@
 package com.lumi.web.rest;
 
 import com.lumi.repository.StudyClassRepository;
-import com.lumi.service.StudyClassQueryService;
 import com.lumi.service.StudyClassService;
 import com.lumi.service.criteria.StudyClassCriteria;
+import com.lumi.service.dto.APIResponse;
 import com.lumi.service.dto.StudyClassDTO;
+import com.lumi.service.dto.studyClass.CreateStudyClassRequestDTO;
+import com.lumi.service.dto.studyClass.StudyClassDetailDTO;
+import com.lumi.service.dto.studyClass.UpdateStudyClassRequestDTO;
+import com.lumi.service.query.StudyClassQueryService;
 import com.lumi.web.rest.errors.BadRequestAlertException;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
@@ -19,7 +23,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import tech.jhipster.web.util.HeaderUtil;
@@ -30,7 +36,7 @@ import tech.jhipster.web.util.ResponseUtil;
  * REST controller for managing {@link com.lumi.domain.StudyClass}.
  */
 @RestController
-@RequestMapping("/api/study-classes")
+@RequestMapping("/api")
 public class StudyClassResource {
 
     private static final Logger LOG = LoggerFactory.getLogger(StudyClassResource.class);
@@ -56,13 +62,52 @@ public class StudyClassResource {
         this.studyClassQueryService = studyClassQueryService;
     }
 
-    /**
-     * {@code POST  /study-classes} : Create a new studyClass.
-     *
-     * @param studyClassDTO the studyClassDTO to create.
-     * @return the {@link ResponseEntity} with status {@code 201 (Created)} and with body the new studyClassDTO, or with status {@code 400 (Bad Request)} if the studyClass already has an ID.
-     * @throws URISyntaxException if the Location URI syntax is incorrect.
-     */
+    @GetMapping("/instructor/classes")
+    @PreAuthorize("hasAuthority('ROLE_INSTRUCTOR')")
+    public ResponseEntity<APIResponse<List<StudyClassDetailDTO>>> ListClass() {
+        List<StudyClassDetailDTO> result = studyClassService.listClass();
+        APIResponse<List<StudyClassDetailDTO>> body = APIResponse.<List<StudyClassDetailDTO>>builder()
+            .status(HttpStatus.OK.value())
+            .code(1000)
+            .message("Lấy danh sách lớp học thành công")
+            .data(result)
+            .build();
+
+        return ResponseEntity.status(HttpStatus.OK).body(body);
+    }
+
+    @PostMapping("/instructor/classes")
+    @PreAuthorize("hasAuthority('ROLE_INSTRUCTOR')")
+    public ResponseEntity<APIResponse<StudyClassDetailDTO>> createClass(@Valid @RequestBody CreateStudyClassRequestDTO request) {
+        StudyClassDetailDTO result = studyClassService.createClass(request);
+
+        APIResponse<StudyClassDetailDTO> body = APIResponse.<StudyClassDetailDTO>builder()
+            .status(HttpStatus.CREATED.value())
+            .code(1000)
+            .message("Tạo lớp học thành công")
+            .data(result)
+            .build();
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(body);
+    }
+
+    @PutMapping("/instructor/classes/{id}")
+    @PreAuthorize("hasAuthority('ROLE_INSTRUCTOR')")
+    public ResponseEntity<APIResponse<StudyClassDetailDTO>> updateClass(
+        @PathVariable(value = "id", required = true) final Long id,
+        @Valid @RequestBody UpdateStudyClassRequestDTO request
+    ) {
+        StudyClassDetailDTO result = studyClassService.updateClass(id, request);
+        APIResponse<StudyClassDetailDTO> body = APIResponse.<StudyClassDetailDTO>builder()
+            .status(HttpStatus.OK.value())
+            .code(1000)
+            .message("Tạo lớp học thành công")
+            .data(result)
+            .build();
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(body);
+    }
+
     @PostMapping("")
     public ResponseEntity<StudyClassDTO> createStudyClass(@Valid @RequestBody StudyClassDTO studyClassDTO) throws URISyntaxException {
         LOG.debug("REST request to save StudyClass : {}", studyClassDTO);
@@ -75,16 +120,6 @@ public class StudyClassResource {
             .body(studyClassDTO);
     }
 
-    /**
-     * {@code PUT  /study-classes/:id} : Updates an existing studyClass.
-     *
-     * @param id the id of the studyClassDTO to save.
-     * @param studyClassDTO the studyClassDTO to update.
-     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the updated studyClassDTO,
-     * or with status {@code 400 (Bad Request)} if the studyClassDTO is not valid,
-     * or with status {@code 500 (Internal Server Error)} if the studyClassDTO couldn't be updated.
-     * @throws URISyntaxException if the Location URI syntax is incorrect.
-     */
     @PutMapping("/{id}")
     public ResponseEntity<StudyClassDTO> updateStudyClass(
         @PathVariable(value = "id", required = false) final Long id,
@@ -108,17 +143,6 @@ public class StudyClassResource {
             .body(studyClassDTO);
     }
 
-    /**
-     * {@code PATCH  /study-classes/:id} : Partial updates given fields of an existing studyClass, field will ignore if it is null
-     *
-     * @param id the id of the studyClassDTO to save.
-     * @param studyClassDTO the studyClassDTO to update.
-     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the updated studyClassDTO,
-     * or with status {@code 400 (Bad Request)} if the studyClassDTO is not valid,
-     * or with status {@code 404 (Not Found)} if the studyClassDTO is not found,
-     * or with status {@code 500 (Internal Server Error)} if the studyClassDTO couldn't be updated.
-     * @throws URISyntaxException if the Location URI syntax is incorrect.
-     */
     @PatchMapping(value = "/{id}", consumes = { "application/json", "application/merge-patch+json" })
     public ResponseEntity<StudyClassDTO> partialUpdateStudyClass(
         @PathVariable(value = "id", required = false) final Long id,
@@ -144,13 +168,6 @@ public class StudyClassResource {
         );
     }
 
-    /**
-     * {@code GET  /study-classes} : get all the Study Classes.
-     *
-     * @param pageable the pagination information.
-     * @param criteria the criteria which the requested entities should match.
-     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the list of Study Classes in body.
-     */
     @GetMapping("")
     public ResponseEntity<List<StudyClassDTO>> getAllStudyClasses(
         StudyClassCriteria criteria,
@@ -163,24 +180,12 @@ public class StudyClassResource {
         return ResponseEntity.ok().headers(headers).body(page.getContent());
     }
 
-    /**
-     * {@code GET  /study-classes/count} : count all the studyClasses.
-     *
-     * @param criteria the criteria which the requested entities should match.
-     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the count in body.
-     */
     @GetMapping("/count")
     public ResponseEntity<Long> countStudyClasses(StudyClassCriteria criteria) {
         LOG.debug("REST request to count StudyClasses by criteria: {}", criteria);
         return ResponseEntity.ok().body(studyClassQueryService.countByCriteria(criteria));
     }
 
-    /**
-     * {@code GET  /study-classes/:id} : get the "id" studyClass.
-     *
-     * @param id the id of the studyClassDTO to retrieve.
-     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the studyClassDTO, or with status {@code 404 (Not Found)}.
-     */
     @GetMapping("/{id}")
     public ResponseEntity<StudyClassDTO> getStudyClass(@PathVariable("id") Long id) {
         LOG.debug("REST request to get StudyClass : {}", id);
@@ -188,12 +193,6 @@ public class StudyClassResource {
         return ResponseUtil.wrapOrNotFound(studyClassDTO);
     }
 
-    /**
-     * {@code DELETE  /study-classes/:id} : delete the "id" studyClass.
-     *
-     * @param id the id of the studyClassDTO to delete.
-     * @return the {@link ResponseEntity} with status {@code 204 (NO_CONTENT)}.
-     */
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteStudyClass(@PathVariable("id") Long id) {
         LOG.debug("REST request to delete StudyClass : {}", id);

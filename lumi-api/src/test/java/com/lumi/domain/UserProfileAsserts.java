@@ -53,7 +53,8 @@ public class UserProfileAsserts {
             .satisfies(a -> assertThat(a.getGradeLevel()).as("check gradeLevel").isEqualTo(expected.getGradeLevel()))
             .satisfies(a -> assertThat(a.getIs2faEnabled()).as("check is2faEnabled").isEqualTo(expected.getIs2faEnabled()))
             .satisfies(a -> assertThat(a.getInstructorStatus()).as("check instructorStatus").isEqualTo(expected.getInstructorStatus()))
-            .satisfies(a -> assertThat(a.getUpdatedAt()).as("check updatedAt").isEqualTo(expected.getUpdatedAt()));
+            .satisfies(a -> assertThat(a.getUpdatedAt()).as("check updatedAt").isEqualTo(expected.getUpdatedAt()))
+            .satisfies(a -> assertThat(a.getBirthDate()).as("check birthDate").isEqualTo(expected.getBirthDate()));
     }
 
     /**

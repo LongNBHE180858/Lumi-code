@@ -15,6 +15,29 @@ import org.springframework.stereotype.Repository;
  */
 @Repository
 public interface CourseRepository extends JpaRepository<Course, Long>, JpaSpecificationExecutor<Course> {
+    interface CurriculumStats {
+        Long getCourseId();
+        Long getChapterCount();
+        Long getLessonCount();
+        Long getVideoCount();
+        Long getTotalDurationSeconds();
+    }
+
+    @Query(
+        """
+        select c.id as courseId, count(distinct ch.id) as chapterCount,
+            count(l.id) as lessonCount,
+            sum(case when l.videoUrl is not null then 1 else 0 end) as videoCount,
+            sum(case when l.videoUrl is not null then coalesce(l.durationSeconds, l.durationMinutes * 60, 0) else 0 end) as totalDurationSeconds
+        from Course c
+        left join Chapter ch on ch.course = c
+        left join Lesson l on l.chapter = ch
+        where c.id in :ids
+        group by c.id
+        """
+    )
+    List<CurriculumStats> findCurriculumStats(@Param("ids") List<Long> ids);
+
     @Lock(jakarta.persistence.LockModeType.PESSIMISTIC_WRITE)
     @Query("select c from Course c where c.id = :id")
     Optional<Course> findForBuilderUpdate(@Param("id") Long id);
@@ -68,18 +91,16 @@ public interface CourseRepository extends JpaRepository<Course, Long>, JpaSpecif
     }
 
     @Query(
-        value = "select course from Course course left join fetch course.author left join fetch course.category left join fetch course.subject left join fetch course.grade",
+        value = "select course from Course course left join fetch course.author left join fetch course.subject left join fetch course.grade",
         countQuery = "select count(course) from Course course"
     )
     Page<Course> findAllWithToOneRelationships(Pageable pageable);
 
-    @Query(
-        "select course from Course course left join fetch course.author left join fetch course.category left join fetch course.subject left join fetch course.grade"
-    )
+    @Query("select course from Course course left join fetch course.author left join fetch course.subject left join fetch course.grade")
     List<Course> findAllWithToOneRelationships();
 
     @Query(
-        "select course from Course course left join fetch course.author left join fetch course.category left join fetch course.subject left join fetch course.grade where course.id =:id"
+        "select course from Course course left join fetch course.author left join fetch course.subject left join fetch course.grade where course.id =:id"
     )
     Optional<Course> findOneWithToOneRelationships(@Param("id") Long id);
 

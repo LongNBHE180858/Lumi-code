@@ -10,10 +10,10 @@ import java.math.BigDecimal;
 import java.time.Instant;
 
 /**
- * A CourseOrder.
+ * Lưu đơn mua khóa học hoặc gói dịch vụ cùng quyền lợi và chính sách giá tại lúc mua.
  */
 @Entity
-@Table(name = "course_order")
+@Table(name = "orders")
 @SuppressWarnings("common-java:DuplicatedBlocks")
 public class CourseOrder implements Serializable {
 
@@ -27,16 +27,13 @@ public class CourseOrder implements Serializable {
     private Long id;
 
     @NotNull
-    @DecimalMin(value = "0")
     @Column(name = "original_price", precision = 21, scale = 2, nullable = false)
     private BigDecimal originalPrice;
 
-    @DecimalMin(value = "0")
     @Column(name = "discount_amount", precision = 21, scale = 2)
     private BigDecimal discountAmount;
 
     @NotNull
-    @DecimalMin(value = "0")
     @Column(name = "final_price", precision = 21, scale = 2, nullable = false)
     private BigDecimal finalPrice;
 
@@ -52,26 +49,78 @@ public class CourseOrder implements Serializable {
     @Column(name = "idempotency_key", length = 200, unique = true)
     private String idempotencyKey;
 
-    @Min(value = 0L)
     @Column(name = "row_version")
     private Long rowVersion;
 
     @Column(name = "created_at")
     private Instant createdAt;
 
+    @DecimalMin(value = "0")
+    @DecimalMax(value = "100")
+    @Column(name = "instructor_share_percent", precision = 21, scale = 2)
+    private BigDecimal instructorSharePercent;
+
+    @DecimalMin(value = "0")
+    @Column(name = "instructor_amount", precision = 21, scale = 2)
+    private BigDecimal instructorAmount;
+
+    @DecimalMin(value = "0")
+    @Column(name = "platform_amount", precision = 21, scale = 2)
+    private BigDecimal platformAmount;
+
+    @NotNull
+    @Size(max = 20)
+    @Column(name = "order_type", length = 20, nullable = false)
+    private String orderType;
+
+    @NotNull
+    @Column(name = "expires_at", nullable = false)
+    private Instant expiresAt;
+
+    @Column(name = "paid_at")
+    private Instant paidAt;
+
+    @Min(value = 1)
+    @Column(name = "access_duration_value")
+    private Integer accessDurationValue;
+
+    @Size(max = 10)
+    @Column(name = "access_duration_unit", length = 10)
+    private String accessDurationUnit;
+
+    @Column(name = "entitlement_starts_at")
+    private Instant entitlementStartsAt;
+
+    @Column(name = "entitlement_expires_at")
+    private Instant entitlementExpiresAt;
+
+    @Size(max = 20)
+    @Column(name = "entitlement_status", length = 20)
+    private String entitlementStatus;
+
+    @Column(name = "plan_snapshot", columnDefinition = "text")
+    private String planSnapshot;
+
+    @NotNull
+    @Column(name = "updated_at", nullable = false)
+    private Instant updatedAt;
+
+    @Column(name = "pricing_snapshot", columnDefinition = "text")
+    private String pricingSnapshot;
+
     @ManyToOne(optional = false)
     @NotNull
     private User student;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JsonIgnoreProperties(value = { "author", "category", "subject", "grade" }, allowSetters = true)
+    @JsonIgnoreProperties(value = { "author", "subject", "grade" }, allowSetters = true)
     private Course course;
 
     @ManyToOne(fetch = FetchType.LAZY)
     private SystemPlan plan;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JsonIgnoreProperties(value = { "instructor" }, allowSetters = true)
+    @JsonIgnoreProperties(value = { "instructor", "course" }, allowSetters = true)
     private Coupon coupon;
 
     // jhipster-needle-entity-add-field - JHipster will add fields here
@@ -193,6 +242,188 @@ public class CourseOrder implements Serializable {
         this.createdAt = createdAt;
     }
 
+    public BigDecimal getInstructorSharePercent() {
+        return this.instructorSharePercent;
+    }
+
+    public CourseOrder instructorSharePercent(BigDecimal instructorSharePercent) {
+        this.setInstructorSharePercent(instructorSharePercent);
+        return this;
+    }
+
+    public void setInstructorSharePercent(BigDecimal instructorSharePercent) {
+        this.instructorSharePercent = instructorSharePercent;
+    }
+
+    public BigDecimal getInstructorAmount() {
+        return this.instructorAmount;
+    }
+
+    public CourseOrder instructorAmount(BigDecimal instructorAmount) {
+        this.setInstructorAmount(instructorAmount);
+        return this;
+    }
+
+    public void setInstructorAmount(BigDecimal instructorAmount) {
+        this.instructorAmount = instructorAmount;
+    }
+
+    public BigDecimal getPlatformAmount() {
+        return this.platformAmount;
+    }
+
+    public CourseOrder platformAmount(BigDecimal platformAmount) {
+        this.setPlatformAmount(platformAmount);
+        return this;
+    }
+
+    public void setPlatformAmount(BigDecimal platformAmount) {
+        this.platformAmount = platformAmount;
+    }
+
+    public String getOrderType() {
+        return this.orderType;
+    }
+
+    public CourseOrder orderType(String orderType) {
+        this.setOrderType(orderType);
+        return this;
+    }
+
+    public void setOrderType(String orderType) {
+        this.orderType = orderType;
+    }
+
+    public Instant getExpiresAt() {
+        return this.expiresAt;
+    }
+
+    public CourseOrder expiresAt(Instant expiresAt) {
+        this.setExpiresAt(expiresAt);
+        return this;
+    }
+
+    public void setExpiresAt(Instant expiresAt) {
+        this.expiresAt = expiresAt;
+    }
+
+    public Instant getPaidAt() {
+        return this.paidAt;
+    }
+
+    public CourseOrder paidAt(Instant paidAt) {
+        this.setPaidAt(paidAt);
+        return this;
+    }
+
+    public void setPaidAt(Instant paidAt) {
+        this.paidAt = paidAt;
+    }
+
+    public Integer getAccessDurationValue() {
+        return this.accessDurationValue;
+    }
+
+    public CourseOrder accessDurationValue(Integer accessDurationValue) {
+        this.setAccessDurationValue(accessDurationValue);
+        return this;
+    }
+
+    public void setAccessDurationValue(Integer accessDurationValue) {
+        this.accessDurationValue = accessDurationValue;
+    }
+
+    public String getAccessDurationUnit() {
+        return this.accessDurationUnit;
+    }
+
+    public CourseOrder accessDurationUnit(String accessDurationUnit) {
+        this.setAccessDurationUnit(accessDurationUnit);
+        return this;
+    }
+
+    public void setAccessDurationUnit(String accessDurationUnit) {
+        this.accessDurationUnit = accessDurationUnit;
+    }
+
+    public Instant getEntitlementStartsAt() {
+        return this.entitlementStartsAt;
+    }
+
+    public CourseOrder entitlementStartsAt(Instant entitlementStartsAt) {
+        this.setEntitlementStartsAt(entitlementStartsAt);
+        return this;
+    }
+
+    public void setEntitlementStartsAt(Instant entitlementStartsAt) {
+        this.entitlementStartsAt = entitlementStartsAt;
+    }
+
+    public Instant getEntitlementExpiresAt() {
+        return this.entitlementExpiresAt;
+    }
+
+    public CourseOrder entitlementExpiresAt(Instant entitlementExpiresAt) {
+        this.setEntitlementExpiresAt(entitlementExpiresAt);
+        return this;
+    }
+
+    public void setEntitlementExpiresAt(Instant entitlementExpiresAt) {
+        this.entitlementExpiresAt = entitlementExpiresAt;
+    }
+
+    public String getEntitlementStatus() {
+        return this.entitlementStatus;
+    }
+
+    public CourseOrder entitlementStatus(String entitlementStatus) {
+        this.setEntitlementStatus(entitlementStatus);
+        return this;
+    }
+
+    public void setEntitlementStatus(String entitlementStatus) {
+        this.entitlementStatus = entitlementStatus;
+    }
+
+    public String getPlanSnapshot() {
+        return this.planSnapshot;
+    }
+
+    public CourseOrder planSnapshot(String planSnapshot) {
+        this.setPlanSnapshot(planSnapshot);
+        return this;
+    }
+
+    public void setPlanSnapshot(String planSnapshot) {
+        this.planSnapshot = planSnapshot;
+    }
+
+    public Instant getUpdatedAt() {
+        return this.updatedAt;
+    }
+
+    public CourseOrder updatedAt(Instant updatedAt) {
+        this.setUpdatedAt(updatedAt);
+        return this;
+    }
+
+    public void setUpdatedAt(Instant updatedAt) {
+        this.updatedAt = updatedAt;
+    }
+
+    public String getPricingSnapshot() {
+        return this.pricingSnapshot;
+    }
+
+    public CourseOrder pricingSnapshot(String pricingSnapshot) {
+        this.setPricingSnapshot(pricingSnapshot);
+        return this;
+    }
+
+    public void setPricingSnapshot(String pricingSnapshot) {
+        this.pricingSnapshot = pricingSnapshot;
+    }
+
     public User getStudent() {
         return this.student;
     }
@@ -277,6 +508,20 @@ public class CourseOrder implements Serializable {
             ", idempotencyKey='" + getIdempotencyKey() + "'" +
             ", rowVersion=" + getRowVersion() +
             ", createdAt='" + getCreatedAt() + "'" +
+            ", instructorSharePercent=" + getInstructorSharePercent() +
+            ", instructorAmount=" + getInstructorAmount() +
+            ", platformAmount=" + getPlatformAmount() +
+            ", orderType='" + getOrderType() + "'" +
+            ", expiresAt='" + getExpiresAt() + "'" +
+            ", paidAt='" + getPaidAt() + "'" +
+            ", accessDurationValue=" + getAccessDurationValue() +
+            ", accessDurationUnit='" + getAccessDurationUnit() + "'" +
+            ", entitlementStartsAt='" + getEntitlementStartsAt() + "'" +
+            ", entitlementExpiresAt='" + getEntitlementExpiresAt() + "'" +
+            ", entitlementStatus='" + getEntitlementStatus() + "'" +
+            ", planSnapshot='" + getPlanSnapshot() + "'" +
+            ", updatedAt='" + getUpdatedAt() + "'" +
+            ", pricingSnapshot='" + getPricingSnapshot() + "'" +
             "}";
     }
 }

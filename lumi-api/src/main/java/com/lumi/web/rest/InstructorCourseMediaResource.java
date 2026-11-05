@@ -1,8 +1,8 @@
 package com.lumi.web.rest;
 
-import com.lumi.service.InstructorCourseMediaService;
 import com.lumi.service.dto.InstructorCourseDTOs.Builder;
 import com.lumi.service.dto.InstructorCourseDTOs.VideoDuration;
+import com.lumi.service.impl.InstructorCourseMediaService;
 import com.lumi.service.storage.CourseObjectStorage.Access;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;

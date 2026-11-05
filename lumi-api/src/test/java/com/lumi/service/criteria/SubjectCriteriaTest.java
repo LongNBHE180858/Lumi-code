@@ -73,17 +73,12 @@ class SubjectCriteriaTest {
     private static void setAllFilters(SubjectCriteria subjectCriteria) {
         subjectCriteria.id();
         subjectCriteria.name();
-        subjectCriteria.description();
         subjectCriteria.distinct();
     }
 
     private static Condition<SubjectCriteria> criteriaFiltersAre(Function<Object, Boolean> condition) {
         return new Condition<>(
-            criteria ->
-                condition.apply(criteria.getId()) &&
-                condition.apply(criteria.getName()) &&
-                condition.apply(criteria.getDescription()) &&
-                condition.apply(criteria.getDistinct()),
+            criteria -> condition.apply(criteria.getId()) && condition.apply(criteria.getName()) && condition.apply(criteria.getDistinct()),
             "every filter matches"
         );
     }
@@ -93,7 +88,6 @@ class SubjectCriteriaTest {
             criteria ->
                 condition.apply(criteria.getId(), copy.getId()) &&
                 condition.apply(criteria.getName(), copy.getName()) &&
-                condition.apply(criteria.getDescription(), copy.getDescription()) &&
                 condition.apply(criteria.getDistinct(), copy.getDistinct()),
             "every filter matches"
         );

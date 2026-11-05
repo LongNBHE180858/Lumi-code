@@ -150,6 +150,14 @@ export const StudyClass = () => {
                   <Translate contentKey="lumiApp.studyClass.createdAt">Created At</Translate>{' '}
                   <FontAwesomeIcon icon={getSortIconByFieldName('createdAt')} />
                 </th>
+                <th className="hand" onClick={sort('joinCodeExpiresAt')}>
+                  <Translate contentKey="lumiApp.studyClass.joinCodeExpiresAt">Join Code Expires At</Translate>{' '}
+                  <FontAwesomeIcon icon={getSortIconByFieldName('joinCodeExpiresAt')} />
+                </th>
+                <th className="hand" onClick={sort('updatedAt')}>
+                  <Translate contentKey="lumiApp.studyClass.updatedAt">Updated At</Translate>{' '}
+                  <FontAwesomeIcon icon={getSortIconByFieldName('updatedAt')} />
+                </th>
                 <th>
                   <Translate contentKey="lumiApp.studyClass.instructor">Instructor</Translate> <FontAwesomeIcon icon="sort" />
                 </th>
@@ -183,9 +191,15 @@ export const StudyClass = () => {
                   </td>
                   <td>{studyClass.isDeleted ? 'true' : 'false'}</td>
                   <td>{studyClass.createdAt ? <TextFormat type="date" value={studyClass.createdAt} format={APP_DATE_FORMAT} /> : null}</td>
+                  <td>
+                    {studyClass.joinCodeExpiresAt ? (
+                      <TextFormat type="date" value={studyClass.joinCodeExpiresAt} format={APP_DATE_FORMAT} />
+                    ) : null}
+                  </td>
+                  <td>{studyClass.updatedAt ? <TextFormat type="date" value={studyClass.updatedAt} format={APP_DATE_FORMAT} /> : null}</td>
                   <td>{studyClass.instructor ? studyClass.instructor.login : ''}</td>
-                  <td>{studyClass.subject ? <Link to={`/subject/${studyClass.subject.id}`}>{studyClass.subject.name}</Link> : ''}</td>
-                  <td>{studyClass.grade ? <Link to={`/grade/${studyClass.grade.id}`}>{studyClass.grade.name}</Link> : ''}</td>
+                  <td>{studyClass.subject ? <Link to={`/subject/${studyClass.subject.id}`}>{studyClass.subject.id}</Link> : ''}</td>
+                  <td>{studyClass.grade ? <Link to={`/grade/${studyClass.grade.id}`}>{studyClass.grade.id}</Link> : ''}</td>
                   <td className="text-end">
                     <div className="btn-group flex-btn-group-container">
                       <Button as={Link as any} to={`/study-class/${studyClass.id}`} variant="info" size="sm" data-cy="entityDetailsButton">

@@ -30,16 +30,14 @@ public interface DiscussionRepository extends JpaRepository<Discussion, Long>, J
     }
 
     @Query(
-        value = "select discussion from Discussion discussion left join fetch discussion.student left join fetch discussion.lesson",
+        value = "select discussion from Discussion discussion left join fetch discussion.student",
         countQuery = "select count(discussion) from Discussion discussion"
     )
     Page<Discussion> findAllWithToOneRelationships(Pageable pageable);
 
-    @Query("select discussion from Discussion discussion left join fetch discussion.student left join fetch discussion.lesson")
+    @Query("select discussion from Discussion discussion left join fetch discussion.student")
     List<Discussion> findAllWithToOneRelationships();
 
-    @Query(
-        "select discussion from Discussion discussion left join fetch discussion.student left join fetch discussion.lesson where discussion.id =:id"
-    )
+    @Query("select discussion from Discussion discussion left join fetch discussion.student where discussion.id =:id")
     Optional<Discussion> findOneWithToOneRelationships(@Param("id") Long id);
 }

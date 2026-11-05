@@ -16,7 +16,6 @@ import jakarta.validation.constraints.Pattern;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -154,15 +153,6 @@ public class AdminResource {
     @PutMapping("/catalog/{kind}/{id}")
     public CatalogItemDTO updateCatalogItem(@PathVariable String kind, @PathVariable Long id, @Valid @RequestBody CatalogItemDTO input) {
         return adminService.saveCatalog(kind, id, input);
-    }
-
-    @PatchMapping("/catalog/{kind}/{id}/active")
-    public CatalogItemDTO setCatalogActive(@PathVariable String kind, @PathVariable Long id, @RequestBody Map<String, Boolean> input) {
-        Boolean active = input.get("active");
-        if (active == null) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "active is required");
-        }
-        return adminService.setCatalogActive(kind, id, active);
     }
 
     @GetMapping("/instructor-applications")

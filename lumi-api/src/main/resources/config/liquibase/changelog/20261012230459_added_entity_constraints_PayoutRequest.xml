@@ -11,10 +11,17 @@
     <changeSet id="20261012230459-2" author="jhipster">
 
         <addForeignKeyConstraint baseColumnNames="wallet_id"
-                                 baseTableName="payout_request"
-                                 constraintName="fk_payout_request__wallet_id"
+                                 baseTableName="payout_requests"
+                                 constraintName="fk_payout_requests__wallet_id"
                                  referencedColumnNames="id"
-                                 referencedTableName="instructor_wallet"
+                                 referencedTableName="instructor_wallets"
+                                 />
+
+        <addForeignKeyConstraint baseColumnNames="processed_by_id"
+                                 baseTableName="payout_requests"
+                                 constraintName="fk_payout_requests__processed_by_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="jhi_user"
                                  />
     </changeSet>
 </databaseChangeLog>

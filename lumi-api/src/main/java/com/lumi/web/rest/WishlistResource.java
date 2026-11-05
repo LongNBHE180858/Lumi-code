@@ -5,11 +5,11 @@ import com.lumi.repository.CourseRepository;
 import com.lumi.repository.UserRepository;
 import com.lumi.repository.WishlistRepository;
 import com.lumi.security.SecurityUtils;
-import com.lumi.service.WishlistQueryService;
 import com.lumi.service.WishlistService;
 import com.lumi.service.criteria.WishlistCriteria;
 import com.lumi.service.dto.UserDTO;
 import com.lumi.service.dto.WishlistDTO;
+import com.lumi.service.query.WishlistQueryService;
 import com.lumi.web.rest.errors.BadRequestAlertException;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
@@ -23,6 +23,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import tech.jhipster.service.filter.LongFilter;
@@ -91,7 +92,11 @@ public class WishlistResource {
         wishlistDTO.setStudent(toCurrentUserDto(currentUser));
 
         // The target course must exist.
-        if (wishlistDTO.getCourse() == null || wishlistDTO.getCourse().getId() == null || !courseRepository.existsById(wishlistDTO.getCourse().getId())) {
+        if (
+            wishlistDTO.getCourse() == null ||
+            wishlistDTO.getCourse().getId() == null ||
+            !courseRepository.existsById(wishlistDTO.getCourse().getId())
+        ) {
             throw new BadRequestAlertException("Course not found", ENTITY_NAME, "coursenotfound");
         }
 
@@ -217,15 +222,18 @@ public class WishlistResource {
      * @param criteria the criteria which the requested entities should match (scoped to the current user).
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the list of Wishlists in body.
      */
-    @GetMapping("")
-    public ResponseEntity<List<WishlistDTO>> getAllWishlists(WishlistCriteria criteria) {
-        LOG.debug("REST request to get Wishlists by criteria: {}", criteria);
-
-        // Never trust a client supplied student filter: always scope to the current user.
-        restrictToCurrentUser(criteria);
-        List<WishlistDTO> entityList = wishlistQueryService.findByCriteria(criteria);
-        return ResponseEntity.ok().body(entityList);
-    }
+    //    @GetMapping("")
+    //    public ResponseEntity<List<WishlistDTO>> getAllWishlists(
+    //        WishlistCriteria criteria,
+    //        @org.springdoc.core.annotations.ParameterObject Pageable pageable
+    //    ) {
+    //        LOG.debug("REST request to get Wishlists by criteria: {}", criteria);
+    //
+    //        // Never trust a client supplied student filter: always scope to the current user.
+    //        restrictToCurrentUser(criteria);
+    //        List<WishlistDTO> entityList = wishlistQueryService.findByCriteria(criteria);
+    //        return ResponseEntity.ok().body(entityList);
+    //    }
 
     /**
      * {@code GET  /wishlists/count} : count the wishlists of the current user.
@@ -281,9 +289,9 @@ public class WishlistResource {
     }
 
     private User getCurrentUser() {
-        String login = SecurityUtils
-            .getCurrentUserLogin()
-            .orElseThrow(() -> new BadRequestAlertException("No authenticated user", ENTITY_NAME, "unauthorized"));
+        String login = SecurityUtils.getCurrentUserLogin().orElseThrow(() ->
+            new BadRequestAlertException("No authenticated user", ENTITY_NAME, "unauthorized")
+        );
         return userRepository
             .findOneByLogin(login)
             .orElseThrow(() -> new BadRequestAlertException("Current user not found", ENTITY_NAME, "userNotFound"));

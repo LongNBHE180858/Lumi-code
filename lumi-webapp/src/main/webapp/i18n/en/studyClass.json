@@ -27,6 +27,8 @@
       "status": "Status",
       "isDeleted": "Is Deleted",
       "createdAt": "Created At",
+      "joinCodeExpiresAt": "Join Code Expires At",
+      "updatedAt": "Updated At",
       "instructor": "Instructor",
       "subject": "Subject",
       "grade": "Grade"

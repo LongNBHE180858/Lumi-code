@@ -11,17 +11,24 @@
     <changeSet id="20261012230456-2" author="jhipster">
 
         <addForeignKeyConstraint baseColumnNames="order_id"
-                                 baseTableName="refund"
-                                 constraintName="fk_refund__order_id"
+                                 baseTableName="refunds"
+                                 constraintName="fk_refunds__order_id"
                                  referencedColumnNames="id"
-                                 referencedTableName="course_order"
+                                 referencedTableName="orders"
                                  />
 
         <addForeignKeyConstraint baseColumnNames="payment_id"
-                                 baseTableName="refund"
-                                 constraintName="fk_refund__payment_id"
+                                 baseTableName="refunds"
+                                 constraintName="fk_refunds__payment_id"
                                  referencedColumnNames="id"
-                                 referencedTableName="payment"
+                                 referencedTableName="payments"
+                                 />
+
+        <addForeignKeyConstraint baseColumnNames="processed_by_id"
+                                 baseTableName="refunds"
+                                 constraintName="fk_refunds__processed_by_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="jhi_user"
                                  />
     </changeSet>
 </databaseChangeLog>

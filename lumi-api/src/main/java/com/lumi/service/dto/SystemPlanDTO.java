@@ -1,13 +1,17 @@
 package com.lumi.service.dto;
 
+import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.persistence.Lob;
 import jakarta.validation.constraints.*;
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.util.Objects;
 
 /**
  * A DTO for the {@link com.lumi.domain.SystemPlan} entity.
  */
+@Schema(description = "Lưu gói dịch vụ, giá, thời hạn và hạn mức quyền lợi.")
 @SuppressWarnings("common-java:DuplicatedBlocks")
 public class SystemPlanDTO implements Serializable {
 
@@ -18,23 +22,42 @@ public class SystemPlanDTO implements Serializable {
     private String name;
 
     @NotNull
-    @DecimalMin(value = "0")
     private BigDecimal price;
 
     @NotNull
-    @Min(value = 1)
     private Integer durationDays;
 
     @NotNull
-    @Min(value = 0L)
     private Long storageQuotaMb;
 
     @NotNull
-    @Min(value = 0)
     private Integer aiGenerationLimit;
 
     @Min(value = 1)
+    @NotNull
     private Integer maxClasses;
+
+    @NotNull
+    @Size(max = 30)
+    private String planType;
+
+    @NotNull
+    @Size(max = 20)
+    private String targetRole;
+
+    @NotNull
+    @Size(max = 20)
+    private String status;
+
+    @NotNull
+    @Size(max = 20)
+    private String aiLimitPeriod;
+
+    @Lob
+    private String features;
+
+    @NotNull
+    private Instant updatedAt;
 
     public Long getId() {
         return id;
@@ -92,6 +115,54 @@ public class SystemPlanDTO implements Serializable {
         this.maxClasses = maxClasses;
     }
 
+    public String getPlanType() {
+        return planType;
+    }
+
+    public void setPlanType(String planType) {
+        this.planType = planType;
+    }
+
+    public String getTargetRole() {
+        return targetRole;
+    }
+
+    public void setTargetRole(String targetRole) {
+        this.targetRole = targetRole;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    public String getAiLimitPeriod() {
+        return aiLimitPeriod;
+    }
+
+    public void setAiLimitPeriod(String aiLimitPeriod) {
+        this.aiLimitPeriod = aiLimitPeriod;
+    }
+
+    public String getFeatures() {
+        return features;
+    }
+
+    public void setFeatures(String features) {
+        this.features = features;
+    }
+
+    public Instant getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public void setUpdatedAt(Instant updatedAt) {
+        this.updatedAt = updatedAt;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -124,6 +195,12 @@ public class SystemPlanDTO implements Serializable {
             ", storageQuotaMb=" + getStorageQuotaMb() +
             ", aiGenerationLimit=" + getAiGenerationLimit() +
             ", maxClasses=" + getMaxClasses() +
+            ", planType='" + getPlanType() + "'" +
+            ", targetRole='" + getTargetRole() + "'" +
+            ", status='" + getStatus() + "'" +
+            ", aiLimitPeriod='" + getAiLimitPeriod() + "'" +
+            ", features='" + getFeatures() + "'" +
+            ", updatedAt='" + getUpdatedAt() + "'" +
             "}";
     }
 }

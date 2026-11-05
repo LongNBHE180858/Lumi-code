@@ -8,7 +8,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 import com.lumi.IntegrationTest;
-import com.lumi.domain.CourseMaterial;
+import com.lumi.domain.LearningDocument;
 import com.lumi.domain.PdfChunk;
 import com.lumi.repository.PdfChunkRepository;
 import com.lumi.service.dto.PdfChunkDTO;
@@ -45,6 +45,14 @@ class PdfChunkResourceIT {
     private static final String DEFAULT_EMBEDDING = "AAAAAAAAAA";
     private static final String UPDATED_EMBEDDING = "BBBBBBBBBB";
 
+    private static final Integer DEFAULT_CHUNK_INDEX = 0;
+    private static final Integer UPDATED_CHUNK_INDEX = 1;
+    private static final Integer SMALLER_CHUNK_INDEX = 0 - 1;
+
+    private static final Integer DEFAULT_INDEX_VERSION = 1;
+    private static final Integer UPDATED_INDEX_VERSION = 2;
+    private static final Integer SMALLER_INDEX_VERSION = 1 - 1;
+
     private static final String ENTITY_API_URL = "/api/pdf-chunks";
     private static final String ENTITY_API_URL_ID = ENTITY_API_URL + "/{id}";
 
@@ -77,17 +85,22 @@ class PdfChunkResourceIT {
      * if they test an entity which requires the current entity.
      */
     public static PdfChunk createEntity(EntityManager em) {
-        PdfChunk pdfChunk = new PdfChunk().pageNumber(DEFAULT_PAGE_NUMBER).chunkText(DEFAULT_CHUNK_TEXT).embedding(DEFAULT_EMBEDDING);
+        PdfChunk pdfChunk = new PdfChunk()
+            .pageNumber(DEFAULT_PAGE_NUMBER)
+            .chunkText(DEFAULT_CHUNK_TEXT)
+            .embedding(DEFAULT_EMBEDDING)
+            .chunkIndex(DEFAULT_CHUNK_INDEX)
+            .indexVersion(DEFAULT_INDEX_VERSION);
         // Add required entity
-        CourseMaterial courseMaterial;
-        if (TestUtil.findAll(em, CourseMaterial.class).isEmpty()) {
-            courseMaterial = CourseMaterialResourceIT.createEntity(em);
-            em.persist(courseMaterial);
+        LearningDocument learningDocument;
+        if (TestUtil.findAll(em, LearningDocument.class).isEmpty()) {
+            learningDocument = LearningDocumentResourceIT.createEntity(em);
+            em.persist(learningDocument);
             em.flush();
         } else {
-            courseMaterial = TestUtil.findAll(em, CourseMaterial.class).getFirst();
+            learningDocument = TestUtil.findAll(em, LearningDocument.class).getFirst();
         }
-        pdfChunk.setMaterial(courseMaterial);
+        pdfChunk.setMaterial(learningDocument);
         return pdfChunk;
     }
 
@@ -101,17 +114,19 @@ class PdfChunkResourceIT {
         PdfChunk updatedPdfChunk = new PdfChunk()
             .pageNumber(UPDATED_PAGE_NUMBER)
             .chunkText(UPDATED_CHUNK_TEXT)
-            .embedding(UPDATED_EMBEDDING);
+            .embedding(UPDATED_EMBEDDING)
+            .chunkIndex(UPDATED_CHUNK_INDEX)
+            .indexVersion(UPDATED_INDEX_VERSION);
         // Add required entity
-        CourseMaterial courseMaterial;
-        if (TestUtil.findAll(em, CourseMaterial.class).isEmpty()) {
-            courseMaterial = CourseMaterialResourceIT.createUpdatedEntity(em);
-            em.persist(courseMaterial);
+        LearningDocument learningDocument;
+        if (TestUtil.findAll(em, LearningDocument.class).isEmpty()) {
+            learningDocument = LearningDocumentResourceIT.createUpdatedEntity(em);
+            em.persist(learningDocument);
             em.flush();
         } else {
-            courseMaterial = TestUtil.findAll(em, CourseMaterial.class).getFirst();
+            learningDocument = TestUtil.findAll(em, LearningDocument.class).getFirst();
         }
-        updatedPdfChunk.setMaterial(courseMaterial);
+        updatedPdfChunk.setMaterial(learningDocument);
         return updatedPdfChunk;
     }
 
@@ -172,10 +187,27 @@ class PdfChunkResourceIT {
 
     @Test
     @Transactional
-    void checkChunkTextIsRequired() throws Exception {
+    void checkChunkIndexIsRequired() throws Exception {
         long databaseSizeBeforeTest = getRepositoryCount();
         // set the field null
-        pdfChunk.setChunkText(null);
+        pdfChunk.setChunkIndex(null);
+
+        // Create the PdfChunk, which fails.
+        PdfChunkDTO pdfChunkDTO = pdfChunkMapper.toDto(pdfChunk);
+
+        restPdfChunkMockMvc
+            .perform(post(ENTITY_API_URL).contentType(MediaType.APPLICATION_JSON).content(om.writeValueAsBytes(pdfChunkDTO)))
+            .andExpect(status().isBadRequest());
+
+        assertSameRepositoryCount(databaseSizeBeforeTest);
+    }
+
+    @Test
+    @Transactional
+    void checkIndexVersionIsRequired() throws Exception {
+        long databaseSizeBeforeTest = getRepositoryCount();
+        // set the field null
+        pdfChunk.setIndexVersion(null);
 
         // Create the PdfChunk, which fails.
         PdfChunkDTO pdfChunkDTO = pdfChunkMapper.toDto(pdfChunk);
@@ -201,7 +233,9 @@ class PdfChunkResourceIT {
             .andExpect(jsonPath("$.[*].id").value(hasItem(pdfChunk.getId().intValue())))
             .andExpect(jsonPath("$.[*].pageNumber").value(hasItem(DEFAULT_PAGE_NUMBER)))
             .andExpect(jsonPath("$.[*].chunkText").value(hasItem(DEFAULT_CHUNK_TEXT)))
-            .andExpect(jsonPath("$.[*].embedding").value(hasItem(DEFAULT_EMBEDDING)));
+            .andExpect(jsonPath("$.[*].embedding").value(hasItem(DEFAULT_EMBEDDING)))
+            .andExpect(jsonPath("$.[*].chunkIndex").value(hasItem(DEFAULT_CHUNK_INDEX)))
+            .andExpect(jsonPath("$.[*].indexVersion").value(hasItem(DEFAULT_INDEX_VERSION)));
     }
 
     @Test
@@ -218,7 +252,9 @@ class PdfChunkResourceIT {
             .andExpect(jsonPath("$.id").value(pdfChunk.getId().intValue()))
             .andExpect(jsonPath("$.pageNumber").value(DEFAULT_PAGE_NUMBER))
             .andExpect(jsonPath("$.chunkText").value(DEFAULT_CHUNK_TEXT))
-            .andExpect(jsonPath("$.embedding").value(DEFAULT_EMBEDDING));
+            .andExpect(jsonPath("$.embedding").value(DEFAULT_EMBEDDING))
+            .andExpect(jsonPath("$.chunkIndex").value(DEFAULT_CHUNK_INDEX))
+            .andExpect(jsonPath("$.indexVersion").value(DEFAULT_INDEX_VERSION));
     }
 
     @Test
@@ -314,113 +350,168 @@ class PdfChunkResourceIT {
 
     @Test
     @Transactional
-    void getAllPdfChunksByChunkTextIsEqualToSomething() throws Exception {
+    void getAllPdfChunksByChunkIndexIsEqualToSomething() throws Exception {
         // Initialize the database
         insertedPdfChunk = pdfChunkRepository.saveAndFlush(pdfChunk);
 
-        // Get all the pdfChunkList where chunkText equals to
-        defaultPdfChunkFiltering("chunkText.equals=" + DEFAULT_CHUNK_TEXT, "chunkText.equals=" + UPDATED_CHUNK_TEXT);
+        // Get all the pdfChunkList where chunkIndex equals to
+        defaultPdfChunkFiltering("chunkIndex.equals=" + DEFAULT_CHUNK_INDEX, "chunkIndex.equals=" + UPDATED_CHUNK_INDEX);
     }
 
     @Test
     @Transactional
-    void getAllPdfChunksByChunkTextIsInShouldWork() throws Exception {
+    void getAllPdfChunksByChunkIndexIsInShouldWork() throws Exception {
         // Initialize the database
         insertedPdfChunk = pdfChunkRepository.saveAndFlush(pdfChunk);
 
-        // Get all the pdfChunkList where chunkText in
-        defaultPdfChunkFiltering("chunkText.in=" + DEFAULT_CHUNK_TEXT + "," + UPDATED_CHUNK_TEXT, "chunkText.in=" + UPDATED_CHUNK_TEXT);
+        // Get all the pdfChunkList where chunkIndex in
+        defaultPdfChunkFiltering(
+            "chunkIndex.in=" + DEFAULT_CHUNK_INDEX + "," + UPDATED_CHUNK_INDEX,
+            "chunkIndex.in=" + UPDATED_CHUNK_INDEX
+        );
     }
 
     @Test
     @Transactional
-    void getAllPdfChunksByChunkTextIsNullOrNotNull() throws Exception {
+    void getAllPdfChunksByChunkIndexIsNullOrNotNull() throws Exception {
         // Initialize the database
         insertedPdfChunk = pdfChunkRepository.saveAndFlush(pdfChunk);
 
-        // Get all the pdfChunkList where chunkText is not null
-        defaultPdfChunkFiltering("chunkText.specified=true", "chunkText.specified=false");
+        // Get all the pdfChunkList where chunkIndex is not null
+        defaultPdfChunkFiltering("chunkIndex.specified=true", "chunkIndex.specified=false");
     }
 
     @Test
     @Transactional
-    void getAllPdfChunksByChunkTextContainsSomething() throws Exception {
+    void getAllPdfChunksByChunkIndexIsGreaterThanOrEqualToSomething() throws Exception {
         // Initialize the database
         insertedPdfChunk = pdfChunkRepository.saveAndFlush(pdfChunk);
 
-        // Get all the pdfChunkList where chunkText contains
-        defaultPdfChunkFiltering("chunkText.contains=" + DEFAULT_CHUNK_TEXT, "chunkText.contains=" + UPDATED_CHUNK_TEXT);
+        // Get all the pdfChunkList where chunkIndex is greater than or equal to
+        defaultPdfChunkFiltering(
+            "chunkIndex.greaterThanOrEqual=" + DEFAULT_CHUNK_INDEX,
+            "chunkIndex.greaterThanOrEqual=" + UPDATED_CHUNK_INDEX
+        );
     }
 
     @Test
     @Transactional
-    void getAllPdfChunksByChunkTextNotContainsSomething() throws Exception {
+    void getAllPdfChunksByChunkIndexIsLessThanOrEqualToSomething() throws Exception {
         // Initialize the database
         insertedPdfChunk = pdfChunkRepository.saveAndFlush(pdfChunk);
 
-        // Get all the pdfChunkList where chunkText does not contain
-        defaultPdfChunkFiltering("chunkText.doesNotContain=" + UPDATED_CHUNK_TEXT, "chunkText.doesNotContain=" + DEFAULT_CHUNK_TEXT);
+        // Get all the pdfChunkList where chunkIndex is less than or equal to
+        defaultPdfChunkFiltering("chunkIndex.lessThanOrEqual=" + DEFAULT_CHUNK_INDEX, "chunkIndex.lessThanOrEqual=" + SMALLER_CHUNK_INDEX);
     }
 
     @Test
     @Transactional
-    void getAllPdfChunksByEmbeddingIsEqualToSomething() throws Exception {
+    void getAllPdfChunksByChunkIndexIsLessThanSomething() throws Exception {
         // Initialize the database
         insertedPdfChunk = pdfChunkRepository.saveAndFlush(pdfChunk);
 
-        // Get all the pdfChunkList where embedding equals to
-        defaultPdfChunkFiltering("embedding.equals=" + DEFAULT_EMBEDDING, "embedding.equals=" + UPDATED_EMBEDDING);
+        // Get all the pdfChunkList where chunkIndex is less than
+        defaultPdfChunkFiltering("chunkIndex.lessThan=" + UPDATED_CHUNK_INDEX, "chunkIndex.lessThan=" + DEFAULT_CHUNK_INDEX);
     }
 
     @Test
     @Transactional
-    void getAllPdfChunksByEmbeddingIsInShouldWork() throws Exception {
+    void getAllPdfChunksByChunkIndexIsGreaterThanSomething() throws Exception {
         // Initialize the database
         insertedPdfChunk = pdfChunkRepository.saveAndFlush(pdfChunk);
 
-        // Get all the pdfChunkList where embedding in
-        defaultPdfChunkFiltering("embedding.in=" + DEFAULT_EMBEDDING + "," + UPDATED_EMBEDDING, "embedding.in=" + UPDATED_EMBEDDING);
+        // Get all the pdfChunkList where chunkIndex is greater than
+        defaultPdfChunkFiltering("chunkIndex.greaterThan=" + SMALLER_CHUNK_INDEX, "chunkIndex.greaterThan=" + DEFAULT_CHUNK_INDEX);
     }
 
     @Test
     @Transactional
-    void getAllPdfChunksByEmbeddingIsNullOrNotNull() throws Exception {
+    void getAllPdfChunksByIndexVersionIsEqualToSomething() throws Exception {
         // Initialize the database
         insertedPdfChunk = pdfChunkRepository.saveAndFlush(pdfChunk);
 
-        // Get all the pdfChunkList where embedding is not null
-        defaultPdfChunkFiltering("embedding.specified=true", "embedding.specified=false");
+        // Get all the pdfChunkList where indexVersion equals to
+        defaultPdfChunkFiltering("indexVersion.equals=" + DEFAULT_INDEX_VERSION, "indexVersion.equals=" + UPDATED_INDEX_VERSION);
     }
 
     @Test
     @Transactional
-    void getAllPdfChunksByEmbeddingContainsSomething() throws Exception {
+    void getAllPdfChunksByIndexVersionIsInShouldWork() throws Exception {
         // Initialize the database
         insertedPdfChunk = pdfChunkRepository.saveAndFlush(pdfChunk);
 
-        // Get all the pdfChunkList where embedding contains
-        defaultPdfChunkFiltering("embedding.contains=" + DEFAULT_EMBEDDING, "embedding.contains=" + UPDATED_EMBEDDING);
+        // Get all the pdfChunkList where indexVersion in
+        defaultPdfChunkFiltering(
+            "indexVersion.in=" + DEFAULT_INDEX_VERSION + "," + UPDATED_INDEX_VERSION,
+            "indexVersion.in=" + UPDATED_INDEX_VERSION
+        );
     }
 
     @Test
     @Transactional
-    void getAllPdfChunksByEmbeddingNotContainsSomething() throws Exception {
+    void getAllPdfChunksByIndexVersionIsNullOrNotNull() throws Exception {
         // Initialize the database
         insertedPdfChunk = pdfChunkRepository.saveAndFlush(pdfChunk);
 
-        // Get all the pdfChunkList where embedding does not contain
-        defaultPdfChunkFiltering("embedding.doesNotContain=" + UPDATED_EMBEDDING, "embedding.doesNotContain=" + DEFAULT_EMBEDDING);
+        // Get all the pdfChunkList where indexVersion is not null
+        defaultPdfChunkFiltering("indexVersion.specified=true", "indexVersion.specified=false");
+    }
+
+    @Test
+    @Transactional
+    void getAllPdfChunksByIndexVersionIsGreaterThanOrEqualToSomething() throws Exception {
+        // Initialize the database
+        insertedPdfChunk = pdfChunkRepository.saveAndFlush(pdfChunk);
+
+        // Get all the pdfChunkList where indexVersion is greater than or equal to
+        defaultPdfChunkFiltering(
+            "indexVersion.greaterThanOrEqual=" + DEFAULT_INDEX_VERSION,
+            "indexVersion.greaterThanOrEqual=" + UPDATED_INDEX_VERSION
+        );
+    }
+
+    @Test
+    @Transactional
+    void getAllPdfChunksByIndexVersionIsLessThanOrEqualToSomething() throws Exception {
+        // Initialize the database
+        insertedPdfChunk = pdfChunkRepository.saveAndFlush(pdfChunk);
+
+        // Get all the pdfChunkList where indexVersion is less than or equal to
+        defaultPdfChunkFiltering(
+            "indexVersion.lessThanOrEqual=" + DEFAULT_INDEX_VERSION,
+            "indexVersion.lessThanOrEqual=" + SMALLER_INDEX_VERSION
+        );
+    }
+
+    @Test
+    @Transactional
+    void getAllPdfChunksByIndexVersionIsLessThanSomething() throws Exception {
+        // Initialize the database
+        insertedPdfChunk = pdfChunkRepository.saveAndFlush(pdfChunk);
+
+        // Get all the pdfChunkList where indexVersion is less than
+        defaultPdfChunkFiltering("indexVersion.lessThan=" + UPDATED_INDEX_VERSION, "indexVersion.lessThan=" + DEFAULT_INDEX_VERSION);
+    }
+
+    @Test
+    @Transactional
+    void getAllPdfChunksByIndexVersionIsGreaterThanSomething() throws Exception {
+        // Initialize the database
+        insertedPdfChunk = pdfChunkRepository.saveAndFlush(pdfChunk);
+
+        // Get all the pdfChunkList where indexVersion is greater than
+        defaultPdfChunkFiltering("indexVersion.greaterThan=" + SMALLER_INDEX_VERSION, "indexVersion.greaterThan=" + DEFAULT_INDEX_VERSION);
     }
 
     @Test
     @Transactional
     void getAllPdfChunksByMaterialIsEqualToSomething() throws Exception {
-        CourseMaterial material;
-        if (TestUtil.findAll(em, CourseMaterial.class).isEmpty()) {
+        LearningDocument material;
+        if (TestUtil.findAll(em, LearningDocument.class).isEmpty()) {
             pdfChunkRepository.saveAndFlush(pdfChunk);
-            material = CourseMaterialResourceIT.createEntity(em);
+            material = LearningDocumentResourceIT.createEntity(em);
         } else {
-            material = TestUtil.findAll(em, CourseMaterial.class).getFirst();
+            material = TestUtil.findAll(em, LearningDocument.class).getFirst();
         }
         em.persist(material);
         em.flush();
@@ -450,7 +541,9 @@ class PdfChunkResourceIT {
             .andExpect(jsonPath("$.[*].id").value(hasItem(pdfChunk.getId().intValue())))
             .andExpect(jsonPath("$.[*].pageNumber").value(hasItem(DEFAULT_PAGE_NUMBER)))
             .andExpect(jsonPath("$.[*].chunkText").value(hasItem(DEFAULT_CHUNK_TEXT)))
-            .andExpect(jsonPath("$.[*].embedding").value(hasItem(DEFAULT_EMBEDDING)));
+            .andExpect(jsonPath("$.[*].embedding").value(hasItem(DEFAULT_EMBEDDING)))
+            .andExpect(jsonPath("$.[*].chunkIndex").value(hasItem(DEFAULT_CHUNK_INDEX)))
+            .andExpect(jsonPath("$.[*].indexVersion").value(hasItem(DEFAULT_INDEX_VERSION)));
 
         // Check, that the count call also returns 1
         restPdfChunkMockMvc
@@ -498,7 +591,12 @@ class PdfChunkResourceIT {
         PdfChunk updatedPdfChunk = pdfChunkRepository.findById(pdfChunk.getId()).orElseThrow();
         // Disconnect from session so that the updates on updatedPdfChunk are not directly saved in db
         em.detach(updatedPdfChunk);
-        updatedPdfChunk.pageNumber(UPDATED_PAGE_NUMBER).chunkText(UPDATED_CHUNK_TEXT).embedding(UPDATED_EMBEDDING);
+        updatedPdfChunk
+            .pageNumber(UPDATED_PAGE_NUMBER)
+            .chunkText(UPDATED_CHUNK_TEXT)
+            .embedding(UPDATED_EMBEDDING)
+            .chunkIndex(UPDATED_CHUNK_INDEX)
+            .indexVersion(UPDATED_INDEX_VERSION);
         PdfChunkDTO pdfChunkDTO = pdfChunkMapper.toDto(updatedPdfChunk);
 
         restPdfChunkMockMvc
@@ -588,7 +686,7 @@ class PdfChunkResourceIT {
         PdfChunk partialUpdatedPdfChunk = new PdfChunk();
         partialUpdatedPdfChunk.setId(pdfChunk.getId());
 
-        partialUpdatedPdfChunk.chunkText(UPDATED_CHUNK_TEXT);
+        partialUpdatedPdfChunk.chunkText(UPDATED_CHUNK_TEXT).indexVersion(UPDATED_INDEX_VERSION);
 
         restPdfChunkMockMvc
             .perform(
@@ -616,7 +714,12 @@ class PdfChunkResourceIT {
         PdfChunk partialUpdatedPdfChunk = new PdfChunk();
         partialUpdatedPdfChunk.setId(pdfChunk.getId());
 
-        partialUpdatedPdfChunk.pageNumber(UPDATED_PAGE_NUMBER).chunkText(UPDATED_CHUNK_TEXT).embedding(UPDATED_EMBEDDING);
+        partialUpdatedPdfChunk
+            .pageNumber(UPDATED_PAGE_NUMBER)
+            .chunkText(UPDATED_CHUNK_TEXT)
+            .embedding(UPDATED_EMBEDDING)
+            .chunkIndex(UPDATED_CHUNK_INDEX)
+            .indexVersion(UPDATED_INDEX_VERSION);
 
         restPdfChunkMockMvc
             .perform(

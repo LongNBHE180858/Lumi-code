@@ -7,10 +7,10 @@ import java.io.Serializable;
 import java.time.Instant;
 
 /**
- * A Notification.
+ * Lưu thông báo, trạng thái đã đọc và đối tượng điều hướng.
  */
 @Entity
-@Table(name = "notification")
+@Table(name = "notifications")
 @SuppressWarnings("common-java:DuplicatedBlocks")
 public class Notification implements Serializable {
 
@@ -28,9 +28,7 @@ public class Notification implements Serializable {
     @Column(name = "title", length = 255, nullable = false)
     private String title;
 
-    @NotNull
-    @Size(max = 5000)
-    @Column(name = "content", length = 5000, nullable = false)
+    @Column(name = "content", nullable = false, columnDefinition = "text")
     private String content;
 
     @Column(name = "is_read")
@@ -43,6 +41,16 @@ public class Notification implements Serializable {
 
     @Column(name = "created_at")
     private Instant createdAt;
+
+    @Size(max = 50)
+    @Column(name = "target_type", length = 50)
+    private String targetType;
+
+    @Column(name = "target_id")
+    private Long targetId;
+
+    @Column(name = "read_at")
+    private Instant readAt;
 
     @ManyToOne(optional = false)
     @NotNull
@@ -128,6 +136,45 @@ public class Notification implements Serializable {
         this.createdAt = createdAt;
     }
 
+    public String getTargetType() {
+        return this.targetType;
+    }
+
+    public Notification targetType(String targetType) {
+        this.setTargetType(targetType);
+        return this;
+    }
+
+    public void setTargetType(String targetType) {
+        this.targetType = targetType;
+    }
+
+    public Long getTargetId() {
+        return this.targetId;
+    }
+
+    public Notification targetId(Long targetId) {
+        this.setTargetId(targetId);
+        return this;
+    }
+
+    public void setTargetId(Long targetId) {
+        this.targetId = targetId;
+    }
+
+    public Instant getReadAt() {
+        return this.readAt;
+    }
+
+    public Notification readAt(Instant readAt) {
+        this.setReadAt(readAt);
+        return this;
+    }
+
+    public void setReadAt(Instant readAt) {
+        this.readAt = readAt;
+    }
+
     public User getUser() {
         return this.user;
     }
@@ -170,6 +217,9 @@ public class Notification implements Serializable {
             ", isRead='" + getIsRead() + "'" +
             ", type='" + getType() + "'" +
             ", createdAt='" + getCreatedAt() + "'" +
+            ", targetType='" + getTargetType() + "'" +
+            ", targetId=" + getTargetId() +
+            ", readAt='" + getReadAt() + "'" +
             "}";
     }
 }

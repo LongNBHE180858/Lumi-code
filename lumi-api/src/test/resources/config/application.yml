@@ -14,6 +14,18 @@
 # ===================================================================
 
 spring:
+  # Tests have a separate application.yml and must also opt out of AI by default.
+  ai:
+    model:
+      chat: none
+      embedding: none
+      image: none
+      moderation: none
+      audio:
+        speech: none
+        transcription: none
+    vectorstore:
+      type: none
   application:
     name: lumi
   # Replace by 'prod, faker' to add the faker context and have sample data loaded in production

@@ -57,6 +57,9 @@ class CourseReviewResourceIT {
     private static final Instant DEFAULT_CREATED_AT = Instant.ofEpochMilli(0L);
     private static final Instant UPDATED_CREATED_AT = Instant.ofEpochMilli(1791835009362L);
 
+    private static final Instant DEFAULT_UPDATED_AT = Instant.ofEpochMilli(0L);
+    private static final Instant UPDATED_UPDATED_AT = Instant.ofEpochMilli(1791835009362L);
+
     private static final String ENTITY_API_URL = "/api/course-reviews";
     private static final String ENTITY_API_URL_ID = ENTITY_API_URL + "/{id}";
 
@@ -98,12 +101,11 @@ class CourseReviewResourceIT {
      * if they test an entity which requires the current entity.
      */
     public static CourseReview createEntity(EntityManager em) {
-        CourseReview courseReview = new CourseReview().rating(DEFAULT_RATING).content(DEFAULT_CONTENT).createdAt(DEFAULT_CREATED_AT);
-        // Add required entity
-        User user = UserResourceIT.createEntity();
-        em.persist(user);
-        em.flush();
-        courseReview.setStudent(user);
+        CourseReview courseReview = new CourseReview()
+            .rating(DEFAULT_RATING)
+            .content(DEFAULT_CONTENT)
+            .createdAt(DEFAULT_CREATED_AT)
+            .updatedAt(DEFAULT_UPDATED_AT);
         // Add required entity
         Course course;
         if (TestUtil.findAll(em, Course.class).isEmpty()) {
@@ -114,6 +116,11 @@ class CourseReviewResourceIT {
             course = TestUtil.findAll(em, Course.class).getFirst();
         }
         courseReview.setCourse(course);
+        // Add required entity
+        User user = UserResourceIT.createEntity();
+        em.persist(user);
+        em.flush();
+        courseReview.setStudent(user);
         return courseReview;
     }
 
@@ -124,12 +131,11 @@ class CourseReviewResourceIT {
      * if they test an entity which requires the current entity.
      */
     public static CourseReview createUpdatedEntity(EntityManager em) {
-        CourseReview updatedCourseReview = new CourseReview().rating(UPDATED_RATING).content(UPDATED_CONTENT).createdAt(UPDATED_CREATED_AT);
-        // Add required entity
-        User user = UserResourceIT.createEntity();
-        em.persist(user);
-        em.flush();
-        updatedCourseReview.setStudent(user);
+        CourseReview updatedCourseReview = new CourseReview()
+            .rating(UPDATED_RATING)
+            .content(UPDATED_CONTENT)
+            .createdAt(UPDATED_CREATED_AT)
+            .updatedAt(UPDATED_UPDATED_AT);
         // Add required entity
         Course course;
         if (TestUtil.findAll(em, Course.class).isEmpty()) {
@@ -140,6 +146,11 @@ class CourseReviewResourceIT {
             course = TestUtil.findAll(em, Course.class).getFirst();
         }
         updatedCourseReview.setCourse(course);
+        // Add required entity
+        User user = UserResourceIT.createEntity();
+        em.persist(user);
+        em.flush();
+        updatedCourseReview.setStudent(user);
         return updatedCourseReview;
     }
 
@@ -151,7 +162,7 @@ class CourseReviewResourceIT {
     @AfterEach
     void cleanup() {
         if (insertedCourseReview != null) {
-            courseReviewRepository.deleteById(insertedCourseReview.getId());
+            courseReviewRepository.delete(insertedCourseReview);
             insertedCourseReview = null;
         }
     }
@@ -200,6 +211,23 @@ class CourseReviewResourceIT {
 
     @Test
     @Transactional
+    void checkUpdatedAtIsRequired() throws Exception {
+        long databaseSizeBeforeTest = getRepositoryCount();
+        // set the field null
+        courseReview.setUpdatedAt(null);
+
+        // Create the CourseReview, which fails.
+        CourseReviewDTO courseReviewDTO = courseReviewMapper.toDto(courseReview);
+
+        restCourseReviewMockMvc
+            .perform(post(ENTITY_API_URL).contentType(MediaType.APPLICATION_JSON).content(om.writeValueAsBytes(courseReviewDTO)))
+            .andExpect(status().isBadRequest());
+
+        assertSameRepositoryCount(databaseSizeBeforeTest);
+    }
+
+    @Test
+    @Transactional
     void getAllCourseReviews() throws Exception {
         // Initialize the database
         insertedCourseReview = courseReviewRepository.saveAndFlush(courseReview);
@@ -212,7 +240,8 @@ class CourseReviewResourceIT {
             .andExpect(jsonPath("$.[*].id").value(hasItem(courseReview.getId().intValue())))
             .andExpect(jsonPath("$.[*].rating").value(hasItem(DEFAULT_RATING)))
             .andExpect(jsonPath("$.[*].content").value(hasItem(DEFAULT_CONTENT)))
-            .andExpect(jsonPath("$.[*].createdAt").value(hasItem(DEFAULT_CREATED_AT.toString())));
+            .andExpect(jsonPath("$.[*].createdAt").value(hasItem(DEFAULT_CREATED_AT.toString())))
+            .andExpect(jsonPath("$.[*].updatedAt").value(hasItem(DEFAULT_UPDATED_AT.toString())));
     }
 
     @SuppressWarnings({ "unchecked" })
@@ -246,7 +275,8 @@ class CourseReviewResourceIT {
             .andExpect(jsonPath("$.id").value(courseReview.getId().intValue()))
             .andExpect(jsonPath("$.rating").value(DEFAULT_RATING))
             .andExpect(jsonPath("$.content").value(DEFAULT_CONTENT))
-            .andExpect(jsonPath("$.createdAt").value(DEFAULT_CREATED_AT.toString()));
+            .andExpect(jsonPath("$.createdAt").value(DEFAULT_CREATED_AT.toString()))
+            .andExpect(jsonPath("$.updatedAt").value(DEFAULT_UPDATED_AT.toString()));
     }
 
     @Test
@@ -336,56 +366,6 @@ class CourseReviewResourceIT {
 
     @Test
     @Transactional
-    void getAllCourseReviewsByContentIsEqualToSomething() throws Exception {
-        // Initialize the database
-        insertedCourseReview = courseReviewRepository.saveAndFlush(courseReview);
-
-        // Get all the courseReviewList where content equals to
-        defaultCourseReviewFiltering("content.equals=" + DEFAULT_CONTENT, "content.equals=" + UPDATED_CONTENT);
-    }
-
-    @Test
-    @Transactional
-    void getAllCourseReviewsByContentIsInShouldWork() throws Exception {
-        // Initialize the database
-        insertedCourseReview = courseReviewRepository.saveAndFlush(courseReview);
-
-        // Get all the courseReviewList where content in
-        defaultCourseReviewFiltering("content.in=" + DEFAULT_CONTENT + "," + UPDATED_CONTENT, "content.in=" + UPDATED_CONTENT);
-    }
-
-    @Test
-    @Transactional
-    void getAllCourseReviewsByContentIsNullOrNotNull() throws Exception {
-        // Initialize the database
-        insertedCourseReview = courseReviewRepository.saveAndFlush(courseReview);
-
-        // Get all the courseReviewList where content is not null
-        defaultCourseReviewFiltering("content.specified=true", "content.specified=false");
-    }
-
-    @Test
-    @Transactional
-    void getAllCourseReviewsByContentContainsSomething() throws Exception {
-        // Initialize the database
-        insertedCourseReview = courseReviewRepository.saveAndFlush(courseReview);
-
-        // Get all the courseReviewList where content contains
-        defaultCourseReviewFiltering("content.contains=" + DEFAULT_CONTENT, "content.contains=" + UPDATED_CONTENT);
-    }
-
-    @Test
-    @Transactional
-    void getAllCourseReviewsByContentNotContainsSomething() throws Exception {
-        // Initialize the database
-        insertedCourseReview = courseReviewRepository.saveAndFlush(courseReview);
-
-        // Get all the courseReviewList where content does not contain
-        defaultCourseReviewFiltering("content.doesNotContain=" + UPDATED_CONTENT, "content.doesNotContain=" + DEFAULT_CONTENT);
-    }
-
-    @Test
-    @Transactional
     void getAllCourseReviewsByCreatedAtIsEqualToSomething() throws Exception {
         // Initialize the database
         insertedCourseReview = courseReviewRepository.saveAndFlush(courseReview);
@@ -416,24 +396,32 @@ class CourseReviewResourceIT {
 
     @Test
     @Transactional
-    void getAllCourseReviewsByStudentIsEqualToSomething() throws Exception {
-        User student;
-        if (TestUtil.findAll(em, User.class).isEmpty()) {
-            courseReviewRepository.saveAndFlush(courseReview);
-            student = UserResourceIT.createEntity();
-        } else {
-            student = TestUtil.findAll(em, User.class).getFirst();
-        }
-        em.persist(student);
-        em.flush();
-        courseReview.setStudent(student);
-        courseReviewRepository.saveAndFlush(courseReview);
-        Long studentId = student.getId();
-        // Get all the courseReviewList where student equals to studentId
-        defaultCourseReviewShouldBeFound("studentId.equals=" + studentId);
+    void getAllCourseReviewsByUpdatedAtIsEqualToSomething() throws Exception {
+        // Initialize the database
+        insertedCourseReview = courseReviewRepository.saveAndFlush(courseReview);
 
-        // Get all the courseReviewList where student equals to (studentId + 1)
-        defaultCourseReviewShouldNotBeFound("studentId.equals=" + (studentId + 1));
+        // Get all the courseReviewList where updatedAt equals to
+        defaultCourseReviewFiltering("updatedAt.equals=" + DEFAULT_UPDATED_AT, "updatedAt.equals=" + UPDATED_UPDATED_AT);
+    }
+
+    @Test
+    @Transactional
+    void getAllCourseReviewsByUpdatedAtIsInShouldWork() throws Exception {
+        // Initialize the database
+        insertedCourseReview = courseReviewRepository.saveAndFlush(courseReview);
+
+        // Get all the courseReviewList where updatedAt in
+        defaultCourseReviewFiltering("updatedAt.in=" + DEFAULT_UPDATED_AT + "," + UPDATED_UPDATED_AT, "updatedAt.in=" + UPDATED_UPDATED_AT);
+    }
+
+    @Test
+    @Transactional
+    void getAllCourseReviewsByUpdatedAtIsNullOrNotNull() throws Exception {
+        // Initialize the database
+        insertedCourseReview = courseReviewRepository.saveAndFlush(courseReview);
+
+        // Get all the courseReviewList where updatedAt is not null
+        defaultCourseReviewFiltering("updatedAt.specified=true", "updatedAt.specified=false");
     }
 
     @Test
@@ -458,6 +446,28 @@ class CourseReviewResourceIT {
         defaultCourseReviewShouldNotBeFound("courseId.equals=" + (courseId + 1));
     }
 
+    @Test
+    @Transactional
+    void getAllCourseReviewsByStudentIsEqualToSomething() throws Exception {
+        User student;
+        if (TestUtil.findAll(em, User.class).isEmpty()) {
+            courseReviewRepository.saveAndFlush(courseReview);
+            student = UserResourceIT.createEntity();
+        } else {
+            student = TestUtil.findAll(em, User.class).getFirst();
+        }
+        em.persist(student);
+        em.flush();
+        courseReview.setStudent(student);
+        courseReviewRepository.saveAndFlush(courseReview);
+        Long studentId = student.getId();
+        // Get all the courseReviewList where student equals to studentId
+        defaultCourseReviewShouldBeFound("studentId.equals=" + studentId);
+
+        // Get all the courseReviewList where student equals to (studentId + 1)
+        defaultCourseReviewShouldNotBeFound("studentId.equals=" + (studentId + 1));
+    }
+
     private void defaultCourseReviewFiltering(String shouldBeFound, String shouldNotBeFound) throws Exception {
         defaultCourseReviewShouldBeFound(shouldBeFound);
         defaultCourseReviewShouldNotBeFound(shouldNotBeFound);
@@ -474,7 +484,8 @@ class CourseReviewResourceIT {
             .andExpect(jsonPath("$.[*].id").value(hasItem(courseReview.getId().intValue())))
             .andExpect(jsonPath("$.[*].rating").value(hasItem(DEFAULT_RATING)))
             .andExpect(jsonPath("$.[*].content").value(hasItem(DEFAULT_CONTENT)))
-            .andExpect(jsonPath("$.[*].createdAt").value(hasItem(DEFAULT_CREATED_AT.toString())));
+            .andExpect(jsonPath("$.[*].createdAt").value(hasItem(DEFAULT_CREATED_AT.toString())))
+            .andExpect(jsonPath("$.[*].updatedAt").value(hasItem(DEFAULT_UPDATED_AT.toString())));
 
         // Check, that the count call also returns 1
         restCourseReviewMockMvc
@@ -522,7 +533,7 @@ class CourseReviewResourceIT {
         CourseReview updatedCourseReview = courseReviewRepository.findById(courseReview.getId()).orElseThrow();
         // Disconnect from session so that the updates on updatedCourseReview are not directly saved in db
         em.detach(updatedCourseReview);
-        updatedCourseReview.rating(UPDATED_RATING).content(UPDATED_CONTENT).createdAt(UPDATED_CREATED_AT);
+        updatedCourseReview.rating(UPDATED_RATING).content(UPDATED_CONTENT).createdAt(UPDATED_CREATED_AT).updatedAt(UPDATED_UPDATED_AT);
         CourseReviewDTO courseReviewDTO = courseReviewMapper.toDto(updatedCourseReview);
 
         restCourseReviewMockMvc
@@ -612,6 +623,8 @@ class CourseReviewResourceIT {
         CourseReview partialUpdatedCourseReview = new CourseReview();
         partialUpdatedCourseReview.setId(courseReview.getId());
 
+        partialUpdatedCourseReview.updatedAt(UPDATED_UPDATED_AT);
+
         restCourseReviewMockMvc
             .perform(
                 patch(ENTITY_API_URL_ID, partialUpdatedCourseReview.getId())
@@ -641,7 +654,11 @@ class CourseReviewResourceIT {
         CourseReview partialUpdatedCourseReview = new CourseReview();
         partialUpdatedCourseReview.setId(courseReview.getId());
 
-        partialUpdatedCourseReview.rating(UPDATED_RATING).content(UPDATED_CONTENT).createdAt(UPDATED_CREATED_AT);
+        partialUpdatedCourseReview
+            .rating(UPDATED_RATING)
+            .content(UPDATED_CONTENT)
+            .createdAt(UPDATED_CREATED_AT)
+            .updatedAt(UPDATED_UPDATED_AT);
 
         restCourseReviewMockMvc
             .perform(

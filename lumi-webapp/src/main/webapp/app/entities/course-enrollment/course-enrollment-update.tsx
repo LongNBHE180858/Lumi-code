@@ -1,12 +1,13 @@
 import React, { useEffect } from 'react';
 import { Button, Col, FormText, Row } from 'react-bootstrap';
-import { Translate, ValidatedField, ValidatedForm, isNumber, translate } from 'react-jhipster';
+import { Translate, ValidatedField, ValidatedForm, translate } from 'react-jhipster';
 import { Link, useNavigate, useParams } from 'react-router';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import { useAppDispatch, useAppSelector } from 'app/config/store';
 import { getEntities as getCourses } from 'app/entities/course/course.reducer';
+import { getEntities as getLessons } from 'app/entities/lesson/lesson.reducer';
 import { getUsers } from 'app/modules/administration/user-management/user-management.reducer';
 import { convertDateTimeFromServer, convertDateTimeToServer, displayDefaultDateTime } from 'app/shared/util/date-utils';
 
@@ -20,8 +21,9 @@ export const CourseEnrollmentUpdate = () => {
   const { id } = useParams<'id'>();
   const isNew = id === undefined;
 
-  const users = useAppSelector(state => state.userManagement.users);
   const courses = useAppSelector(state => state.course.entities);
+  const users = useAppSelector(state => state.userManagement.users);
+  const lessons = useAppSelector(state => state.lesson.entities);
   const courseEnrollmentEntity = useAppSelector(state => state.courseEnrollment.entity);
   const loading = useAppSelector(state => state.courseEnrollment.loading);
   const updating = useAppSelector(state => state.courseEnrollment.updating);
@@ -38,8 +40,9 @@ export const CourseEnrollmentUpdate = () => {
       dispatch(getEntity(id));
     }
 
-    dispatch(getUsers({}));
     dispatch(getCourses({}));
+    dispatch(getUsers({}));
+    dispatch(getLessons({}));
   }, []);
 
   useEffect(() => {
@@ -57,12 +60,14 @@ export const CourseEnrollmentUpdate = () => {
     }
     values.enrolledAt = convertDateTimeToServer(values.enrolledAt);
     values.expiresAt = convertDateTimeToServer(values.expiresAt);
+    values.updatedAt = convertDateTimeToServer(values.updatedAt);
 
     const entity = {
       ...courseEnrollmentEntity,
       ...values,
-      student: users.find(it => it.id.toString() === values.student?.toString()),
       course: courses.find(it => it.id.toString() === values.course?.toString()),
+      student: users.find(it => it.id.toString() === values.student?.toString()),
+      lastAccessedLesson: lessons.find(it => it.id.toString() === values.lastAccessedLesson?.toString()),
     };
 
     if (isNew) {
@@ -77,13 +82,16 @@ export const CourseEnrollmentUpdate = () => {
       ? {
           enrolledAt: displayDefaultDateTime(),
           expiresAt: displayDefaultDateTime(),
+          updatedAt: displayDefaultDateTime(),
         }
       : {
           ...courseEnrollmentEntity,
           enrolledAt: convertDateTimeFromServer(courseEnrollmentEntity.enrolledAt),
           expiresAt: convertDateTimeFromServer(courseEnrollmentEntity.expiresAt),
-          student: courseEnrollmentEntity?.student?.id,
+          updatedAt: convertDateTimeFromServer(courseEnrollmentEntity.updatedAt),
           course: courseEnrollmentEntity?.course?.id,
+          student: courseEnrollmentEntity?.student?.id,
+          lastAccessedLesson: courseEnrollmentEntity?.lastAccessedLesson?.id,
         };
 
   return (
@@ -117,11 +125,6 @@ export const CourseEnrollmentUpdate = () => {
                 name="progressPercent"
                 data-cy="progressPercent"
                 type="text"
-                validate={{
-                  min: { value: 0, message: translate('entity.validation.min', { min: 0 }) },
-                  max: { value: 100, message: translate('entity.validation.max', { max: 100 }) },
-                  validate: v => isNumber(v) || translate('entity.validation.number'),
-                }}
               />
               <ValidatedField
                 label={translate('lumiApp.courseEnrollment.status')}
@@ -153,6 +156,37 @@ export const CourseEnrollmentUpdate = () => {
                 }}
               />
               <ValidatedField
+                label={translate('lumiApp.courseEnrollment.updatedAt')}
+                id="course-enrollment-updatedAt"
+                name="updatedAt"
+                data-cy="updatedAt"
+                type="datetime-local"
+                placeholder="YYYY-MM-DD HH:mm"
+                validate={{
+                  required: { value: true, message: translate('entity.validation.required') },
+                }}
+              />
+              <ValidatedField
+                id="course-enrollment-course"
+                name="course"
+                data-cy="course"
+                label={translate('lumiApp.courseEnrollment.course')}
+                type="select"
+                required
+              >
+                <option value="" key="0" />
+                {courses
+                  ? courses.map(otherEntity => (
+                      <option value={otherEntity.id} key={otherEntity.id}>
+                        {otherEntity.id}
+                      </option>
+                    ))
+                  : null}
+              </ValidatedField>
+              <FormText>
+                <Translate contentKey="entity.validation.required">This field is required.</Translate>
+              </FormText>
+              <ValidatedField
                 id="course-enrollment-student"
                 name="student"
                 data-cy="student"
@@ -173,25 +207,21 @@ export const CourseEnrollmentUpdate = () => {
                 <Translate contentKey="entity.validation.required">This field is required.</Translate>
               </FormText>
               <ValidatedField
-                id="course-enrollment-course"
-                name="course"
-                data-cy="course"
-                label={translate('lumiApp.courseEnrollment.course')}
+                id="course-enrollment-lastAccessedLesson"
+                name="lastAccessedLesson"
+                data-cy="lastAccessedLesson"
+                label={translate('lumiApp.courseEnrollment.lastAccessedLesson')}
                 type="select"
-                required
               >
                 <option value="" key="0" />
-                {courses
-                  ? courses.map(otherEntity => (
+                {lessons
+                  ? lessons.map(otherEntity => (
                       <option value={otherEntity.id} key={otherEntity.id}>
-                        {otherEntity.title}
+                        {otherEntity.id}
                       </option>
                     ))
                   : null}
               </ValidatedField>
-              <FormText>
-                <Translate contentKey="entity.validation.required">This field is required.</Translate>
-              </FormText>
               <Button as={Link as any} id="cancel-save" data-cy="entityCreateCancelButton" to="/course-enrollment" replace variant="info">
                 <FontAwesomeIcon icon="arrow-left" />
                 &nbsp;

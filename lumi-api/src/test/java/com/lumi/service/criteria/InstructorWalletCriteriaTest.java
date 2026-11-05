@@ -75,7 +75,7 @@ class InstructorWalletCriteriaTest {
         instructorWalletCriteria.pendingAmount();
         instructorWalletCriteria.availableAmount();
         instructorWalletCriteria.rowVersion();
-        instructorWalletCriteria.userId();
+        instructorWalletCriteria.instructorId();
         instructorWalletCriteria.distinct();
     }
 
@@ -86,7 +86,7 @@ class InstructorWalletCriteriaTest {
                 condition.apply(criteria.getPendingAmount()) &&
                 condition.apply(criteria.getAvailableAmount()) &&
                 condition.apply(criteria.getRowVersion()) &&
-                condition.apply(criteria.getUserId()) &&
+                condition.apply(criteria.getInstructorId()) &&
                 condition.apply(criteria.getDistinct()),
             "every filter matches"
         );
@@ -102,7 +102,7 @@ class InstructorWalletCriteriaTest {
                 condition.apply(criteria.getPendingAmount(), copy.getPendingAmount()) &&
                 condition.apply(criteria.getAvailableAmount(), copy.getAvailableAmount()) &&
                 condition.apply(criteria.getRowVersion(), copy.getRowVersion()) &&
-                condition.apply(criteria.getUserId(), copy.getUserId()) &&
+                condition.apply(criteria.getInstructorId(), copy.getInstructorId()) &&
                 condition.apply(criteria.getDistinct(), copy.getDistinct()),
             "every filter matches"
         );

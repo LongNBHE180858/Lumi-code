@@ -10,6 +10,7 @@ type PremiumPackage = {
   durationDays: number;
   storageQuotaMb: number;
   aiGenerationLimit: number;
+  aiLimitPeriod: string;
   maxClasses: number | null;
   coveredPeople: number | null;
   revision: number;
@@ -25,6 +26,7 @@ const initialPackage: PremiumPackage = {
   durationDays: 30,
   storageQuotaMb: 512,
   aiGenerationLimit: 5,
+  aiLimitPeriod: 'MONTH',
   maxClasses: 1,
   coveredPeople: null,
   revision: 1,
@@ -116,11 +118,15 @@ test('admin thêm gói gia đình, bật bán rồi tạo phiên bản giá mớ
   await page.getByLabel('Thời hạn (ngày)').fill('30');
   await page.getByLabel('Dung lượng mỗi người (MB)').fill('1024');
   await page.getByLabel('Lượt tạo AI mỗi người').fill('10');
+  await page.getByLabel('Kỳ tính lượt AI').selectOption('MONTH');
   await page.getByRole('button', { name: 'Lưu gói' }).click();
 
   await expect(page.getByText('Gia đình Plus')).toBeVisible();
   await expect(page.getByText('Ngừng bán', { exact: true })).toBeVisible();
-  expect(received[0]).toMatchObject({ method: 'POST', body: { packageType: 'PARENT_FAMILY', maxClasses: null, price: 150000 } });
+  expect(received[0]).toMatchObject({
+    method: 'POST',
+    body: { packageType: 'PARENT_FAMILY', maxClasses: null, price: 150000, aiLimitPeriod: 'MONTH' },
+  });
 
   await page.getByRole('button', { name: 'Bật bán' }).click();
   await expect(page.getByText('Đang bán')).toBeVisible();

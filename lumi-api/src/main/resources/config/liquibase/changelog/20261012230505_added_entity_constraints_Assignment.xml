@@ -11,10 +11,24 @@
     <changeSet id="20261012230505-2" author="jhipster">
 
         <addForeignKeyConstraint baseColumnNames="study_class_id"
-                                 baseTableName="assignment"
-                                 constraintName="fk_assignment__study_class_id"
+                                 baseTableName="assignments"
+                                 constraintName="fk_assignments__study_class_id"
                                  referencedColumnNames="id"
-                                 referencedTableName="study_class"
+                                 referencedTableName="classes"
+                                 />
+
+        <addForeignKeyConstraint baseColumnNames="assigned_by_id"
+                                 baseTableName="assignments"
+                                 constraintName="fk_assignments__assigned_by_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="jhi_user"
+                                 />
+
+        <addForeignKeyConstraint baseColumnNames="exam_id"
+                                 baseTableName="assignments"
+                                 constraintName="fk_assignments__exam_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="exams"
                                  />
     </changeSet>
 </databaseChangeLog>

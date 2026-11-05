@@ -12,18 +12,17 @@ public class UserProfileTestSamples {
     private static final AtomicInteger intCount = new AtomicInteger(random.nextInt() + 2 * Short.MAX_VALUE);
 
     public static UserProfile getUserProfileSample1() {
-        return new UserProfile().id(1L).phoneNumber("phoneNumber1").bio("bio1").schoolName("schoolName1").gradeLevel(1);
+        return new UserProfile().id(1L).phoneNumber("phoneNumber1").schoolName("schoolName1").gradeLevel(1);
     }
 
     public static UserProfile getUserProfileSample2() {
-        return new UserProfile().id(2L).phoneNumber("phoneNumber2").bio("bio2").schoolName("schoolName2").gradeLevel(2);
+        return new UserProfile().id(2L).phoneNumber("phoneNumber2").schoolName("schoolName2").gradeLevel(2);
     }
 
     public static UserProfile getUserProfileRandomSampleGenerator() {
         return new UserProfile()
             .id(longCount.incrementAndGet())
             .phoneNumber(UUID.randomUUID().toString())
-            .bio(UUID.randomUUID().toString())
             .schoolName(UUID.randomUUID().toString())
             .gradeLevel(intCount.incrementAndGet());
     }

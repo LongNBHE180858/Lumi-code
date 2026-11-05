@@ -1,10 +1,12 @@
 package com.lumi.service;
 
 import com.lumi.domain.SystemPlan;
+import com.lumi.domain.enumeration.PremiumPackageStatus;
 import com.lumi.domain.enumeration.PremiumPackageType;
 import com.lumi.repository.SystemPlanRepository;
 import com.lumi.service.dto.PremiumPackageDTO;
 import com.lumi.service.dto.PremiumPackageRequest;
+import java.time.Instant;
 import java.util.UUID;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -25,16 +27,16 @@ public class AdminPremiumPackageService {
 
     @Transactional(readOnly = true)
     public Page<PremiumPackageDTO> list(Pageable pageable) {
-        return repository.findByCurrentRevisionTrue(pageable).map(PremiumPackageDTO::from);
+        return repository.findByStatusNot(PremiumPackageStatus.SUPERSEDED.name(), pageable).map(this::toDto);
     }
 
     @Transactional(readOnly = true)
     public PremiumPackageDTO get(Long id) {
         SystemPlan plan = repository.findById(id).orElseThrow(this::notFound);
-        if (!Boolean.TRUE.equals(plan.getCurrentRevision())) {
+        if (PremiumPackageStatus.SUPERSEDED.name().equals(plan.getStatus())) {
             throw notFound();
         }
-        return PremiumPackageDTO.from(plan);
+        return toDto(plan);
     }
 
     public PremiumPackageDTO create(PremiumPackageRequest request) {
@@ -42,48 +44,48 @@ public class AdminPremiumPackageService {
         SystemPlan plan = new SystemPlan();
         copyFields(plan, request);
         plan.setPackageKey(UUID.randomUUID().toString());
-        plan.setRevision(1);
-        plan.setCurrentRevision(true);
-        plan.setAvailable(false);
-        return PremiumPackageDTO.from(repository.saveAndFlush(plan));
+        plan.setStatus(PremiumPackageStatus.UNAVAILABLE.name());
+        return toDto(repository.saveAndFlush(plan));
     }
 
     public PremiumPackageDTO update(Long id, PremiumPackageRequest request) {
         validate(request);
         SystemPlan previous = currentForUpdate(id);
-        if (previous.getPackageType() != null && previous.getPackageType() != request.packageType()) {
+        PremiumPackageType previousType = PremiumPackageType.from(previous.getPlanType(), previous.getTargetRole());
+        if (previousType != null && previousType != request.packageType()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Package type cannot be changed");
-        }
-        if (previous.getRevision() == Integer.MAX_VALUE) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "Package revision limit reached");
         }
         if (previous.getPackageKey() == null) {
             previous.setPackageKey(UUID.randomUUID().toString());
         }
-        previous.setCurrentRevision(false);
+        String nextStatus =
+            PremiumPackageStatus.AVAILABLE.name().equals(previous.getStatus()) && previousType != null
+                ? PremiumPackageStatus.AVAILABLE.name()
+                : PremiumPackageStatus.UNAVAILABLE.name();
+        previous.setStatus(PremiumPackageStatus.SUPERSEDED.name());
+        previous.setUpdatedAt(Instant.now());
         repository.saveAndFlush(previous);
 
         SystemPlan next = new SystemPlan();
         copyFields(next, request);
         next.setPackageKey(previous.getPackageKey());
-        next.setRevision(previous.getRevision() + 1);
-        next.setCurrentRevision(true);
-        next.setAvailable(previous.getAvailable());
-        return PremiumPackageDTO.from(repository.saveAndFlush(next));
+        next.setStatus(nextStatus);
+        return toDto(repository.saveAndFlush(next));
     }
 
     public PremiumPackageDTO setAvailability(Long id, boolean available) {
         SystemPlan plan = currentForUpdate(id);
-        if (available && plan.getPackageType() == null) {
+        if (available && PremiumPackageType.from(plan.getPlanType(), plan.getTargetRole()) == null) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Classify package before making it available");
         }
-        plan.setAvailable(available);
-        return PremiumPackageDTO.from(repository.saveAndFlush(plan));
+        plan.setStatus(available ? PremiumPackageStatus.AVAILABLE.name() : PremiumPackageStatus.UNAVAILABLE.name());
+        plan.setUpdatedAt(Instant.now());
+        return toDto(repository.saveAndFlush(plan));
     }
 
     private SystemPlan currentForUpdate(Long id) {
         SystemPlan plan = repository.findByIdForUpdate(id).orElseThrow(this::notFound);
-        if (!Boolean.TRUE.equals(plan.getCurrentRevision())) {
+        if (PremiumPackageStatus.SUPERSEDED.name().equals(plan.getStatus())) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Package revision is no longer current");
         }
         return plan;
@@ -105,12 +107,24 @@ public class AdminPremiumPackageService {
 
     private void copyFields(SystemPlan plan, PremiumPackageRequest request) {
         plan.setName(request.name().trim());
-        plan.setPackageType(request.packageType());
+        plan.setPlanType(request.packageType().getPlanType());
+        plan.setTargetRole(request.packageType().getTargetRole());
         plan.setPrice(request.price());
         plan.setDurationDays(request.durationDays());
         plan.setStorageQuotaMb(request.storageQuotaMb());
         plan.setAiGenerationLimit(request.aiGenerationLimit());
-        plan.setMaxClasses(request.maxClasses());
+        plan.setAiLimitPeriod(request.aiLimitPeriod().name());
+        plan.setMaxClasses(request.maxClasses() == null ? 0 : request.maxClasses());
+        plan.setFeatures(request.aiGenerationLimit() == 0 ? "[]" : "[\"AI_REQUESTS\"]");
+        plan.setUpdatedAt(Instant.now());
+    }
+
+    private PremiumPackageDTO toDto(SystemPlan plan) {
+        long revision = plan.getPackageKey() == null ? 1 : repository.countByPackageKey(plan.getPackageKey());
+        if (revision > Integer.MAX_VALUE) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Package revision limit reached");
+        }
+        return PremiumPackageDTO.from(plan, (int) revision);
     }
 
     private ResponseStatusException notFound() {

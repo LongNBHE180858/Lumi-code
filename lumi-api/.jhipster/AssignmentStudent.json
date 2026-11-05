@@ -3,12 +3,21 @@
     "changelogDate": "20261014190853"
   },
   "applications": ["*"],
+  "documentation": "Lưu danh sách học sinh được nhận từng bài giao trong lớp.",
   "dto": "mapstruct",
+  "entityTableName": "assignment_students",
   "fields": [],
   "jpaMetamodelFiltering": true,
   "name": "AssignmentStudent",
   "pagination": "pagination",
   "relationships": [
+    {
+      "otherEntityName": "assignment",
+      "relationshipName": "assignment",
+      "relationshipSide": "left",
+      "relationshipType": "many-to-one",
+      "relationshipValidateRules": "required"
+    },
     {
       "otherEntityField": "login",
       "otherEntityName": "user",
@@ -17,14 +26,6 @@
       "relationshipType": "many-to-one",
       "relationshipValidateRules": "required",
       "relationshipWithBuiltInEntity": true
-    },
-    {
-      "otherEntityField": "title",
-      "otherEntityName": "assignment",
-      "relationshipName": "assignment",
-      "relationshipSide": "left",
-      "relationshipType": "many-to-one",
-      "relationshipValidateRules": "required"
     }
   ],
   "searchEngine": "no",

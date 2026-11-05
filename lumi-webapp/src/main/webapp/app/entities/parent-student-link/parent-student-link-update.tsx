@@ -26,7 +26,7 @@ export const ParentStudentLinkUpdate = () => {
   const updateSuccess = useAppSelector(state => state.parentStudentLink.updateSuccess);
 
   const handleClose = () => {
-    navigate('/parent-student-link');
+    navigate(`/parent-student-link${location.search}`);
   };
 
   useEffect(() => {
@@ -50,12 +50,19 @@ export const ParentStudentLinkUpdate = () => {
       values.id = Number(values.id);
     }
     values.linkedAt = convertDateTimeToServer(values.linkedAt);
+    values.createdAt = convertDateTimeToServer(values.createdAt);
+    values.codeExpiresAt = convertDateTimeToServer(values.codeExpiresAt);
+    values.confirmedAt = convertDateTimeToServer(values.confirmedAt);
+    values.revokedAt = convertDateTimeToServer(values.revokedAt);
+    values.guardianVerifiedAt = convertDateTimeToServer(values.guardianVerifiedAt);
 
     const entity = {
       ...parentStudentLinkEntity,
       ...values,
       parent: users.find(it => it.id.toString() === values.parent?.toString()),
       student: users.find(it => it.id.toString() === values.student?.toString()),
+      confirmedBy: users.find(it => it.id.toString() === values.confirmedBy?.toString()),
+      guardianVerifiedBy: users.find(it => it.id.toString() === values.guardianVerifiedBy?.toString()),
     };
 
     if (isNew) {
@@ -69,12 +76,24 @@ export const ParentStudentLinkUpdate = () => {
     isNew
       ? {
           linkedAt: displayDefaultDateTime(),
+          createdAt: displayDefaultDateTime(),
+          codeExpiresAt: displayDefaultDateTime(),
+          confirmedAt: displayDefaultDateTime(),
+          revokedAt: displayDefaultDateTime(),
+          guardianVerifiedAt: displayDefaultDateTime(),
         }
       : {
           ...parentStudentLinkEntity,
           linkedAt: convertDateTimeFromServer(parentStudentLinkEntity.linkedAt),
+          createdAt: convertDateTimeFromServer(parentStudentLinkEntity.createdAt),
+          codeExpiresAt: convertDateTimeFromServer(parentStudentLinkEntity.codeExpiresAt),
+          confirmedAt: convertDateTimeFromServer(parentStudentLinkEntity.confirmedAt),
+          revokedAt: convertDateTimeFromServer(parentStudentLinkEntity.revokedAt),
+          guardianVerifiedAt: convertDateTimeFromServer(parentStudentLinkEntity.guardianVerifiedAt),
           parent: parentStudentLinkEntity?.parent?.id,
           student: parentStudentLinkEntity?.student?.id,
+          confirmedBy: parentStudentLinkEntity?.confirmedBy?.id,
+          guardianVerifiedBy: parentStudentLinkEntity?.guardianVerifiedBy?.id,
         };
 
   return (
@@ -132,6 +151,80 @@ export const ParentStudentLinkUpdate = () => {
                 placeholder="YYYY-MM-DD HH:mm"
               />
               <ValidatedField
+                label={translate('lumiApp.parentStudentLink.createdAt')}
+                id="parent-student-link-createdAt"
+                name="createdAt"
+                data-cy="createdAt"
+                type="datetime-local"
+                placeholder="YYYY-MM-DD HH:mm"
+                validate={{
+                  required: { value: true, message: translate('entity.validation.required') },
+                }}
+              />
+              <ValidatedField
+                label={translate('lumiApp.parentStudentLink.codeExpiresAt')}
+                id="parent-student-link-codeExpiresAt"
+                name="codeExpiresAt"
+                data-cy="codeExpiresAt"
+                type="datetime-local"
+                placeholder="YYYY-MM-DD HH:mm"
+                validate={{
+                  required: { value: true, message: translate('entity.validation.required') },
+                }}
+              />
+              <ValidatedField
+                label={translate('lumiApp.parentStudentLink.confirmedAt')}
+                id="parent-student-link-confirmedAt"
+                name="confirmedAt"
+                data-cy="confirmedAt"
+                type="datetime-local"
+                placeholder="YYYY-MM-DD HH:mm"
+              />
+              <ValidatedField
+                label={translate('lumiApp.parentStudentLink.revokedAt')}
+                id="parent-student-link-revokedAt"
+                name="revokedAt"
+                data-cy="revokedAt"
+                type="datetime-local"
+                placeholder="YYYY-MM-DD HH:mm"
+              />
+              <ValidatedField
+                label={translate('lumiApp.parentStudentLink.relationshipType')}
+                id="parent-student-link-relationshipType"
+                name="relationshipType"
+                data-cy="relationshipType"
+                type="text"
+                validate={{
+                  maxLength: { value: 30, message: translate('entity.validation.maxlength', { max: 30 }) },
+                }}
+              />
+              <ValidatedField
+                label={translate('lumiApp.parentStudentLink.guardianVerificationStatus')}
+                id="parent-student-link-guardianVerificationStatus"
+                name="guardianVerificationStatus"
+                data-cy="guardianVerificationStatus"
+                type="text"
+                validate={{
+                  required: { value: true, message: translate('entity.validation.required') },
+                  maxLength: { value: 20, message: translate('entity.validation.maxlength', { max: 20 }) },
+                }}
+              />
+              <ValidatedField
+                label={translate('lumiApp.parentStudentLink.guardianVerifiedAt')}
+                id="parent-student-link-guardianVerifiedAt"
+                name="guardianVerifiedAt"
+                data-cy="guardianVerifiedAt"
+                type="datetime-local"
+                placeholder="YYYY-MM-DD HH:mm"
+              />
+              <ValidatedField
+                label={translate('lumiApp.parentStudentLink.guardianVerificationNote')}
+                id="parent-student-link-guardianVerificationNote"
+                name="guardianVerificationNote"
+                data-cy="guardianVerificationNote"
+                type="textarea"
+              />
+              <ValidatedField
                 id="parent-student-link-parent"
                 name="parent"
                 data-cy="parent"
@@ -171,6 +264,38 @@ export const ParentStudentLinkUpdate = () => {
               <FormText>
                 <Translate contentKey="entity.validation.required">This field is required.</Translate>
               </FormText>
+              <ValidatedField
+                id="parent-student-link-confirmedBy"
+                name="confirmedBy"
+                data-cy="confirmedBy"
+                label={translate('lumiApp.parentStudentLink.confirmedBy')}
+                type="select"
+              >
+                <option value="" key="0" />
+                {users
+                  ? users.map(otherEntity => (
+                      <option value={otherEntity.id} key={otherEntity.id}>
+                        {otherEntity.login}
+                      </option>
+                    ))
+                  : null}
+              </ValidatedField>
+              <ValidatedField
+                id="parent-student-link-guardianVerifiedBy"
+                name="guardianVerifiedBy"
+                data-cy="guardianVerifiedBy"
+                label={translate('lumiApp.parentStudentLink.guardianVerifiedBy')}
+                type="select"
+              >
+                <option value="" key="0" />
+                {users
+                  ? users.map(otherEntity => (
+                      <option value={otherEntity.id} key={otherEntity.id}>
+                        {otherEntity.login}
+                      </option>
+                    ))
+                  : null}
+              </ValidatedField>
               <Button as={Link as any} id="cancel-save" data-cy="entityCreateCancelButton" to="/parent-student-link" replace variant="info">
                 <FontAwesomeIcon icon="arrow-left" />
                 &nbsp;

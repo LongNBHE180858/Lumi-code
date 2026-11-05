@@ -4,12 +4,13 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import java.io.Serial;
 import java.io.Serializable;
+import java.time.Instant;
 
 /**
- * A QuestionBank.
+ * Lưu ngân hàng câu hỏi thuộc giáo viên và phạm vi chia sẻ.
  */
 @Entity
-@Table(name = "question_bank")
+@Table(name = "question_banks")
 @SuppressWarnings("common-java:DuplicatedBlocks")
 public class QuestionBank implements Serializable {
 
@@ -27,9 +28,28 @@ public class QuestionBank implements Serializable {
     @Column(name = "name", length = 255, nullable = false)
     private String name;
 
+    @NotNull
+    @Size(max = 20)
+    @Column(name = "visibility", length = 20, nullable = false)
+    private String visibility;
+
+    @NotNull
+    @Column(name = "created_at", nullable = false)
+    private Instant createdAt;
+
+    @NotNull
+    @Column(name = "updated_at", nullable = false)
+    private Instant updatedAt;
+
     @ManyToOne(optional = false)
     @NotNull
     private User instructor;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    private Subject subject;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    private Grade grade;
 
     // jhipster-needle-entity-add-field - JHipster will add fields here
 
@@ -59,6 +79,45 @@ public class QuestionBank implements Serializable {
         this.name = name;
     }
 
+    public String getVisibility() {
+        return this.visibility;
+    }
+
+    public QuestionBank visibility(String visibility) {
+        this.setVisibility(visibility);
+        return this;
+    }
+
+    public void setVisibility(String visibility) {
+        this.visibility = visibility;
+    }
+
+    public Instant getCreatedAt() {
+        return this.createdAt;
+    }
+
+    public QuestionBank createdAt(Instant createdAt) {
+        this.setCreatedAt(createdAt);
+        return this;
+    }
+
+    public void setCreatedAt(Instant createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public Instant getUpdatedAt() {
+        return this.updatedAt;
+    }
+
+    public QuestionBank updatedAt(Instant updatedAt) {
+        this.setUpdatedAt(updatedAt);
+        return this;
+    }
+
+    public void setUpdatedAt(Instant updatedAt) {
+        this.updatedAt = updatedAt;
+    }
+
     public User getInstructor() {
         return this.instructor;
     }
@@ -69,6 +128,32 @@ public class QuestionBank implements Serializable {
 
     public QuestionBank instructor(User user) {
         this.setInstructor(user);
+        return this;
+    }
+
+    public Subject getSubject() {
+        return this.subject;
+    }
+
+    public void setSubject(Subject subject) {
+        this.subject = subject;
+    }
+
+    public QuestionBank subject(Subject subject) {
+        this.setSubject(subject);
+        return this;
+    }
+
+    public Grade getGrade() {
+        return this.grade;
+    }
+
+    public void setGrade(Grade grade) {
+        this.grade = grade;
+    }
+
+    public QuestionBank grade(Grade grade) {
+        this.setGrade(grade);
         return this;
     }
 
@@ -97,6 +182,9 @@ public class QuestionBank implements Serializable {
         return "QuestionBank{" +
             "id=" + getId() +
             ", name='" + getName() + "'" +
+            ", visibility='" + getVisibility() + "'" +
+            ", createdAt='" + getCreatedAt() + "'" +
+            ", updatedAt='" + getUpdatedAt() + "'" +
             "}";
     }
 }

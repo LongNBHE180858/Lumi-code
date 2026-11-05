@@ -10,17 +10,18 @@ public class ExamAttemptTestSamples {
     private static final AtomicLong longCount = new AtomicLong(random.nextInt() + 2L * Integer.MAX_VALUE);
 
     public static ExamAttempt getExamAttemptSample1() {
-        return new ExamAttempt().id(1L).status("status1").rowVersion(1L);
+        return new ExamAttempt().id(1L).status("status1").rowVersion(1L).monitoringStatus("monitoringStatus1");
     }
 
     public static ExamAttempt getExamAttemptSample2() {
-        return new ExamAttempt().id(2L).status("status2").rowVersion(2L);
+        return new ExamAttempt().id(2L).status("status2").rowVersion(2L).monitoringStatus("monitoringStatus2");
     }
 
     public static ExamAttempt getExamAttemptRandomSampleGenerator() {
         return new ExamAttempt()
             .id(longCount.incrementAndGet())
             .status(UUID.randomUUID().toString())
-            .rowVersion(longCount.incrementAndGet());
+            .rowVersion(longCount.incrementAndGet())
+            .monitoringStatus(UUID.randomUUID().toString());
     }
 }

@@ -1,6 +1,8 @@
 package com.lumi.domain;
 
+import static com.lumi.domain.GradeTestSamples.*;
 import static com.lumi.domain.QuestionBankTestSamples.*;
+import static com.lumi.domain.SubjectTestSamples.*;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.lumi.web.rest.TestUtil;
@@ -20,5 +22,29 @@ class QuestionBankTest {
 
         questionBank2 = getQuestionBankSample2();
         assertThat(questionBank1).isNotEqualTo(questionBank2);
+    }
+
+    @Test
+    void subjectTest() {
+        QuestionBank questionBank = getQuestionBankRandomSampleGenerator();
+        Subject subjectBack = getSubjectRandomSampleGenerator();
+
+        questionBank.setSubject(subjectBack);
+        assertThat(questionBank.getSubject()).isEqualTo(subjectBack);
+
+        questionBank.subject(null);
+        assertThat(questionBank.getSubject()).isNull();
+    }
+
+    @Test
+    void gradeTest() {
+        QuestionBank questionBank = getQuestionBankRandomSampleGenerator();
+        Grade gradeBack = getGradeRandomSampleGenerator();
+
+        questionBank.setGrade(gradeBack);
+        assertThat(questionBank.getGrade()).isEqualTo(gradeBack);
+
+        questionBank.grade(null);
+        assertThat(questionBank.getGrade()).isNull();
     }
 }

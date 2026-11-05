@@ -2,6 +2,8 @@ package com.lumi.service.dto;
 
 import com.lumi.domain.enumeration.ClassJoinMode;
 import com.lumi.domain.enumeration.RecordStatus;
+import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.persistence.Lob;
 import jakarta.validation.constraints.*;
 import java.io.Serializable;
 import java.time.Instant;
@@ -10,6 +12,7 @@ import java.util.Objects;
 /**
  * A DTO for the {@link com.lumi.domain.StudyClass} entity.
  */
+@Schema(description = "Lưu lớp riêng, giáo viên quản lý, mã tham gia và sĩ số.")
 @SuppressWarnings("common-java:DuplicatedBlocks")
 public class StudyClassDTO implements Serializable {
 
@@ -19,7 +22,7 @@ public class StudyClassDTO implements Serializable {
     @Size(max = 255)
     private String name;
 
-    @Size(max = 5000)
+    @Lob
     private String description;
 
     @Size(max = 10)
@@ -27,10 +30,8 @@ public class StudyClassDTO implements Serializable {
 
     private ClassJoinMode joinMode;
 
-    @Min(value = 1)
     private Integer maxStudents;
 
-    @Min(value = 0)
     private Integer currentStudents;
 
     private RecordStatus status;
@@ -38,6 +39,11 @@ public class StudyClassDTO implements Serializable {
     private Boolean isDeleted;
 
     private Instant createdAt;
+
+    private Instant joinCodeExpiresAt;
+
+    @NotNull
+    private Instant updatedAt;
 
     @NotNull
     private UserDTO instructor;
@@ -126,6 +132,22 @@ public class StudyClassDTO implements Serializable {
         this.createdAt = createdAt;
     }
 
+    public Instant getJoinCodeExpiresAt() {
+        return joinCodeExpiresAt;
+    }
+
+    public void setJoinCodeExpiresAt(Instant joinCodeExpiresAt) {
+        this.joinCodeExpiresAt = joinCodeExpiresAt;
+    }
+
+    public Instant getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public void setUpdatedAt(Instant updatedAt) {
+        this.updatedAt = updatedAt;
+    }
+
     public UserDTO getInstructor() {
         return instructor;
     }
@@ -185,6 +207,8 @@ public class StudyClassDTO implements Serializable {
             ", status='" + getStatus() + "'" +
             ", isDeleted='" + getIsDeleted() + "'" +
             ", createdAt='" + getCreatedAt() + "'" +
+            ", joinCodeExpiresAt='" + getJoinCodeExpiresAt() + "'" +
+            ", updatedAt='" + getUpdatedAt() + "'" +
             ", instructor=" + getInstructor() +
             ", subject=" + getSubject() +
             ", grade=" + getGrade() +

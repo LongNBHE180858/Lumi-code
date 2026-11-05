@@ -23,6 +23,7 @@ const family: PremiumPackage = {
   durationDays: 30,
   storageQuotaMb: 1024,
   aiGenerationLimit: 10,
+  aiLimitPeriod: 'MONTH',
   maxClasses: null,
   coveredPeople: 4,
   revision: 1,
@@ -64,6 +65,7 @@ describe('AdminPremiumPackages', () => {
     fireEvent.change(screen.getByLabelText('Thời hạn (ngày)'), { target: { value: '30' } });
     fireEvent.change(screen.getByLabelText('Dung lượng mỗi người (MB)'), { target: { value: '500' } });
     fireEvent.change(screen.getByLabelText('Lượt tạo AI mỗi người'), { target: { value: '20' } });
+    fireEvent.change(screen.getByLabelText('Kỳ tính lượt AI'), { target: { value: 'DAY' } });
     fireEvent.click(screen.getByRole('button', { name: 'Lưu gói' }));
 
     await waitFor(() =>
@@ -74,6 +76,7 @@ describe('AdminPremiumPackages', () => {
         durationDays: 30,
         storageQuotaMb: 500,
         aiGenerationLimit: 20,
+        aiLimitPeriod: 'DAY',
         maxClasses: null,
       }),
     );

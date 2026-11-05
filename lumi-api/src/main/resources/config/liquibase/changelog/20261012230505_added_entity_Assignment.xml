@@ -10,14 +10,14 @@
         Added the entity Assignment.
     -->
     <changeSet id="20261012230505-1" author="jhipster">
-        <createTable tableName="assignment">
+        <createTable tableName="assignments" remarks="Lưu bài tập được giáo viên giao trong lớp và liên kết đề nếu có.">
             <column name="id" type="bigint">
                 <constraints primaryKey="true" nullable="false"/>
             </column>
             <column name="title" type="varchar(255)">
                 <constraints nullable="false" />
             </column>
-            <column name="instructions" type="varchar(5000)">
+            <column name="instructions" type="${clobType}">
                 <constraints nullable="true" />
             </column>
             <column name="due_at" type="${datetimeType}">
@@ -32,12 +32,29 @@
             <column name="is_deleted" type="boolean">
                 <constraints nullable="true" />
             </column>
+            <column name="status" type="varchar(20)">
+                <constraints nullable="false" />
+            </column>
+            <column name="created_at" type="${datetimeType}">
+                <constraints nullable="false" />
+            </column>
+            <column name="updated_at" type="${datetimeType}">
+                <constraints nullable="false" />
+            </column>
             <column name="study_class_id" type="bigint">
                 <constraints nullable="false" />
             </column>
+            <column name="assigned_by_id" type="bigint">
+                <constraints nullable="false" />
+            </column>
+            <column name="exam_id" type="bigint">
+                <constraints nullable="true" />
+            </column>
             <!-- jhipster-needle-liquibase-add-column - JHipster will add columns here -->
         </createTable>
-        <dropDefaultValue tableName="assignment" columnName="due_at" columnDataType="${datetimeType}"/>
+        <dropDefaultValue tableName="assignments" columnName="due_at" columnDataType="${datetimeType}"/>
+        <dropDefaultValue tableName="assignments" columnName="created_at" columnDataType="${datetimeType}"/>
+        <dropDefaultValue tableName="assignments" columnName="updated_at" columnDataType="${datetimeType}"/>
     </changeSet>
 
     <!-- jhipster-needle-liquibase-add-changeset - JHipster will add changesets here -->
@@ -52,19 +69,23 @@
     -->
     <changeSet id="20261012230505-1-data" author="jhipster" context="faker">
         <loadData
-                  file="../fake-data/assignment.csv"
+                  file="../fake-data/assignments.csv"
                   relativeToChangelogFile="true"
                   separator=";"
-                  tableName="assignment"
+                  tableName="assignments"
                   usePreparedStatements="true">
             <column name="id" type="numeric"/>
             <column name="title" type="string"/>
-            <column name="instructions" type="string"/>
+            <column name="instructions" type="clob"/>
             <column name="due_at" type="date"/>
             <column name="max_score" type="numeric"/>
             <column name="allow_late" type="boolean"/>
             <column name="is_deleted" type="boolean"/>
+            <column name="status" type="string"/>
+            <column name="created_at" type="date"/>
+            <column name="updated_at" type="date"/>
             <column name="study_class_id" type="numeric"/>
+            <column name="assigned_by_id" type="numeric"/>
             <!-- jhipster-needle-liquibase-add-loadcolumn - JHipster (and/or extensions) can add load columns here -->
         </loadData>
     </changeSet>

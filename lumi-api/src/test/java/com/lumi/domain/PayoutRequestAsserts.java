@@ -54,7 +54,12 @@ public class PayoutRequestAsserts {
             .satisfies(a -> assertThat(a.getBankCode()).as("check bankCode").isEqualTo(expected.getBankCode()))
             .satisfies(a -> assertThat(a.getBankAccount()).as("check bankAccount").isEqualTo(expected.getBankAccount()))
             .satisfies(a -> assertThat(a.getStatus()).as("check status").isEqualTo(expected.getStatus()))
-            .satisfies(a -> assertThat(a.getCreatedAt()).as("check createdAt").isEqualTo(expected.getCreatedAt()));
+            .satisfies(a -> assertThat(a.getCreatedAt()).as("check createdAt").isEqualTo(expected.getCreatedAt()))
+            .satisfies(a -> assertThat(a.getAccountHolderName()).as("check accountHolderName").isEqualTo(expected.getAccountHolderName()))
+            .satisfies(a -> assertThat(a.getProcessedAt()).as("check processedAt").isEqualTo(expected.getProcessedAt()))
+            .satisfies(a -> assertThat(a.getRejectionReason()).as("check rejectionReason").isEqualTo(expected.getRejectionReason()))
+            .satisfies(a -> assertThat(a.getTransferReference()).as("check transferReference").isEqualTo(expected.getTransferReference()))
+            .satisfies(a -> assertThat(a.getUpdatedAt()).as("check updatedAt").isEqualTo(expected.getUpdatedAt()));
     }
 
     /**

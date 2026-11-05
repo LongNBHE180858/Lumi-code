@@ -8,10 +8,10 @@ import java.io.Serializable;
 import java.time.Instant;
 
 /**
- * A TicketMessage.
+ * Lưu trao đổi giữa người gửi phiếu và người xử lý hỗ trợ.
  */
 @Entity
-@Table(name = "ticket_message")
+@Table(name = "ticket_messages")
 @SuppressWarnings("common-java:DuplicatedBlocks")
 public class TicketMessage implements Serializable {
 
@@ -24,9 +24,7 @@ public class TicketMessage implements Serializable {
     @Column(name = "id")
     private Long id;
 
-    @NotNull
-    @Size(max = 5000)
-    @Column(name = "content", length = 5000, nullable = false)
+    @Column(name = "content", nullable = false, columnDefinition = "text")
     private String content;
 
     @Column(name = "created_at")
@@ -34,12 +32,12 @@ public class TicketMessage implements Serializable {
 
     @ManyToOne(optional = false)
     @NotNull
-    private User sender;
+    @JsonIgnoreProperties(value = { "user", "assignedTo" }, allowSetters = true)
+    private SupportTicket ticket;
 
     @ManyToOne(optional = false)
     @NotNull
-    @JsonIgnoreProperties(value = { "user" }, allowSetters = true)
-    private SupportTicket ticket;
+    private User sender;
 
     // jhipster-needle-entity-add-field - JHipster will add fields here
 
@@ -82,19 +80,6 @@ public class TicketMessage implements Serializable {
         this.createdAt = createdAt;
     }
 
-    public User getSender() {
-        return this.sender;
-    }
-
-    public void setSender(User user) {
-        this.sender = user;
-    }
-
-    public TicketMessage sender(User user) {
-        this.setSender(user);
-        return this;
-    }
-
     public SupportTicket getTicket() {
         return this.ticket;
     }
@@ -105,6 +90,19 @@ public class TicketMessage implements Serializable {
 
     public TicketMessage ticket(SupportTicket supportTicket) {
         this.setTicket(supportTicket);
+        return this;
+    }
+
+    public User getSender() {
+        return this.sender;
+    }
+
+    public void setSender(User user) {
+        this.sender = user;
+    }
+
+    public TicketMessage sender(User user) {
+        this.setSender(user);
         return this;
     }
 

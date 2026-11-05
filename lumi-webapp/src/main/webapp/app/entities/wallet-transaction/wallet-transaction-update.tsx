@@ -6,8 +6,9 @@ import { Link, useNavigate, useParams } from 'react-router';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import { useAppDispatch, useAppSelector } from 'app/config/store';
-import { getEntities as getCourseOrders } from 'app/entities/course-order/course-order.reducer';
 import { getEntities as getInstructorWallets } from 'app/entities/instructor-wallet/instructor-wallet.reducer';
+import { getEntities as getPayoutRequests } from 'app/entities/payout-request/payout-request.reducer';
+import { getEntities as getRefunds } from 'app/entities/refund/refund.reducer';
 import { TransactionType } from 'app/shared/model/enumerations/transaction-type.model';
 import { convertDateTimeFromServer, convertDateTimeToServer, displayDefaultDateTime } from 'app/shared/util/date-utils';
 
@@ -22,7 +23,8 @@ export const WalletTransactionUpdate = () => {
   const isNew = id === undefined;
 
   const instructorWallets = useAppSelector(state => state.instructorWallet.entities);
-  const courseOrders = useAppSelector(state => state.courseOrder.entities);
+  const payoutRequests = useAppSelector(state => state.payoutRequest.entities);
+  const refunds = useAppSelector(state => state.refund.entities);
   const walletTransactionEntity = useAppSelector(state => state.walletTransaction.entity);
   const loading = useAppSelector(state => state.walletTransaction.loading);
   const updating = useAppSelector(state => state.walletTransaction.updating);
@@ -39,7 +41,8 @@ export const WalletTransactionUpdate = () => {
     }
 
     dispatch(getInstructorWallets({}));
-    dispatch(getCourseOrders({}));
+    dispatch(getPayoutRequests({}));
+    dispatch(getRefunds({}));
   }, []);
 
   useEffect(() => {
@@ -61,7 +64,9 @@ export const WalletTransactionUpdate = () => {
       ...walletTransactionEntity,
       ...values,
       wallet: instructorWallets.find(it => it.id.toString() === values.wallet?.toString()),
-      order: courseOrders.find(it => it.id.toString() === values.order?.toString()),
+      order: values.order ? { id: Number(values.order) } : null,
+      payoutRequest: payoutRequests.find(it => it.id.toString() === values.payoutRequest?.toString()),
+      refund: refunds.find(it => it.id.toString() === values.refund?.toString()),
     };
 
     if (isNew) {
@@ -82,6 +87,8 @@ export const WalletTransactionUpdate = () => {
           occurredAt: convertDateTimeFromServer(walletTransactionEntity.occurredAt),
           wallet: walletTransactionEntity?.wallet?.id,
           order: walletTransactionEntity?.order?.id,
+          payoutRequest: walletTransactionEntity?.payoutRequest?.id,
+          refund: walletTransactionEntity?.refund?.id,
         };
 
   return (
@@ -163,6 +170,17 @@ export const WalletTransactionUpdate = () => {
                 placeholder="YYYY-MM-DD HH:mm"
               />
               <ValidatedField
+                label={translate('lumiApp.walletTransaction.balanceBucket')}
+                id="wallet-transaction-balanceBucket"
+                name="balanceBucket"
+                data-cy="balanceBucket"
+                type="text"
+                validate={{
+                  required: { value: true, message: translate('entity.validation.required') },
+                  maxLength: { value: 20, message: translate('entity.validation.maxlength', { max: 20 }) },
+                }}
+              />
+              <ValidatedField
                 id="wallet-transaction-wallet"
                 name="wallet"
                 data-cy="wallet"
@@ -187,11 +205,40 @@ export const WalletTransactionUpdate = () => {
                 name="order"
                 data-cy="order"
                 label={translate('lumiApp.walletTransaction.order')}
+                type="number"
+                min="1"
+                step="1"
+                validate={{
+                  min: { value: 1, message: translate('entity.validation.min', { min: 1 }) },
+                  validate: v => !v || Number.isSafeInteger(Number(v)) || translate('entity.validation.number'),
+                }}
+              />
+              <ValidatedField
+                id="wallet-transaction-payoutRequest"
+                name="payoutRequest"
+                data-cy="payoutRequest"
+                label={translate('lumiApp.walletTransaction.payoutRequest')}
                 type="select"
               >
                 <option value="" key="0" />
-                {courseOrders
-                  ? courseOrders.map(otherEntity => (
+                {payoutRequests
+                  ? payoutRequests.map(otherEntity => (
+                      <option value={otherEntity.id} key={otherEntity.id}>
+                        {otherEntity.id}
+                      </option>
+                    ))
+                  : null}
+              </ValidatedField>
+              <ValidatedField
+                id="wallet-transaction-refund"
+                name="refund"
+                data-cy="refund"
+                label={translate('lumiApp.walletTransaction.refund')}
+                type="select"
+              >
+                <option value="" key="0" />
+                {refunds
+                  ? refunds.map(otherEntity => (
                       <option value={otherEntity.id} key={otherEntity.id}>
                         {otherEntity.id}
                       </option>

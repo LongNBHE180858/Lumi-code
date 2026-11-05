@@ -51,6 +51,18 @@ export const PdfChunkDetail = () => {
           </dt>
           <dd>{pdfChunkEntity.embedding}</dd>
           <dt>
+            <span id="chunkIndex">
+              <Translate contentKey="lumiApp.pdfChunk.chunkIndex">Chunk Index</Translate>
+            </span>
+          </dt>
+          <dd>{pdfChunkEntity.chunkIndex}</dd>
+          <dt>
+            <span id="indexVersion">
+              <Translate contentKey="lumiApp.pdfChunk.indexVersion">Index Version</Translate>
+            </span>
+          </dt>
+          <dd>{pdfChunkEntity.indexVersion}</dd>
+          <dt>
             <Translate contentKey="lumiApp.pdfChunk.material">Material</Translate>
           </dt>
           <dd>{pdfChunkEntity.material ? pdfChunkEntity.material.id : ''}</dd>

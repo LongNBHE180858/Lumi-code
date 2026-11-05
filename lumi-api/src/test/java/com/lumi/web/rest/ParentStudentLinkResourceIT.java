@@ -29,6 +29,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
@@ -53,6 +54,30 @@ class ParentStudentLinkResourceIT {
 
     private static final Instant DEFAULT_LINKED_AT = Instant.ofEpochMilli(0L);
     private static final Instant UPDATED_LINKED_AT = Instant.ofEpochMilli(1791835009362L);
+
+    private static final Instant DEFAULT_CREATED_AT = Instant.ofEpochMilli(0L);
+    private static final Instant UPDATED_CREATED_AT = Instant.ofEpochMilli(1791835009362L);
+
+    private static final Instant DEFAULT_CODE_EXPIRES_AT = Instant.ofEpochMilli(0L);
+    private static final Instant UPDATED_CODE_EXPIRES_AT = Instant.ofEpochMilli(1791835009362L);
+
+    private static final Instant DEFAULT_CONFIRMED_AT = Instant.ofEpochMilli(0L);
+    private static final Instant UPDATED_CONFIRMED_AT = Instant.ofEpochMilli(1791835009362L);
+
+    private static final Instant DEFAULT_REVOKED_AT = Instant.ofEpochMilli(0L);
+    private static final Instant UPDATED_REVOKED_AT = Instant.ofEpochMilli(1791835009362L);
+
+    private static final String DEFAULT_RELATIONSHIP_TYPE = "AAAAAAAAAA";
+    private static final String UPDATED_RELATIONSHIP_TYPE = "BBBBBBBBBB";
+
+    private static final String DEFAULT_GUARDIAN_VERIFICATION_STATUS = "AAAAAAAAAA";
+    private static final String UPDATED_GUARDIAN_VERIFICATION_STATUS = "BBBBBBBBBB";
+
+    private static final Instant DEFAULT_GUARDIAN_VERIFIED_AT = Instant.ofEpochMilli(0L);
+    private static final Instant UPDATED_GUARDIAN_VERIFIED_AT = Instant.ofEpochMilli(1791835009362L);
+
+    private static final String DEFAULT_GUARDIAN_VERIFICATION_NOTE = "AAAAAAAAAA";
+    private static final String UPDATED_GUARDIAN_VERIFICATION_NOTE = "BBBBBBBBBB";
 
     private static final String ENTITY_API_URL = "/api/parent-student-links";
     private static final String ENTITY_API_URL_ID = ENTITY_API_URL + "/{id}";
@@ -98,7 +123,15 @@ class ParentStudentLinkResourceIT {
         ParentStudentLink parentStudentLink = new ParentStudentLink()
             .linkCode(DEFAULT_LINK_CODE)
             .status(DEFAULT_STATUS)
-            .linkedAt(DEFAULT_LINKED_AT);
+            .linkedAt(DEFAULT_LINKED_AT)
+            .createdAt(DEFAULT_CREATED_AT)
+            .codeExpiresAt(DEFAULT_CODE_EXPIRES_AT)
+            .confirmedAt(DEFAULT_CONFIRMED_AT)
+            .revokedAt(DEFAULT_REVOKED_AT)
+            .relationshipType(DEFAULT_RELATIONSHIP_TYPE)
+            .guardianVerificationStatus(DEFAULT_GUARDIAN_VERIFICATION_STATUS)
+            .guardianVerifiedAt(DEFAULT_GUARDIAN_VERIFIED_AT)
+            .guardianVerificationNote(DEFAULT_GUARDIAN_VERIFICATION_NOTE);
         // Add required entity
         User user = UserResourceIT.createEntity();
         em.persist(user);
@@ -119,7 +152,15 @@ class ParentStudentLinkResourceIT {
         ParentStudentLink updatedParentStudentLink = new ParentStudentLink()
             .linkCode(UPDATED_LINK_CODE)
             .status(UPDATED_STATUS)
-            .linkedAt(UPDATED_LINKED_AT);
+            .linkedAt(UPDATED_LINKED_AT)
+            .createdAt(UPDATED_CREATED_AT)
+            .codeExpiresAt(UPDATED_CODE_EXPIRES_AT)
+            .confirmedAt(UPDATED_CONFIRMED_AT)
+            .revokedAt(UPDATED_REVOKED_AT)
+            .relationshipType(UPDATED_RELATIONSHIP_TYPE)
+            .guardianVerificationStatus(UPDATED_GUARDIAN_VERIFICATION_STATUS)
+            .guardianVerifiedAt(UPDATED_GUARDIAN_VERIFIED_AT)
+            .guardianVerificationNote(UPDATED_GUARDIAN_VERIFICATION_NOTE);
         // Add required entity
         User user = UserResourceIT.createEntity();
         em.persist(user);
@@ -204,6 +245,57 @@ class ParentStudentLinkResourceIT {
 
     @Test
     @Transactional
+    void checkCreatedAtIsRequired() throws Exception {
+        long databaseSizeBeforeTest = getRepositoryCount();
+        // set the field null
+        parentStudentLink.setCreatedAt(null);
+
+        // Create the ParentStudentLink, which fails.
+        ParentStudentLinkDTO parentStudentLinkDTO = parentStudentLinkMapper.toDto(parentStudentLink);
+
+        restParentStudentLinkMockMvc
+            .perform(post(ENTITY_API_URL).contentType(MediaType.APPLICATION_JSON).content(om.writeValueAsBytes(parentStudentLinkDTO)))
+            .andExpect(status().isBadRequest());
+
+        assertSameRepositoryCount(databaseSizeBeforeTest);
+    }
+
+    @Test
+    @Transactional
+    void checkCodeExpiresAtIsRequired() throws Exception {
+        long databaseSizeBeforeTest = getRepositoryCount();
+        // set the field null
+        parentStudentLink.setCodeExpiresAt(null);
+
+        // Create the ParentStudentLink, which fails.
+        ParentStudentLinkDTO parentStudentLinkDTO = parentStudentLinkMapper.toDto(parentStudentLink);
+
+        restParentStudentLinkMockMvc
+            .perform(post(ENTITY_API_URL).contentType(MediaType.APPLICATION_JSON).content(om.writeValueAsBytes(parentStudentLinkDTO)))
+            .andExpect(status().isBadRequest());
+
+        assertSameRepositoryCount(databaseSizeBeforeTest);
+    }
+
+    @Test
+    @Transactional
+    void checkGuardianVerificationStatusIsRequired() throws Exception {
+        long databaseSizeBeforeTest = getRepositoryCount();
+        // set the field null
+        parentStudentLink.setGuardianVerificationStatus(null);
+
+        // Create the ParentStudentLink, which fails.
+        ParentStudentLinkDTO parentStudentLinkDTO = parentStudentLinkMapper.toDto(parentStudentLink);
+
+        restParentStudentLinkMockMvc
+            .perform(post(ENTITY_API_URL).contentType(MediaType.APPLICATION_JSON).content(om.writeValueAsBytes(parentStudentLinkDTO)))
+            .andExpect(status().isBadRequest());
+
+        assertSameRepositoryCount(databaseSizeBeforeTest);
+    }
+
+    @Test
+    @Transactional
     void getAllParentStudentLinks() throws Exception {
         // Initialize the database
         insertedParentStudentLink = parentStudentLinkRepository.saveAndFlush(parentStudentLink);
@@ -216,21 +308,29 @@ class ParentStudentLinkResourceIT {
             .andExpect(jsonPath("$.[*].id").value(hasItem(parentStudentLink.getId().intValue())))
             .andExpect(jsonPath("$.[*].linkCode").value(hasItem(DEFAULT_LINK_CODE)))
             .andExpect(jsonPath("$.[*].status").value(hasItem(DEFAULT_STATUS)))
-            .andExpect(jsonPath("$.[*].linkedAt").value(hasItem(DEFAULT_LINKED_AT.toString())));
+            .andExpect(jsonPath("$.[*].linkedAt").value(hasItem(DEFAULT_LINKED_AT.toString())))
+            .andExpect(jsonPath("$.[*].createdAt").value(hasItem(DEFAULT_CREATED_AT.toString())))
+            .andExpect(jsonPath("$.[*].codeExpiresAt").value(hasItem(DEFAULT_CODE_EXPIRES_AT.toString())))
+            .andExpect(jsonPath("$.[*].confirmedAt").value(hasItem(DEFAULT_CONFIRMED_AT.toString())))
+            .andExpect(jsonPath("$.[*].revokedAt").value(hasItem(DEFAULT_REVOKED_AT.toString())))
+            .andExpect(jsonPath("$.[*].relationshipType").value(hasItem(DEFAULT_RELATIONSHIP_TYPE)))
+            .andExpect(jsonPath("$.[*].guardianVerificationStatus").value(hasItem(DEFAULT_GUARDIAN_VERIFICATION_STATUS)))
+            .andExpect(jsonPath("$.[*].guardianVerifiedAt").value(hasItem(DEFAULT_GUARDIAN_VERIFIED_AT.toString())))
+            .andExpect(jsonPath("$.[*].guardianVerificationNote").value(hasItem(DEFAULT_GUARDIAN_VERIFICATION_NOTE)));
     }
 
     @SuppressWarnings({ "unchecked" })
     void getAllParentStudentLinksWithEagerRelationshipsIsEnabled() throws Exception {
-        when(parentStudentLinkServiceMock.findAllWithEagerRelationships()).thenReturn(new ArrayList<>());
+        when(parentStudentLinkServiceMock.findAllWithEagerRelationships(any())).thenReturn(new PageImpl(new ArrayList<>()));
 
         restParentStudentLinkMockMvc.perform(get(ENTITY_API_URL + "?eagerload=true")).andExpect(status().isOk());
 
-        verify(parentStudentLinkServiceMock, times(1)).findAllWithEagerRelationships();
+        verify(parentStudentLinkServiceMock, times(1)).findAllWithEagerRelationships(any());
     }
 
     @SuppressWarnings({ "unchecked" })
     void getAllParentStudentLinksWithEagerRelationshipsIsNotEnabled() throws Exception {
-        when(parentStudentLinkServiceMock.findAllWithEagerRelationships()).thenReturn(new ArrayList<>());
+        when(parentStudentLinkServiceMock.findAllWithEagerRelationships(any())).thenReturn(new PageImpl(new ArrayList<>()));
 
         restParentStudentLinkMockMvc.perform(get(ENTITY_API_URL + "?eagerload=false")).andExpect(status().isOk());
         verify(parentStudentLinkRepositoryMock, times(1)).findAll(any(Pageable.class));
@@ -250,7 +350,15 @@ class ParentStudentLinkResourceIT {
             .andExpect(jsonPath("$.id").value(parentStudentLink.getId().intValue()))
             .andExpect(jsonPath("$.linkCode").value(DEFAULT_LINK_CODE))
             .andExpect(jsonPath("$.status").value(DEFAULT_STATUS))
-            .andExpect(jsonPath("$.linkedAt").value(DEFAULT_LINKED_AT.toString()));
+            .andExpect(jsonPath("$.linkedAt").value(DEFAULT_LINKED_AT.toString()))
+            .andExpect(jsonPath("$.createdAt").value(DEFAULT_CREATED_AT.toString()))
+            .andExpect(jsonPath("$.codeExpiresAt").value(DEFAULT_CODE_EXPIRES_AT.toString()))
+            .andExpect(jsonPath("$.confirmedAt").value(DEFAULT_CONFIRMED_AT.toString()))
+            .andExpect(jsonPath("$.revokedAt").value(DEFAULT_REVOKED_AT.toString()))
+            .andExpect(jsonPath("$.relationshipType").value(DEFAULT_RELATIONSHIP_TYPE))
+            .andExpect(jsonPath("$.guardianVerificationStatus").value(DEFAULT_GUARDIAN_VERIFICATION_STATUS))
+            .andExpect(jsonPath("$.guardianVerifiedAt").value(DEFAULT_GUARDIAN_VERIFIED_AT.toString()))
+            .andExpect(jsonPath("$.guardianVerificationNote").value(DEFAULT_GUARDIAN_VERIFICATION_NOTE));
     }
 
     @Test
@@ -400,6 +508,301 @@ class ParentStudentLinkResourceIT {
 
     @Test
     @Transactional
+    void getAllParentStudentLinksByCreatedAtIsEqualToSomething() throws Exception {
+        // Initialize the database
+        insertedParentStudentLink = parentStudentLinkRepository.saveAndFlush(parentStudentLink);
+
+        // Get all the parentStudentLinkList where createdAt equals to
+        defaultParentStudentLinkFiltering("createdAt.equals=" + DEFAULT_CREATED_AT, "createdAt.equals=" + UPDATED_CREATED_AT);
+    }
+
+    @Test
+    @Transactional
+    void getAllParentStudentLinksByCreatedAtIsInShouldWork() throws Exception {
+        // Initialize the database
+        insertedParentStudentLink = parentStudentLinkRepository.saveAndFlush(parentStudentLink);
+
+        // Get all the parentStudentLinkList where createdAt in
+        defaultParentStudentLinkFiltering(
+            "createdAt.in=" + DEFAULT_CREATED_AT + "," + UPDATED_CREATED_AT,
+            "createdAt.in=" + UPDATED_CREATED_AT
+        );
+    }
+
+    @Test
+    @Transactional
+    void getAllParentStudentLinksByCreatedAtIsNullOrNotNull() throws Exception {
+        // Initialize the database
+        insertedParentStudentLink = parentStudentLinkRepository.saveAndFlush(parentStudentLink);
+
+        // Get all the parentStudentLinkList where createdAt is not null
+        defaultParentStudentLinkFiltering("createdAt.specified=true", "createdAt.specified=false");
+    }
+
+    @Test
+    @Transactional
+    void getAllParentStudentLinksByCodeExpiresAtIsEqualToSomething() throws Exception {
+        // Initialize the database
+        insertedParentStudentLink = parentStudentLinkRepository.saveAndFlush(parentStudentLink);
+
+        // Get all the parentStudentLinkList where codeExpiresAt equals to
+        defaultParentStudentLinkFiltering(
+            "codeExpiresAt.equals=" + DEFAULT_CODE_EXPIRES_AT,
+            "codeExpiresAt.equals=" + UPDATED_CODE_EXPIRES_AT
+        );
+    }
+
+    @Test
+    @Transactional
+    void getAllParentStudentLinksByCodeExpiresAtIsInShouldWork() throws Exception {
+        // Initialize the database
+        insertedParentStudentLink = parentStudentLinkRepository.saveAndFlush(parentStudentLink);
+
+        // Get all the parentStudentLinkList where codeExpiresAt in
+        defaultParentStudentLinkFiltering(
+            "codeExpiresAt.in=" + DEFAULT_CODE_EXPIRES_AT + "," + UPDATED_CODE_EXPIRES_AT,
+            "codeExpiresAt.in=" + UPDATED_CODE_EXPIRES_AT
+        );
+    }
+
+    @Test
+    @Transactional
+    void getAllParentStudentLinksByCodeExpiresAtIsNullOrNotNull() throws Exception {
+        // Initialize the database
+        insertedParentStudentLink = parentStudentLinkRepository.saveAndFlush(parentStudentLink);
+
+        // Get all the parentStudentLinkList where codeExpiresAt is not null
+        defaultParentStudentLinkFiltering("codeExpiresAt.specified=true", "codeExpiresAt.specified=false");
+    }
+
+    @Test
+    @Transactional
+    void getAllParentStudentLinksByConfirmedAtIsEqualToSomething() throws Exception {
+        // Initialize the database
+        insertedParentStudentLink = parentStudentLinkRepository.saveAndFlush(parentStudentLink);
+
+        // Get all the parentStudentLinkList where confirmedAt equals to
+        defaultParentStudentLinkFiltering("confirmedAt.equals=" + DEFAULT_CONFIRMED_AT, "confirmedAt.equals=" + UPDATED_CONFIRMED_AT);
+    }
+
+    @Test
+    @Transactional
+    void getAllParentStudentLinksByConfirmedAtIsInShouldWork() throws Exception {
+        // Initialize the database
+        insertedParentStudentLink = parentStudentLinkRepository.saveAndFlush(parentStudentLink);
+
+        // Get all the parentStudentLinkList where confirmedAt in
+        defaultParentStudentLinkFiltering(
+            "confirmedAt.in=" + DEFAULT_CONFIRMED_AT + "," + UPDATED_CONFIRMED_AT,
+            "confirmedAt.in=" + UPDATED_CONFIRMED_AT
+        );
+    }
+
+    @Test
+    @Transactional
+    void getAllParentStudentLinksByConfirmedAtIsNullOrNotNull() throws Exception {
+        // Initialize the database
+        insertedParentStudentLink = parentStudentLinkRepository.saveAndFlush(parentStudentLink);
+
+        // Get all the parentStudentLinkList where confirmedAt is not null
+        defaultParentStudentLinkFiltering("confirmedAt.specified=true", "confirmedAt.specified=false");
+    }
+
+    @Test
+    @Transactional
+    void getAllParentStudentLinksByRevokedAtIsEqualToSomething() throws Exception {
+        // Initialize the database
+        insertedParentStudentLink = parentStudentLinkRepository.saveAndFlush(parentStudentLink);
+
+        // Get all the parentStudentLinkList where revokedAt equals to
+        defaultParentStudentLinkFiltering("revokedAt.equals=" + DEFAULT_REVOKED_AT, "revokedAt.equals=" + UPDATED_REVOKED_AT);
+    }
+
+    @Test
+    @Transactional
+    void getAllParentStudentLinksByRevokedAtIsInShouldWork() throws Exception {
+        // Initialize the database
+        insertedParentStudentLink = parentStudentLinkRepository.saveAndFlush(parentStudentLink);
+
+        // Get all the parentStudentLinkList where revokedAt in
+        defaultParentStudentLinkFiltering(
+            "revokedAt.in=" + DEFAULT_REVOKED_AT + "," + UPDATED_REVOKED_AT,
+            "revokedAt.in=" + UPDATED_REVOKED_AT
+        );
+    }
+
+    @Test
+    @Transactional
+    void getAllParentStudentLinksByRevokedAtIsNullOrNotNull() throws Exception {
+        // Initialize the database
+        insertedParentStudentLink = parentStudentLinkRepository.saveAndFlush(parentStudentLink);
+
+        // Get all the parentStudentLinkList where revokedAt is not null
+        defaultParentStudentLinkFiltering("revokedAt.specified=true", "revokedAt.specified=false");
+    }
+
+    @Test
+    @Transactional
+    void getAllParentStudentLinksByRelationshipTypeIsEqualToSomething() throws Exception {
+        // Initialize the database
+        insertedParentStudentLink = parentStudentLinkRepository.saveAndFlush(parentStudentLink);
+
+        // Get all the parentStudentLinkList where relationshipType equals to
+        defaultParentStudentLinkFiltering(
+            "relationshipType.equals=" + DEFAULT_RELATIONSHIP_TYPE,
+            "relationshipType.equals=" + UPDATED_RELATIONSHIP_TYPE
+        );
+    }
+
+    @Test
+    @Transactional
+    void getAllParentStudentLinksByRelationshipTypeIsInShouldWork() throws Exception {
+        // Initialize the database
+        insertedParentStudentLink = parentStudentLinkRepository.saveAndFlush(parentStudentLink);
+
+        // Get all the parentStudentLinkList where relationshipType in
+        defaultParentStudentLinkFiltering(
+            "relationshipType.in=" + DEFAULT_RELATIONSHIP_TYPE + "," + UPDATED_RELATIONSHIP_TYPE,
+            "relationshipType.in=" + UPDATED_RELATIONSHIP_TYPE
+        );
+    }
+
+    @Test
+    @Transactional
+    void getAllParentStudentLinksByRelationshipTypeIsNullOrNotNull() throws Exception {
+        // Initialize the database
+        insertedParentStudentLink = parentStudentLinkRepository.saveAndFlush(parentStudentLink);
+
+        // Get all the parentStudentLinkList where relationshipType is not null
+        defaultParentStudentLinkFiltering("relationshipType.specified=true", "relationshipType.specified=false");
+    }
+
+    @Test
+    @Transactional
+    void getAllParentStudentLinksByRelationshipTypeContainsSomething() throws Exception {
+        // Initialize the database
+        insertedParentStudentLink = parentStudentLinkRepository.saveAndFlush(parentStudentLink);
+
+        // Get all the parentStudentLinkList where relationshipType contains
+        defaultParentStudentLinkFiltering(
+            "relationshipType.contains=" + DEFAULT_RELATIONSHIP_TYPE,
+            "relationshipType.contains=" + UPDATED_RELATIONSHIP_TYPE
+        );
+    }
+
+    @Test
+    @Transactional
+    void getAllParentStudentLinksByRelationshipTypeNotContainsSomething() throws Exception {
+        // Initialize the database
+        insertedParentStudentLink = parentStudentLinkRepository.saveAndFlush(parentStudentLink);
+
+        // Get all the parentStudentLinkList where relationshipType does not contain
+        defaultParentStudentLinkFiltering(
+            "relationshipType.doesNotContain=" + UPDATED_RELATIONSHIP_TYPE,
+            "relationshipType.doesNotContain=" + DEFAULT_RELATIONSHIP_TYPE
+        );
+    }
+
+    @Test
+    @Transactional
+    void getAllParentStudentLinksByGuardianVerificationStatusIsEqualToSomething() throws Exception {
+        // Initialize the database
+        insertedParentStudentLink = parentStudentLinkRepository.saveAndFlush(parentStudentLink);
+
+        // Get all the parentStudentLinkList where guardianVerificationStatus equals to
+        defaultParentStudentLinkFiltering(
+            "guardianVerificationStatus.equals=" + DEFAULT_GUARDIAN_VERIFICATION_STATUS,
+            "guardianVerificationStatus.equals=" + UPDATED_GUARDIAN_VERIFICATION_STATUS
+        );
+    }
+
+    @Test
+    @Transactional
+    void getAllParentStudentLinksByGuardianVerificationStatusIsInShouldWork() throws Exception {
+        // Initialize the database
+        insertedParentStudentLink = parentStudentLinkRepository.saveAndFlush(parentStudentLink);
+
+        // Get all the parentStudentLinkList where guardianVerificationStatus in
+        defaultParentStudentLinkFiltering(
+            "guardianVerificationStatus.in=" + DEFAULT_GUARDIAN_VERIFICATION_STATUS + "," + UPDATED_GUARDIAN_VERIFICATION_STATUS,
+            "guardianVerificationStatus.in=" + UPDATED_GUARDIAN_VERIFICATION_STATUS
+        );
+    }
+
+    @Test
+    @Transactional
+    void getAllParentStudentLinksByGuardianVerificationStatusIsNullOrNotNull() throws Exception {
+        // Initialize the database
+        insertedParentStudentLink = parentStudentLinkRepository.saveAndFlush(parentStudentLink);
+
+        // Get all the parentStudentLinkList where guardianVerificationStatus is not null
+        defaultParentStudentLinkFiltering("guardianVerificationStatus.specified=true", "guardianVerificationStatus.specified=false");
+    }
+
+    @Test
+    @Transactional
+    void getAllParentStudentLinksByGuardianVerificationStatusContainsSomething() throws Exception {
+        // Initialize the database
+        insertedParentStudentLink = parentStudentLinkRepository.saveAndFlush(parentStudentLink);
+
+        // Get all the parentStudentLinkList where guardianVerificationStatus contains
+        defaultParentStudentLinkFiltering(
+            "guardianVerificationStatus.contains=" + DEFAULT_GUARDIAN_VERIFICATION_STATUS,
+            "guardianVerificationStatus.contains=" + UPDATED_GUARDIAN_VERIFICATION_STATUS
+        );
+    }
+
+    @Test
+    @Transactional
+    void getAllParentStudentLinksByGuardianVerificationStatusNotContainsSomething() throws Exception {
+        // Initialize the database
+        insertedParentStudentLink = parentStudentLinkRepository.saveAndFlush(parentStudentLink);
+
+        // Get all the parentStudentLinkList where guardianVerificationStatus does not contain
+        defaultParentStudentLinkFiltering(
+            "guardianVerificationStatus.doesNotContain=" + UPDATED_GUARDIAN_VERIFICATION_STATUS,
+            "guardianVerificationStatus.doesNotContain=" + DEFAULT_GUARDIAN_VERIFICATION_STATUS
+        );
+    }
+
+    @Test
+    @Transactional
+    void getAllParentStudentLinksByGuardianVerifiedAtIsEqualToSomething() throws Exception {
+        // Initialize the database
+        insertedParentStudentLink = parentStudentLinkRepository.saveAndFlush(parentStudentLink);
+
+        // Get all the parentStudentLinkList where guardianVerifiedAt equals to
+        defaultParentStudentLinkFiltering(
+            "guardianVerifiedAt.equals=" + DEFAULT_GUARDIAN_VERIFIED_AT,
+            "guardianVerifiedAt.equals=" + UPDATED_GUARDIAN_VERIFIED_AT
+        );
+    }
+
+    @Test
+    @Transactional
+    void getAllParentStudentLinksByGuardianVerifiedAtIsInShouldWork() throws Exception {
+        // Initialize the database
+        insertedParentStudentLink = parentStudentLinkRepository.saveAndFlush(parentStudentLink);
+
+        // Get all the parentStudentLinkList where guardianVerifiedAt in
+        defaultParentStudentLinkFiltering(
+            "guardianVerifiedAt.in=" + DEFAULT_GUARDIAN_VERIFIED_AT + "," + UPDATED_GUARDIAN_VERIFIED_AT,
+            "guardianVerifiedAt.in=" + UPDATED_GUARDIAN_VERIFIED_AT
+        );
+    }
+
+    @Test
+    @Transactional
+    void getAllParentStudentLinksByGuardianVerifiedAtIsNullOrNotNull() throws Exception {
+        // Initialize the database
+        insertedParentStudentLink = parentStudentLinkRepository.saveAndFlush(parentStudentLink);
+
+        // Get all the parentStudentLinkList where guardianVerifiedAt is not null
+        defaultParentStudentLinkFiltering("guardianVerifiedAt.specified=true", "guardianVerifiedAt.specified=false");
+    }
+
+    @Test
+    @Transactional
     void getAllParentStudentLinksByParentIsEqualToSomething() throws Exception {
         User parent;
         if (TestUtil.findAll(em, User.class).isEmpty()) {
@@ -442,6 +845,50 @@ class ParentStudentLinkResourceIT {
         defaultParentStudentLinkShouldNotBeFound("studentId.equals=" + (studentId + 1));
     }
 
+    @Test
+    @Transactional
+    void getAllParentStudentLinksByConfirmedByIsEqualToSomething() throws Exception {
+        User confirmedBy;
+        if (TestUtil.findAll(em, User.class).isEmpty()) {
+            parentStudentLinkRepository.saveAndFlush(parentStudentLink);
+            confirmedBy = UserResourceIT.createEntity();
+        } else {
+            confirmedBy = TestUtil.findAll(em, User.class).getFirst();
+        }
+        em.persist(confirmedBy);
+        em.flush();
+        parentStudentLink.setConfirmedBy(confirmedBy);
+        parentStudentLinkRepository.saveAndFlush(parentStudentLink);
+        Long confirmedById = confirmedBy.getId();
+        // Get all the parentStudentLinkList where confirmedBy equals to confirmedById
+        defaultParentStudentLinkShouldBeFound("confirmedById.equals=" + confirmedById);
+
+        // Get all the parentStudentLinkList where confirmedBy equals to (confirmedById + 1)
+        defaultParentStudentLinkShouldNotBeFound("confirmedById.equals=" + (confirmedById + 1));
+    }
+
+    @Test
+    @Transactional
+    void getAllParentStudentLinksByGuardianVerifiedByIsEqualToSomething() throws Exception {
+        User guardianVerifiedBy;
+        if (TestUtil.findAll(em, User.class).isEmpty()) {
+            parentStudentLinkRepository.saveAndFlush(parentStudentLink);
+            guardianVerifiedBy = UserResourceIT.createEntity();
+        } else {
+            guardianVerifiedBy = TestUtil.findAll(em, User.class).getFirst();
+        }
+        em.persist(guardianVerifiedBy);
+        em.flush();
+        parentStudentLink.setGuardianVerifiedBy(guardianVerifiedBy);
+        parentStudentLinkRepository.saveAndFlush(parentStudentLink);
+        Long guardianVerifiedById = guardianVerifiedBy.getId();
+        // Get all the parentStudentLinkList where guardianVerifiedBy equals to guardianVerifiedById
+        defaultParentStudentLinkShouldBeFound("guardianVerifiedById.equals=" + guardianVerifiedById);
+
+        // Get all the parentStudentLinkList where guardianVerifiedBy equals to (guardianVerifiedById + 1)
+        defaultParentStudentLinkShouldNotBeFound("guardianVerifiedById.equals=" + (guardianVerifiedById + 1));
+    }
+
     private void defaultParentStudentLinkFiltering(String shouldBeFound, String shouldNotBeFound) throws Exception {
         defaultParentStudentLinkShouldBeFound(shouldBeFound);
         defaultParentStudentLinkShouldNotBeFound(shouldNotBeFound);
@@ -458,7 +905,15 @@ class ParentStudentLinkResourceIT {
             .andExpect(jsonPath("$.[*].id").value(hasItem(parentStudentLink.getId().intValue())))
             .andExpect(jsonPath("$.[*].linkCode").value(hasItem(DEFAULT_LINK_CODE)))
             .andExpect(jsonPath("$.[*].status").value(hasItem(DEFAULT_STATUS)))
-            .andExpect(jsonPath("$.[*].linkedAt").value(hasItem(DEFAULT_LINKED_AT.toString())));
+            .andExpect(jsonPath("$.[*].linkedAt").value(hasItem(DEFAULT_LINKED_AT.toString())))
+            .andExpect(jsonPath("$.[*].createdAt").value(hasItem(DEFAULT_CREATED_AT.toString())))
+            .andExpect(jsonPath("$.[*].codeExpiresAt").value(hasItem(DEFAULT_CODE_EXPIRES_AT.toString())))
+            .andExpect(jsonPath("$.[*].confirmedAt").value(hasItem(DEFAULT_CONFIRMED_AT.toString())))
+            .andExpect(jsonPath("$.[*].revokedAt").value(hasItem(DEFAULT_REVOKED_AT.toString())))
+            .andExpect(jsonPath("$.[*].relationshipType").value(hasItem(DEFAULT_RELATIONSHIP_TYPE)))
+            .andExpect(jsonPath("$.[*].guardianVerificationStatus").value(hasItem(DEFAULT_GUARDIAN_VERIFICATION_STATUS)))
+            .andExpect(jsonPath("$.[*].guardianVerifiedAt").value(hasItem(DEFAULT_GUARDIAN_VERIFIED_AT.toString())))
+            .andExpect(jsonPath("$.[*].guardianVerificationNote").value(hasItem(DEFAULT_GUARDIAN_VERIFICATION_NOTE)));
 
         // Check, that the count call also returns 1
         restParentStudentLinkMockMvc
@@ -506,7 +961,18 @@ class ParentStudentLinkResourceIT {
         ParentStudentLink updatedParentStudentLink = parentStudentLinkRepository.findById(parentStudentLink.getId()).orElseThrow();
         // Disconnect from session so that the updates on updatedParentStudentLink are not directly saved in db
         em.detach(updatedParentStudentLink);
-        updatedParentStudentLink.linkCode(UPDATED_LINK_CODE).status(UPDATED_STATUS).linkedAt(UPDATED_LINKED_AT);
+        updatedParentStudentLink
+            .linkCode(UPDATED_LINK_CODE)
+            .status(UPDATED_STATUS)
+            .linkedAt(UPDATED_LINKED_AT)
+            .createdAt(UPDATED_CREATED_AT)
+            .codeExpiresAt(UPDATED_CODE_EXPIRES_AT)
+            .confirmedAt(UPDATED_CONFIRMED_AT)
+            .revokedAt(UPDATED_REVOKED_AT)
+            .relationshipType(UPDATED_RELATIONSHIP_TYPE)
+            .guardianVerificationStatus(UPDATED_GUARDIAN_VERIFICATION_STATUS)
+            .guardianVerifiedAt(UPDATED_GUARDIAN_VERIFIED_AT)
+            .guardianVerificationNote(UPDATED_GUARDIAN_VERIFICATION_NOTE);
         ParentStudentLinkDTO parentStudentLinkDTO = parentStudentLinkMapper.toDto(updatedParentStudentLink);
 
         restParentStudentLinkMockMvc
@@ -596,7 +1062,13 @@ class ParentStudentLinkResourceIT {
         ParentStudentLink partialUpdatedParentStudentLink = new ParentStudentLink();
         partialUpdatedParentStudentLink.setId(parentStudentLink.getId());
 
-        partialUpdatedParentStudentLink.linkedAt(UPDATED_LINKED_AT);
+        partialUpdatedParentStudentLink
+            .linkedAt(UPDATED_LINKED_AT)
+            .createdAt(UPDATED_CREATED_AT)
+            .confirmedAt(UPDATED_CONFIRMED_AT)
+            .revokedAt(UPDATED_REVOKED_AT)
+            .relationshipType(UPDATED_RELATIONSHIP_TYPE)
+            .guardianVerifiedAt(UPDATED_GUARDIAN_VERIFIED_AT);
 
         restParentStudentLinkMockMvc
             .perform(
@@ -627,7 +1099,18 @@ class ParentStudentLinkResourceIT {
         ParentStudentLink partialUpdatedParentStudentLink = new ParentStudentLink();
         partialUpdatedParentStudentLink.setId(parentStudentLink.getId());
 
-        partialUpdatedParentStudentLink.linkCode(UPDATED_LINK_CODE).status(UPDATED_STATUS).linkedAt(UPDATED_LINKED_AT);
+        partialUpdatedParentStudentLink
+            .linkCode(UPDATED_LINK_CODE)
+            .status(UPDATED_STATUS)
+            .linkedAt(UPDATED_LINKED_AT)
+            .createdAt(UPDATED_CREATED_AT)
+            .codeExpiresAt(UPDATED_CODE_EXPIRES_AT)
+            .confirmedAt(UPDATED_CONFIRMED_AT)
+            .revokedAt(UPDATED_REVOKED_AT)
+            .relationshipType(UPDATED_RELATIONSHIP_TYPE)
+            .guardianVerificationStatus(UPDATED_GUARDIAN_VERIFICATION_STATUS)
+            .guardianVerifiedAt(UPDATED_GUARDIAN_VERIFIED_AT)
+            .guardianVerificationNote(UPDATED_GUARDIAN_VERIFICATION_NOTE);
 
         restParentStudentLinkMockMvc
             .perform(

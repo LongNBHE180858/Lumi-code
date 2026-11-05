@@ -3,7 +3,9 @@
     "changelogDate": "20261012231725"
   },
   "applications": ["*"],
+  "documentation": "Lưu tin nhắn AI, nguồn trích dẫn và đánh giá phản hồi của chủ hội thoại.",
   "dto": "mapstruct",
+  "entityTableName": "ai_messages",
   "fields": [
     {
       "fieldName": "senderRole",
@@ -13,12 +15,40 @@
     },
     {
       "fieldName": "content",
-      "fieldType": "String",
-      "fieldValidateRules": ["required", "maxlength"],
-      "fieldValidateRulesMaxlength": "5000"
+      "fieldType": "TextBlob",
+      "fieldValidateRules": ["required"]
     },
     {
       "fieldName": "createdAt",
+      "fieldType": "Instant"
+    },
+    {
+      "fieldName": "citations",
+      "fieldType": "TextBlob",
+      "fieldValidateRules": ["required"]
+    },
+    {
+      "fieldName": "generationStatus",
+      "fieldType": "String",
+      "fieldValidateRules": ["required", "maxlength"],
+      "fieldValidateRulesMaxlength": "20"
+    },
+    {
+      "fieldName": "modelName",
+      "fieldType": "String",
+      "fieldValidateRules": ["maxlength"],
+      "fieldValidateRulesMaxlength": "100"
+    },
+    {
+      "fieldName": "feedbackRating",
+      "fieldType": "Integer"
+    },
+    {
+      "fieldName": "feedbackNote",
+      "fieldType": "TextBlob"
+    },
+    {
+      "fieldName": "feedbackAt",
       "fieldType": "Instant"
     }
   ],

@@ -1,5 +1,6 @@
 package com.lumi.domain;
 
+import static com.lumi.domain.AiGeneratedContentTestSamples.*;
 import static com.lumi.domain.FlashcardDeckTestSamples.*;
 import static com.lumi.domain.FlashcardTestSamples.*;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -33,5 +34,17 @@ class FlashcardTest {
 
         flashcard.deck(null);
         assertThat(flashcard.getDeck()).isNull();
+    }
+
+    @Test
+    void aiContentTest() {
+        Flashcard flashcard = getFlashcardRandomSampleGenerator();
+        AiGeneratedContent aiGeneratedContentBack = getAiGeneratedContentRandomSampleGenerator();
+
+        flashcard.setAiContent(aiGeneratedContentBack);
+        assertThat(flashcard.getAiContent()).isEqualTo(aiGeneratedContentBack);
+
+        flashcard.aiContent(null);
+        assertThat(flashcard.getAiContent()).isNull();
     }
 }

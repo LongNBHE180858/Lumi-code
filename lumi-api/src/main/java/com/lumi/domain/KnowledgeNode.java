@@ -6,10 +6,10 @@ import java.io.Serial;
 import java.io.Serializable;
 
 /**
- * A KnowledgeNode.
+ * Lưu các đơn vị kiến thức dùng để phân tích năng lực và gợi ý học tập.
  */
 @Entity
-@Table(name = "knowledge_node")
+@Table(name = "knowledge_nodes")
 @SuppressWarnings("common-java:DuplicatedBlocks")
 public class KnowledgeNode implements Serializable {
 

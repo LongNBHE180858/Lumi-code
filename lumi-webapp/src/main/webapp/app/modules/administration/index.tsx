@@ -27,6 +27,7 @@ const AdminUserManagement = () => {
 };
 import FeedbackAdminList from './feedback/feedback-admin-list';
 import FeedbackAdminDetail from './feedback/feedback-admin-detail';
+import KnowledgeGraphAdmin from './knowledge-graph/knowledge-graph';
 
 const AdministrationRoutes = () => (
   <div>
@@ -39,6 +40,7 @@ const AdministrationRoutes = () => (
       <Route path="support-tickets/:id" element={<TicketDetail admin />} />
       <Route path="feedback" element={<FeedbackAdminList />} />
       <Route path="feedback/:id" element={<FeedbackAdminDetail />} />
+      <Route path="knowledge-graph" element={<KnowledgeGraphAdmin />} />
       <Route path="health" element={<Health />} />
       <Route path="metrics" element={<Metrics />} />
       <Route path="configuration" element={<Configuration />} />

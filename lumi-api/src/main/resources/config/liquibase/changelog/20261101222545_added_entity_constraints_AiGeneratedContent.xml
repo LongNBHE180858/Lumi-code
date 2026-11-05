@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd
+                        http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
+    <!--
+        Added the constraints for entity AiGeneratedContent.
+    -->
+    <changeSet id="20261101222545-2" author="jhipster">
+
+        <addForeignKeyConstraint baseColumnNames="created_by_id"
+                                 baseTableName="ai_generated_contents"
+                                 constraintName="fk_ai_generated_contents__created_by_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="jhi_user"
+                                 />
+
+        <addForeignKeyConstraint baseColumnNames="document_id"
+                                 baseTableName="ai_generated_contents"
+                                 constraintName="fk_ai_generated_contents__document_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="learning_documents"
+                                 />
+
+        <addForeignKeyConstraint baseColumnNames="lesson_id"
+                                 baseTableName="ai_generated_contents"
+                                 constraintName="fk_ai_generated_contents__lesson_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="lessons"
+                                 />
+
+        <addForeignKeyConstraint baseColumnNames="reviewed_by_id"
+                                 baseTableName="ai_generated_contents"
+                                 constraintName="fk_ai_generated_contents__reviewed_by_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="jhi_user"
+                                 />
+
+        <addForeignKeyConstraint baseColumnNames="course_id"
+                                 baseTableName="ai_generated_contents"
+                                 constraintName="fk_ai_generated_contents__course_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="courses"
+                                 />
+    </changeSet>
+</databaseChangeLog>

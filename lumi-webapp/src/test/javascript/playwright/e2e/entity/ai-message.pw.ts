@@ -12,7 +12,7 @@ import {
 import { expect, test } from '../../support/fixtures';
 
 const aiMessagePageUrl = '/ai-message';
-// const aiMessageSample = {"senderRole":"per receptor shampoo","content":"apud past at"};
+// const aiMessageSample = {"senderRole":"deeply","content":"Li4vZmFrZS1kYXRhL2Jsb2IvaGlwc3Rlci50eHQ=","citations":"Li4vZmFrZS1kYXRhL2Jsb2IvaGlwc3Rlci50eHQ=","generationStatus":"energetically step u"};
 
 const aiMessageApiUrl = '/api/ai-messages';
 
@@ -35,7 +35,7 @@ test.describe('AiMessage e2e test', () => {
       await jhi.authenticatedRequest({
         method: 'POST',
         url: '/api/ai-conversations',
-        body: {"type":"fax","createdAt":"2026-10-12T15:07:43.339Z"},
+        body: {"type":"fax","createdAt":"2026-10-12T15:07:43.339Z","updatedAt":"2026-10-12T17:01:09.292Z"},
       })
     ).json();
   });
@@ -217,12 +217,31 @@ test.describe('AiMessage e2e test', () => {
       await page.locator(`[data-cy="senderRole"]`).fill('rough remarkable');
       await expect(page.locator(`[data-cy="senderRole"]`)).toHaveValue('rough remarkable');
 
-      await page.locator(`[data-cy="content"]`).fill('like catalyze');
-      await expect(page.locator(`[data-cy="content"]`)).toHaveValue('like catalyze');
+      await page.locator(`[data-cy="content"]`).fill('../fake-data/blob/hipster.txt');
+      await expect(page.locator(`[data-cy="content"]`)).toHaveValue(new RegExp('../fake-data/blob/hipster.txt'));
 
-      await page.locator(`[data-cy="createdAt"]`).fill('2026-10-12T13:21');
+      await page.locator(`[data-cy="createdAt"]`).fill('2026-10-12T10:24');
       await page.locator(`[data-cy="createdAt"]`).blur();
-      await expect(page.locator(`[data-cy="createdAt"]`)).toHaveValue('2026-10-12T13:21');
+      await expect(page.locator(`[data-cy="createdAt"]`)).toHaveValue('2026-10-12T10:24');
+
+      await page.locator(`[data-cy="citations"]`).fill('../fake-data/blob/hipster.txt');
+      await expect(page.locator(`[data-cy="citations"]`)).toHaveValue(new RegExp('../fake-data/blob/hipster.txt'));
+
+      await page.locator(`[data-cy="generationStatus"]`).fill('knickers override');
+      await expect(page.locator(`[data-cy="generationStatus"]`)).toHaveValue('knickers override');
+
+      await page.locator(`[data-cy="modelName"]`).fill('per receptor shampoo');
+      await expect(page.locator(`[data-cy="modelName"]`)).toHaveValue('per receptor shampoo');
+
+      await page.locator(`[data-cy="feedbackRating"]`).fill('27837');
+      await expect(page.locator(`[data-cy="feedbackRating"]`)).toHaveValue('27837');
+
+      await page.locator(`[data-cy="feedbackNote"]`).fill('../fake-data/blob/hipster.txt');
+      await expect(page.locator(`[data-cy="feedbackNote"]`)).toHaveValue(new RegExp('../fake-data/blob/hipster.txt'));
+
+      await page.locator(`[data-cy="feedbackAt"]`).fill('2026-10-12T11:07');
+      await page.locator(`[data-cy="feedbackAt"]`).blur();
+      await expect(page.locator(`[data-cy="feedbackAt"]`)).toHaveValue('2026-10-12T11:07');
 
       await page.locator(`[data-cy="conversation"]`).selectOption({ index: 1 });
 

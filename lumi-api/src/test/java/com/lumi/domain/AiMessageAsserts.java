@@ -49,7 +49,13 @@ public class AiMessageAsserts {
             .as("Verify AiMessage relevant properties")
             .satisfies(a -> assertThat(a.getSenderRole()).as("check senderRole").isEqualTo(expected.getSenderRole()))
             .satisfies(a -> assertThat(a.getContent()).as("check content").isEqualTo(expected.getContent()))
-            .satisfies(a -> assertThat(a.getCreatedAt()).as("check createdAt").isEqualTo(expected.getCreatedAt()));
+            .satisfies(a -> assertThat(a.getCreatedAt()).as("check createdAt").isEqualTo(expected.getCreatedAt()))
+            .satisfies(a -> assertThat(a.getCitations()).as("check citations").isEqualTo(expected.getCitations()))
+            .satisfies(a -> assertThat(a.getGenerationStatus()).as("check generationStatus").isEqualTo(expected.getGenerationStatus()))
+            .satisfies(a -> assertThat(a.getModelName()).as("check modelName").isEqualTo(expected.getModelName()))
+            .satisfies(a -> assertThat(a.getFeedbackRating()).as("check feedbackRating").isEqualTo(expected.getFeedbackRating()))
+            .satisfies(a -> assertThat(a.getFeedbackNote()).as("check feedbackNote").isEqualTo(expected.getFeedbackNote()))
+            .satisfies(a -> assertThat(a.getFeedbackAt()).as("check feedbackAt").isEqualTo(expected.getFeedbackAt()));
     }
 
     /**

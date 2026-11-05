@@ -41,14 +41,14 @@ public interface WishlistRepository extends JpaRepository<Wishlist, Long>, JpaSp
     }
 
     @Query(
-        value = "select wishlist from Wishlist wishlist left join fetch wishlist.student left join fetch wishlist.course",
+        value = "select wishlist from Wishlist wishlist left join fetch wishlist.student",
         countQuery = "select count(wishlist) from Wishlist wishlist"
     )
     Page<Wishlist> findAllWithToOneRelationships(Pageable pageable);
 
-    @Query("select wishlist from Wishlist wishlist left join fetch wishlist.student left join fetch wishlist.course")
+    @Query("select wishlist from Wishlist wishlist left join fetch wishlist.student")
     List<Wishlist> findAllWithToOneRelationships();
 
-    @Query("select wishlist from Wishlist wishlist left join fetch wishlist.student left join fetch wishlist.course where wishlist.id =:id")
+    @Query("select wishlist from Wishlist wishlist left join fetch wishlist.student where wishlist.id =:id")
     Optional<Wishlist> findOneWithToOneRelationships(@Param("id") Long id);
 }

@@ -6,8 +6,7 @@ import { Link, useNavigate, useParams } from 'react-router';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import { useAppDispatch, useAppSelector } from 'app/config/store';
-import { getEntities as getCourseOrders } from 'app/entities/course-order/course-order.reducer';
-import { getEntities as getPayments } from 'app/entities/payment/payment.reducer';
+import { getUsers } from 'app/modules/administration/user-management/user-management.reducer';
 import { convertDateTimeFromServer, convertDateTimeToServer, displayDefaultDateTime } from 'app/shared/util/date-utils';
 
 import { createEntity, getEntity, reset, updateEntity } from './refund.reducer';
@@ -20,8 +19,7 @@ export const RefundUpdate = () => {
   const { id } = useParams<'id'>();
   const isNew = id === undefined;
 
-  const courseOrders = useAppSelector(state => state.courseOrder.entities);
-  const payments = useAppSelector(state => state.payment.entities);
+  const users = useAppSelector(state => state.userManagement.users);
   const refundEntity = useAppSelector(state => state.refund.entity);
   const loading = useAppSelector(state => state.refund.loading);
   const updating = useAppSelector(state => state.refund.updating);
@@ -38,8 +36,7 @@ export const RefundUpdate = () => {
       dispatch(getEntity(id));
     }
 
-    dispatch(getCourseOrders({}));
-    dispatch(getPayments({}));
+    dispatch(getUsers({}));
   }, []);
 
   useEffect(() => {
@@ -56,12 +53,15 @@ export const RefundUpdate = () => {
       values.amount = Number(values.amount);
     }
     values.createdAt = convertDateTimeToServer(values.createdAt);
+    values.processedAt = convertDateTimeToServer(values.processedAt);
+    values.accessRevokedAt = convertDateTimeToServer(values.accessRevokedAt);
 
     const entity = {
       ...refundEntity,
       ...values,
-      order: courseOrders.find(it => it.id.toString() === values.order?.toString()),
-      payment: payments.find(it => it.id.toString() === values.payment?.toString()),
+      order: values.order ? { id: Number(values.order) } : null,
+      payment: values.payment ? { id: Number(values.payment) } : null,
+      processedBy: users.find(it => it.id.toString() === values.processedBy?.toString()),
     };
 
     if (isNew) {
@@ -75,12 +75,17 @@ export const RefundUpdate = () => {
     isNew
       ? {
           createdAt: displayDefaultDateTime(),
+          processedAt: displayDefaultDateTime(),
+          accessRevokedAt: displayDefaultDateTime(),
         }
       : {
           ...refundEntity,
           createdAt: convertDateTimeFromServer(refundEntity.createdAt),
+          processedAt: convertDateTimeFromServer(refundEntity.processedAt),
+          accessRevokedAt: convertDateTimeFromServer(refundEntity.accessRevokedAt),
           order: refundEntity?.order?.id,
           payment: refundEntity?.payment?.id,
+          processedBy: refundEntity?.processedBy?.id,
         };
 
   return (
@@ -116,7 +121,6 @@ export const RefundUpdate = () => {
                 type="text"
                 validate={{
                   required: { value: true, message: translate('entity.validation.required') },
-                  min: { value: 0, message: translate('entity.validation.min', { min: 0 }) },
                   validate: v => isNumber(v) || translate('entity.validation.number'),
                 }}
               />
@@ -125,10 +129,7 @@ export const RefundUpdate = () => {
                 id="refund-reason"
                 name="reason"
                 data-cy="reason"
-                type="text"
-                validate={{
-                  maxLength: { value: 5000, message: translate('entity.validation.maxlength', { max: 5000 }) },
-                }}
+                type="textarea"
               />
               <ValidatedField
                 label={translate('lumiApp.refund.status')}
@@ -149,22 +150,53 @@ export const RefundUpdate = () => {
                 placeholder="YYYY-MM-DD HH:mm"
               />
               <ValidatedField
+                label={translate('lumiApp.refund.processedAt')}
+                id="refund-processedAt"
+                name="processedAt"
+                data-cy="processedAt"
+                type="datetime-local"
+                placeholder="YYYY-MM-DD HH:mm"
+              />
+              <ValidatedField
+                label={translate('lumiApp.refund.reviewNote')}
+                id="refund-reviewNote"
+                name="reviewNote"
+                data-cy="reviewNote"
+                type="textarea"
+              />
+              <ValidatedField
+                label={translate('lumiApp.refund.refundReference')}
+                id="refund-refundReference"
+                name="refundReference"
+                data-cy="refundReference"
+                type="text"
+                validate={{
+                  maxLength: { value: 255, message: translate('entity.validation.maxlength', { max: 255 }) },
+                }}
+              />
+              <ValidatedField
+                label={translate('lumiApp.refund.accessRevokedAt')}
+                id="refund-accessRevokedAt"
+                name="accessRevokedAt"
+                data-cy="accessRevokedAt"
+                type="datetime-local"
+                placeholder="YYYY-MM-DD HH:mm"
+              />
+              <ValidatedField
                 id="refund-order"
                 name="order"
                 data-cy="order"
                 label={translate('lumiApp.refund.order')}
-                type="select"
+                type="number"
+                min="1"
+                step="1"
                 required
-              >
-                <option value="" key="0" />
-                {courseOrders
-                  ? courseOrders.map(otherEntity => (
-                      <option value={otherEntity.id} key={otherEntity.id}>
-                        {otherEntity.id}
-                      </option>
-                    ))
-                  : null}
-              </ValidatedField>
+                validate={{
+                  min: { value: 1, message: translate('entity.validation.min', { min: 1 }) },
+                  validate: v => !v || Number.isSafeInteger(Number(v)) || translate('entity.validation.number'),
+                  required: { value: true, message: translate('entity.validation.required') },
+                }}
+              />
               <FormText>
                 <Translate contentKey="entity.validation.required">This field is required.</Translate>
               </FormText>
@@ -173,21 +205,35 @@ export const RefundUpdate = () => {
                 name="payment"
                 data-cy="payment"
                 label={translate('lumiApp.refund.payment')}
-                type="select"
+                type="number"
+                min="1"
+                step="1"
                 required
+                validate={{
+                  min: { value: 1, message: translate('entity.validation.min', { min: 1 }) },
+                  validate: v => !v || Number.isSafeInteger(Number(v)) || translate('entity.validation.number'),
+                  required: { value: true, message: translate('entity.validation.required') },
+                }}
+              />
+              <FormText>
+                <Translate contentKey="entity.validation.required">This field is required.</Translate>
+              </FormText>
+              <ValidatedField
+                id="refund-processedBy"
+                name="processedBy"
+                data-cy="processedBy"
+                label={translate('lumiApp.refund.processedBy')}
+                type="select"
               >
                 <option value="" key="0" />
-                {payments
-                  ? payments.map(otherEntity => (
+                {users
+                  ? users.map(otherEntity => (
                       <option value={otherEntity.id} key={otherEntity.id}>
-                        {otherEntity.id}
+                        {otherEntity.login}
                       </option>
                     ))
                   : null}
               </ValidatedField>
-              <FormText>
-                <Translate contentKey="entity.validation.required">This field is required.</Translate>
-              </FormText>
               <Button as={Link as any} id="cancel-save" data-cy="entityCreateCancelButton" to="/refund" replace variant="info">
                 <FontAwesomeIcon icon="arrow-left" />
                 &nbsp;

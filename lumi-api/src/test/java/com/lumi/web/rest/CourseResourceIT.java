@@ -10,7 +10,6 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 import com.lumi.IntegrationTest;
-import com.lumi.domain.Category;
 import com.lumi.domain.Course;
 import com.lumi.domain.Grade;
 import com.lumi.domain.Subject;
@@ -49,7 +48,7 @@ import tools.jackson.databind.ObjectMapper;
 @IntegrationTest
 @ExtendWith(MockitoExtension.class)
 @AutoConfigureMockMvc
-@WithMockUser(authorities = "ROLE_ADMIN")
+@WithMockUser
 class CourseResourceIT {
 
     private static final String DEFAULT_TITLE = "AAAAAAAAAA";
@@ -61,13 +60,42 @@ class CourseResourceIT {
     private static final String DEFAULT_THUMBNAIL_URL = "AAAAAAAAAA";
     private static final String UPDATED_THUMBNAIL_URL = "BBBBBBBBBB";
 
-    private static final BigDecimal DEFAULT_PRICE = new BigDecimal(0);
-    private static final BigDecimal UPDATED_PRICE = new BigDecimal(1);
-    private static final BigDecimal SMALLER_PRICE = new BigDecimal(0 - 1);
+    private static final BigDecimal DEFAULT_PRICE = new BigDecimal(1);
+    private static final BigDecimal UPDATED_PRICE = new BigDecimal(2);
+    private static final BigDecimal SMALLER_PRICE = new BigDecimal(1 - 1);
+
+    private static final String DEFAULT_SHORT_DESCRIPTION = "AAAAAAAAAA";
+    private static final String UPDATED_SHORT_DESCRIPTION = "BBBBBBBBBB";
+
+    private static final String DEFAULT_BOOK_SERIES = "AAAAAAAAAA";
+    private static final String UPDATED_BOOK_SERIES = "BBBBBBBBBB";
+
+    private static final String DEFAULT_TARGET_AUDIENCE = "AAAAAAAAAA";
+    private static final String UPDATED_TARGET_AUDIENCE = "BBBBBBBBBB";
+
+    private static final String DEFAULT_PREREQUISITES = "AAAAAAAAAA";
+    private static final String UPDATED_PREREQUISITES = "BBBBBBBBBB";
+
+    private static final java.util.List<String> DEFAULT_LEARNING_OBJECTIVES = java.util.List.of("AAAAAAAAAA");
+    private static final java.util.List<String> UPDATED_LEARNING_OBJECTIVES = java.util.List.of("BBBBBBBBBB");
+
+    private static final String DEFAULT_INTRO_VIDEO_URL = "AAAAAAAAAA";
+    private static final String UPDATED_INTRO_VIDEO_URL = "BBBBBBBBBB";
 
     private static final Integer DEFAULT_VALID_DURATION_DAYS = 1;
     private static final Integer UPDATED_VALID_DURATION_DAYS = 2;
     private static final Integer SMALLER_VALID_DURATION_DAYS = 1 - 1;
+
+    private static final Integer DEFAULT_ACCESS_DURATION_VALUE = 1;
+    private static final Integer UPDATED_ACCESS_DURATION_VALUE = 2;
+    private static final Integer SMALLER_ACCESS_DURATION_VALUE = 1 - 1;
+
+    private static final String DEFAULT_ACCESS_DURATION_UNIT = "DAY";
+    private static final String UPDATED_ACCESS_DURATION_UNIT = "MONTH";
+
+    private static final Long DEFAULT_VERSION = 1L;
+    private static final Long UPDATED_VERSION = 2L;
+    private static final Long SMALLER_VERSION = 1L - 1L;
 
     private static final RecordStatus DEFAULT_STATUS = RecordStatus.DRAFT;
     private static final RecordStatus UPDATED_STATUS = RecordStatus.PENDING;
@@ -80,6 +108,10 @@ class CourseResourceIT {
 
     private static final Instant DEFAULT_UPDATED_AT = Instant.ofEpochMilli(0L);
     private static final Instant UPDATED_UPDATED_AT = Instant.ofEpochMilli(1791835009362L);
+
+    private static final Long DEFAULT_STORAGE_LIMIT_BYTES = 0L;
+    private static final Long UPDATED_STORAGE_LIMIT_BYTES = 1L;
+    private static final Long SMALLER_STORAGE_LIMIT_BYTES = 0L - 1L;
 
     private static final String ENTITY_API_URL = "/api/courses";
     private static final String ENTITY_API_URL_ID = ENTITY_API_URL + "/{id}";
@@ -127,11 +159,21 @@ class CourseResourceIT {
             .description(DEFAULT_DESCRIPTION)
             .thumbnailUrl(DEFAULT_THUMBNAIL_URL)
             .price(DEFAULT_PRICE)
+            .shortDescription(DEFAULT_SHORT_DESCRIPTION)
+            .bookSeries(DEFAULT_BOOK_SERIES)
+            .targetAudience(DEFAULT_TARGET_AUDIENCE)
+            .prerequisites(DEFAULT_PREREQUISITES)
+            .learningObjectives(DEFAULT_LEARNING_OBJECTIVES)
+            .introVideoUrl(DEFAULT_INTRO_VIDEO_URL)
             .validDurationDays(DEFAULT_VALID_DURATION_DAYS)
+            .accessDurationValue(DEFAULT_ACCESS_DURATION_VALUE)
+            .accessDurationUnit(com.lumi.domain.enumeration.AccessDurationUnit.valueOf(DEFAULT_ACCESS_DURATION_UNIT))
+            .version(DEFAULT_VERSION)
             .status(DEFAULT_STATUS)
             .isDeleted(DEFAULT_IS_DELETED)
             .createdAt(DEFAULT_CREATED_AT)
-            .updatedAt(DEFAULT_UPDATED_AT);
+            .updatedAt(DEFAULT_UPDATED_AT)
+            .storageLimitBytes(DEFAULT_STORAGE_LIMIT_BYTES);
         // Add required entity
         User user = UserResourceIT.createEntity();
         em.persist(user);
@@ -152,11 +194,21 @@ class CourseResourceIT {
             .description(UPDATED_DESCRIPTION)
             .thumbnailUrl(UPDATED_THUMBNAIL_URL)
             .price(UPDATED_PRICE)
+            .shortDescription(UPDATED_SHORT_DESCRIPTION)
+            .bookSeries(UPDATED_BOOK_SERIES)
+            .targetAudience(UPDATED_TARGET_AUDIENCE)
+            .prerequisites(UPDATED_PREREQUISITES)
+            .learningObjectives(UPDATED_LEARNING_OBJECTIVES)
+            .introVideoUrl(UPDATED_INTRO_VIDEO_URL)
             .validDurationDays(UPDATED_VALID_DURATION_DAYS)
+            .accessDurationValue(UPDATED_ACCESS_DURATION_VALUE)
+            .accessDurationUnit(com.lumi.domain.enumeration.AccessDurationUnit.valueOf(UPDATED_ACCESS_DURATION_UNIT))
+            .version(UPDATED_VERSION)
             .status(UPDATED_STATUS)
             .isDeleted(UPDATED_IS_DELETED)
             .createdAt(UPDATED_CREATED_AT)
-            .updatedAt(UPDATED_UPDATED_AT);
+            .updatedAt(UPDATED_UPDATED_AT)
+            .storageLimitBytes(UPDATED_STORAGE_LIMIT_BYTES);
         // Add required entity
         User user = UserResourceIT.createEntity();
         em.persist(user);
@@ -173,7 +225,7 @@ class CourseResourceIT {
     @AfterEach
     void cleanup() {
         if (insertedCourse != null) {
-            courseRepository.deleteById(insertedCourse.getId());
+            courseRepository.delete(insertedCourse);
             insertedCourse = null;
         }
     }
@@ -239,39 +291,19 @@ class CourseResourceIT {
 
     @Test
     @Transactional
-    void createDraftWithoutDuration() throws Exception {
+    void checkVersionIsRequired() throws Exception {
         long databaseSizeBeforeTest = getRepositoryCount();
-        course.setValidDurationDays(null);
-        CourseDTO courseDTO = courseMapper.toDto(course);
-        var result = restCourseMockMvc
-            .perform(post(ENTITY_API_URL).contentType(MediaType.APPLICATION_JSON).content(om.writeValueAsBytes(courseDTO)))
-            .andExpect(status().isCreated())
-            .andReturn();
-        insertedCourse = courseMapper.toEntity(om.readValue(result.getResponse().getContentAsString(), CourseDTO.class));
-        assertIncrementedRepositoryCount(databaseSizeBeforeTest);
-        assertThat(insertedCourse.getValidDurationDays()).isNull();
-    }
+        // set the field null
+        course.setVersion(null);
 
-    @Test
-    @Transactional
-    void staleVersionCannotOverwriteCourse() throws Exception {
-        insertedCourse = courseRepository.saveAndFlush(course);
-        CourseDTO stale = courseMapper.toDto(course);
-        CourseDTO current = courseMapper.toDto(course);
-        current.setTitle("Updated once");
-        var result = restCourseMockMvc
-            .perform(put(ENTITY_API_URL_ID, course.getId()).contentType(MediaType.APPLICATION_JSON).content(om.writeValueAsBytes(current)))
-            .andExpect(status().isOk())
-            .andReturn();
-        CourseDTO saved = om.readValue(result.getResponse().getContentAsString(), CourseDTO.class);
-        assertThat(saved.getVersion()).isGreaterThan(stale.getVersion());
-        stale.setTitle("Stale overwrite");
+        // Create the Course, which fails.
+        CourseDTO courseDTO = courseMapper.toDto(course);
+
         restCourseMockMvc
-            .perform(
-                patch(ENTITY_API_URL_ID, course.getId()).contentType("application/merge-patch+json").content(om.writeValueAsBytes(stale))
-            )
-            .andExpect(status().isConflict());
-        assertThat(courseRepository.findById(course.getId()).orElseThrow().getTitle()).isEqualTo("Updated once");
+            .perform(post(ENTITY_API_URL).contentType(MediaType.APPLICATION_JSON).content(om.writeValueAsBytes(courseDTO)))
+            .andExpect(status().isBadRequest());
+
+        assertSameRepositoryCount(databaseSizeBeforeTest);
     }
 
     @Test
@@ -290,11 +322,21 @@ class CourseResourceIT {
             .andExpect(jsonPath("$.[*].description").value(hasItem(DEFAULT_DESCRIPTION)))
             .andExpect(jsonPath("$.[*].thumbnailUrl").value(hasItem(DEFAULT_THUMBNAIL_URL)))
             .andExpect(jsonPath("$.[*].price").value(hasItem(sameNumber(DEFAULT_PRICE))))
+            .andExpect(jsonPath("$.[*].shortDescription").value(hasItem(DEFAULT_SHORT_DESCRIPTION)))
+            .andExpect(jsonPath("$.[*].bookSeries").value(hasItem(DEFAULT_BOOK_SERIES)))
+            .andExpect(jsonPath("$.[*].targetAudience").value(hasItem(DEFAULT_TARGET_AUDIENCE)))
+            .andExpect(jsonPath("$.[*].prerequisites").value(hasItem(DEFAULT_PREREQUISITES)))
+            .andExpect(jsonPath("$.[*].learningObjectives").value(hasItem(DEFAULT_LEARNING_OBJECTIVES)))
+            .andExpect(jsonPath("$.[*].introVideoUrl").value(hasItem(DEFAULT_INTRO_VIDEO_URL)))
             .andExpect(jsonPath("$.[*].validDurationDays").value(hasItem(DEFAULT_VALID_DURATION_DAYS)))
+            .andExpect(jsonPath("$.[*].accessDurationValue").value(hasItem(DEFAULT_ACCESS_DURATION_VALUE)))
+            .andExpect(jsonPath("$.[*].accessDurationUnit").value(hasItem(DEFAULT_ACCESS_DURATION_UNIT)))
+            .andExpect(jsonPath("$.[*].version").value(hasItem(DEFAULT_VERSION.intValue())))
             .andExpect(jsonPath("$.[*].status").value(hasItem(DEFAULT_STATUS.toString())))
             .andExpect(jsonPath("$.[*].isDeleted").value(hasItem(DEFAULT_IS_DELETED)))
             .andExpect(jsonPath("$.[*].createdAt").value(hasItem(DEFAULT_CREATED_AT.toString())))
-            .andExpect(jsonPath("$.[*].updatedAt").value(hasItem(DEFAULT_UPDATED_AT.toString())));
+            .andExpect(jsonPath("$.[*].updatedAt").value(hasItem(DEFAULT_UPDATED_AT.toString())))
+            .andExpect(jsonPath("$.[*].storageLimitBytes").value(hasItem(DEFAULT_STORAGE_LIMIT_BYTES.intValue())));
     }
 
     @SuppressWarnings({ "unchecked" })
@@ -330,11 +372,21 @@ class CourseResourceIT {
             .andExpect(jsonPath("$.description").value(DEFAULT_DESCRIPTION))
             .andExpect(jsonPath("$.thumbnailUrl").value(DEFAULT_THUMBNAIL_URL))
             .andExpect(jsonPath("$.price").value(sameNumber(DEFAULT_PRICE)))
+            .andExpect(jsonPath("$.shortDescription").value(DEFAULT_SHORT_DESCRIPTION))
+            .andExpect(jsonPath("$.bookSeries").value(DEFAULT_BOOK_SERIES))
+            .andExpect(jsonPath("$.targetAudience").value(DEFAULT_TARGET_AUDIENCE))
+            .andExpect(jsonPath("$.prerequisites").value(DEFAULT_PREREQUISITES))
+            .andExpect(jsonPath("$.learningObjectives").value(DEFAULT_LEARNING_OBJECTIVES))
+            .andExpect(jsonPath("$.introVideoUrl").value(DEFAULT_INTRO_VIDEO_URL))
             .andExpect(jsonPath("$.validDurationDays").value(DEFAULT_VALID_DURATION_DAYS))
+            .andExpect(jsonPath("$.accessDurationValue").value(DEFAULT_ACCESS_DURATION_VALUE))
+            .andExpect(jsonPath("$.accessDurationUnit").value(DEFAULT_ACCESS_DURATION_UNIT))
+            .andExpect(jsonPath("$.version").value(DEFAULT_VERSION.intValue()))
             .andExpect(jsonPath("$.status").value(DEFAULT_STATUS.toString()))
             .andExpect(jsonPath("$.isDeleted").value(DEFAULT_IS_DELETED))
             .andExpect(jsonPath("$.createdAt").value(DEFAULT_CREATED_AT.toString()))
-            .andExpect(jsonPath("$.updatedAt").value(DEFAULT_UPDATED_AT.toString()));
+            .andExpect(jsonPath("$.updatedAt").value(DEFAULT_UPDATED_AT.toString()))
+            .andExpect(jsonPath("$.storageLimitBytes").value(DEFAULT_STORAGE_LIMIT_BYTES.intValue()));
     }
 
     @Test
@@ -400,59 +452,6 @@ class CourseResourceIT {
 
         // Get all the courseList where title does not contain
         defaultCourseFiltering("title.doesNotContain=" + UPDATED_TITLE, "title.doesNotContain=" + DEFAULT_TITLE);
-    }
-
-    @Test
-    @Transactional
-    void getAllCoursesByDescriptionIsEqualToSomething() throws Exception {
-        // Initialize the database
-        insertedCourse = courseRepository.saveAndFlush(course);
-
-        // Get all the courseList where description equals to
-        defaultCourseFiltering("description.equals=" + DEFAULT_DESCRIPTION, "description.equals=" + UPDATED_DESCRIPTION);
-    }
-
-    @Test
-    @Transactional
-    void getAllCoursesByDescriptionIsInShouldWork() throws Exception {
-        // Initialize the database
-        insertedCourse = courseRepository.saveAndFlush(course);
-
-        // Get all the courseList where description in
-        defaultCourseFiltering(
-            "description.in=" + DEFAULT_DESCRIPTION + "," + UPDATED_DESCRIPTION,
-            "description.in=" + UPDATED_DESCRIPTION
-        );
-    }
-
-    @Test
-    @Transactional
-    void getAllCoursesByDescriptionIsNullOrNotNull() throws Exception {
-        // Initialize the database
-        insertedCourse = courseRepository.saveAndFlush(course);
-
-        // Get all the courseList where description is not null
-        defaultCourseFiltering("description.specified=true", "description.specified=false");
-    }
-
-    @Test
-    @Transactional
-    void getAllCoursesByDescriptionContainsSomething() throws Exception {
-        // Initialize the database
-        insertedCourse = courseRepository.saveAndFlush(course);
-
-        // Get all the courseList where description contains
-        defaultCourseFiltering("description.contains=" + DEFAULT_DESCRIPTION, "description.contains=" + UPDATED_DESCRIPTION);
-    }
-
-    @Test
-    @Transactional
-    void getAllCoursesByDescriptionNotContainsSomething() throws Exception {
-        // Initialize the database
-        insertedCourse = courseRepository.saveAndFlush(course);
-
-        // Get all the courseList where description does not contain
-        defaultCourseFiltering("description.doesNotContain=" + UPDATED_DESCRIPTION, "description.doesNotContain=" + DEFAULT_DESCRIPTION);
     }
 
     @Test
@@ -583,6 +582,286 @@ class CourseResourceIT {
 
     @Test
     @Transactional
+    void getAllCoursesByShortDescriptionIsEqualToSomething() throws Exception {
+        // Initialize the database
+        insertedCourse = courseRepository.saveAndFlush(course);
+
+        // Get all the courseList where shortDescription equals to
+        defaultCourseFiltering(
+            "shortDescription.equals=" + DEFAULT_SHORT_DESCRIPTION,
+            "shortDescription.equals=" + UPDATED_SHORT_DESCRIPTION
+        );
+    }
+
+    @Test
+    @Transactional
+    void getAllCoursesByShortDescriptionIsInShouldWork() throws Exception {
+        // Initialize the database
+        insertedCourse = courseRepository.saveAndFlush(course);
+
+        // Get all the courseList where shortDescription in
+        defaultCourseFiltering(
+            "shortDescription.in=" + DEFAULT_SHORT_DESCRIPTION + "," + UPDATED_SHORT_DESCRIPTION,
+            "shortDescription.in=" + UPDATED_SHORT_DESCRIPTION
+        );
+    }
+
+    @Test
+    @Transactional
+    void getAllCoursesByShortDescriptionIsNullOrNotNull() throws Exception {
+        // Initialize the database
+        insertedCourse = courseRepository.saveAndFlush(course);
+
+        // Get all the courseList where shortDescription is not null
+        defaultCourseFiltering("shortDescription.specified=true", "shortDescription.specified=false");
+    }
+
+    @Test
+    @Transactional
+    void getAllCoursesByShortDescriptionContainsSomething() throws Exception {
+        // Initialize the database
+        insertedCourse = courseRepository.saveAndFlush(course);
+
+        // Get all the courseList where shortDescription contains
+        defaultCourseFiltering(
+            "shortDescription.contains=" + DEFAULT_SHORT_DESCRIPTION,
+            "shortDescription.contains=" + UPDATED_SHORT_DESCRIPTION
+        );
+    }
+
+    @Test
+    @Transactional
+    void getAllCoursesByShortDescriptionNotContainsSomething() throws Exception {
+        // Initialize the database
+        insertedCourse = courseRepository.saveAndFlush(course);
+
+        // Get all the courseList where shortDescription does not contain
+        defaultCourseFiltering(
+            "shortDescription.doesNotContain=" + UPDATED_SHORT_DESCRIPTION,
+            "shortDescription.doesNotContain=" + DEFAULT_SHORT_DESCRIPTION
+        );
+    }
+
+    @Test
+    @Transactional
+    void getAllCoursesByBookSeriesIsEqualToSomething() throws Exception {
+        // Initialize the database
+        insertedCourse = courseRepository.saveAndFlush(course);
+
+        // Get all the courseList where bookSeries equals to
+        defaultCourseFiltering("bookSeries.equals=" + DEFAULT_BOOK_SERIES, "bookSeries.equals=" + UPDATED_BOOK_SERIES);
+    }
+
+    @Test
+    @Transactional
+    void getAllCoursesByBookSeriesIsInShouldWork() throws Exception {
+        // Initialize the database
+        insertedCourse = courseRepository.saveAndFlush(course);
+
+        // Get all the courseList where bookSeries in
+        defaultCourseFiltering("bookSeries.in=" + DEFAULT_BOOK_SERIES + "," + UPDATED_BOOK_SERIES, "bookSeries.in=" + UPDATED_BOOK_SERIES);
+    }
+
+    @Test
+    @Transactional
+    void getAllCoursesByBookSeriesIsNullOrNotNull() throws Exception {
+        // Initialize the database
+        insertedCourse = courseRepository.saveAndFlush(course);
+
+        // Get all the courseList where bookSeries is not null
+        defaultCourseFiltering("bookSeries.specified=true", "bookSeries.specified=false");
+    }
+
+    @Test
+    @Transactional
+    void getAllCoursesByBookSeriesContainsSomething() throws Exception {
+        // Initialize the database
+        insertedCourse = courseRepository.saveAndFlush(course);
+
+        // Get all the courseList where bookSeries contains
+        defaultCourseFiltering("bookSeries.contains=" + DEFAULT_BOOK_SERIES, "bookSeries.contains=" + UPDATED_BOOK_SERIES);
+    }
+
+    @Test
+    @Transactional
+    void getAllCoursesByBookSeriesNotContainsSomething() throws Exception {
+        // Initialize the database
+        insertedCourse = courseRepository.saveAndFlush(course);
+
+        // Get all the courseList where bookSeries does not contain
+        defaultCourseFiltering("bookSeries.doesNotContain=" + UPDATED_BOOK_SERIES, "bookSeries.doesNotContain=" + DEFAULT_BOOK_SERIES);
+    }
+
+    @Test
+    @Transactional
+    void getAllCoursesByTargetAudienceIsEqualToSomething() throws Exception {
+        // Initialize the database
+        insertedCourse = courseRepository.saveAndFlush(course);
+
+        // Get all the courseList where targetAudience equals to
+        defaultCourseFiltering("targetAudience.equals=" + DEFAULT_TARGET_AUDIENCE, "targetAudience.equals=" + UPDATED_TARGET_AUDIENCE);
+    }
+
+    @Test
+    @Transactional
+    void getAllCoursesByTargetAudienceIsInShouldWork() throws Exception {
+        // Initialize the database
+        insertedCourse = courseRepository.saveAndFlush(course);
+
+        // Get all the courseList where targetAudience in
+        defaultCourseFiltering(
+            "targetAudience.in=" + DEFAULT_TARGET_AUDIENCE + "," + UPDATED_TARGET_AUDIENCE,
+            "targetAudience.in=" + UPDATED_TARGET_AUDIENCE
+        );
+    }
+
+    @Test
+    @Transactional
+    void getAllCoursesByTargetAudienceIsNullOrNotNull() throws Exception {
+        // Initialize the database
+        insertedCourse = courseRepository.saveAndFlush(course);
+
+        // Get all the courseList where targetAudience is not null
+        defaultCourseFiltering("targetAudience.specified=true", "targetAudience.specified=false");
+    }
+
+    @Test
+    @Transactional
+    void getAllCoursesByTargetAudienceContainsSomething() throws Exception {
+        // Initialize the database
+        insertedCourse = courseRepository.saveAndFlush(course);
+
+        // Get all the courseList where targetAudience contains
+        defaultCourseFiltering("targetAudience.contains=" + DEFAULT_TARGET_AUDIENCE, "targetAudience.contains=" + UPDATED_TARGET_AUDIENCE);
+    }
+
+    @Test
+    @Transactional
+    void getAllCoursesByTargetAudienceNotContainsSomething() throws Exception {
+        // Initialize the database
+        insertedCourse = courseRepository.saveAndFlush(course);
+
+        // Get all the courseList where targetAudience does not contain
+        defaultCourseFiltering(
+            "targetAudience.doesNotContain=" + UPDATED_TARGET_AUDIENCE,
+            "targetAudience.doesNotContain=" + DEFAULT_TARGET_AUDIENCE
+        );
+    }
+
+    @Test
+    @Transactional
+    void getAllCoursesByPrerequisitesIsEqualToSomething() throws Exception {
+        // Initialize the database
+        insertedCourse = courseRepository.saveAndFlush(course);
+
+        // Get all the courseList where prerequisites equals to
+        defaultCourseFiltering("prerequisites.equals=" + DEFAULT_PREREQUISITES, "prerequisites.equals=" + UPDATED_PREREQUISITES);
+    }
+
+    @Test
+    @Transactional
+    void getAllCoursesByPrerequisitesIsInShouldWork() throws Exception {
+        // Initialize the database
+        insertedCourse = courseRepository.saveAndFlush(course);
+
+        // Get all the courseList where prerequisites in
+        defaultCourseFiltering(
+            "prerequisites.in=" + DEFAULT_PREREQUISITES + "," + UPDATED_PREREQUISITES,
+            "prerequisites.in=" + UPDATED_PREREQUISITES
+        );
+    }
+
+    @Test
+    @Transactional
+    void getAllCoursesByPrerequisitesIsNullOrNotNull() throws Exception {
+        // Initialize the database
+        insertedCourse = courseRepository.saveAndFlush(course);
+
+        // Get all the courseList where prerequisites is not null
+        defaultCourseFiltering("prerequisites.specified=true", "prerequisites.specified=false");
+    }
+
+    @Test
+    @Transactional
+    void getAllCoursesByPrerequisitesContainsSomething() throws Exception {
+        // Initialize the database
+        insertedCourse = courseRepository.saveAndFlush(course);
+
+        // Get all the courseList where prerequisites contains
+        defaultCourseFiltering("prerequisites.contains=" + DEFAULT_PREREQUISITES, "prerequisites.contains=" + UPDATED_PREREQUISITES);
+    }
+
+    @Test
+    @Transactional
+    void getAllCoursesByPrerequisitesNotContainsSomething() throws Exception {
+        // Initialize the database
+        insertedCourse = courseRepository.saveAndFlush(course);
+
+        // Get all the courseList where prerequisites does not contain
+        defaultCourseFiltering(
+            "prerequisites.doesNotContain=" + UPDATED_PREREQUISITES,
+            "prerequisites.doesNotContain=" + DEFAULT_PREREQUISITES
+        );
+    }
+
+    @Test
+    @Transactional
+    void getAllCoursesByIntroVideoUrlIsEqualToSomething() throws Exception {
+        // Initialize the database
+        insertedCourse = courseRepository.saveAndFlush(course);
+
+        // Get all the courseList where introVideoUrl equals to
+        defaultCourseFiltering("introVideoUrl.equals=" + DEFAULT_INTRO_VIDEO_URL, "introVideoUrl.equals=" + UPDATED_INTRO_VIDEO_URL);
+    }
+
+    @Test
+    @Transactional
+    void getAllCoursesByIntroVideoUrlIsInShouldWork() throws Exception {
+        // Initialize the database
+        insertedCourse = courseRepository.saveAndFlush(course);
+
+        // Get all the courseList where introVideoUrl in
+        defaultCourseFiltering(
+            "introVideoUrl.in=" + DEFAULT_INTRO_VIDEO_URL + "," + UPDATED_INTRO_VIDEO_URL,
+            "introVideoUrl.in=" + UPDATED_INTRO_VIDEO_URL
+        );
+    }
+
+    @Test
+    @Transactional
+    void getAllCoursesByIntroVideoUrlIsNullOrNotNull() throws Exception {
+        // Initialize the database
+        insertedCourse = courseRepository.saveAndFlush(course);
+
+        // Get all the courseList where introVideoUrl is not null
+        defaultCourseFiltering("introVideoUrl.specified=true", "introVideoUrl.specified=false");
+    }
+
+    @Test
+    @Transactional
+    void getAllCoursesByIntroVideoUrlContainsSomething() throws Exception {
+        // Initialize the database
+        insertedCourse = courseRepository.saveAndFlush(course);
+
+        // Get all the courseList where introVideoUrl contains
+        defaultCourseFiltering("introVideoUrl.contains=" + DEFAULT_INTRO_VIDEO_URL, "introVideoUrl.contains=" + UPDATED_INTRO_VIDEO_URL);
+    }
+
+    @Test
+    @Transactional
+    void getAllCoursesByIntroVideoUrlNotContainsSomething() throws Exception {
+        // Initialize the database
+        insertedCourse = courseRepository.saveAndFlush(course);
+
+        // Get all the courseList where introVideoUrl does not contain
+        defaultCourseFiltering(
+            "introVideoUrl.doesNotContain=" + UPDATED_INTRO_VIDEO_URL,
+            "introVideoUrl.doesNotContain=" + DEFAULT_INTRO_VIDEO_URL
+        );
+    }
+
+    @Test
+    @Transactional
     void getAllCoursesByValidDurationDaysIsEqualToSomething() throws Exception {
         // Initialize the database
         insertedCourse = courseRepository.saveAndFlush(course);
@@ -667,6 +946,226 @@ class CourseResourceIT {
             "validDurationDays.greaterThan=" + SMALLER_VALID_DURATION_DAYS,
             "validDurationDays.greaterThan=" + DEFAULT_VALID_DURATION_DAYS
         );
+    }
+
+    @Test
+    @Transactional
+    void getAllCoursesByAccessDurationValueIsEqualToSomething() throws Exception {
+        // Initialize the database
+        insertedCourse = courseRepository.saveAndFlush(course);
+
+        // Get all the courseList where accessDurationValue equals to
+        defaultCourseFiltering(
+            "accessDurationValue.equals=" + DEFAULT_ACCESS_DURATION_VALUE,
+            "accessDurationValue.equals=" + UPDATED_ACCESS_DURATION_VALUE
+        );
+    }
+
+    @Test
+    @Transactional
+    void getAllCoursesByAccessDurationValueIsInShouldWork() throws Exception {
+        // Initialize the database
+        insertedCourse = courseRepository.saveAndFlush(course);
+
+        // Get all the courseList where accessDurationValue in
+        defaultCourseFiltering(
+            "accessDurationValue.in=" + DEFAULT_ACCESS_DURATION_VALUE + "," + UPDATED_ACCESS_DURATION_VALUE,
+            "accessDurationValue.in=" + UPDATED_ACCESS_DURATION_VALUE
+        );
+    }
+
+    @Test
+    @Transactional
+    void getAllCoursesByAccessDurationValueIsNullOrNotNull() throws Exception {
+        // Initialize the database
+        insertedCourse = courseRepository.saveAndFlush(course);
+
+        // Get all the courseList where accessDurationValue is not null
+        defaultCourseFiltering("accessDurationValue.specified=true", "accessDurationValue.specified=false");
+    }
+
+    @Test
+    @Transactional
+    void getAllCoursesByAccessDurationValueIsGreaterThanOrEqualToSomething() throws Exception {
+        // Initialize the database
+        insertedCourse = courseRepository.saveAndFlush(course);
+
+        // Get all the courseList where accessDurationValue is greater than or equal to
+        defaultCourseFiltering(
+            "accessDurationValue.greaterThanOrEqual=" + DEFAULT_ACCESS_DURATION_VALUE,
+            "accessDurationValue.greaterThanOrEqual=" + UPDATED_ACCESS_DURATION_VALUE
+        );
+    }
+
+    @Test
+    @Transactional
+    void getAllCoursesByAccessDurationValueIsLessThanOrEqualToSomething() throws Exception {
+        // Initialize the database
+        insertedCourse = courseRepository.saveAndFlush(course);
+
+        // Get all the courseList where accessDurationValue is less than or equal to
+        defaultCourseFiltering(
+            "accessDurationValue.lessThanOrEqual=" + DEFAULT_ACCESS_DURATION_VALUE,
+            "accessDurationValue.lessThanOrEqual=" + SMALLER_ACCESS_DURATION_VALUE
+        );
+    }
+
+    @Test
+    @Transactional
+    void getAllCoursesByAccessDurationValueIsLessThanSomething() throws Exception {
+        // Initialize the database
+        insertedCourse = courseRepository.saveAndFlush(course);
+
+        // Get all the courseList where accessDurationValue is less than
+        defaultCourseFiltering(
+            "accessDurationValue.lessThan=" + UPDATED_ACCESS_DURATION_VALUE,
+            "accessDurationValue.lessThan=" + DEFAULT_ACCESS_DURATION_VALUE
+        );
+    }
+
+    @Test
+    @Transactional
+    void getAllCoursesByAccessDurationValueIsGreaterThanSomething() throws Exception {
+        // Initialize the database
+        insertedCourse = courseRepository.saveAndFlush(course);
+
+        // Get all the courseList where accessDurationValue is greater than
+        defaultCourseFiltering(
+            "accessDurationValue.greaterThan=" + SMALLER_ACCESS_DURATION_VALUE,
+            "accessDurationValue.greaterThan=" + DEFAULT_ACCESS_DURATION_VALUE
+        );
+    }
+
+    @Test
+    @Transactional
+    void getAllCoursesByAccessDurationUnitIsEqualToSomething() throws Exception {
+        // Initialize the database
+        insertedCourse = courseRepository.saveAndFlush(course);
+
+        // Get all the courseList where accessDurationUnit equals to
+        defaultCourseFiltering(
+            "accessDurationUnit.equals=" + DEFAULT_ACCESS_DURATION_UNIT,
+            "accessDurationUnit.equals=" + UPDATED_ACCESS_DURATION_UNIT
+        );
+    }
+
+    @Test
+    @Transactional
+    void getAllCoursesByAccessDurationUnitIsInShouldWork() throws Exception {
+        // Initialize the database
+        insertedCourse = courseRepository.saveAndFlush(course);
+
+        // Get all the courseList where accessDurationUnit in
+        defaultCourseFiltering(
+            "accessDurationUnit.in=" + DEFAULT_ACCESS_DURATION_UNIT + "," + UPDATED_ACCESS_DURATION_UNIT,
+            "accessDurationUnit.in=" + UPDATED_ACCESS_DURATION_UNIT
+        );
+    }
+
+    @Test
+    @Transactional
+    void getAllCoursesByAccessDurationUnitIsNullOrNotNull() throws Exception {
+        // Initialize the database
+        insertedCourse = courseRepository.saveAndFlush(course);
+
+        // Get all the courseList where accessDurationUnit is not null
+        defaultCourseFiltering("accessDurationUnit.specified=true", "accessDurationUnit.specified=false");
+    }
+
+    @Test
+    @Transactional
+    void getAllCoursesByAccessDurationUnitContainsSomething() throws Exception {
+        // Initialize the database
+        insertedCourse = courseRepository.saveAndFlush(course);
+
+        // Get all the courseList where accessDurationUnit contains
+        defaultCourseFiltering(
+            "accessDurationUnit.contains=" + DEFAULT_ACCESS_DURATION_UNIT,
+            "accessDurationUnit.contains=" + UPDATED_ACCESS_DURATION_UNIT
+        );
+    }
+
+    @Test
+    @Transactional
+    void getAllCoursesByAccessDurationUnitNotContainsSomething() throws Exception {
+        // Initialize the database
+        insertedCourse = courseRepository.saveAndFlush(course);
+
+        // Get all the courseList where accessDurationUnit does not contain
+        defaultCourseFiltering(
+            "accessDurationUnit.doesNotContain=" + UPDATED_ACCESS_DURATION_UNIT,
+            "accessDurationUnit.doesNotContain=" + DEFAULT_ACCESS_DURATION_UNIT
+        );
+    }
+
+    @Test
+    @Transactional
+    void getAllCoursesByVersionIsEqualToSomething() throws Exception {
+        // Initialize the database
+        insertedCourse = courseRepository.saveAndFlush(course);
+
+        // Get all the courseList where version equals to
+        defaultCourseFiltering("version.equals=" + DEFAULT_VERSION, "version.equals=" + UPDATED_VERSION);
+    }
+
+    @Test
+    @Transactional
+    void getAllCoursesByVersionIsInShouldWork() throws Exception {
+        // Initialize the database
+        insertedCourse = courseRepository.saveAndFlush(course);
+
+        // Get all the courseList where version in
+        defaultCourseFiltering("version.in=" + DEFAULT_VERSION + "," + UPDATED_VERSION, "version.in=" + UPDATED_VERSION);
+    }
+
+    @Test
+    @Transactional
+    void getAllCoursesByVersionIsNullOrNotNull() throws Exception {
+        // Initialize the database
+        insertedCourse = courseRepository.saveAndFlush(course);
+
+        // Get all the courseList where version is not null
+        defaultCourseFiltering("version.specified=true", "version.specified=false");
+    }
+
+    @Test
+    @Transactional
+    void getAllCoursesByVersionIsGreaterThanOrEqualToSomething() throws Exception {
+        // Initialize the database
+        insertedCourse = courseRepository.saveAndFlush(course);
+
+        // Get all the courseList where version is greater than or equal to
+        defaultCourseFiltering("version.greaterThanOrEqual=" + DEFAULT_VERSION, "version.greaterThanOrEqual=" + UPDATED_VERSION);
+    }
+
+    @Test
+    @Transactional
+    void getAllCoursesByVersionIsLessThanOrEqualToSomething() throws Exception {
+        // Initialize the database
+        insertedCourse = courseRepository.saveAndFlush(course);
+
+        // Get all the courseList where version is less than or equal to
+        defaultCourseFiltering("version.lessThanOrEqual=" + DEFAULT_VERSION, "version.lessThanOrEqual=" + SMALLER_VERSION);
+    }
+
+    @Test
+    @Transactional
+    void getAllCoursesByVersionIsLessThanSomething() throws Exception {
+        // Initialize the database
+        insertedCourse = courseRepository.saveAndFlush(course);
+
+        // Get all the courseList where version is less than
+        defaultCourseFiltering("version.lessThan=" + UPDATED_VERSION, "version.lessThan=" + DEFAULT_VERSION);
+    }
+
+    @Test
+    @Transactional
+    void getAllCoursesByVersionIsGreaterThanSomething() throws Exception {
+        // Initialize the database
+        insertedCourse = courseRepository.saveAndFlush(course);
+
+        // Get all the courseList where version is greater than
+        defaultCourseFiltering("version.greaterThan=" + SMALLER_VERSION, "version.greaterThan=" + DEFAULT_VERSION);
     }
 
     @Test
@@ -791,6 +1290,94 @@ class CourseResourceIT {
 
     @Test
     @Transactional
+    void getAllCoursesByStorageLimitBytesIsEqualToSomething() throws Exception {
+        // Initialize the database
+        insertedCourse = courseRepository.saveAndFlush(course);
+
+        // Get all the courseList where storageLimitBytes equals to
+        defaultCourseFiltering(
+            "storageLimitBytes.equals=" + DEFAULT_STORAGE_LIMIT_BYTES,
+            "storageLimitBytes.equals=" + UPDATED_STORAGE_LIMIT_BYTES
+        );
+    }
+
+    @Test
+    @Transactional
+    void getAllCoursesByStorageLimitBytesIsInShouldWork() throws Exception {
+        // Initialize the database
+        insertedCourse = courseRepository.saveAndFlush(course);
+
+        // Get all the courseList where storageLimitBytes in
+        defaultCourseFiltering(
+            "storageLimitBytes.in=" + DEFAULT_STORAGE_LIMIT_BYTES + "," + UPDATED_STORAGE_LIMIT_BYTES,
+            "storageLimitBytes.in=" + UPDATED_STORAGE_LIMIT_BYTES
+        );
+    }
+
+    @Test
+    @Transactional
+    void getAllCoursesByStorageLimitBytesIsNullOrNotNull() throws Exception {
+        // Initialize the database
+        insertedCourse = courseRepository.saveAndFlush(course);
+
+        // Get all the courseList where storageLimitBytes is not null
+        defaultCourseFiltering("storageLimitBytes.specified=true", "storageLimitBytes.specified=false");
+    }
+
+    @Test
+    @Transactional
+    void getAllCoursesByStorageLimitBytesIsGreaterThanOrEqualToSomething() throws Exception {
+        // Initialize the database
+        insertedCourse = courseRepository.saveAndFlush(course);
+
+        // Get all the courseList where storageLimitBytes is greater than or equal to
+        defaultCourseFiltering(
+            "storageLimitBytes.greaterThanOrEqual=" + DEFAULT_STORAGE_LIMIT_BYTES,
+            "storageLimitBytes.greaterThanOrEqual=" + UPDATED_STORAGE_LIMIT_BYTES
+        );
+    }
+
+    @Test
+    @Transactional
+    void getAllCoursesByStorageLimitBytesIsLessThanOrEqualToSomething() throws Exception {
+        // Initialize the database
+        insertedCourse = courseRepository.saveAndFlush(course);
+
+        // Get all the courseList where storageLimitBytes is less than or equal to
+        defaultCourseFiltering(
+            "storageLimitBytes.lessThanOrEqual=" + DEFAULT_STORAGE_LIMIT_BYTES,
+            "storageLimitBytes.lessThanOrEqual=" + SMALLER_STORAGE_LIMIT_BYTES
+        );
+    }
+
+    @Test
+    @Transactional
+    void getAllCoursesByStorageLimitBytesIsLessThanSomething() throws Exception {
+        // Initialize the database
+        insertedCourse = courseRepository.saveAndFlush(course);
+
+        // Get all the courseList where storageLimitBytes is less than
+        defaultCourseFiltering(
+            "storageLimitBytes.lessThan=" + UPDATED_STORAGE_LIMIT_BYTES,
+            "storageLimitBytes.lessThan=" + DEFAULT_STORAGE_LIMIT_BYTES
+        );
+    }
+
+    @Test
+    @Transactional
+    void getAllCoursesByStorageLimitBytesIsGreaterThanSomething() throws Exception {
+        // Initialize the database
+        insertedCourse = courseRepository.saveAndFlush(course);
+
+        // Get all the courseList where storageLimitBytes is greater than
+        defaultCourseFiltering(
+            "storageLimitBytes.greaterThan=" + SMALLER_STORAGE_LIMIT_BYTES,
+            "storageLimitBytes.greaterThan=" + DEFAULT_STORAGE_LIMIT_BYTES
+        );
+    }
+
+    @Test
+    @Transactional
     void getAllCoursesByAuthorIsEqualToSomething() throws Exception {
         User author;
         if (TestUtil.findAll(em, User.class).isEmpty()) {
@@ -809,28 +1396,6 @@ class CourseResourceIT {
 
         // Get all the courseList where author equals to (authorId + 1)
         defaultCourseShouldNotBeFound("authorId.equals=" + (authorId + 1));
-    }
-
-    @Test
-    @Transactional
-    void getAllCoursesByCategoryIsEqualToSomething() throws Exception {
-        Category category;
-        if (TestUtil.findAll(em, Category.class).isEmpty()) {
-            courseRepository.saveAndFlush(course);
-            category = CategoryResourceIT.createEntity();
-        } else {
-            category = TestUtil.findAll(em, Category.class).getFirst();
-        }
-        em.persist(category);
-        em.flush();
-        course.setCategory(category);
-        courseRepository.saveAndFlush(course);
-        Long categoryId = category.getId();
-        // Get all the courseList where category equals to categoryId
-        defaultCourseShouldBeFound("categoryId.equals=" + categoryId);
-
-        // Get all the courseList where category equals to (categoryId + 1)
-        defaultCourseShouldNotBeFound("categoryId.equals=" + (categoryId + 1));
     }
 
     @Test
@@ -895,11 +1460,21 @@ class CourseResourceIT {
             .andExpect(jsonPath("$.[*].description").value(hasItem(DEFAULT_DESCRIPTION)))
             .andExpect(jsonPath("$.[*].thumbnailUrl").value(hasItem(DEFAULT_THUMBNAIL_URL)))
             .andExpect(jsonPath("$.[*].price").value(hasItem(sameNumber(DEFAULT_PRICE))))
+            .andExpect(jsonPath("$.[*].shortDescription").value(hasItem(DEFAULT_SHORT_DESCRIPTION)))
+            .andExpect(jsonPath("$.[*].bookSeries").value(hasItem(DEFAULT_BOOK_SERIES)))
+            .andExpect(jsonPath("$.[*].targetAudience").value(hasItem(DEFAULT_TARGET_AUDIENCE)))
+            .andExpect(jsonPath("$.[*].prerequisites").value(hasItem(DEFAULT_PREREQUISITES)))
+            .andExpect(jsonPath("$.[*].learningObjectives").value(hasItem(DEFAULT_LEARNING_OBJECTIVES)))
+            .andExpect(jsonPath("$.[*].introVideoUrl").value(hasItem(DEFAULT_INTRO_VIDEO_URL)))
             .andExpect(jsonPath("$.[*].validDurationDays").value(hasItem(DEFAULT_VALID_DURATION_DAYS)))
+            .andExpect(jsonPath("$.[*].accessDurationValue").value(hasItem(DEFAULT_ACCESS_DURATION_VALUE)))
+            .andExpect(jsonPath("$.[*].accessDurationUnit").value(hasItem(DEFAULT_ACCESS_DURATION_UNIT)))
+            .andExpect(jsonPath("$.[*].version").value(hasItem(DEFAULT_VERSION.intValue())))
             .andExpect(jsonPath("$.[*].status").value(hasItem(DEFAULT_STATUS.toString())))
             .andExpect(jsonPath("$.[*].isDeleted").value(hasItem(DEFAULT_IS_DELETED)))
             .andExpect(jsonPath("$.[*].createdAt").value(hasItem(DEFAULT_CREATED_AT.toString())))
-            .andExpect(jsonPath("$.[*].updatedAt").value(hasItem(DEFAULT_UPDATED_AT.toString())));
+            .andExpect(jsonPath("$.[*].updatedAt").value(hasItem(DEFAULT_UPDATED_AT.toString())))
+            .andExpect(jsonPath("$.[*].storageLimitBytes").value(hasItem(DEFAULT_STORAGE_LIMIT_BYTES.intValue())));
 
         // Check, that the count call also returns 1
         restCourseMockMvc
@@ -952,11 +1527,21 @@ class CourseResourceIT {
             .description(UPDATED_DESCRIPTION)
             .thumbnailUrl(UPDATED_THUMBNAIL_URL)
             .price(UPDATED_PRICE)
+            .shortDescription(UPDATED_SHORT_DESCRIPTION)
+            .bookSeries(UPDATED_BOOK_SERIES)
+            .targetAudience(UPDATED_TARGET_AUDIENCE)
+            .prerequisites(UPDATED_PREREQUISITES)
+            .learningObjectives(UPDATED_LEARNING_OBJECTIVES)
+            .introVideoUrl(UPDATED_INTRO_VIDEO_URL)
             .validDurationDays(UPDATED_VALID_DURATION_DAYS)
+            .accessDurationValue(UPDATED_ACCESS_DURATION_VALUE)
+            .accessDurationUnit(com.lumi.domain.enumeration.AccessDurationUnit.valueOf(UPDATED_ACCESS_DURATION_UNIT))
+            .version(UPDATED_VERSION)
             .status(UPDATED_STATUS)
             .isDeleted(UPDATED_IS_DELETED)
             .createdAt(UPDATED_CREATED_AT)
-            .updatedAt(UPDATED_UPDATED_AT);
+            .updatedAt(UPDATED_UPDATED_AT)
+            .storageLimitBytes(UPDATED_STORAGE_LIMIT_BYTES);
         CourseDTO courseDTO = courseMapper.toDto(updatedCourse);
 
         restCourseMockMvc
@@ -1041,14 +1626,18 @@ class CourseResourceIT {
         // Update the course using partial update
         Course partialUpdatedCourse = new Course();
         partialUpdatedCourse.setId(course.getId());
-        partialUpdatedCourse.setVersion(course.getVersion());
 
         partialUpdatedCourse
             .title(UPDATED_TITLE)
             .thumbnailUrl(UPDATED_THUMBNAIL_URL)
             .price(UPDATED_PRICE)
+            .shortDescription(UPDATED_SHORT_DESCRIPTION)
+            .targetAudience(UPDATED_TARGET_AUDIENCE)
+            .prerequisites(UPDATED_PREREQUISITES)
+            .learningObjectives(UPDATED_LEARNING_OBJECTIVES)
+            .introVideoUrl(UPDATED_INTRO_VIDEO_URL)
             .validDurationDays(UPDATED_VALID_DURATION_DAYS)
-            .isDeleted(UPDATED_IS_DELETED)
+            .accessDurationUnit(com.lumi.domain.enumeration.AccessDurationUnit.valueOf(UPDATED_ACCESS_DURATION_UNIT))
             .createdAt(UPDATED_CREATED_AT)
             .updatedAt(UPDATED_UPDATED_AT);
 
@@ -1077,18 +1666,27 @@ class CourseResourceIT {
         // Update the course using partial update
         Course partialUpdatedCourse = new Course();
         partialUpdatedCourse.setId(course.getId());
-        partialUpdatedCourse.setVersion(course.getVersion());
 
         partialUpdatedCourse
             .title(UPDATED_TITLE)
             .description(UPDATED_DESCRIPTION)
             .thumbnailUrl(UPDATED_THUMBNAIL_URL)
             .price(UPDATED_PRICE)
+            .shortDescription(UPDATED_SHORT_DESCRIPTION)
+            .bookSeries(UPDATED_BOOK_SERIES)
+            .targetAudience(UPDATED_TARGET_AUDIENCE)
+            .prerequisites(UPDATED_PREREQUISITES)
+            .learningObjectives(UPDATED_LEARNING_OBJECTIVES)
+            .introVideoUrl(UPDATED_INTRO_VIDEO_URL)
             .validDurationDays(UPDATED_VALID_DURATION_DAYS)
+            .accessDurationValue(UPDATED_ACCESS_DURATION_VALUE)
+            .accessDurationUnit(com.lumi.domain.enumeration.AccessDurationUnit.valueOf(UPDATED_ACCESS_DURATION_UNIT))
+            .version(UPDATED_VERSION)
             .status(UPDATED_STATUS)
             .isDeleted(UPDATED_IS_DELETED)
             .createdAt(UPDATED_CREATED_AT)
-            .updatedAt(UPDATED_UPDATED_AT);
+            .updatedAt(UPDATED_UPDATED_AT)
+            .storageLimitBytes(UPDATED_STORAGE_LIMIT_BYTES);
 
         restCourseMockMvc
             .perform(

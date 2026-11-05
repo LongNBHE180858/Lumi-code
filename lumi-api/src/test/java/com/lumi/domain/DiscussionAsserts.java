@@ -49,7 +49,9 @@ public class DiscussionAsserts {
             .as("Verify Discussion relevant properties")
             .satisfies(a -> assertThat(a.getTitle()).as("check title").isEqualTo(expected.getTitle()))
             .satisfies(a -> assertThat(a.getContent()).as("check content").isEqualTo(expected.getContent()))
-            .satisfies(a -> assertThat(a.getCreatedAt()).as("check createdAt").isEqualTo(expected.getCreatedAt()));
+            .satisfies(a -> assertThat(a.getCreatedAt()).as("check createdAt").isEqualTo(expected.getCreatedAt()))
+            .satisfies(a -> assertThat(a.getUpdatedAt()).as("check updatedAt").isEqualTo(expected.getUpdatedAt()))
+            .satisfies(a -> assertThat(a.getPostType()).as("check postType").isEqualTo(expected.getPostType()));
     }
 
     /**
@@ -61,6 +63,7 @@ public class DiscussionAsserts {
     public static void assertDiscussionUpdatableRelationshipsEquals(Discussion expected, Discussion actual) {
         assertThat(actual)
             .as("Verify Discussion relationships")
-            .satisfies(a -> assertThat(a.getLesson()).as("check lesson").isEqualTo(expected.getLesson()));
+            .satisfies(a -> assertThat(a.getLesson()).as("check lesson").isEqualTo(expected.getLesson()))
+            .satisfies(a -> assertThat(a.getStudyClass()).as("check studyClass").isEqualTo(expected.getStudyClass()));
     }
 }

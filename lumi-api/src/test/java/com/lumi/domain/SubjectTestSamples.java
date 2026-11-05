@@ -10,14 +10,14 @@ public class SubjectTestSamples {
     private static final AtomicLong longCount = new AtomicLong(random.nextInt() + 2L * Integer.MAX_VALUE);
 
     public static Subject getSubjectSample1() {
-        return new Subject().id(1L).name("name1").description("description1");
+        return new Subject().id(1L).name("name1");
     }
 
     public static Subject getSubjectSample2() {
-        return new Subject().id(2L).name("name2").description("description2");
+        return new Subject().id(2L).name("name2");
     }
 
     public static Subject getSubjectRandomSampleGenerator() {
-        return new Subject().id(longCount.incrementAndGet()).name(UUID.randomUUID().toString()).description(UUID.randomUUID().toString());
+        return new Subject().id(longCount.incrementAndGet()).name(UUID.randomUUID().toString());
     }
 }

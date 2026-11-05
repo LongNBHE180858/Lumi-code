@@ -6,6 +6,7 @@ import { Link, useNavigate, useParams } from 'react-router';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import { useAppDispatch, useAppSelector } from 'app/config/store';
+import { getEntities as getLearningDocuments } from 'app/entities/learning-document/learning-document.reducer';
 import { getEntities as getLessons } from 'app/entities/lesson/lesson.reducer';
 import { getUsers } from 'app/modules/administration/user-management/user-management.reducer';
 import { convertDateTimeFromServer, convertDateTimeToServer, displayDefaultDateTime } from 'app/shared/util/date-utils';
@@ -22,6 +23,7 @@ export const AiConversationUpdate = () => {
 
   const users = useAppSelector(state => state.userManagement.users);
   const lessons = useAppSelector(state => state.lesson.entities);
+  const learningDocuments = useAppSelector(state => state.learningDocument.entities);
   const aiConversationEntity = useAppSelector(state => state.aiConversation.entity);
   const loading = useAppSelector(state => state.aiConversation.loading);
   const updating = useAppSelector(state => state.aiConversation.updating);
@@ -40,6 +42,7 @@ export const AiConversationUpdate = () => {
 
     dispatch(getUsers({}));
     dispatch(getLessons({}));
+    dispatch(getLearningDocuments({}));
   }, []);
 
   useEffect(() => {
@@ -53,12 +56,14 @@ export const AiConversationUpdate = () => {
       values.id = Number(values.id);
     }
     values.createdAt = convertDateTimeToServer(values.createdAt);
+    values.updatedAt = convertDateTimeToServer(values.updatedAt);
 
     const entity = {
       ...aiConversationEntity,
       ...values,
       user: users.find(it => it.id.toString() === values.user?.toString()),
       lesson: lessons.find(it => it.id.toString() === values.lesson?.toString()),
+      document: learningDocuments.find(it => it.id.toString() === values.document?.toString()),
     };
 
     if (isNew) {
@@ -72,12 +77,15 @@ export const AiConversationUpdate = () => {
     isNew
       ? {
           createdAt: displayDefaultDateTime(),
+          updatedAt: displayDefaultDateTime(),
         }
       : {
           ...aiConversationEntity,
           createdAt: convertDateTimeFromServer(aiConversationEntity.createdAt),
+          updatedAt: convertDateTimeFromServer(aiConversationEntity.updatedAt),
           user: aiConversationEntity?.user?.id,
           lesson: aiConversationEntity?.lesson?.id,
+          document: aiConversationEntity?.document?.id,
         };
 
   return (
@@ -125,6 +133,17 @@ export const AiConversationUpdate = () => {
                 placeholder="YYYY-MM-DD HH:mm"
               />
               <ValidatedField
+                label={translate('lumiApp.aiConversation.updatedAt')}
+                id="ai-conversation-updatedAt"
+                name="updatedAt"
+                data-cy="updatedAt"
+                type="datetime-local"
+                placeholder="YYYY-MM-DD HH:mm"
+                validate={{
+                  required: { value: true, message: translate('entity.validation.required') },
+                }}
+              />
+              <ValidatedField
                 id="ai-conversation-user"
                 name="user"
                 data-cy="user"
@@ -155,7 +174,23 @@ export const AiConversationUpdate = () => {
                 {lessons
                   ? lessons.map(otherEntity => (
                       <option value={otherEntity.id} key={otherEntity.id}>
-                        {otherEntity.title}
+                        {otherEntity.id}
+                      </option>
+                    ))
+                  : null}
+              </ValidatedField>
+              <ValidatedField
+                id="ai-conversation-document"
+                name="document"
+                data-cy="document"
+                label={translate('lumiApp.aiConversation.document')}
+                type="select"
+              >
+                <option value="" key="0" />
+                {learningDocuments
+                  ? learningDocuments.map(otherEntity => (
+                      <option value={otherEntity.id} key={otherEntity.id}>
+                        {otherEntity.id}
                       </option>
                     ))
                   : null}

@@ -7,10 +7,10 @@ import java.io.Serializable;
 import java.time.Instant;
 
 /**
- * A AuthSession.
+ * Quản lý phiên đăng nhập, thiết bị và việc thu hồi refresh token.
  */
 @Entity
-@Table(name = "auth_session")
+@Table(name = "auth_sessions")
 @SuppressWarnings("common-java:DuplicatedBlocks")
 public class AuthSession implements Serializable {
 
@@ -40,6 +40,10 @@ public class AuthSession implements Serializable {
 
     @Column(name = "created_at")
     private Instant createdAt;
+
+    @Size(max = 255)
+    @Column(name = "refresh_token_hash", length = 255, unique = true)
+    private String refreshTokenHash;
 
     @ManyToOne(optional = false)
     @NotNull
@@ -125,6 +129,19 @@ public class AuthSession implements Serializable {
         this.createdAt = createdAt;
     }
 
+    public String getRefreshTokenHash() {
+        return this.refreshTokenHash;
+    }
+
+    public AuthSession refreshTokenHash(String refreshTokenHash) {
+        this.setRefreshTokenHash(refreshTokenHash);
+        return this;
+    }
+
+    public void setRefreshTokenHash(String refreshTokenHash) {
+        this.refreshTokenHash = refreshTokenHash;
+    }
+
     public User getUser() {
         return this.user;
     }
@@ -167,6 +184,7 @@ public class AuthSession implements Serializable {
             ", expiresAt='" + getExpiresAt() + "'" +
             ", isRevoked='" + getIsRevoked() + "'" +
             ", createdAt='" + getCreatedAt() + "'" +
+            ", refreshTokenHash='" + getRefreshTokenHash() + "'" +
             "}";
     }
 }

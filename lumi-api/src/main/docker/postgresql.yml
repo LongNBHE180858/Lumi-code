@@ -2,7 +2,7 @@
 name: lumi
 services:
   postgresql:
-    image: postgres:18.6
+    image: pgvector/pgvector:pg18-trixie
     command: >
       bash -c "ln -sf /usr/share/zoneinfo/Asia/Ho_Chi_Minh /usr/share/zoneinfo/Asia/Saigon && exec docker-entrypoint.sh postgres"
     environment:
@@ -19,3 +19,8 @@ services:
     # remove the "127.0.0.1:" prefix
     ports:
       - 127.0.0.1:5436:5432
+    volumes:
+      - postgresql-data:/var/lib/postgresql
+
+volumes:
+  postgresql-data:

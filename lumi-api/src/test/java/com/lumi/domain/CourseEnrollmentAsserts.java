@@ -56,7 +56,8 @@ public class CourseEnrollmentAsserts {
             )
             .satisfies(a -> assertThat(a.getStatus()).as("check status").isEqualTo(expected.getStatus()))
             .satisfies(a -> assertThat(a.getEnrolledAt()).as("check enrolledAt").isEqualTo(expected.getEnrolledAt()))
-            .satisfies(a -> assertThat(a.getExpiresAt()).as("check expiresAt").isEqualTo(expected.getExpiresAt()));
+            .satisfies(a -> assertThat(a.getExpiresAt()).as("check expiresAt").isEqualTo(expected.getExpiresAt()))
+            .satisfies(a -> assertThat(a.getUpdatedAt()).as("check updatedAt").isEqualTo(expected.getUpdatedAt()));
     }
 
     /**
@@ -68,6 +69,9 @@ public class CourseEnrollmentAsserts {
     public static void assertCourseEnrollmentUpdatableRelationshipsEquals(CourseEnrollment expected, CourseEnrollment actual) {
         assertThat(actual)
             .as("Verify CourseEnrollment relationships")
-            .satisfies(a -> assertThat(a.getCourse()).as("check course").isEqualTo(expected.getCourse()));
+            .satisfies(a -> assertThat(a.getCourse()).as("check course").isEqualTo(expected.getCourse()))
+            .satisfies(a ->
+                assertThat(a.getLastAccessedLesson()).as("check lastAccessedLesson").isEqualTo(expected.getLastAccessedLesson())
+            );
     }
 }

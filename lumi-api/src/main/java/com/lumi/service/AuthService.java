@@ -11,12 +11,7 @@ import com.lumi.security.SecurityUtils;
 import com.lumi.security.TokenProvider;
 import com.lumi.security.UserNotActivatedException;
 import com.lumi.service.dto.PasswordChangeDTO;
-import com.lumi.service.dto.auth.AuthResponseDTO;
-import com.lumi.service.dto.auth.RefreshTokenRequestVM;
-import com.lumi.service.dto.auth.RegisterVM;
-import com.lumi.service.dto.auth.TeacherVerificationAuthDTO;
-import com.lumi.service.dto.auth.UserAuthDTO;
-import com.lumi.service.dto.auth.UserProfileAuthDTO;
+import com.lumi.service.dto.auth.*;
 import com.lumi.service.dto.auth.otp.SendOtpRequestDTO;
 import com.lumi.service.dto.auth.otp.VerifyOtpRequestDTO;
 import com.lumi.service.dto.auth.session.UserSessionDTO;
@@ -30,6 +25,7 @@ import com.lumi.web.rest.vm.Login2faVM;
 import com.lumi.web.rest.vm.LoginVM;
 import java.security.SecureRandom;
 import java.time.Instant;
+import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
 import org.slf4j.Logger;
@@ -47,7 +43,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 @Service
 @Transactional
-public class AuthService {
+public class AuthService implements IAuthService {
 
     private static final Logger LOG = LoggerFactory.getLogger(AuthService.class);
     private static final int OTP_LENGTH = 6;
@@ -96,6 +92,7 @@ public class AuthService {
         this.emailOtpRepository = emailOtpRepository;
     }
 
+    @Override
     public com.lumi.service.dto.auth.otp.OtpResponseDTO forgotPasswordInit(
         com.lumi.service.dto.auth.password.ForgotPasswordInitRequestDTO request,
         String ipAddress
@@ -108,6 +105,7 @@ public class AuthService {
         return otpService.sendOtp(sendOtpRequest, ipAddress);
     }
 
+    @Override
     public void forgotPasswordFinish(com.lumi.service.dto.auth.password.ForgotPasswordFinishRequestDTO request) {
         String email = request.getEmail().trim().toLowerCase();
         LOG.debug("Finishing forgot password for email: {}", email);
@@ -143,6 +141,7 @@ public class AuthService {
         LOG.info("Password reset successfully for user '{}' and all active sessions revoked", user.getLogin());
     }
 
+    @Override
     public void changePassword(PasswordChangeDTO passwordChangeDto) {
         String login = SecurityUtils.getCurrentUserLogin().orElseThrow(() ->
             new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Người dùng chưa đăng nhập.")
@@ -183,6 +182,7 @@ public class AuthService {
     }
 
     @Transactional(readOnly = true)
+    @Override
     public List<UserSessionDTO> getCurrentUserSessions() {
         String login = SecurityUtils.getCurrentUserLogin().orElseThrow(() ->
             new org.springframework.web.server.ResponseStatusException(HttpStatus.UNAUTHORIZED, "User not authenticated")
@@ -208,6 +208,7 @@ public class AuthService {
             .toList();
     }
 
+    @Override
     public void revokeSession(Long sessionId) {
         String login = SecurityUtils.getCurrentUserLogin().orElseThrow(() ->
             new org.springframework.web.server.ResponseStatusException(HttpStatus.UNAUTHORIZED, "User not authenticated")
@@ -232,6 +233,7 @@ public class AuthService {
         LOG.info("Session {} revoked for user {}", sessionId, login);
     }
 
+    @Override
     public void revokeOtherSessions(Long currentSessionId) {
         String login = com.lumi.security.SecurityUtils.getCurrentUserLogin().orElseThrow(() ->
             new org.springframework.web.server.ResponseStatusException(HttpStatus.UNAUTHORIZED, "User not authenticated")
@@ -253,10 +255,12 @@ public class AuthService {
         LOG.info("All other sessions revoked for user {}", login);
     }
 
+    @Override
     public AuthResponseDTO loginStudent(LoginVM loginVM, String clientDeviceInfo) {
         return loginStudent(loginVM, clientDeviceInfo, null);
     }
 
+    @Override
     public AuthResponseDTO loginStudent(LoginVM loginVM, String clientDeviceInfo, String ipAddress) {
         LOG.debug("REST request to login student: {}", loginVM.getUsername());
         Authentication authentication = authenticateCredentials(loginVM.getUsername(), loginVM.getPassword());
@@ -264,14 +268,10 @@ public class AuthService {
 
         User user = getUserFromAuthentication(authentication);
 
-        Set<String> roles = new HashSet<>();
-        user.getAuthorities().forEach(authority -> roles.add(authority.getName()));
-        boolean isStudent =
-            roles.contains(AuthoritiesConstants.STUDENT) ||
-            roles.contains(AuthoritiesConstants.ADMIN) ||
-            (roles.contains(AuthoritiesConstants.USER) &&
-                !roles.contains(AuthoritiesConstants.INSTRUCTOR) &&
-                !roles.contains(AuthoritiesConstants.PARENT));
+        boolean isStudent = user
+            .getAuthorities()
+            .stream()
+            .anyMatch(a -> a.getName().equals(AuthoritiesConstants.STUDENT) || a.getName().equals(AuthoritiesConstants.USER));
 
         if (!isStudent) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Tài khoản không có quyền truy cập dành cho Học sinh / Học viên.");
@@ -285,10 +285,12 @@ public class AuthService {
         return buildAuthResponse(authentication, user, loginVM.isRememberMe(), resolveDeviceInfo(loginVM, clientDeviceInfo));
     }
 
+    @Override
     public AuthResponseDTO loginTeacher(LoginVM loginVM, String clientDeviceInfo) {
         return loginTeacher(loginVM, clientDeviceInfo, null);
     }
 
+    @Override
     public AuthResponseDTO loginTeacher(LoginVM loginVM, String clientDeviceInfo, String ipAddress) {
         LOG.debug("REST request to login teacher: {}", loginVM.getUsername());
         Authentication authentication = authenticateCredentials(loginVM.getUsername(), loginVM.getPassword());
@@ -322,17 +324,18 @@ public class AuthService {
         return buildAuthResponse(authentication, user, loginVM.isRememberMe(), resolveDeviceInfo(loginVM, clientDeviceInfo));
     }
 
+    @Override
     public AuthResponseDTO login(LoginVM loginVM, String clientDeviceInfo) {
         return login(loginVM, clientDeviceInfo, null);
     }
 
+    @Override
     public AuthResponseDTO login(LoginVM loginVM, String clientDeviceInfo, String ipAddress) {
         LOG.debug("REST request to authenticate user: {}", loginVM.getUsername());
         Authentication authentication = authenticateCredentials(loginVM.getUsername(), loginVM.getPassword());
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
         User user = getUserFromAuthentication(authentication);
-
         var twoFaOpt = checkAndInitiate2fa(user, ipAddress);
         if (twoFaOpt.isPresent()) {
             return twoFaOpt.orElseThrow();
@@ -341,6 +344,7 @@ public class AuthService {
         return buildAuthResponse(authentication, user, loginVM.isRememberMe(), resolveDeviceInfo(loginVM, clientDeviceInfo));
     }
 
+    @Override
     public AuthResponseDTO login2fa(Login2faVM login2faVM, String clientDeviceInfo) {
         String email = login2faVM.getEmail().trim().toLowerCase();
         String otpCode = login2faVM.getOtpCode().trim();
@@ -377,10 +381,7 @@ public class AuthService {
         if (is2faEnabled) {
             LOG.info("2FA is enabled for user {}. Sending OTP to email.", user.getLogin());
             try {
-                var sendOtpRequest = new com.lumi.service.dto.auth.otp.SendOtpRequestDTO(
-                    user.getEmail(),
-                    com.lumi.domain.enumeration.OtpPurpose.LOGIN
-                );
+                var sendOtpRequest = new SendOtpRequestDTO(user.getEmail(), OtpPurpose.LOGIN);
                 otpService.sendOtp(sendOtpRequest, ipAddress != null ? ipAddress : "0.0.0.0");
             } catch (BadRequestAlertException ex) {
                 if (!"otpCooldown".equals(ex.getErrorKey())) {
@@ -500,6 +501,7 @@ public class AuthService {
     //     }
     // }
 
+    @Override
     public AuthResponseDTO refreshToken(RefreshTokenRequestVM requestVM, String clientDeviceInfo) {
         String token = requestVM.getRefreshToken();
         AuthSession session = authSessionRepository
@@ -538,6 +540,7 @@ public class AuthService {
         return new AuthResponseDTO(newAccessToken, newRefreshToken, expiresIn, userAuthDTO);
     }
 
+    @Override
     public void logout(String refreshToken) {
         if (refreshToken != null && !refreshToken.isBlank()) {
             authSessionRepository.findOneByRefreshToken(refreshToken).ifPresent(session -> {
@@ -547,6 +550,7 @@ public class AuthService {
         }
     }
 
+    @Override
     public TwoFaResponseDTO get2faStatus() {
         Long userId = SecurityUtils.getCurrentUserId().orElseThrow(() ->
             new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Người dùng chưa đăng nhập")
@@ -564,6 +568,7 @@ public class AuthService {
         return new TwoFaResponseDTO(is2fa, user.getEmail());
     }
 
+    @Override
     public void update2faStatus(TwoFaInitRequestDTO request, String ipAddress) {
         Long userId = SecurityUtils.getCurrentUserId().orElseThrow(() ->
             new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Người dùng chưa đăng nhập")
@@ -605,6 +610,7 @@ public class AuthService {
         mailService.sendOtpMail(user.getEmail(), otpCode, purposeDescription);
     }
 
+    @Override
     public TwoFaResponseDTO confirm2faStatus(TwoFactorConfirmRequestDTO request) {
         Long userId = SecurityUtils.getCurrentUserId().orElseThrow(() ->
             new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Người dùng chưa đăng nhập")
@@ -677,7 +683,7 @@ public class AuthService {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Tài khoản hoặc mật khẩu không chính xác.");
         }
 
-        // tạo UserDetails (UserWithId) chứa đầy đủ ID và danh sách quyền (Roles)
+        //
         var userDetails = DomainUserDetailsService.UserWithId.fromUser(user);
 
         return new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
@@ -713,25 +719,35 @@ public class AuthService {
         return dto;
     }
 
-    public AuthResponseDTO registerStudent(RegisterVM registerVM, String clientDeviceInfo) {
-        LOG.debug("REST request to register student: {}", registerVM.getUsername());
-        return registerWithRole(registerVM, AuthoritiesConstants.STUDENT, clientDeviceInfo);
+    @Override
+    public AuthResponseDTO registerStudent(StudentRegisterRequestDTO registerRequestDTO, String clientDeviceInfo) {
+        LOG.debug("REST request to register student: {}", registerRequestDTO.getUsername());
+        return registerWithRole(registerRequestDTO, AuthoritiesConstants.STUDENT, clientDeviceInfo);
     }
 
-    public AuthResponseDTO registerTeacher(RegisterVM registerVM, String clientDeviceInfo) {
-        LOG.debug("REST request to register teacher: {}", registerVM.getUsername());
-        return registerWithRole(registerVM, AuthoritiesConstants.INSTRUCTOR, clientDeviceInfo);
+    @Override
+    public AuthResponseDTO registerInstructor(InstructorRegisterRequestDTO registerRequestDTO, String clientDeviceInfo) {
+        LOG.debug("REST request to register instructor: {}", registerRequestDTO.getUsername());
+        return registerWithRole(registerRequestDTO, AuthoritiesConstants.INSTRUCTOR, clientDeviceInfo);
     }
 
-    public AuthResponseDTO register(RegisterVM registerVM, String clientDeviceInfo) {
-        LOG.debug("REST request to register user: {}", registerVM.getUsername());
-        String targetRole = resolveTargetRole(registerVM.getRole());
-        return registerWithRole(registerVM, targetRole, clientDeviceInfo);
+    @Override
+    public AuthResponseDTO registerParents(ParentRegisterRequestDTO registerRequestDTO, String clientDeviceInfo) {
+        LOG.debug("REST request to register parent: {}", registerRequestDTO.getUsername());
+        return registerWithRole(registerRequestDTO, AuthoritiesConstants.PARENTS, clientDeviceInfo);
     }
 
-    public AuthResponseDTO registerWithRole(RegisterVM registerVM, String targetRole, String clientDeviceInfo) {
-        String login = registerVM.getUsername().toLowerCase().trim();
-        String email = registerVM.getEmail().toLowerCase().trim();
+    @Override
+    public AuthResponseDTO register(RegisterRequestDTO registerRequestDTO, String clientDeviceInfo) {
+        LOG.debug("REST request to register user: {}", registerRequestDTO.getUsername());
+        String targetRole = resolveTargetRole(registerRequestDTO.getRole());
+        return registerWithRole(registerRequestDTO, targetRole, clientDeviceInfo);
+    }
+
+    @Override
+    public AuthResponseDTO registerWithRole(RegisterRequestDTO registerRequestDTO, String targetRole, String clientDeviceInfo) {
+        String login = registerRequestDTO.getUsername().toLowerCase().trim();
+        String email = registerRequestDTO.getEmail().toLowerCase().trim();
 
         // Kiểm tra login đã tồn tại hay chưa
         userRepository.findOneByLogin(login).ifPresent(existingUser -> {
@@ -749,8 +765,48 @@ public class AuthService {
             }
         });
 
+        if (registerRequestDTO.getBirthDate() != null) {
+            LocalDate now = LocalDate.now();
+
+            // Ngày sinh không được ở tương lai
+            if (registerRequestDTO.getBirthDate().isAfter(now)) {
+                throw new BadRequestAlertException("Ngày sinh không hợp lệ.", "userManagement", "invalidBirthDate");
+            }
+
+            long age = ChronoUnit.YEARS.between(registerRequestDTO.getBirthDate(), now);
+
+            // 1. Kiểm tra đối với Học sinh (lớp 1 đến lớp 9: từ 6 đến 15 tuổi)
+            if (AuthoritiesConstants.STUDENT.equals(targetRole)) {
+                if (age < 6) {
+                    throw new BadRequestAlertException(
+                        "Độ tuổi học sinh phải từ lớp 1 trở lên (tối thiểu 6 tuổi).",
+                        "userManagement",
+                        "ageTooYoungForStudent"
+                    );
+                }
+                if (age > 15) {
+                    throw new BadRequestAlertException(
+                        "Nền tảng hiện chỉ hỗ trợ học sinh từ lớp 1 đến lớp 9 (tối đa 15 tuổi).",
+                        "userManagement",
+                        "ageTooOldForStudent"
+                    );
+                }
+            }
+
+            // 2. Kiểm tra đối với Giáo viên và Phụ huynh (phải từ 18 tuổi trở lên)
+            if (AuthoritiesConstants.INSTRUCTOR.equals(targetRole) || AuthoritiesConstants.PARENTS.equals(targetRole)) {
+                if (age < 18) {
+                    throw new BadRequestAlertException(
+                        "Giáo viên và Phụ huynh phải từ 18 tuổi trở lên.",
+                        "userManagement",
+                        "ageTooYoungForAdult"
+                    );
+                }
+            }
+        }
+
         // Kiểm tra số điện thoại
-        String rawPhone = registerVM.getPhoneNumber();
+        String rawPhone = registerRequestDTO.getPhoneNumber();
         String phoneNumber = rawPhone != null && !rawPhone.isBlank() ? rawPhone.trim() : null;
         if (phoneNumber != null && userProfileRepository.existsByPhoneNumber(phoneNumber)) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Số điện thoại đã được đăng ký bởi tài khoản khác.");
@@ -758,12 +814,12 @@ public class AuthService {
 
         User newUser = new User();
         newUser.setLogin(login);
-        newUser.setPassword(passwordEncoder.encode(registerVM.getPassword()));
-        newUser.setFirstName(registerVM.getFirstName());
-        newUser.setLastName(registerVM.getLastName());
+        newUser.setPassword(passwordEncoder.encode(registerRequestDTO.getPassword()));
+        newUser.setFirstName(registerRequestDTO.getFirstName());
+        newUser.setLastName(registerRequestDTO.getLastName());
         newUser.setEmail(email);
         newUser.setActivated(false);
-        newUser.setLangKey(registerVM.getLangKey() != null ? registerVM.getLangKey() : Constants.DEFAULT_LANGUAGE);
+        newUser.setLangKey(registerRequestDTO.getLangKey() != null ? registerRequestDTO.getLangKey() : Constants.DEFAULT_LANGUAGE);
 
         // thêm role vào tài khoản
         Set<Authority> authorities = new HashSet<>();
@@ -780,11 +836,22 @@ public class AuthService {
         UserProfile userProfile = new UserProfile();
         userProfile.setUser(savedUser);
         userProfile.setPhoneNumber(phoneNumber);
-        userProfile.setSchoolName(registerVM.getSchoolName());
-        userProfile.setGradeLevel(registerVM.getGradeLevel());
+        userProfile.setBirthDate(registerRequestDTO.getBirthDate());
         userProfile.setUpdatedAt(Instant.now());
-        if (AuthoritiesConstants.INSTRUCTOR.equals(targetRole)) {
+
+        // DÙNG PATTERN MATCHING INSTANCEOF ĐỂ LẤY DỮ LIỆU RIÊNG TỪNG CONs
+        if (registerRequestDTO instanceof StudentRegisterRequestDTO studentReq) {
+            userProfile.setSchoolName(studentReq.getSchoolName());
+            userProfile.setGradeLevel(studentReq.getGradeLevel());
+        } else if (registerRequestDTO instanceof InstructorRegisterRequestDTO instructorReq) {
+            userProfile.setSchoolName(instructorReq.getSchoolName());
+            userProfile.setGradeLevel(instructorReq.getGradeLevel());
+            userProfile.setBio(instructorReq.getBio());
             userProfile.setInstructorStatus(InstructorApplicationStatus.PENDING);
+
+            // cần thêm teacher verification nữa (phần admin cua lóng)
+        } else if (registerRequestDTO instanceof ParentRegisterRequestDTO parentReq) {
+            userProfile.setGradeLevel(parentReq.getChildGradeLevel());
         }
         userProfileRepository.saveAndFlush(userProfile);
 
@@ -816,9 +883,16 @@ public class AuthService {
         if (normalized.equals("PARENT") || normalized.equals(AuthoritiesConstants.PARENT)) {
             return AuthoritiesConstants.PARENT;
         }
-        return AuthoritiesConstants.STUDENT;
+        if (normalized.equals("STUDENT") || normalized.equals(AuthoritiesConstants.STUDENT)) {
+            return AuthoritiesConstants.STUDENT;
+        }
+        if (normalized.equals("PARENTS") || normalized.equals(AuthoritiesConstants.PARENTS)) {
+            return AuthoritiesConstants.PARENTS;
+        }
+        throw new BadRequestAlertException("Vai trò này hiện chưa được hỗ trợ đăng ký trực tuyến.", "userManagement", "roleNotSupported");
     }
 
+    // Phần này bỏ chuyển giao cho Long
     private boolean removeNonActivatedUser(User existingUser) {
         if (existingUser.isActivated()) {
             return false;

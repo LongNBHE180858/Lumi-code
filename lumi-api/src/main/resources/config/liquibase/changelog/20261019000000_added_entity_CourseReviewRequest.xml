@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd
+                        http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
+
+    <!--
+        Added the entity CourseReviewRequest.
+    -->
+    <changeSet id="20261019000000-1" author="jhipster">
+        <createTable tableName="course_review_requests" remarks="Lưu lần gửi duyệt khóa học, phiên bản gửi và phản hồi của Reviewer.">
+            <column name="id" type="bigint">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="course_version" type="bigint">
+                <constraints nullable="false" />
+            </column>
+            <column name="status" type="varchar(20)">
+                <constraints nullable="false" />
+            </column>
+            <column name="submission_note" type="varchar(5000)">
+                <constraints nullable="true" />
+            </column>
+            <column name="rights_confirmed_at" type="${datetimeType}">
+                <constraints nullable="false" />
+            </column>
+            <column name="submitted_at" type="${datetimeType}">
+                <constraints nullable="false" />
+            </column>
+            <column name="reviewed_at" type="${datetimeType}">
+                <constraints nullable="true" />
+            </column>
+            <column name="reviewer_feedback" type="varchar(5000)">
+                <constraints nullable="true" />
+            </column>
+            <column name="course_id" type="bigint">
+                <constraints nullable="false" />
+            </column>
+            <column name="submitted_by_id" type="bigint">
+                <constraints nullable="false" />
+            </column>
+            <column name="reviewed_by_id" type="bigint">
+                <constraints nullable="true" />
+            </column>
+            <!-- jhipster-needle-liquibase-add-column - JHipster will add columns here -->
+        </createTable>
+        <dropDefaultValue tableName="course_review_requests" columnName="rights_confirmed_at" columnDataType="${datetimeType}"/>
+        <dropDefaultValue tableName="course_review_requests" columnName="submitted_at" columnDataType="${datetimeType}"/>
+        <dropDefaultValue tableName="course_review_requests" columnName="reviewed_at" columnDataType="${datetimeType}"/>
+    </changeSet>
+
+    <!-- jhipster-needle-liquibase-add-changeset - JHipster will add changesets here -->
+
+    <!--
+        Load sample data generated with Faker.js
+        - This data can be easily edited using a CSV editor (or even MS Excel) and
+          is located in the 'src/main/resources/config/liquibase/fake-data' directory
+        - By default this data is applied when running with the JHipster 'dev' profile.
+          This can be customized by adding or removing 'faker' in the 'spring.liquibase.contexts'
+          Spring Boot configuration key.
+    -->
+    <changeSet id="20261019000000-1-data" author="jhipster" context="faker">
+        <loadData
+                  file="../fake-data/course_review_requests.csv"
+                  relativeToChangelogFile="true"
+                  separator=";"
+                  tableName="course_review_requests"
+                  usePreparedStatements="true">
+            <column name="id" type="numeric"/>
+            <column name="course_version" type="numeric"/>
+            <column name="status" type="string"/>
+            <column name="submission_note" type="string"/>
+            <column name="rights_confirmed_at" type="date"/>
+            <column name="submitted_at" type="date"/>
+            <column name="reviewed_at" type="date"/>
+            <column name="reviewer_feedback" type="string"/>
+            <column name="course_id" type="numeric"/>
+            <column name="submitted_by_id" type="numeric"/>
+            <!-- jhipster-needle-liquibase-add-loadcolumn - JHipster (and/or extensions) can add load columns here -->
+        </loadData>
+    </changeSet>
+</databaseChangeLog>

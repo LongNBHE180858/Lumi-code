@@ -143,7 +143,7 @@ class WishlistResourceIT {
     @AfterEach
     void cleanup() {
         if (insertedWishlist != null) {
-            wishlistRepository.deleteById(insertedWishlist.getId());
+            wishlistRepository.delete(insertedWishlist);
             insertedWishlist = null;
         }
     }

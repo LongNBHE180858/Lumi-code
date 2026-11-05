@@ -12,7 +12,7 @@ import {
 import { expect, test } from '../../support/fixtures';
 
 const contentReportPageUrl = '/content-report';
-// const contentReportSample = {"targetType":"snappy oxidise what","targetId":28129,"reason":"fooey woot phooey"};
+// const contentReportSample = {"targetType":"past phony","targetId":18831,"reason":"Li4vZmFrZS1kYXRhL2Jsb2IvaGlwc3Rlci50eHQ="};
 
 const contentReportApiUrl = '/api/content-reports';
 
@@ -220,15 +220,25 @@ test.describe('ContentReport e2e test', () => {
       await page.locator(`[data-cy="targetId"]`).fill('30805');
       await expect(page.locator(`[data-cy="targetId"]`)).toHaveValue('30805');
 
-      await page.locator(`[data-cy="reason"]`).fill('canter into when');
-      await expect(page.locator(`[data-cy="reason"]`)).toHaveValue('canter into when');
+      await page.locator(`[data-cy="reason"]`).fill('../fake-data/blob/hipster.txt');
+      await expect(page.locator(`[data-cy="reason"]`)).toHaveValue(new RegExp('../fake-data/blob/hipster.txt'));
 
-      await page.locator(`[data-cy="status"]`).fill('vet once loyally');
-      await expect(page.locator(`[data-cy="status"]`)).toHaveValue('vet once loyally');
+      await page.locator(`[data-cy="status"]`).fill('canter into when');
+      await expect(page.locator(`[data-cy="status"]`)).toHaveValue('canter into when');
 
-      await page.locator(`[data-cy="createdAt"]`).fill('2026-10-12T08:14');
+      await page.locator(`[data-cy="createdAt"]`).fill('2026-10-12T23:17');
       await page.locator(`[data-cy="createdAt"]`).blur();
-      await expect(page.locator(`[data-cy="createdAt"]`)).toHaveValue('2026-10-12T08:14');
+      await expect(page.locator(`[data-cy="createdAt"]`)).toHaveValue('2026-10-12T23:17');
+
+      await page.locator(`[data-cy="resolvedAt"]`).fill('2026-10-12T06:12');
+      await page.locator(`[data-cy="resolvedAt"]`).blur();
+      await expect(page.locator(`[data-cy="resolvedAt"]`)).toHaveValue('2026-10-12T06:12');
+
+      await page.locator(`[data-cy="resolutionNote"]`).fill('../fake-data/blob/hipster.txt');
+      await expect(page.locator(`[data-cy="resolutionNote"]`)).toHaveValue(new RegExp('../fake-data/blob/hipster.txt'));
+
+      await page.locator(`[data-cy="targetVersion"]`).fill('overcook');
+      await expect(page.locator(`[data-cy="targetVersion"]`)).toHaveValue('overcook');
 
       await page.locator(`[data-cy="reporter"]`).selectOption({ index: 1 });
 

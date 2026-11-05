@@ -1,6 +1,5 @@
 package com.lumi.domain;
 
-import static com.lumi.domain.CategoryTestSamples.*;
 import static com.lumi.domain.CourseTestSamples.*;
 import static com.lumi.domain.GradeTestSamples.*;
 import static com.lumi.domain.SubjectTestSamples.*;
@@ -23,18 +22,6 @@ class CourseTest {
 
         course2 = getCourseSample2();
         assertThat(course1).isNotEqualTo(course2);
-    }
-
-    @Test
-    void categoryTest() {
-        Course course = getCourseRandomSampleGenerator();
-        Category categoryBack = getCategoryRandomSampleGenerator();
-
-        course.setCategory(categoryBack);
-        assertThat(course.getCategory()).isEqualTo(categoryBack);
-
-        course.category(null);
-        assertThat(course.getCategory()).isNull();
     }
 
     @Test

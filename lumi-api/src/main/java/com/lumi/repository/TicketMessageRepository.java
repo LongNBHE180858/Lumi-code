@@ -33,18 +33,14 @@ public interface TicketMessageRepository extends JpaRepository<TicketMessage, Lo
     }
 
     @Query(
-        value = "select ticketMessage from TicketMessage ticketMessage left join fetch ticketMessage.sender left join fetch ticketMessage.ticket",
+        value = "select ticketMessage from TicketMessage ticketMessage left join fetch ticketMessage.sender",
         countQuery = "select count(ticketMessage) from TicketMessage ticketMessage"
     )
     Page<TicketMessage> findAllWithToOneRelationships(Pageable pageable);
 
-    @Query(
-        "select ticketMessage from TicketMessage ticketMessage left join fetch ticketMessage.sender left join fetch ticketMessage.ticket"
-    )
+    @Query("select ticketMessage from TicketMessage ticketMessage left join fetch ticketMessage.sender")
     List<TicketMessage> findAllWithToOneRelationships();
 
-    @Query(
-        "select ticketMessage from TicketMessage ticketMessage left join fetch ticketMessage.sender left join fetch ticketMessage.ticket where ticketMessage.id =:id"
-    )
+    @Query("select ticketMessage from TicketMessage ticketMessage left join fetch ticketMessage.sender where ticketMessage.id =:id")
     Optional<TicketMessage> findOneWithToOneRelationships(@Param("id") Long id);
 }

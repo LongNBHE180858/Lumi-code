@@ -75,8 +75,17 @@ class ParentStudentLinkCriteriaTest {
         parentStudentLinkCriteria.linkCode();
         parentStudentLinkCriteria.status();
         parentStudentLinkCriteria.linkedAt();
+        parentStudentLinkCriteria.createdAt();
+        parentStudentLinkCriteria.codeExpiresAt();
+        parentStudentLinkCriteria.confirmedAt();
+        parentStudentLinkCriteria.revokedAt();
+        parentStudentLinkCriteria.relationshipType();
+        parentStudentLinkCriteria.guardianVerificationStatus();
+        parentStudentLinkCriteria.guardianVerifiedAt();
         parentStudentLinkCriteria.parentId();
         parentStudentLinkCriteria.studentId();
+        parentStudentLinkCriteria.confirmedById();
+        parentStudentLinkCriteria.guardianVerifiedById();
         parentStudentLinkCriteria.distinct();
     }
 
@@ -87,8 +96,17 @@ class ParentStudentLinkCriteriaTest {
                 condition.apply(criteria.getLinkCode()) &&
                 condition.apply(criteria.getStatus()) &&
                 condition.apply(criteria.getLinkedAt()) &&
+                condition.apply(criteria.getCreatedAt()) &&
+                condition.apply(criteria.getCodeExpiresAt()) &&
+                condition.apply(criteria.getConfirmedAt()) &&
+                condition.apply(criteria.getRevokedAt()) &&
+                condition.apply(criteria.getRelationshipType()) &&
+                condition.apply(criteria.getGuardianVerificationStatus()) &&
+                condition.apply(criteria.getGuardianVerifiedAt()) &&
                 condition.apply(criteria.getParentId()) &&
                 condition.apply(criteria.getStudentId()) &&
+                condition.apply(criteria.getConfirmedById()) &&
+                condition.apply(criteria.getGuardianVerifiedById()) &&
                 condition.apply(criteria.getDistinct()),
             "every filter matches"
         );
@@ -104,8 +122,17 @@ class ParentStudentLinkCriteriaTest {
                 condition.apply(criteria.getLinkCode(), copy.getLinkCode()) &&
                 condition.apply(criteria.getStatus(), copy.getStatus()) &&
                 condition.apply(criteria.getLinkedAt(), copy.getLinkedAt()) &&
+                condition.apply(criteria.getCreatedAt(), copy.getCreatedAt()) &&
+                condition.apply(criteria.getCodeExpiresAt(), copy.getCodeExpiresAt()) &&
+                condition.apply(criteria.getConfirmedAt(), copy.getConfirmedAt()) &&
+                condition.apply(criteria.getRevokedAt(), copy.getRevokedAt()) &&
+                condition.apply(criteria.getRelationshipType(), copy.getRelationshipType()) &&
+                condition.apply(criteria.getGuardianVerificationStatus(), copy.getGuardianVerificationStatus()) &&
+                condition.apply(criteria.getGuardianVerifiedAt(), copy.getGuardianVerifiedAt()) &&
                 condition.apply(criteria.getParentId(), copy.getParentId()) &&
                 condition.apply(criteria.getStudentId(), copy.getStudentId()) &&
+                condition.apply(criteria.getConfirmedById(), copy.getConfirmedById()) &&
+                condition.apply(criteria.getGuardianVerifiedById(), copy.getGuardianVerifiedById()) &&
                 condition.apply(criteria.getDistinct(), copy.getDistinct()),
             "every filter matches"
         );

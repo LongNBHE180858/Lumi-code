@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { X } from 'lucide-react';
 
-import type { PremiumPackage, PremiumPackageInput, PremiumPackageType } from './premium-packages-api';
+import type { PremiumAiLimitPeriod, PremiumPackage, PremiumPackageInput, PremiumPackageType } from './premium-packages-api';
 
 export const packageTypeLabels: Record<PremiumPackageType, string> = {
   PARENT_PERSONAL: 'Phụ huynh cá nhân',
@@ -11,6 +11,11 @@ export const packageTypeLabels: Record<PremiumPackageType, string> = {
 };
 
 const typeOptions = Object.entries(packageTypeLabels) as [PremiumPackageType, string][];
+export const aiPeriodLabels: Record<PremiumAiLimitPeriod, string> = {
+  DAY: 'Mỗi ngày',
+  MONTH: 'Mỗi tháng',
+  PACKAGE_TERM: 'Toàn thời hạn gói',
+};
 
 interface FormValues {
   name: string;
@@ -19,6 +24,7 @@ interface FormValues {
   durationDays: string;
   storageQuotaMb: string;
   aiGenerationLimit: string;
+  aiLimitPeriod: PremiumAiLimitPeriod | '';
   maxClasses: string;
 }
 
@@ -29,6 +35,7 @@ const valuesFrom = (item: PremiumPackage | null): FormValues => ({
   durationDays: item?.durationDays?.toString() ?? '',
   storageQuotaMb: item?.storageQuotaMb?.toString() ?? '',
   aiGenerationLimit: item?.aiGenerationLimit?.toString() ?? '',
+  aiLimitPeriod: item?.aiLimitPeriod && item.aiLimitPeriod in aiPeriodLabels ? (item.aiLimitPeriod as PremiumAiLimitPeriod) : '',
   maxClasses: item?.maxClasses?.toString() ?? '',
 });
 
@@ -72,12 +79,22 @@ const PremiumPackageForm = ({ item, saving, error, onClose, onSave }: PremiumPac
       durationDays === null ||
       storageQuotaMb === null ||
       aiGenerationLimit === null ||
+      !values.aiLimitPeriod ||
       (instructor && maxClasses === null)
     ) {
       setValidationError('Vui lòng nhập đủ thông tin hợp lệ. Giá và các hạn mức phải là số nguyên trong phạm vi cho phép.');
       return;
     }
-    onSave({ name, packageType: values.packageType, price, durationDays, storageQuotaMb, aiGenerationLimit, maxClasses });
+    onSave({
+      name,
+      packageType: values.packageType,
+      price,
+      durationDays,
+      storageQuotaMb,
+      aiGenerationLimit,
+      aiLimitPeriod: values.aiLimitPeriod,
+      maxClasses,
+    });
   };
 
   return (
@@ -157,6 +174,17 @@ const PremiumPackageForm = ({ item, saving, error, onClose, onSave }: PremiumPac
               onChange={event => update('aiGenerationLimit', event.target.value)}
               required
             />
+          </label>
+          <label>
+            Kỳ tính lượt AI
+            <select value={values.aiLimitPeriod} onChange={event => update('aiLimitPeriod', event.target.value)} required>
+              <option value="">Chọn kỳ tính lượt</option>
+              {Object.entries(aiPeriodLabels).map(([value, label]) => (
+                <option key={value} value={value}>
+                  {label}
+                </option>
+              ))}
+            </select>
           </label>
           {instructor && (
             <label>

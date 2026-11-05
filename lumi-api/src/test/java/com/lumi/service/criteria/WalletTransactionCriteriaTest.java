@@ -77,8 +77,11 @@ class WalletTransactionCriteriaTest {
         walletTransactionCriteria.status();
         walletTransactionCriteria.idempotencyKey();
         walletTransactionCriteria.occurredAt();
+        walletTransactionCriteria.balanceBucket();
         walletTransactionCriteria.walletId();
         walletTransactionCriteria.orderId();
+        walletTransactionCriteria.payoutRequestId();
+        walletTransactionCriteria.refundId();
         walletTransactionCriteria.distinct();
     }
 
@@ -91,8 +94,11 @@ class WalletTransactionCriteriaTest {
                 condition.apply(criteria.getStatus()) &&
                 condition.apply(criteria.getIdempotencyKey()) &&
                 condition.apply(criteria.getOccurredAt()) &&
+                condition.apply(criteria.getBalanceBucket()) &&
                 condition.apply(criteria.getWalletId()) &&
                 condition.apply(criteria.getOrderId()) &&
+                condition.apply(criteria.getPayoutRequestId()) &&
+                condition.apply(criteria.getRefundId()) &&
                 condition.apply(criteria.getDistinct()),
             "every filter matches"
         );
@@ -110,8 +116,11 @@ class WalletTransactionCriteriaTest {
                 condition.apply(criteria.getStatus(), copy.getStatus()) &&
                 condition.apply(criteria.getIdempotencyKey(), copy.getIdempotencyKey()) &&
                 condition.apply(criteria.getOccurredAt(), copy.getOccurredAt()) &&
+                condition.apply(criteria.getBalanceBucket(), copy.getBalanceBucket()) &&
                 condition.apply(criteria.getWalletId(), copy.getWalletId()) &&
                 condition.apply(criteria.getOrderId(), copy.getOrderId()) &&
+                condition.apply(criteria.getPayoutRequestId(), copy.getPayoutRequestId()) &&
+                condition.apply(criteria.getRefundId(), copy.getRefundId()) &&
                 condition.apply(criteria.getDistinct(), copy.getDistinct()),
             "every filter matches"
         );

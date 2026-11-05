@@ -11,8 +11,8 @@
     <changeSet id="20261012230437-2" author="jhipster">
 
         <addForeignKeyConstraint baseColumnNames="user_id"
-                                 baseTableName="auth_session"
-                                 constraintName="fk_auth_session__user_id"
+                                 baseTableName="auth_sessions"
+                                 constraintName="fk_auth_sessions__user_id"
                                  referencedColumnNames="id"
                                  referencedTableName="jhi_user"
                                  />

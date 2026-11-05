@@ -52,11 +52,27 @@ public class CourseAsserts {
             .satisfies(a -> assertThat(a.getDescription()).as("check description").isEqualTo(expected.getDescription()))
             .satisfies(a -> assertThat(a.getThumbnailUrl()).as("check thumbnailUrl").isEqualTo(expected.getThumbnailUrl()))
             .satisfies(a -> assertThat(a.getPrice()).as("check price").usingComparator(bigDecimalCompareTo).isEqualTo(expected.getPrice()))
+            .satisfies(a -> assertThat(a.getShortDescription()).as("check shortDescription").isEqualTo(expected.getShortDescription()))
+            .satisfies(a -> assertThat(a.getBookSeries()).as("check bookSeries").isEqualTo(expected.getBookSeries()))
+            .satisfies(a -> assertThat(a.getTargetAudience()).as("check targetAudience").isEqualTo(expected.getTargetAudience()))
+            .satisfies(a -> assertThat(a.getPrerequisites()).as("check prerequisites").isEqualTo(expected.getPrerequisites()))
+            .satisfies(a ->
+                assertThat(a.getLearningObjectives()).as("check learningObjectives").isEqualTo(expected.getLearningObjectives())
+            )
+            .satisfies(a -> assertThat(a.getIntroVideoUrl()).as("check introVideoUrl").isEqualTo(expected.getIntroVideoUrl()))
             .satisfies(a -> assertThat(a.getValidDurationDays()).as("check validDurationDays").isEqualTo(expected.getValidDurationDays()))
+            .satisfies(a ->
+                assertThat(a.getAccessDurationValue()).as("check accessDurationValue").isEqualTo(expected.getAccessDurationValue())
+            )
+            .satisfies(a ->
+                assertThat(a.getAccessDurationUnit()).as("check accessDurationUnit").isEqualTo(expected.getAccessDurationUnit())
+            )
+            .satisfies(a -> assertThat(a.getVersion()).as("check version").isEqualTo(expected.getVersion()))
             .satisfies(a -> assertThat(a.getStatus()).as("check status").isEqualTo(expected.getStatus()))
             .satisfies(a -> assertThat(a.getIsDeleted()).as("check isDeleted").isEqualTo(expected.getIsDeleted()))
             .satisfies(a -> assertThat(a.getCreatedAt()).as("check createdAt").isEqualTo(expected.getCreatedAt()))
-            .satisfies(a -> assertThat(a.getUpdatedAt()).as("check updatedAt").isEqualTo(expected.getUpdatedAt()));
+            .satisfies(a -> assertThat(a.getUpdatedAt()).as("check updatedAt").isEqualTo(expected.getUpdatedAt()))
+            .satisfies(a -> assertThat(a.getStorageLimitBytes()).as("check storageLimitBytes").isEqualTo(expected.getStorageLimitBytes()));
     }
 
     /**
@@ -68,7 +84,6 @@ public class CourseAsserts {
     public static void assertCourseUpdatableRelationshipsEquals(Course expected, Course actual) {
         assertThat(actual)
             .as("Verify Course relationships")
-            .satisfies(a -> assertThat(a.getCategory()).as("check category").isEqualTo(expected.getCategory()))
             .satisfies(a -> assertThat(a.getSubject()).as("check subject").isEqualTo(expected.getSubject()))
             .satisfies(a -> assertThat(a.getGrade()).as("check grade").isEqualTo(expected.getGrade()));
     }

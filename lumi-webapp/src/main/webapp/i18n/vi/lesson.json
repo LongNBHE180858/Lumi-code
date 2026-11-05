@@ -19,16 +19,19 @@
       },
       "id": "ID",
       "title": "Title",
+      "description": "Description",
       "contentType": "Content Type",
+      "videoUrl": "Video Url",
+      "videoFileName": "Video File Name",
+      "videoSizeBytes": "Video Size Bytes",
       "orderIndex": "Order Index",
       "isPreview": "Is Preview",
       "durationMinutes": "Duration Minutes",
       "status": "Status",
-      "chapter": "Chapter",
-      "description": "Mô tả bài học",
-      "videoUrl": "URL video bổ trợ (không bắt buộc)",
-      "videoFileName": "Tên file video",
-      "videoSizeBytes": "Kích thước video (byte)"
+      "durationSeconds": "Duration Seconds",
+      "videoObjectKey": "Video Object Key",
+      "updatedAt": "Updated At",
+      "chapter": "Chapter"
     }
   }
 }

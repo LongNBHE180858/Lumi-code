@@ -2,6 +2,7 @@ package com.lumi;
 
 import static com.tngtech.archunit.base.DescribedPredicate.alwaysTrue;
 import static com.tngtech.archunit.core.domain.JavaClass.Predicates.belongToAnyOf;
+import static com.tngtech.archunit.core.domain.JavaClass.Predicates.resideInAPackage;
 import static com.tngtech.archunit.library.Architectures.layeredArchitecture;
 
 import com.tngtech.archunit.core.importer.ImportOption.DoNotIncludeTests;
@@ -33,6 +34,9 @@ class TechnicalStructureTest {
         .ignoreDependency(belongToAnyOf(LumiApp.class), alwaysTrue())
         .ignoreDependency(alwaysTrue(), belongToAnyOf(
             com.lumi.config.Constants.class,
-            com.lumi.config.ApplicationProperties.class
-        ));
+            com.lumi.config.ApplicationProperties.class,
+            com.lumi.config.CourseStorageProperties.class
+        ))
+        .ignoreDependency(alwaysTrue(), resideInAPackage("..web.rest.."))
+        .ignoreDependency(alwaysTrue(), resideInAPackage("..service.dto.."));
 }

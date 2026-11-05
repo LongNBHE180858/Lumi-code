@@ -1,6 +1,7 @@
 import axios from 'axios';
 
 export type PremiumPackageType = 'PARENT_PERSONAL' | 'PARENT_FAMILY' | 'INSTRUCTOR_PERSONAL' | 'INSTRUCTOR_CLASS';
+export type PremiumAiLimitPeriod = 'DAY' | 'MONTH' | 'PACKAGE_TERM';
 
 export interface PremiumPackage {
   id: number;
@@ -10,6 +11,7 @@ export interface PremiumPackage {
   durationDays: number;
   storageQuotaMb: number;
   aiGenerationLimit: number;
+  aiLimitPeriod: string;
   maxClasses: number | null;
   coveredPeople: number | null;
   revision: number;
@@ -24,6 +26,7 @@ export interface PremiumPackageInput {
   durationDays: number;
   storageQuotaMb: number;
   aiGenerationLimit: number;
+  aiLimitPeriod: PremiumAiLimitPeriod;
   maxClasses: number | null;
 }
 

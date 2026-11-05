@@ -7,10 +7,10 @@ import java.io.Serial;
 import java.io.Serializable;
 
 /**
- * A QuestionOption.
+ * Lưu các lựa chọn và đáp án đúng của câu hỏi trắc nghiệm.
  */
 @Entity
-@Table(name = "question_option")
+@Table(name = "question_options")
 @SuppressWarnings("common-java:DuplicatedBlocks")
 public class QuestionOption implements Serializable {
 
@@ -23,17 +23,20 @@ public class QuestionOption implements Serializable {
     @Column(name = "id")
     private Long id;
 
-    @NotNull
-    @Size(max = 5000)
-    @Column(name = "content", length = 5000, nullable = false)
+    @Column(name = "content", nullable = false, columnDefinition = "text")
     private String content;
 
     @Column(name = "is_correct")
     private Boolean isCorrect;
 
+    @NotNull
+    @Min(value = 0)
+    @Column(name = "order_index", nullable = false)
+    private Integer orderIndex;
+
     @ManyToOne(optional = false)
     @NotNull
-    @JsonIgnoreProperties(value = { "bank" }, allowSetters = true)
+    @JsonIgnoreProperties(value = { "bank", "createdBy", "aiContent", "subject", "grade", "previousQuestion" }, allowSetters = true)
     private Question question;
 
     // jhipster-needle-entity-add-field - JHipster will add fields here
@@ -77,6 +80,19 @@ public class QuestionOption implements Serializable {
         this.isCorrect = isCorrect;
     }
 
+    public Integer getOrderIndex() {
+        return this.orderIndex;
+    }
+
+    public QuestionOption orderIndex(Integer orderIndex) {
+        this.setOrderIndex(orderIndex);
+        return this;
+    }
+
+    public void setOrderIndex(Integer orderIndex) {
+        this.orderIndex = orderIndex;
+    }
+
     public Question getQuestion() {
         return this.question;
     }
@@ -116,6 +132,7 @@ public class QuestionOption implements Serializable {
             "id=" + getId() +
             ", content='" + getContent() + "'" +
             ", isCorrect='" + getIsCorrect() + "'" +
+            ", orderIndex=" + getOrderIndex() +
             "}";
     }
 }

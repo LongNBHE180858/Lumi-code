@@ -1,5 +1,6 @@
 package com.lumi.service.dto;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.*;
 import java.io.Serializable;
 import java.time.Instant;
@@ -8,6 +9,7 @@ import java.util.Objects;
 /**
  * A DTO for the {@link com.lumi.domain.AiConversation} entity.
  */
+@Schema(description = "Lưu phiên hội thoại AI theo người dùng và ngữ cảnh bài hoặc tài liệu.")
 @SuppressWarnings("common-java:DuplicatedBlocks")
 public class AiConversationDTO implements Serializable {
 
@@ -20,9 +22,14 @@ public class AiConversationDTO implements Serializable {
     private Instant createdAt;
 
     @NotNull
+    private Instant updatedAt;
+
+    @NotNull
     private UserDTO user;
 
     private LessonDTO lesson;
+
+    private LearningDocumentDTO document;
 
     public Long getId() {
         return id;
@@ -48,6 +55,14 @@ public class AiConversationDTO implements Serializable {
         this.createdAt = createdAt;
     }
 
+    public Instant getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public void setUpdatedAt(Instant updatedAt) {
+        this.updatedAt = updatedAt;
+    }
+
     public UserDTO getUser() {
         return user;
     }
@@ -62,6 +77,14 @@ public class AiConversationDTO implements Serializable {
 
     public void setLesson(LessonDTO lesson) {
         this.lesson = lesson;
+    }
+
+    public LearningDocumentDTO getDocument() {
+        return document;
+    }
+
+    public void setDocument(LearningDocumentDTO document) {
+        this.document = document;
     }
 
     @Override
@@ -92,8 +115,10 @@ public class AiConversationDTO implements Serializable {
             "id=" + getId() +
             ", type='" + getType() + "'" +
             ", createdAt='" + getCreatedAt() + "'" +
+            ", updatedAt='" + getUpdatedAt() + "'" +
             ", user=" + getUser() +
             ", lesson=" + getLesson() +
+            ", document=" + getDocument() +
             "}";
     }
 }

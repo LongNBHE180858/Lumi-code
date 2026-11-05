@@ -12,7 +12,7 @@ import {
 import { expect, test } from '../../support/fixtures';
 
 const studyClassPageUrl = '/study-class';
-// const studyClassSample = {"name":"whoever wholly"};
+// const studyClassSample = {"name":"anenst when ouch","updatedAt":"2026-10-12T18:22:05.655Z"};
 
 const studyClassApiUrl = '/api/study-classes';
 
@@ -229,29 +229,37 @@ test.describe('StudyClass e2e test', () => {
       await page.locator(`[data-cy="name"]`).fill('fooey hype');
       await expect(page.locator(`[data-cy="name"]`)).toHaveValue('fooey hype');
 
-      await page.locator(`[data-cy="description"]`).fill('considering');
-      await expect(page.locator(`[data-cy="description"]`)).toHaveValue('considering');
+      await page.locator(`[data-cy="description"]`).fill('../fake-data/blob/hipster.txt');
+      await expect(page.locator(`[data-cy="description"]`)).toHaveValue(new RegExp('../fake-data/blob/hipster.txt'));
 
-      await page.locator(`[data-cy="joinCode"]`).fill('lest hm');
-      await expect(page.locator(`[data-cy="joinCode"]`)).toHaveValue('lest hm');
+      await page.locator(`[data-cy="joinCode"]`).fill('considerin');
+      await expect(page.locator(`[data-cy="joinCode"]`)).toHaveValue('considerin');
 
-      await page.locator(`[data-cy="joinMode"]`).selectOption('INVITE_ONLY');
+      await page.locator(`[data-cy="joinMode"]`).selectOption('CODE_APPROVAL');
 
-      await page.locator(`[data-cy="maxStudents"]`).fill('732');
-      await expect(page.locator(`[data-cy="maxStudents"]`)).toHaveValue('732');
+      await page.locator(`[data-cy="maxStudents"]`).fill('30393');
+      await expect(page.locator(`[data-cy="maxStudents"]`)).toHaveValue('30393');
 
-      await page.locator(`[data-cy="currentStudents"]`).fill('20344');
-      await expect(page.locator(`[data-cy="currentStudents"]`)).toHaveValue('20344');
+      await page.locator(`[data-cy="currentStudents"]`).fill('8901');
+      await expect(page.locator(`[data-cy="currentStudents"]`)).toHaveValue('8901');
 
-      await page.locator(`[data-cy="status"]`).selectOption('PENDING');
+      await page.locator(`[data-cy="status"]`).selectOption('DRAFT');
 
       await expect(page.locator(`[data-cy="isDeleted"]`)).not.toBeChecked();
       await page.locator(`[data-cy="isDeleted"]`).click();
       await expect(page.locator(`[data-cy="isDeleted"]`)).toBeChecked();
 
-      await page.locator(`[data-cy="createdAt"]`).fill('2026-10-12T07:40');
+      await page.locator(`[data-cy="createdAt"]`).fill('2026-10-12T20:50');
       await page.locator(`[data-cy="createdAt"]`).blur();
-      await expect(page.locator(`[data-cy="createdAt"]`)).toHaveValue('2026-10-12T07:40');
+      await expect(page.locator(`[data-cy="createdAt"]`)).toHaveValue('2026-10-12T20:50');
+
+      await page.locator(`[data-cy="joinCodeExpiresAt"]`).fill('2026-10-12T04:03');
+      await page.locator(`[data-cy="joinCodeExpiresAt"]`).blur();
+      await expect(page.locator(`[data-cy="joinCodeExpiresAt"]`)).toHaveValue('2026-10-12T04:03');
+
+      await page.locator(`[data-cy="updatedAt"]`).fill('2026-10-12T12:07');
+      await page.locator(`[data-cy="updatedAt"]`).blur();
+      await expect(page.locator(`[data-cy="updatedAt"]`)).toHaveValue('2026-10-12T12:07');
 
       await page.locator(`[data-cy="instructor"]`).selectOption({ index: 1 });
 

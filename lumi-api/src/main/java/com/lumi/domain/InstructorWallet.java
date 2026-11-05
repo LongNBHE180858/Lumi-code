@@ -7,10 +7,10 @@ import java.io.Serializable;
 import java.math.BigDecimal;
 
 /**
- * A InstructorWallet.
+ * Lưu số dư tiền chờ giải phóng và tiền khả dụng của giáo viên.
  */
 @Entity
-@Table(name = "instructor_wallet")
+@Table(name = "instructor_wallets")
 @SuppressWarnings("common-java:DuplicatedBlocks")
 public class InstructorWallet implements Serializable {
 
@@ -23,22 +23,19 @@ public class InstructorWallet implements Serializable {
     @Column(name = "id")
     private Long id;
 
-    @DecimalMin(value = "0")
     @Column(name = "pending_amount", precision = 21, scale = 2)
     private BigDecimal pendingAmount;
 
-    @DecimalMin(value = "0")
     @Column(name = "available_amount", precision = 21, scale = 2)
     private BigDecimal availableAmount;
 
-    @Min(value = 0L)
     @Column(name = "row_version")
     private Long rowVersion;
 
     @OneToOne(fetch = FetchType.LAZY, optional = false)
     @NotNull
     @JoinColumn(unique = true)
-    private User user;
+    private User instructor;
 
     // jhipster-needle-entity-add-field - JHipster will add fields here
 
@@ -94,16 +91,16 @@ public class InstructorWallet implements Serializable {
         this.rowVersion = rowVersion;
     }
 
-    public User getUser() {
-        return this.user;
+    public User getInstructor() {
+        return this.instructor;
     }
 
-    public void setUser(User user) {
-        this.user = user;
+    public void setInstructor(User user) {
+        this.instructor = user;
     }
 
-    public InstructorWallet user(User user) {
-        this.setUser(user);
+    public InstructorWallet instructor(User user) {
+        this.setInstructor(user);
         return this;
     }
 

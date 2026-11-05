@@ -10,7 +10,7 @@
         Added the entity Payment.
     -->
     <changeSet id="20261012230455-1" author="jhipster">
-        <createTable tableName="payment">
+        <createTable tableName="payments" remarks="Lưu giao dịch thanh toán và thông tin đối chiếu từ cổng thanh toán.">
             <column name="id" type="bigint">
                 <constraints primaryKey="true" nullable="false"/>
             </column>
@@ -18,7 +18,7 @@
                 <constraints nullable="false" />
             </column>
             <column name="transaction_no" type="varchar(255)">
-                <constraints nullable="true" unique="true" uniqueConstraintName="ux_payment__transaction_no" />
+                <constraints nullable="true" unique="true" uniqueConstraintName="ux_payments__transaction_no" />
             </column>
             <column name="amount" type="decimal(21,2)">
                 <constraints nullable="false" />
@@ -29,12 +29,22 @@
             <column name="paid_at" type="${datetimeType}">
                 <constraints nullable="true" />
             </column>
+            <column name="payment_reference" type="varchar(255)">
+                <constraints nullable="true" />
+            </column>
+            <column name="provider_event_id" type="varchar(255)">
+                <constraints nullable="true" />
+            </column>
+            <column name="received_at" type="${datetimeType}">
+                <constraints nullable="true" />
+            </column>
             <column name="order_id" type="bigint">
                 <constraints nullable="false" />
             </column>
             <!-- jhipster-needle-liquibase-add-column - JHipster will add columns here -->
         </createTable>
-        <dropDefaultValue tableName="payment" columnName="paid_at" columnDataType="${datetimeType}"/>
+        <dropDefaultValue tableName="payments" columnName="paid_at" columnDataType="${datetimeType}"/>
+        <dropDefaultValue tableName="payments" columnName="received_at" columnDataType="${datetimeType}"/>
     </changeSet>
 
     <!-- jhipster-needle-liquibase-add-changeset - JHipster will add changesets here -->
@@ -49,10 +59,10 @@
     -->
     <changeSet id="20261012230455-1-data" author="jhipster" context="faker">
         <loadData
-                  file="../fake-data/payment.csv"
+                  file="../fake-data/payments.csv"
                   relativeToChangelogFile="true"
                   separator=";"
-                  tableName="payment"
+                  tableName="payments"
                   usePreparedStatements="true">
             <column name="id" type="numeric"/>
             <column name="gateway" type="string"/>
@@ -60,6 +70,9 @@
             <column name="amount" type="numeric"/>
             <column name="status" type="string"/>
             <column name="paid_at" type="date"/>
+            <column name="payment_reference" type="string"/>
+            <column name="provider_event_id" type="string"/>
+            <column name="received_at" type="date"/>
             <column name="order_id" type="numeric"/>
             <!-- jhipster-needle-liquibase-add-loadcolumn - JHipster (and/or extensions) can add load columns here -->
         </loadData>

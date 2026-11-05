@@ -5,6 +5,8 @@ import static org.mockito.Mockito.*;
 
 import com.lumi.domain.*;
 import com.lumi.service.dto.InstructorCourseDTOs.Builder;
+import com.lumi.service.impl.InstructorCourseMediaService;
+import com.lumi.service.impl.InstructorCourseService;
 import com.lumi.service.storage.*;
 import java.nio.file.*;
 import java.util.List;

@@ -73,10 +73,10 @@ class CourseReviewCriteriaTest {
     private static void setAllFilters(CourseReviewCriteria courseReviewCriteria) {
         courseReviewCriteria.id();
         courseReviewCriteria.rating();
-        courseReviewCriteria.content();
         courseReviewCriteria.createdAt();
-        courseReviewCriteria.studentId();
+        courseReviewCriteria.updatedAt();
         courseReviewCriteria.courseId();
+        courseReviewCriteria.studentId();
         courseReviewCriteria.distinct();
     }
 
@@ -85,10 +85,10 @@ class CourseReviewCriteriaTest {
             criteria ->
                 condition.apply(criteria.getId()) &&
                 condition.apply(criteria.getRating()) &&
-                condition.apply(criteria.getContent()) &&
                 condition.apply(criteria.getCreatedAt()) &&
-                condition.apply(criteria.getStudentId()) &&
+                condition.apply(criteria.getUpdatedAt()) &&
                 condition.apply(criteria.getCourseId()) &&
+                condition.apply(criteria.getStudentId()) &&
                 condition.apply(criteria.getDistinct()),
             "every filter matches"
         );
@@ -102,10 +102,10 @@ class CourseReviewCriteriaTest {
             criteria ->
                 condition.apply(criteria.getId(), copy.getId()) &&
                 condition.apply(criteria.getRating(), copy.getRating()) &&
-                condition.apply(criteria.getContent(), copy.getContent()) &&
                 condition.apply(criteria.getCreatedAt(), copy.getCreatedAt()) &&
-                condition.apply(criteria.getStudentId(), copy.getStudentId()) &&
+                condition.apply(criteria.getUpdatedAt(), copy.getUpdatedAt()) &&
                 condition.apply(criteria.getCourseId(), copy.getCourseId()) &&
+                condition.apply(criteria.getStudentId(), copy.getStudentId()) &&
                 condition.apply(criteria.getDistinct(), copy.getDistinct()),
             "every filter matches"
         );

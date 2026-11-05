@@ -73,10 +73,12 @@ class NotificationCriteriaTest {
     private static void setAllFilters(NotificationCriteria notificationCriteria) {
         notificationCriteria.id();
         notificationCriteria.title();
-        notificationCriteria.content();
         notificationCriteria.isRead();
         notificationCriteria.type();
         notificationCriteria.createdAt();
+        notificationCriteria.targetType();
+        notificationCriteria.targetId();
+        notificationCriteria.readAt();
         notificationCriteria.userId();
         notificationCriteria.distinct();
     }
@@ -86,10 +88,12 @@ class NotificationCriteriaTest {
             criteria ->
                 condition.apply(criteria.getId()) &&
                 condition.apply(criteria.getTitle()) &&
-                condition.apply(criteria.getContent()) &&
                 condition.apply(criteria.getIsRead()) &&
                 condition.apply(criteria.getType()) &&
                 condition.apply(criteria.getCreatedAt()) &&
+                condition.apply(criteria.getTargetType()) &&
+                condition.apply(criteria.getTargetId()) &&
+                condition.apply(criteria.getReadAt()) &&
                 condition.apply(criteria.getUserId()) &&
                 condition.apply(criteria.getDistinct()),
             "every filter matches"
@@ -104,10 +108,12 @@ class NotificationCriteriaTest {
             criteria ->
                 condition.apply(criteria.getId(), copy.getId()) &&
                 condition.apply(criteria.getTitle(), copy.getTitle()) &&
-                condition.apply(criteria.getContent(), copy.getContent()) &&
                 condition.apply(criteria.getIsRead(), copy.getIsRead()) &&
                 condition.apply(criteria.getType(), copy.getType()) &&
                 condition.apply(criteria.getCreatedAt(), copy.getCreatedAt()) &&
+                condition.apply(criteria.getTargetType(), copy.getTargetType()) &&
+                condition.apply(criteria.getTargetId(), copy.getTargetId()) &&
+                condition.apply(criteria.getReadAt(), copy.getReadAt()) &&
                 condition.apply(criteria.getUserId(), copy.getUserId()) &&
                 condition.apply(criteria.getDistinct(), copy.getDistinct()),
             "every filter matches"

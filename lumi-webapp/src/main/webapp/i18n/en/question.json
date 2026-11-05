@@ -23,7 +23,18 @@
       "difficulty": "Difficulty",
       "explanation": "Explanation",
       "isDeleted": "Is Deleted",
-      "bank": "Bank"
+      "sourceType": "Source Type",
+      "contentHash": "Content Hash",
+      "visibility": "Visibility",
+      "version": "Version",
+      "createdAt": "Created At",
+      "updatedAt": "Updated At",
+      "bank": "Bank",
+      "createdBy": "Created By",
+      "aiContent": "Ai Content",
+      "subject": "Subject",
+      "grade": "Grade",
+      "previousQuestion": "Previous Question"
     }
   }
 }

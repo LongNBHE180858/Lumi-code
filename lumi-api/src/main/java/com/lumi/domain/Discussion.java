@@ -8,10 +8,10 @@ import java.io.Serializable;
 import java.time.Instant;
 
 /**
- * A Discussion.
+ * Lưu hỏi đáp theo bài học và thông tin lớp liên quan nếu có.
  */
 @Entity
-@Table(name = "discussion")
+@Table(name = "discussions")
 @SuppressWarnings("common-java:DuplicatedBlocks")
 public class Discussion implements Serializable {
 
@@ -29,22 +29,33 @@ public class Discussion implements Serializable {
     @Column(name = "title", length = 255, nullable = false)
     private String title;
 
-    @NotNull
-    @Size(max = 5000)
-    @Column(name = "content", length = 5000, nullable = false)
+    @Column(name = "content", nullable = false, columnDefinition = "text")
     private String content;
 
     @Column(name = "created_at")
     private Instant createdAt;
 
-    @ManyToOne(optional = false)
     @NotNull
-    private User student;
+    @Column(name = "updated_at", nullable = false)
+    private Instant updatedAt;
+
+    @NotNull
+    @Size(max = 20)
+    @Column(name = "post_type", length = 20, nullable = false)
+    private String postType;
 
     @ManyToOne(optional = false)
     @NotNull
     @JsonIgnoreProperties(value = { "chapter" }, allowSetters = true)
     private Lesson lesson;
+
+    @ManyToOne(optional = false)
+    @NotNull
+    private User student;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JsonIgnoreProperties(value = { "instructor", "subject", "grade" }, allowSetters = true)
+    private StudyClass studyClass;
 
     // jhipster-needle-entity-add-field - JHipster will add fields here
 
@@ -100,6 +111,45 @@ public class Discussion implements Serializable {
         this.createdAt = createdAt;
     }
 
+    public Instant getUpdatedAt() {
+        return this.updatedAt;
+    }
+
+    public Discussion updatedAt(Instant updatedAt) {
+        this.setUpdatedAt(updatedAt);
+        return this;
+    }
+
+    public void setUpdatedAt(Instant updatedAt) {
+        this.updatedAt = updatedAt;
+    }
+
+    public String getPostType() {
+        return this.postType;
+    }
+
+    public Discussion postType(String postType) {
+        this.setPostType(postType);
+        return this;
+    }
+
+    public void setPostType(String postType) {
+        this.postType = postType;
+    }
+
+    public Lesson getLesson() {
+        return this.lesson;
+    }
+
+    public void setLesson(Lesson lesson) {
+        this.lesson = lesson;
+    }
+
+    public Discussion lesson(Lesson lesson) {
+        this.setLesson(lesson);
+        return this;
+    }
+
     public User getStudent() {
         return this.student;
     }
@@ -113,16 +163,16 @@ public class Discussion implements Serializable {
         return this;
     }
 
-    public Lesson getLesson() {
-        return this.lesson;
+    public StudyClass getStudyClass() {
+        return this.studyClass;
     }
 
-    public void setLesson(Lesson lesson) {
-        this.lesson = lesson;
+    public void setStudyClass(StudyClass studyClass) {
+        this.studyClass = studyClass;
     }
 
-    public Discussion lesson(Lesson lesson) {
-        this.setLesson(lesson);
+    public Discussion studyClass(StudyClass studyClass) {
+        this.setStudyClass(studyClass);
         return this;
     }
 
@@ -153,6 +203,8 @@ public class Discussion implements Serializable {
             ", title='" + getTitle() + "'" +
             ", content='" + getContent() + "'" +
             ", createdAt='" + getCreatedAt() + "'" +
+            ", updatedAt='" + getUpdatedAt() + "'" +
+            ", postType='" + getPostType() + "'" +
             "}";
     }
 }

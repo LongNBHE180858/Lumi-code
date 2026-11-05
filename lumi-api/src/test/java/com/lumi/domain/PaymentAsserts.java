@@ -54,7 +54,10 @@ public class PaymentAsserts {
                 assertThat(a.getAmount()).as("check amount").usingComparator(bigDecimalCompareTo).isEqualTo(expected.getAmount())
             )
             .satisfies(a -> assertThat(a.getStatus()).as("check status").isEqualTo(expected.getStatus()))
-            .satisfies(a -> assertThat(a.getPaidAt()).as("check paidAt").isEqualTo(expected.getPaidAt()));
+            .satisfies(a -> assertThat(a.getPaidAt()).as("check paidAt").isEqualTo(expected.getPaidAt()))
+            .satisfies(a -> assertThat(a.getPaymentReference()).as("check paymentReference").isEqualTo(expected.getPaymentReference()))
+            .satisfies(a -> assertThat(a.getProviderEventId()).as("check providerEventId").isEqualTo(expected.getProviderEventId()))
+            .satisfies(a -> assertThat(a.getReceivedAt()).as("check receivedAt").isEqualTo(expected.getReceivedAt()));
     }
 
     /**

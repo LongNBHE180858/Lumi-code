@@ -76,8 +76,10 @@ class CourseEnrollmentCriteriaTest {
         courseEnrollmentCriteria.status();
         courseEnrollmentCriteria.enrolledAt();
         courseEnrollmentCriteria.expiresAt();
-        courseEnrollmentCriteria.studentId();
+        courseEnrollmentCriteria.updatedAt();
         courseEnrollmentCriteria.courseId();
+        courseEnrollmentCriteria.studentId();
+        courseEnrollmentCriteria.lastAccessedLessonId();
         courseEnrollmentCriteria.distinct();
     }
 
@@ -89,8 +91,10 @@ class CourseEnrollmentCriteriaTest {
                 condition.apply(criteria.getStatus()) &&
                 condition.apply(criteria.getEnrolledAt()) &&
                 condition.apply(criteria.getExpiresAt()) &&
-                condition.apply(criteria.getStudentId()) &&
+                condition.apply(criteria.getUpdatedAt()) &&
                 condition.apply(criteria.getCourseId()) &&
+                condition.apply(criteria.getStudentId()) &&
+                condition.apply(criteria.getLastAccessedLessonId()) &&
                 condition.apply(criteria.getDistinct()),
             "every filter matches"
         );
@@ -107,8 +111,10 @@ class CourseEnrollmentCriteriaTest {
                 condition.apply(criteria.getStatus(), copy.getStatus()) &&
                 condition.apply(criteria.getEnrolledAt(), copy.getEnrolledAt()) &&
                 condition.apply(criteria.getExpiresAt(), copy.getExpiresAt()) &&
-                condition.apply(criteria.getStudentId(), copy.getStudentId()) &&
+                condition.apply(criteria.getUpdatedAt(), copy.getUpdatedAt()) &&
                 condition.apply(criteria.getCourseId(), copy.getCourseId()) &&
+                condition.apply(criteria.getStudentId(), copy.getStudentId()) &&
+                condition.apply(criteria.getLastAccessedLessonId(), copy.getLastAccessedLessonId()) &&
                 condition.apply(criteria.getDistinct(), copy.getDistinct()),
             "every filter matches"
         );

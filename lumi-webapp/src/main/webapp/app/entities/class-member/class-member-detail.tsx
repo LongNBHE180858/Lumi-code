@@ -48,13 +48,37 @@ export const ClassMemberDetail = () => {
             {classMemberEntity.joinedAt ? <TextFormat value={classMemberEntity.joinedAt} type="date" format={APP_DATE_FORMAT} /> : null}
           </dd>
           <dt>
-            <Translate contentKey="lumiApp.classMember.student">Student</Translate>
+            <span id="requestedAt">
+              <Translate contentKey="lumiApp.classMember.requestedAt">Requested At</Translate>
+            </span>
           </dt>
-          <dd>{classMemberEntity.student ? classMemberEntity.student.login : ''}</dd>
+          <dd>
+            {classMemberEntity.requestedAt ? (
+              <TextFormat value={classMemberEntity.requestedAt} type="date" format={APP_DATE_FORMAT} />
+            ) : null}
+          </dd>
+          <dt>
+            <span id="leftAt">
+              <Translate contentKey="lumiApp.classMember.leftAt">Left At</Translate>
+            </span>
+          </dt>
+          <dd>{classMemberEntity.leftAt ? <TextFormat value={classMemberEntity.leftAt} type="date" format={APP_DATE_FORMAT} /> : null}</dd>
+          <dt>
+            <span id="updatedAt">
+              <Translate contentKey="lumiApp.classMember.updatedAt">Updated At</Translate>
+            </span>
+          </dt>
+          <dd>
+            {classMemberEntity.updatedAt ? <TextFormat value={classMemberEntity.updatedAt} type="date" format={APP_DATE_FORMAT} /> : null}
+          </dd>
           <dt>
             <Translate contentKey="lumiApp.classMember.studyClass">Study Class</Translate>
           </dt>
-          <dd>{classMemberEntity.studyClass ? classMemberEntity.studyClass.name : ''}</dd>
+          <dd>{classMemberEntity.studyClass ? classMemberEntity.studyClass.id : ''}</dd>
+          <dt>
+            <Translate contentKey="lumiApp.classMember.student">Student</Translate>
+          </dt>
+          <dd>{classMemberEntity.student ? classMemberEntity.student.login : ''}</dd>
         </dl>
         <Button as={Link as any} to="/class-member" replace variant="info" data-cy="entityDetailsBackButton">
           <FontAwesomeIcon icon="arrow-left" />{' '}

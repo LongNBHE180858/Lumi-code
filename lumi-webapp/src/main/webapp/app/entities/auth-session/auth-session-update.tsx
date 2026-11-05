@@ -149,6 +149,16 @@ export const AuthSessionUpdate = () => {
                 placeholder="YYYY-MM-DD HH:mm"
               />
               <ValidatedField
+                label={translate('lumiApp.authSession.refreshTokenHash')}
+                id="auth-session-refreshTokenHash"
+                name="refreshTokenHash"
+                data-cy="refreshTokenHash"
+                type="text"
+                validate={{
+                  maxLength: { value: 255, message: translate('entity.validation.maxlength', { max: 255 }) },
+                }}
+              />
+              <ValidatedField
                 id="auth-session-user"
                 name="user"
                 data-cy="user"

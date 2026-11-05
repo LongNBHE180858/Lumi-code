@@ -1,10 +1,10 @@
 package com.lumi.web.rest;
 
 import com.lumi.repository.ClassMemberRepository;
-import com.lumi.service.ClassMemberQueryService;
 import com.lumi.service.ClassMemberService;
 import com.lumi.service.criteria.ClassMemberCriteria;
 import com.lumi.service.dto.ClassMemberDTO;
+import com.lumi.service.query.ClassMemberQueryService;
 import com.lumi.web.rest.errors.BadRequestAlertException;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;

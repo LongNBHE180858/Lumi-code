@@ -14,7 +14,7 @@ import org.mapstruct.*;
 @Mapper(componentModel = "spring")
 public interface WishlistMapper extends EntityMapper<WishlistDTO, Wishlist> {
     @Mapping(target = "student", source = "student", qualifiedByName = "userLogin")
-    @Mapping(target = "course", source = "course", qualifiedByName = "courseTitle")
+    @Mapping(target = "course", source = "course", qualifiedByName = "courseId")
     WishlistDTO toDto(Wishlist s);
 
     @Named("userLogin")
@@ -23,9 +23,8 @@ public interface WishlistMapper extends EntityMapper<WishlistDTO, Wishlist> {
     @Mapping(target = "login", source = "login")
     UserDTO toDtoUserLogin(User user);
 
-    @Named("courseTitle")
+    @Named("courseId")
     @BeanMapping(ignoreByDefault = true)
     @Mapping(target = "id", source = "id")
-    @Mapping(target = "title", source = "title")
-    CourseDTO toDtoCourseTitle(Course course);
+    CourseDTO toDtoCourseId(Course course);
 }

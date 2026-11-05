@@ -6,7 +6,7 @@ import { Link, useLocation, useNavigate } from 'react-router';
 import { faSort, faSortDown, faSortUp } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
-import { APP_DATE_FORMAT } from 'app/config/constants';
+import { APP_DATE_FORMAT, APP_LOCAL_DATE_FORMAT } from 'app/config/constants';
 import { useAppDispatch, useAppSelector } from 'app/config/store';
 import { overridePaginationStateWithQueryParams } from 'app/shared/util/entity-utils';
 import { ASC, DESC, ITEMS_PER_PAGE, SORT } from 'app/shared/util/pagination.constants';
@@ -142,6 +142,10 @@ export const UserProfile = () => {
                   <Translate contentKey="lumiApp.userProfile.updatedAt">Updated At</Translate>{' '}
                   <FontAwesomeIcon icon={getSortIconByFieldName('updatedAt')} />
                 </th>
+                <th className="hand" onClick={sort('birthDate')}>
+                  <Translate contentKey="lumiApp.userProfile.birthDate">Birth Date</Translate>{' '}
+                  <FontAwesomeIcon icon={getSortIconByFieldName('birthDate')} />
+                </th>
                 <th>
                   <Translate contentKey="lumiApp.userProfile.user">User</Translate> <FontAwesomeIcon icon="sort" />
                 </th>
@@ -166,6 +170,9 @@ export const UserProfile = () => {
                   </td>
                   <td>
                     {userProfile.updatedAt ? <TextFormat type="date" value={userProfile.updatedAt} format={APP_DATE_FORMAT} /> : null}
+                  </td>
+                  <td>
+                    {userProfile.birthDate ? <TextFormat type="date" value={userProfile.birthDate} format={APP_LOCAL_DATE_FORMAT} /> : null}
                   </td>
                   <td>{userProfile.user ? userProfile.user.login : ''}</td>
                   <td className="text-end">

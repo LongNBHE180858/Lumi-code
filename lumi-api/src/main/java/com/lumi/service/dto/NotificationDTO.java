@@ -1,5 +1,7 @@
 package com.lumi.service.dto;
 
+import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.persistence.Lob;
 import jakarta.validation.constraints.*;
 import java.io.Serializable;
 import java.time.Instant;
@@ -8,6 +10,7 @@ import java.util.Objects;
 /**
  * A DTO for the {@link com.lumi.domain.Notification} entity.
  */
+@Schema(description = "Lưu thông báo, trạng thái đã đọc và đối tượng điều hướng.")
 @SuppressWarnings("common-java:DuplicatedBlocks")
 public class NotificationDTO implements Serializable {
 
@@ -17,8 +20,7 @@ public class NotificationDTO implements Serializable {
     @Size(max = 255)
     private String title;
 
-    @NotNull
-    @Size(max = 5000)
+    @Lob
     private String content;
 
     private Boolean isRead;
@@ -28,6 +30,13 @@ public class NotificationDTO implements Serializable {
     private String type;
 
     private Instant createdAt;
+
+    @Size(max = 50)
+    private String targetType;
+
+    private Long targetId;
+
+    private Instant readAt;
 
     @NotNull
     private UserDTO user;
@@ -80,6 +89,30 @@ public class NotificationDTO implements Serializable {
         this.createdAt = createdAt;
     }
 
+    public String getTargetType() {
+        return targetType;
+    }
+
+    public void setTargetType(String targetType) {
+        this.targetType = targetType;
+    }
+
+    public Long getTargetId() {
+        return targetId;
+    }
+
+    public void setTargetId(Long targetId) {
+        this.targetId = targetId;
+    }
+
+    public Instant getReadAt() {
+        return readAt;
+    }
+
+    public void setReadAt(Instant readAt) {
+        this.readAt = readAt;
+    }
+
     public UserDTO getUser() {
         return user;
     }
@@ -119,6 +152,9 @@ public class NotificationDTO implements Serializable {
             ", isRead='" + getIsRead() + "'" +
             ", type='" + getType() + "'" +
             ", createdAt='" + getCreatedAt() + "'" +
+            ", targetType='" + getTargetType() + "'" +
+            ", targetId=" + getTargetId() +
+            ", readAt='" + getReadAt() + "'" +
             ", user=" + getUser() +
             "}";
     }

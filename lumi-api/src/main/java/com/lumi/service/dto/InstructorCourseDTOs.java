@@ -14,6 +14,26 @@ public final class InstructorCourseDTOs {
 
     public record CreateDraft(@Size(max = 255) String title) {}
 
+    public record ManageCourse(
+        Long id,
+        Long version,
+        String title,
+        SubjectDTO subject,
+        GradeDTO grade,
+        String bookSeries,
+        com.lumi.domain.enumeration.RecordStatus status,
+        BigDecimal price,
+        Integer accessDurationValue,
+        String accessDurationUnit,
+        Instant updatedAt,
+        String thumbnailUrl,
+        long chapterCount,
+        long lessonCount,
+        long videoCount,
+        long totalDurationSeconds,
+        double totalDurationHours
+    ) {}
+
     public record BasicInfo(
         @NotNull @Min(0) Long version,
         @NotBlank @Size(max = 255) String title,
@@ -26,8 +46,6 @@ public final class InstructorCourseDTOs {
         @Size(max = 1000) String prerequisites,
         List<@NotBlank String> learningObjectives
     ) {}
-
-    public record CategoryInput(@NotNull @Min(0) Long version, Long categoryId) {}
 
     public record ChapterInput(@NotNull @Min(0) Long version, @NotBlank @Size(max = 255) String title) {}
 
@@ -72,7 +90,7 @@ public final class InstructorCourseDTOs {
 
     public record ReviewSummary(
         Long id,
-        com.lumi.domain.enumeration.CourseReviewRequestStatus status,
+        String status,
         Long courseVersion,
         String submissionNote,
         Instant rightsConfirmedAt,

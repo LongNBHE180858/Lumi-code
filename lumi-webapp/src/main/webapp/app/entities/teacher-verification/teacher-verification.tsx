@@ -141,8 +141,15 @@ export const TeacherVerification = () => {
                   <Translate contentKey="lumiApp.teacherVerification.approvedAt">Approved At</Translate>{' '}
                   <FontAwesomeIcon icon={getSortIconByFieldName('approvedAt')} />
                 </th>
+                <th className="hand" onClick={sort('reviewedAt')}>
+                  <Translate contentKey="lumiApp.teacherVerification.reviewedAt">Reviewed At</Translate>{' '}
+                  <FontAwesomeIcon icon={getSortIconByFieldName('reviewedAt')} />
+                </th>
                 <th>
                   <Translate contentKey="lumiApp.teacherVerification.user">User</Translate> <FontAwesomeIcon icon="sort" />
+                </th>
+                <th>
+                  <Translate contentKey="lumiApp.teacherVerification.reviewedBy">Reviewed By</Translate> <FontAwesomeIcon icon="sort" />
                 </th>
                 <th />
               </tr>
@@ -168,7 +175,13 @@ export const TeacherVerification = () => {
                       <TextFormat type="date" value={teacherVerification.approvedAt} format={APP_DATE_FORMAT} />
                     ) : null}
                   </td>
+                  <td>
+                    {teacherVerification.reviewedAt ? (
+                      <TextFormat type="date" value={teacherVerification.reviewedAt} format={APP_DATE_FORMAT} />
+                    ) : null}
+                  </td>
                   <td>{teacherVerification.user ? teacherVerification.user.login : ''}</td>
+                  <td>{teacherVerification.reviewedBy ? teacherVerification.reviewedBy.login : ''}</td>
                   <td className="text-end">
                     <div className="btn-group flex-btn-group-container">
                       <Button

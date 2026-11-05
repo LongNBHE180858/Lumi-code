@@ -50,13 +50,27 @@ export const AiConversationDetail = () => {
             ) : null}
           </dd>
           <dt>
+            <span id="updatedAt">
+              <Translate contentKey="lumiApp.aiConversation.updatedAt">Updated At</Translate>
+            </span>
+          </dt>
+          <dd>
+            {aiConversationEntity.updatedAt ? (
+              <TextFormat value={aiConversationEntity.updatedAt} type="date" format={APP_DATE_FORMAT} />
+            ) : null}
+          </dd>
+          <dt>
             <Translate contentKey="lumiApp.aiConversation.user">User</Translate>
           </dt>
           <dd>{aiConversationEntity.user ? aiConversationEntity.user.login : ''}</dd>
           <dt>
             <Translate contentKey="lumiApp.aiConversation.lesson">Lesson</Translate>
           </dt>
-          <dd>{aiConversationEntity.lesson ? aiConversationEntity.lesson.title : ''}</dd>
+          <dd>{aiConversationEntity.lesson ? aiConversationEntity.lesson.id : ''}</dd>
+          <dt>
+            <Translate contentKey="lumiApp.aiConversation.document">Document</Translate>
+          </dt>
+          <dd>{aiConversationEntity.document ? aiConversationEntity.document.id : ''}</dd>
         </dl>
         <Button as={Link as any} to="/ai-conversation" replace variant="info" data-cy="entityDetailsBackButton">
           <FontAwesomeIcon icon="arrow-left" />{' '}

@@ -3,7 +3,9 @@
     "changelogDate": "20261012231726"
   },
   "applications": ["*"],
+  "documentation": "Lưu hỏi đáp theo bài học và thông tin lớp liên quan nếu có.",
   "dto": "mapstruct",
+  "entityTableName": "discussions",
   "fields": [
     {
       "fieldName": "title",
@@ -13,19 +15,36 @@
     },
     {
       "fieldName": "content",
-      "fieldType": "String",
-      "fieldValidateRules": ["required", "maxlength"],
-      "fieldValidateRulesMaxlength": "5000"
+      "fieldType": "TextBlob",
+      "fieldValidateRules": ["required"]
     },
     {
       "fieldName": "createdAt",
       "fieldType": "Instant"
+    },
+    {
+      "fieldName": "updatedAt",
+      "fieldType": "Instant",
+      "fieldValidateRules": ["required"]
+    },
+    {
+      "fieldName": "postType",
+      "fieldType": "String",
+      "fieldValidateRules": ["required", "maxlength"],
+      "fieldValidateRulesMaxlength": "20"
     }
   ],
   "jpaMetamodelFiltering": true,
   "name": "Discussion",
   "pagination": "pagination",
   "relationships": [
+    {
+      "otherEntityName": "lesson",
+      "relationshipName": "lesson",
+      "relationshipSide": "left",
+      "relationshipType": "many-to-one",
+      "relationshipValidateRules": "required"
+    },
     {
       "otherEntityField": "login",
       "otherEntityName": "user",
@@ -36,12 +55,10 @@
       "relationshipWithBuiltInEntity": true
     },
     {
-      "otherEntityField": "title",
-      "otherEntityName": "lesson",
-      "relationshipName": "lesson",
+      "otherEntityName": "studyClass",
+      "relationshipName": "studyClass",
       "relationshipSide": "left",
-      "relationshipType": "many-to-one",
-      "relationshipValidateRules": "required"
+      "relationshipType": "many-to-one"
     }
   ],
   "service": "serviceImpl"

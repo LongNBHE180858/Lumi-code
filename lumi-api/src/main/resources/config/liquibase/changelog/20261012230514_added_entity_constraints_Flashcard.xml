@@ -11,10 +11,17 @@
     <changeSet id="20261012230514-2" author="jhipster">
 
         <addForeignKeyConstraint baseColumnNames="deck_id"
-                                 baseTableName="flashcard"
-                                 constraintName="fk_flashcard__deck_id"
+                                 baseTableName="flashcards"
+                                 constraintName="fk_flashcards__deck_id"
                                  referencedColumnNames="id"
-                                 referencedTableName="flashcard_deck"
+                                 referencedTableName="flashcard_decks"
+                                 />
+
+        <addForeignKeyConstraint baseColumnNames="ai_content_id"
+                                 baseTableName="flashcards"
+                                 constraintName="fk_flashcards__ai_content_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="ai_generated_contents"
                                  />
     </changeSet>
 </databaseChangeLog>

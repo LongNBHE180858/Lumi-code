@@ -73,8 +73,11 @@ class AiMessageCriteriaTest {
     private static void setAllFilters(AiMessageCriteria aiMessageCriteria) {
         aiMessageCriteria.id();
         aiMessageCriteria.senderRole();
-        aiMessageCriteria.content();
         aiMessageCriteria.createdAt();
+        aiMessageCriteria.generationStatus();
+        aiMessageCriteria.modelName();
+        aiMessageCriteria.feedbackRating();
+        aiMessageCriteria.feedbackAt();
         aiMessageCriteria.conversationId();
         aiMessageCriteria.distinct();
     }
@@ -84,8 +87,11 @@ class AiMessageCriteriaTest {
             criteria ->
                 condition.apply(criteria.getId()) &&
                 condition.apply(criteria.getSenderRole()) &&
-                condition.apply(criteria.getContent()) &&
                 condition.apply(criteria.getCreatedAt()) &&
+                condition.apply(criteria.getGenerationStatus()) &&
+                condition.apply(criteria.getModelName()) &&
+                condition.apply(criteria.getFeedbackRating()) &&
+                condition.apply(criteria.getFeedbackAt()) &&
                 condition.apply(criteria.getConversationId()) &&
                 condition.apply(criteria.getDistinct()),
             "every filter matches"
@@ -97,8 +103,11 @@ class AiMessageCriteriaTest {
             criteria ->
                 condition.apply(criteria.getId(), copy.getId()) &&
                 condition.apply(criteria.getSenderRole(), copy.getSenderRole()) &&
-                condition.apply(criteria.getContent(), copy.getContent()) &&
                 condition.apply(criteria.getCreatedAt(), copy.getCreatedAt()) &&
+                condition.apply(criteria.getGenerationStatus(), copy.getGenerationStatus()) &&
+                condition.apply(criteria.getModelName(), copy.getModelName()) &&
+                condition.apply(criteria.getFeedbackRating(), copy.getFeedbackRating()) &&
+                condition.apply(criteria.getFeedbackAt(), copy.getFeedbackAt()) &&
                 condition.apply(criteria.getConversationId(), copy.getConversationId()) &&
                 condition.apply(criteria.getDistinct(), copy.getDistinct()),
             "every filter matches"

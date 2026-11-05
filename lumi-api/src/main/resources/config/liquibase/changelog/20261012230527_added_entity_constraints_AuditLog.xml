@@ -11,8 +11,8 @@
     <changeSet id="20261012230527-2" author="jhipster">
 
         <addForeignKeyConstraint baseColumnNames="actor_id"
-                                 baseTableName="audit_log"
-                                 constraintName="fk_audit_log__actor_id"
+                                 baseTableName="audit_logs"
+                                 constraintName="fk_audit_logs__actor_id"
                                  referencedColumnNames="id"
                                  referencedTableName="jhi_user"
                                  />

@@ -3,26 +3,10 @@
     "changelogDate": "20261012231649"
   },
   "applications": ["*"],
+  "documentation": "Lưu tài nguyên và đường dẫn tài liệu đính kèm bài học.",
   "dto": "mapstruct",
+  "entityTableName": "course_materials",
   "fields": [
-    {
-      "fieldName": "fileType",
-      "fieldType": "String",
-      "fieldValidateRules": ["required", "maxlength"],
-      "fieldValidateRulesMaxlength": "20"
-    },
-    {
-      "fieldName": "fileUrl",
-      "fieldType": "String",
-      "fieldValidateRules": ["required", "maxlength"],
-      "fieldValidateRulesMaxlength": "1000"
-    },
-    {
-      "fieldName": "fileSizeBytes",
-      "fieldType": "Long",
-      "fieldValidateRules": ["min"],
-      "fieldValidateRulesMin": "0"
-    },
     {
       "fieldName": "fileName",
       "fieldType": "String",
@@ -43,9 +27,34 @@
     },
     {
       "fieldName": "orderIndex",
-      "fieldType": "Integer",
-      "fieldValidateRules": ["min"],
-      "fieldValidateRulesMin": "0"
+      "fieldType": "Integer"
+    },
+    {
+      "fieldName": "fileType",
+      "fieldType": "String",
+      "fieldValidateRules": ["required", "maxlength"],
+      "fieldValidateRulesMaxlength": "20"
+    },
+    {
+      "fieldName": "fileUrl",
+      "fieldType": "String",
+      "fieldValidateRules": ["required", "maxlength"],
+      "fieldValidateRulesMaxlength": "1000"
+    },
+    {
+      "fieldName": "fileSizeBytes",
+      "fieldType": "Long"
+    },
+    {
+      "fieldName": "fileObjectKey",
+      "fieldType": "String",
+      "fieldValidateRules": ["maxlength"],
+      "fieldValidateRulesMaxlength": "1000"
+    },
+    {
+      "fieldName": "updatedAt",
+      "fieldType": "Instant",
+      "fieldValidateRules": ["required"]
     }
   ],
   "jpaMetamodelFiltering": true,
@@ -53,7 +62,6 @@
   "pagination": "pagination",
   "relationships": [
     {
-      "otherEntityField": "title",
       "otherEntityName": "lesson",
       "relationshipName": "lesson",
       "relationshipSide": "left",

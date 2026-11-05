@@ -1,10 +1,10 @@
 package com.lumi.web.rest;
 
 import com.lumi.repository.ContentReportRepository;
-import com.lumi.service.ContentReportQueryService;
 import com.lumi.service.ContentReportService;
 import com.lumi.service.criteria.ContentReportCriteria;
 import com.lumi.service.dto.ContentReportDTO;
+import com.lumi.service.query.ContentReportQueryService;
 import com.lumi.web.rest.errors.BadRequestAlertException;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;

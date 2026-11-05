@@ -1,6 +1,8 @@
 package com.lumi.service.dto;
 
 import com.lumi.domain.enumeration.OrderStatus;
+import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.persistence.Lob;
 import jakarta.validation.constraints.*;
 import java.io.Serializable;
 import java.math.BigDecimal;
@@ -10,20 +12,18 @@ import java.util.Objects;
 /**
  * A DTO for the {@link com.lumi.domain.CourseOrder} entity.
  */
+@Schema(description = "Lưu đơn mua khóa học hoặc gói dịch vụ cùng quyền lợi và chính sách giá tại lúc mua.")
 @SuppressWarnings("common-java:DuplicatedBlocks")
 public class CourseOrderDTO implements Serializable {
 
     private Long id;
 
     @NotNull
-    @DecimalMin(value = "0")
     private BigDecimal originalPrice;
 
-    @DecimalMin(value = "0")
     private BigDecimal discountAmount;
 
     @NotNull
-    @DecimalMin(value = "0")
     private BigDecimal finalPrice;
 
     @Size(max = 10)
@@ -34,10 +34,50 @@ public class CourseOrderDTO implements Serializable {
     @Size(max = 200)
     private String idempotencyKey;
 
-    @Min(value = 0L)
     private Long rowVersion;
 
     private Instant createdAt;
+
+    @DecimalMin(value = "0")
+    @DecimalMax(value = "100")
+    private BigDecimal instructorSharePercent;
+
+    @DecimalMin(value = "0")
+    private BigDecimal instructorAmount;
+
+    @DecimalMin(value = "0")
+    private BigDecimal platformAmount;
+
+    @NotNull
+    @Size(max = 20)
+    private String orderType;
+
+    @NotNull
+    private Instant expiresAt;
+
+    private Instant paidAt;
+
+    @Min(value = 1)
+    private Integer accessDurationValue;
+
+    @Size(max = 10)
+    private String accessDurationUnit;
+
+    private Instant entitlementStartsAt;
+
+    private Instant entitlementExpiresAt;
+
+    @Size(max = 20)
+    private String entitlementStatus;
+
+    @Lob
+    private String planSnapshot;
+
+    @NotNull
+    private Instant updatedAt;
+
+    @Lob
+    private String pricingSnapshot;
 
     @NotNull
     private UserDTO student;
@@ -120,6 +160,118 @@ public class CourseOrderDTO implements Serializable {
         this.createdAt = createdAt;
     }
 
+    public BigDecimal getInstructorSharePercent() {
+        return instructorSharePercent;
+    }
+
+    public void setInstructorSharePercent(BigDecimal instructorSharePercent) {
+        this.instructorSharePercent = instructorSharePercent;
+    }
+
+    public BigDecimal getInstructorAmount() {
+        return instructorAmount;
+    }
+
+    public void setInstructorAmount(BigDecimal instructorAmount) {
+        this.instructorAmount = instructorAmount;
+    }
+
+    public BigDecimal getPlatformAmount() {
+        return platformAmount;
+    }
+
+    public void setPlatformAmount(BigDecimal platformAmount) {
+        this.platformAmount = platformAmount;
+    }
+
+    public String getOrderType() {
+        return orderType;
+    }
+
+    public void setOrderType(String orderType) {
+        this.orderType = orderType;
+    }
+
+    public Instant getExpiresAt() {
+        return expiresAt;
+    }
+
+    public void setExpiresAt(Instant expiresAt) {
+        this.expiresAt = expiresAt;
+    }
+
+    public Instant getPaidAt() {
+        return paidAt;
+    }
+
+    public void setPaidAt(Instant paidAt) {
+        this.paidAt = paidAt;
+    }
+
+    public Integer getAccessDurationValue() {
+        return accessDurationValue;
+    }
+
+    public void setAccessDurationValue(Integer accessDurationValue) {
+        this.accessDurationValue = accessDurationValue;
+    }
+
+    public String getAccessDurationUnit() {
+        return accessDurationUnit;
+    }
+
+    public void setAccessDurationUnit(String accessDurationUnit) {
+        this.accessDurationUnit = accessDurationUnit;
+    }
+
+    public Instant getEntitlementStartsAt() {
+        return entitlementStartsAt;
+    }
+
+    public void setEntitlementStartsAt(Instant entitlementStartsAt) {
+        this.entitlementStartsAt = entitlementStartsAt;
+    }
+
+    public Instant getEntitlementExpiresAt() {
+        return entitlementExpiresAt;
+    }
+
+    public void setEntitlementExpiresAt(Instant entitlementExpiresAt) {
+        this.entitlementExpiresAt = entitlementExpiresAt;
+    }
+
+    public String getEntitlementStatus() {
+        return entitlementStatus;
+    }
+
+    public void setEntitlementStatus(String entitlementStatus) {
+        this.entitlementStatus = entitlementStatus;
+    }
+
+    public String getPlanSnapshot() {
+        return planSnapshot;
+    }
+
+    public void setPlanSnapshot(String planSnapshot) {
+        this.planSnapshot = planSnapshot;
+    }
+
+    public Instant getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public void setUpdatedAt(Instant updatedAt) {
+        this.updatedAt = updatedAt;
+    }
+
+    public String getPricingSnapshot() {
+        return pricingSnapshot;
+    }
+
+    public void setPricingSnapshot(String pricingSnapshot) {
+        this.pricingSnapshot = pricingSnapshot;
+    }
+
     public UserDTO getStudent() {
         return student;
     }
@@ -186,6 +338,20 @@ public class CourseOrderDTO implements Serializable {
             ", idempotencyKey='" + getIdempotencyKey() + "'" +
             ", rowVersion=" + getRowVersion() +
             ", createdAt='" + getCreatedAt() + "'" +
+            ", instructorSharePercent=" + getInstructorSharePercent() +
+            ", instructorAmount=" + getInstructorAmount() +
+            ", platformAmount=" + getPlatformAmount() +
+            ", orderType='" + getOrderType() + "'" +
+            ", expiresAt='" + getExpiresAt() + "'" +
+            ", paidAt='" + getPaidAt() + "'" +
+            ", accessDurationValue=" + getAccessDurationValue() +
+            ", accessDurationUnit='" + getAccessDurationUnit() + "'" +
+            ", entitlementStartsAt='" + getEntitlementStartsAt() + "'" +
+            ", entitlementExpiresAt='" + getEntitlementExpiresAt() + "'" +
+            ", entitlementStatus='" + getEntitlementStatus() + "'" +
+            ", planSnapshot='" + getPlanSnapshot() + "'" +
+            ", updatedAt='" + getUpdatedAt() + "'" +
+            ", pricingSnapshot='" + getPricingSnapshot() + "'" +
             ", student=" + getStudent() +
             ", course=" + getCourse() +
             ", plan=" + getPlan() +

@@ -33,7 +33,6 @@ public class SubjectServiceImpl implements SubjectService {
     public SubjectDTO save(SubjectDTO subjectDTO) {
         LOG.debug("Request to save Subject : {}", subjectDTO);
         Subject subject = subjectMapper.toEntity(subjectDTO);
-        if (subject.getActive() == null) subject.setActive(true);
         subject = subjectRepository.save(subject);
         return subjectMapper.toDto(subject);
     }
@@ -42,9 +41,6 @@ public class SubjectServiceImpl implements SubjectService {
     public SubjectDTO update(SubjectDTO subjectDTO) {
         LOG.debug("Request to update Subject : {}", subjectDTO);
         Subject subject = subjectMapper.toEntity(subjectDTO);
-        if (subject.getActive() == null) subject.setActive(
-            subjectRepository.findById(subjectDTO.getId()).map(Subject::getActive).orElse(true)
-        );
         subject = subjectRepository.save(subject);
         return subjectMapper.toDto(subject);
     }
@@ -74,6 +70,6 @@ public class SubjectServiceImpl implements SubjectService {
     @Override
     public void delete(Long id) {
         LOG.debug("Request to delete Subject : {}", id);
-        subjectRepository.findById(id).ifPresent(subject -> subject.setActive(false));
+        subjectRepository.findById(id);
     }
 }

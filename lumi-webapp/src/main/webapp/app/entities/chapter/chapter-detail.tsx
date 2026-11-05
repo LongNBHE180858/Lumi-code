@@ -47,7 +47,7 @@ export const ChapterDetail = () => {
           <dt>
             <Translate contentKey="lumiApp.chapter.course">Course</Translate>
           </dt>
-          <dd>{chapterEntity.course ? chapterEntity.course.title : ''}</dd>
+          <dd>{chapterEntity.course ? chapterEntity.course.id : ''}</dd>
         </dl>
         <Button as={Link as any} to="/chapter" replace variant="info" data-cy="entityDetailsBackButton">
           <FontAwesomeIcon icon="arrow-left" />{' '}

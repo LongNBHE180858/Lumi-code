@@ -1,5 +1,7 @@
 package com.lumi.service.dto;
 
+import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.persistence.Lob;
 import jakarta.validation.constraints.*;
 import java.io.Serializable;
 import java.time.Instant;
@@ -8,6 +10,7 @@ import java.util.Objects;
 /**
  * A DTO for the {@link com.lumi.domain.ParentStudentLink} entity.
  */
+@Schema(description = "Lưu liên kết phụ huynh - học sinh và trạng thái xác minh quan hệ giám hộ.")
 @SuppressWarnings("common-java:DuplicatedBlocks")
 public class ParentStudentLinkDTO implements Serializable {
 
@@ -23,10 +26,36 @@ public class ParentStudentLinkDTO implements Serializable {
     private Instant linkedAt;
 
     @NotNull
+    private Instant createdAt;
+
+    @NotNull
+    private Instant codeExpiresAt;
+
+    private Instant confirmedAt;
+
+    private Instant revokedAt;
+
+    @Size(max = 30)
+    private String relationshipType;
+
+    @NotNull
+    @Size(max = 20)
+    private String guardianVerificationStatus;
+
+    private Instant guardianVerifiedAt;
+
+    @Lob
+    private String guardianVerificationNote;
+
+    @NotNull
     private UserDTO parent;
 
     @NotNull
     private UserDTO student;
+
+    private UserDTO confirmedBy;
+
+    private UserDTO guardianVerifiedBy;
 
     public Long getId() {
         return id;
@@ -60,6 +89,70 @@ public class ParentStudentLinkDTO implements Serializable {
         this.linkedAt = linkedAt;
     }
 
+    public Instant getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(Instant createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public Instant getCodeExpiresAt() {
+        return codeExpiresAt;
+    }
+
+    public void setCodeExpiresAt(Instant codeExpiresAt) {
+        this.codeExpiresAt = codeExpiresAt;
+    }
+
+    public Instant getConfirmedAt() {
+        return confirmedAt;
+    }
+
+    public void setConfirmedAt(Instant confirmedAt) {
+        this.confirmedAt = confirmedAt;
+    }
+
+    public Instant getRevokedAt() {
+        return revokedAt;
+    }
+
+    public void setRevokedAt(Instant revokedAt) {
+        this.revokedAt = revokedAt;
+    }
+
+    public String getRelationshipType() {
+        return relationshipType;
+    }
+
+    public void setRelationshipType(String relationshipType) {
+        this.relationshipType = relationshipType;
+    }
+
+    public String getGuardianVerificationStatus() {
+        return guardianVerificationStatus;
+    }
+
+    public void setGuardianVerificationStatus(String guardianVerificationStatus) {
+        this.guardianVerificationStatus = guardianVerificationStatus;
+    }
+
+    public Instant getGuardianVerifiedAt() {
+        return guardianVerifiedAt;
+    }
+
+    public void setGuardianVerifiedAt(Instant guardianVerifiedAt) {
+        this.guardianVerifiedAt = guardianVerifiedAt;
+    }
+
+    public String getGuardianVerificationNote() {
+        return guardianVerificationNote;
+    }
+
+    public void setGuardianVerificationNote(String guardianVerificationNote) {
+        this.guardianVerificationNote = guardianVerificationNote;
+    }
+
     public UserDTO getParent() {
         return parent;
     }
@@ -74,6 +167,22 @@ public class ParentStudentLinkDTO implements Serializable {
 
     public void setStudent(UserDTO student) {
         this.student = student;
+    }
+
+    public UserDTO getConfirmedBy() {
+        return confirmedBy;
+    }
+
+    public void setConfirmedBy(UserDTO confirmedBy) {
+        this.confirmedBy = confirmedBy;
+    }
+
+    public UserDTO getGuardianVerifiedBy() {
+        return guardianVerifiedBy;
+    }
+
+    public void setGuardianVerifiedBy(UserDTO guardianVerifiedBy) {
+        this.guardianVerifiedBy = guardianVerifiedBy;
     }
 
     @Override
@@ -105,8 +214,18 @@ public class ParentStudentLinkDTO implements Serializable {
             ", linkCode='" + getLinkCode() + "'" +
             ", status='" + getStatus() + "'" +
             ", linkedAt='" + getLinkedAt() + "'" +
+            ", createdAt='" + getCreatedAt() + "'" +
+            ", codeExpiresAt='" + getCodeExpiresAt() + "'" +
+            ", confirmedAt='" + getConfirmedAt() + "'" +
+            ", revokedAt='" + getRevokedAt() + "'" +
+            ", relationshipType='" + getRelationshipType() + "'" +
+            ", guardianVerificationStatus='" + getGuardianVerificationStatus() + "'" +
+            ", guardianVerifiedAt='" + getGuardianVerifiedAt() + "'" +
+            ", guardianVerificationNote='" + getGuardianVerificationNote() + "'" +
             ", parent=" + getParent() +
             ", student=" + getStudent() +
+            ", confirmedBy=" + getConfirmedBy() +
+            ", guardianVerifiedBy=" + getGuardianVerifiedBy() +
             "}";
     }
 }

@@ -5,11 +5,13 @@ import com.lumi.repository.ClassMaterialRepository;
 import com.lumi.service.ClassMaterialService;
 import com.lumi.service.dto.ClassMaterialDTO;
 import com.lumi.service.mapper.ClassMaterialMapper;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -62,15 +64,24 @@ public class ClassMaterialServiceImpl implements ClassMaterialService {
             .map(classMaterialMapper::toDto);
     }
 
-    public Page<ClassMaterialDTO> findAllWithEagerRelationships(Pageable pageable) {
-        return classMaterialRepository.findAllWithEagerRelationships(pageable).map(classMaterialMapper::toDto);
+    /**
+     *  Get all the classMaterials where LearningDocument is {@code null}.
+     *  @return the list of entities.
+     */
+    @Transactional(readOnly = true)
+    public List<ClassMaterialDTO> findAllWhereLearningDocumentIsNull() {
+        LOG.debug("Request to get all classMaterials where LearningDocument is null");
+        return StreamSupport.stream(classMaterialRepository.findAll().spliterator(), false)
+            .filter(classMaterial -> classMaterial.getLearningDocument() == null)
+            .map(classMaterialMapper::toDto)
+            .collect(Collectors.toCollection(LinkedList::new));
     }
 
     @Override
     @Transactional(readOnly = true)
     public Optional<ClassMaterialDTO> findOne(Long id) {
         LOG.debug("Request to get ClassMaterial : {}", id);
-        return classMaterialRepository.findOneWithEagerRelationships(id).map(classMaterialMapper::toDto);
+        return classMaterialRepository.findById(id).map(classMaterialMapper::toDto);
     }
 
     @Override

@@ -46,13 +46,27 @@ public class CourseCriteria implements Serializable, Criteria {
 
     private StringFilter title;
 
-    private StringFilter description;
-
     private StringFilter thumbnailUrl;
 
     private BigDecimalFilter price;
 
+    private StringFilter shortDescription;
+
+    private StringFilter bookSeries;
+
+    private StringFilter targetAudience;
+
+    private StringFilter prerequisites;
+
+    private StringFilter introVideoUrl;
+
     private IntegerFilter validDurationDays;
+
+    private IntegerFilter accessDurationValue;
+
+    private StringFilter accessDurationUnit;
+
+    private LongFilter version;
 
     private RecordStatusFilter status;
 
@@ -62,9 +76,9 @@ public class CourseCriteria implements Serializable, Criteria {
 
     private InstantFilter updatedAt;
 
-    private LongFilter authorId;
+    private LongFilter storageLimitBytes;
 
-    private LongFilter categoryId;
+    private LongFilter authorId;
 
     private LongFilter subjectId;
 
@@ -77,16 +91,23 @@ public class CourseCriteria implements Serializable, Criteria {
     public CourseCriteria(CourseCriteria other) {
         this.id = other.optionalId().map(LongFilter::copy).orElse(null);
         this.title = other.optionalTitle().map(StringFilter::copy).orElse(null);
-        this.description = other.optionalDescription().map(StringFilter::copy).orElse(null);
         this.thumbnailUrl = other.optionalThumbnailUrl().map(StringFilter::copy).orElse(null);
         this.price = other.optionalPrice().map(BigDecimalFilter::copy).orElse(null);
+        this.shortDescription = other.optionalShortDescription().map(StringFilter::copy).orElse(null);
+        this.bookSeries = other.optionalBookSeries().map(StringFilter::copy).orElse(null);
+        this.targetAudience = other.optionalTargetAudience().map(StringFilter::copy).orElse(null);
+        this.prerequisites = other.optionalPrerequisites().map(StringFilter::copy).orElse(null);
+        this.introVideoUrl = other.optionalIntroVideoUrl().map(StringFilter::copy).orElse(null);
         this.validDurationDays = other.optionalValidDurationDays().map(IntegerFilter::copy).orElse(null);
+        this.accessDurationValue = other.optionalAccessDurationValue().map(IntegerFilter::copy).orElse(null);
+        this.accessDurationUnit = other.optionalAccessDurationUnit().map(StringFilter::copy).orElse(null);
+        this.version = other.optionalVersion().map(LongFilter::copy).orElse(null);
         this.status = other.optionalStatus().map(RecordStatusFilter::copy).orElse(null);
         this.isDeleted = other.optionalIsDeleted().map(BooleanFilter::copy).orElse(null);
         this.createdAt = other.optionalCreatedAt().map(InstantFilter::copy).orElse(null);
         this.updatedAt = other.optionalUpdatedAt().map(InstantFilter::copy).orElse(null);
+        this.storageLimitBytes = other.optionalStorageLimitBytes().map(LongFilter::copy).orElse(null);
         this.authorId = other.optionalAuthorId().map(LongFilter::copy).orElse(null);
-        this.categoryId = other.optionalCategoryId().map(LongFilter::copy).orElse(null);
         this.subjectId = other.optionalSubjectId().map(LongFilter::copy).orElse(null);
         this.gradeId = other.optionalGradeId().map(LongFilter::copy).orElse(null);
         this.distinct = other.distinct;
@@ -135,25 +156,6 @@ public class CourseCriteria implements Serializable, Criteria {
         this.title = title;
     }
 
-    public StringFilter getDescription() {
-        return description;
-    }
-
-    public Optional<StringFilter> optionalDescription() {
-        return Optional.ofNullable(description);
-    }
-
-    public StringFilter description() {
-        if (description == null) {
-            setDescription(new StringFilter());
-        }
-        return description;
-    }
-
-    public void setDescription(StringFilter description) {
-        this.description = description;
-    }
-
     public StringFilter getThumbnailUrl() {
         return thumbnailUrl;
     }
@@ -192,6 +194,101 @@ public class CourseCriteria implements Serializable, Criteria {
         this.price = price;
     }
 
+    public StringFilter getShortDescription() {
+        return shortDescription;
+    }
+
+    public Optional<StringFilter> optionalShortDescription() {
+        return Optional.ofNullable(shortDescription);
+    }
+
+    public StringFilter shortDescription() {
+        if (shortDescription == null) {
+            setShortDescription(new StringFilter());
+        }
+        return shortDescription;
+    }
+
+    public void setShortDescription(StringFilter shortDescription) {
+        this.shortDescription = shortDescription;
+    }
+
+    public StringFilter getBookSeries() {
+        return bookSeries;
+    }
+
+    public Optional<StringFilter> optionalBookSeries() {
+        return Optional.ofNullable(bookSeries);
+    }
+
+    public StringFilter bookSeries() {
+        if (bookSeries == null) {
+            setBookSeries(new StringFilter());
+        }
+        return bookSeries;
+    }
+
+    public void setBookSeries(StringFilter bookSeries) {
+        this.bookSeries = bookSeries;
+    }
+
+    public StringFilter getTargetAudience() {
+        return targetAudience;
+    }
+
+    public Optional<StringFilter> optionalTargetAudience() {
+        return Optional.ofNullable(targetAudience);
+    }
+
+    public StringFilter targetAudience() {
+        if (targetAudience == null) {
+            setTargetAudience(new StringFilter());
+        }
+        return targetAudience;
+    }
+
+    public void setTargetAudience(StringFilter targetAudience) {
+        this.targetAudience = targetAudience;
+    }
+
+    public StringFilter getPrerequisites() {
+        return prerequisites;
+    }
+
+    public Optional<StringFilter> optionalPrerequisites() {
+        return Optional.ofNullable(prerequisites);
+    }
+
+    public StringFilter prerequisites() {
+        if (prerequisites == null) {
+            setPrerequisites(new StringFilter());
+        }
+        return prerequisites;
+    }
+
+    public void setPrerequisites(StringFilter prerequisites) {
+        this.prerequisites = prerequisites;
+    }
+
+    public StringFilter getIntroVideoUrl() {
+        return introVideoUrl;
+    }
+
+    public Optional<StringFilter> optionalIntroVideoUrl() {
+        return Optional.ofNullable(introVideoUrl);
+    }
+
+    public StringFilter introVideoUrl() {
+        if (introVideoUrl == null) {
+            setIntroVideoUrl(new StringFilter());
+        }
+        return introVideoUrl;
+    }
+
+    public void setIntroVideoUrl(StringFilter introVideoUrl) {
+        this.introVideoUrl = introVideoUrl;
+    }
+
     public IntegerFilter getValidDurationDays() {
         return validDurationDays;
     }
@@ -209,6 +306,63 @@ public class CourseCriteria implements Serializable, Criteria {
 
     public void setValidDurationDays(IntegerFilter validDurationDays) {
         this.validDurationDays = validDurationDays;
+    }
+
+    public IntegerFilter getAccessDurationValue() {
+        return accessDurationValue;
+    }
+
+    public Optional<IntegerFilter> optionalAccessDurationValue() {
+        return Optional.ofNullable(accessDurationValue);
+    }
+
+    public IntegerFilter accessDurationValue() {
+        if (accessDurationValue == null) {
+            setAccessDurationValue(new IntegerFilter());
+        }
+        return accessDurationValue;
+    }
+
+    public void setAccessDurationValue(IntegerFilter accessDurationValue) {
+        this.accessDurationValue = accessDurationValue;
+    }
+
+    public StringFilter getAccessDurationUnit() {
+        return accessDurationUnit;
+    }
+
+    public Optional<StringFilter> optionalAccessDurationUnit() {
+        return Optional.ofNullable(accessDurationUnit);
+    }
+
+    public StringFilter accessDurationUnit() {
+        if (accessDurationUnit == null) {
+            setAccessDurationUnit(new StringFilter());
+        }
+        return accessDurationUnit;
+    }
+
+    public void setAccessDurationUnit(StringFilter accessDurationUnit) {
+        this.accessDurationUnit = accessDurationUnit;
+    }
+
+    public LongFilter getVersion() {
+        return version;
+    }
+
+    public Optional<LongFilter> optionalVersion() {
+        return Optional.ofNullable(version);
+    }
+
+    public LongFilter version() {
+        if (version == null) {
+            setVersion(new LongFilter());
+        }
+        return version;
+    }
+
+    public void setVersion(LongFilter version) {
+        this.version = version;
     }
 
     public RecordStatusFilter getStatus() {
@@ -287,6 +441,25 @@ public class CourseCriteria implements Serializable, Criteria {
         this.updatedAt = updatedAt;
     }
 
+    public LongFilter getStorageLimitBytes() {
+        return storageLimitBytes;
+    }
+
+    public Optional<LongFilter> optionalStorageLimitBytes() {
+        return Optional.ofNullable(storageLimitBytes);
+    }
+
+    public LongFilter storageLimitBytes() {
+        if (storageLimitBytes == null) {
+            setStorageLimitBytes(new LongFilter());
+        }
+        return storageLimitBytes;
+    }
+
+    public void setStorageLimitBytes(LongFilter storageLimitBytes) {
+        this.storageLimitBytes = storageLimitBytes;
+    }
+
     public LongFilter getAuthorId() {
         return authorId;
     }
@@ -304,25 +477,6 @@ public class CourseCriteria implements Serializable, Criteria {
 
     public void setAuthorId(LongFilter authorId) {
         this.authorId = authorId;
-    }
-
-    public LongFilter getCategoryId() {
-        return categoryId;
-    }
-
-    public Optional<LongFilter> optionalCategoryId() {
-        return Optional.ofNullable(categoryId);
-    }
-
-    public LongFilter categoryId() {
-        if (categoryId == null) {
-            setCategoryId(new LongFilter());
-        }
-        return categoryId;
-    }
-
-    public void setCategoryId(LongFilter categoryId) {
-        this.categoryId = categoryId;
     }
 
     public LongFilter getSubjectId() {
@@ -394,16 +548,23 @@ public class CourseCriteria implements Serializable, Criteria {
         return (
             Objects.equals(id, that.id) &&
             Objects.equals(title, that.title) &&
-            Objects.equals(description, that.description) &&
             Objects.equals(thumbnailUrl, that.thumbnailUrl) &&
             Objects.equals(price, that.price) &&
+            Objects.equals(shortDescription, that.shortDescription) &&
+            Objects.equals(bookSeries, that.bookSeries) &&
+            Objects.equals(targetAudience, that.targetAudience) &&
+            Objects.equals(prerequisites, that.prerequisites) &&
+            Objects.equals(introVideoUrl, that.introVideoUrl) &&
             Objects.equals(validDurationDays, that.validDurationDays) &&
+            Objects.equals(accessDurationValue, that.accessDurationValue) &&
+            Objects.equals(accessDurationUnit, that.accessDurationUnit) &&
+            Objects.equals(version, that.version) &&
             Objects.equals(status, that.status) &&
             Objects.equals(isDeleted, that.isDeleted) &&
             Objects.equals(createdAt, that.createdAt) &&
             Objects.equals(updatedAt, that.updatedAt) &&
+            Objects.equals(storageLimitBytes, that.storageLimitBytes) &&
             Objects.equals(authorId, that.authorId) &&
-            Objects.equals(categoryId, that.categoryId) &&
             Objects.equals(subjectId, that.subjectId) &&
             Objects.equals(gradeId, that.gradeId) &&
             Objects.equals(distinct, that.distinct)
@@ -415,16 +576,23 @@ public class CourseCriteria implements Serializable, Criteria {
         return Objects.hash(
             id,
             title,
-            description,
             thumbnailUrl,
             price,
+            shortDescription,
+            bookSeries,
+            targetAudience,
+            prerequisites,
+            introVideoUrl,
             validDurationDays,
+            accessDurationValue,
+            accessDurationUnit,
+            version,
             status,
             isDeleted,
             createdAt,
             updatedAt,
+            storageLimitBytes,
             authorId,
-            categoryId,
             subjectId,
             gradeId,
             distinct
@@ -437,16 +605,23 @@ public class CourseCriteria implements Serializable, Criteria {
         return "CourseCriteria{" +
             optionalId().map(f -> "id=" + f + ", ").orElse("") +
             optionalTitle().map(f -> "title=" + f + ", ").orElse("") +
-            optionalDescription().map(f -> "description=" + f + ", ").orElse("") +
             optionalThumbnailUrl().map(f -> "thumbnailUrl=" + f + ", ").orElse("") +
             optionalPrice().map(f -> "price=" + f + ", ").orElse("") +
+            optionalShortDescription().map(f -> "shortDescription=" + f + ", ").orElse("") +
+            optionalBookSeries().map(f -> "bookSeries=" + f + ", ").orElse("") +
+            optionalTargetAudience().map(f -> "targetAudience=" + f + ", ").orElse("") +
+            optionalPrerequisites().map(f -> "prerequisites=" + f + ", ").orElse("") +
+            optionalIntroVideoUrl().map(f -> "introVideoUrl=" + f + ", ").orElse("") +
             optionalValidDurationDays().map(f -> "validDurationDays=" + f + ", ").orElse("") +
+            optionalAccessDurationValue().map(f -> "accessDurationValue=" + f + ", ").orElse("") +
+            optionalAccessDurationUnit().map(f -> "accessDurationUnit=" + f + ", ").orElse("") +
+            optionalVersion().map(f -> "version=" + f + ", ").orElse("") +
             optionalStatus().map(f -> "status=" + f + ", ").orElse("") +
             optionalIsDeleted().map(f -> "isDeleted=" + f + ", ").orElse("") +
             optionalCreatedAt().map(f -> "createdAt=" + f + ", ").orElse("") +
             optionalUpdatedAt().map(f -> "updatedAt=" + f + ", ").orElse("") +
+            optionalStorageLimitBytes().map(f -> "storageLimitBytes=" + f + ", ").orElse("") +
             optionalAuthorId().map(f -> "authorId=" + f + ", ").orElse("") +
-            optionalCategoryId().map(f -> "categoryId=" + f + ", ").orElse("") +
             optionalSubjectId().map(f -> "subjectId=" + f + ", ").orElse("") +
             optionalGradeId().map(f -> "gradeId=" + f + ", ").orElse("") +
             optionalDistinct().map(f -> "distinct=" + f + ", ").orElse("") +

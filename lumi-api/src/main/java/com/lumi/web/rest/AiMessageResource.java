@@ -1,10 +1,10 @@
 package com.lumi.web.rest;
 
 import com.lumi.repository.AiMessageRepository;
-import com.lumi.service.AiMessageQueryService;
 import com.lumi.service.AiMessageService;
 import com.lumi.service.criteria.AiMessageCriteria;
 import com.lumi.service.dto.AiMessageDTO;
+import com.lumi.service.query.AiMessageQueryService;
 import com.lumi.web.rest.errors.BadRequestAlertException;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;

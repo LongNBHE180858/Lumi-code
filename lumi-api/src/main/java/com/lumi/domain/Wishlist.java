@@ -8,10 +8,10 @@ import java.io.Serializable;
 import java.time.Instant;
 
 /**
- * A Wishlist.
+ * Lưu danh sách khóa học yêu thích của học sinh.
  */
 @Entity
-@Table(name = "wishlist")
+@Table(name = "wishlists")
 @SuppressWarnings("common-java:DuplicatedBlocks")
 public class Wishlist implements Serializable {
 
@@ -33,7 +33,7 @@ public class Wishlist implements Serializable {
 
     @ManyToOne(optional = false)
     @NotNull
-    @JsonIgnoreProperties(value = { "author", "category", "subject", "grade" }, allowSetters = true)
+    @JsonIgnoreProperties(value = { "author", "subject", "grade" }, allowSetters = true)
     private Course course;
 
     // jhipster-needle-entity-add-field - JHipster will add fields here

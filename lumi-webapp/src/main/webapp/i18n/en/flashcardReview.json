@@ -20,6 +20,9 @@
       "id": "ID",
       "nextReviewAt": "Next Review At",
       "intervalDays": "Interval Days",
+      "lastReviewedAt": "Last Reviewed At",
+      "lastRating": "Last Rating",
+      "reviewCount": "Review Count",
       "student": "Student",
       "flashcard": "Flashcard"
     }

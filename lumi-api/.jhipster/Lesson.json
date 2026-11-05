@@ -3,7 +3,9 @@
     "changelogDate": "20261012230443"
   },
   "applications": ["*"],
+  "documentation": "Lưu bài học, video và thứ tự bài trong chương.",
   "dto": "mapstruct",
+  "entityTableName": "lessons",
   "fields": [
     {
       "fieldName": "title",
@@ -12,35 +14,14 @@
       "fieldValidateRulesMaxlength": "255"
     },
     {
+      "fieldName": "description",
+      "fieldType": "TextBlob"
+    },
+    {
       "fieldName": "contentType",
       "fieldType": "String",
       "fieldValidateRules": ["required", "maxlength"],
       "fieldValidateRulesMaxlength": "20"
-    },
-    {
-      "fieldName": "orderIndex",
-      "fieldType": "Integer",
-      "fieldValidateRules": ["required", "min"],
-      "fieldValidateRulesMin": "0"
-    },
-    {
-      "fieldName": "isPreview",
-      "fieldType": "Boolean"
-    },
-    {
-      "fieldName": "durationMinutes",
-      "fieldType": "Integer",
-      "fieldValidateRules": ["min"],
-      "fieldValidateRulesMin": "0"
-    },
-    {
-      "fieldName": "status",
-      "fieldType": "RecordStatus",
-      "fieldValues": "DRAFT,PENDING,ACTIVE,HIDDEN,ARCHIVED,BLOCKED"
-    },
-    {
-      "fieldName": "description",
-      "fieldType": "TextBlob"
     },
     {
       "fieldName": "videoUrl",
@@ -56,9 +37,43 @@
     },
     {
       "fieldName": "videoSizeBytes",
-      "fieldType": "Long",
+      "fieldType": "Long"
+    },
+    {
+      "fieldName": "orderIndex",
+      "fieldType": "Integer",
+      "fieldValidateRules": ["required"]
+    },
+    {
+      "fieldName": "isPreview",
+      "fieldType": "Boolean"
+    },
+    {
+      "fieldName": "durationMinutes",
+      "fieldType": "Integer"
+    },
+    {
+      "fieldName": "status",
+      "fieldType": "RecordStatus",
+      "fieldTypeDocumentation": "LUMI: 59 entities theo LUMI_DB_V1.4_59_tables_keep_coupons_subjects_grades.sql.\\nBổ sung UserProfile.birthDate (SQL birth_date date) theo yêu cầu đăng ký học sinh.\\nGiữ Coupon/Subject/Grade; bỏ Tag/ProctorSession và mọi field webcam.\\nFile này mô tả domain để import JDL; không tự migrate database hoặc regenerate source hiện tại.\\n\\nCÁC GIỚI HẠN CẦN GIỮ KHI GENERATE JAVA/LIQUIBASE:\\n- TextBlob cho JSONB/vector chỉ là placeholder JDL; cần mapping PostgreSQL JSONB/vector(768) thực tế.\\n- Instant biểu diễn timestamp trong JDL; SQL gốc có cả timestamp và timestamptz, không tự đổi kiểu.\\n- JDL không biểu diễn đầy đủ DEFAULT, precision/scale, CHECK, unique ghép, composite PK hoặc ON DELETE.\\nSQL là nguồn chuẩn cho các ràng buộc đó; không áp schema generator mặc định thay SQL trực tiếp.\\n- UserProfile(user_id), TeacherQuota(instructor_id), StudentStreak(student_id) dùng shared PK ở SQL.\\nCần mapping @MapsId/@JoinColumn tương ứng; JDL OneToOne không tự bảo đảm tên PK khớp SQL.\\n- Composite PK: Wishlist(student_id,course_id), AssignmentStudent(assignment_id,student_id),\\nKnowledgeEdge(from_node,to_node), StudentKnowledgeProgress(student_id,knowledge_node_id),\\nExamQuestion(exam_id,question_id), QuestionKnowledgeLink(question_id,knowledge_node_id).\\nJDL mặc định tạo surrogate id: cần @EmbeddedId/@IdClass và migration đúng nếu giữ SQL hiện tại.\\n- studyClass relationship phải @JoinColumn(name=\"class_id\"); JDL mặc định có thể tạo study_class_id.\\n- KnowledgeEdge.fromNode/toNode phải map from_node/to_node, không phải from_node_id/to_node_id.\\n- UserProfile.is2faEnabled phải map is_2fa_enabled, không phải is_2_fa_enabled.\\n- Các field version/rowVersion cần cấu hình optimistic locking thực tế, không chỉ field Long.\\n- Các giá trị CHECK trên varchar, FK chéo và quy tắc duyệt/quyền vẫn cần validation BE/SQL.\\n- Không có webcam: securityConfig/securityConfigSnapshot chỉ cấu hình giám sát trình duyệt.",
+      "fieldValues": "DRAFT,PENDING,ACTIVE,HIDDEN,ARCHIVED,BLOCKED"
+    },
+    {
+      "fieldName": "durationSeconds",
+      "fieldType": "Integer",
       "fieldValidateRules": ["min"],
       "fieldValidateRulesMin": "0"
+    },
+    {
+      "fieldName": "videoObjectKey",
+      "fieldType": "String",
+      "fieldValidateRules": ["maxlength"],
+      "fieldValidateRulesMaxlength": "1000"
+    },
+    {
+      "fieldName": "updatedAt",
+      "fieldType": "Instant",
+      "fieldValidateRules": ["required"]
     }
   ],
   "jpaMetamodelFiltering": true,
@@ -66,7 +81,6 @@
   "pagination": "pagination",
   "relationships": [
     {
-      "otherEntityField": "title",
       "otherEntityName": "chapter",
       "relationshipName": "chapter",
       "relationshipSide": "left",

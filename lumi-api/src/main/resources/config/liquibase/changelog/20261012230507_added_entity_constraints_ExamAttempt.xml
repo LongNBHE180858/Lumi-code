@@ -10,18 +10,25 @@
     -->
     <changeSet id="20261012230507-2" author="jhipster">
 
+        <addForeignKeyConstraint baseColumnNames="exam_id"
+                                 baseTableName="exam_attempts"
+                                 constraintName="fk_exam_attempts__exam_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="exams"
+                                 />
+
         <addForeignKeyConstraint baseColumnNames="student_id"
-                                 baseTableName="exam_attempt"
-                                 constraintName="fk_exam_attempt__student_id"
+                                 baseTableName="exam_attempts"
+                                 constraintName="fk_exam_attempts__student_id"
                                  referencedColumnNames="id"
                                  referencedTableName="jhi_user"
                                  />
 
-        <addForeignKeyConstraint baseColumnNames="exam_id"
-                                 baseTableName="exam_attempt"
-                                 constraintName="fk_exam_attempt__exam_id"
+        <addForeignKeyConstraint baseColumnNames="assignment_id"
+                                 baseTableName="exam_attempts"
+                                 constraintName="fk_exam_attempts__assignment_id"
                                  referencedColumnNames="id"
-                                 referencedTableName="exam"
+                                 referencedTableName="assignments"
                                  />
     </changeSet>
 </databaseChangeLog>

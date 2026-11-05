@@ -10,11 +10,23 @@ public class PaymentTestSamples {
     private static final AtomicLong longCount = new AtomicLong(random.nextInt() + 2L * Integer.MAX_VALUE);
 
     public static Payment getPaymentSample1() {
-        return new Payment().id(1L).gateway("gateway1").transactionNo("transactionNo1").status("status1");
+        return new Payment()
+            .id(1L)
+            .gateway("gateway1")
+            .transactionNo("transactionNo1")
+            .status("status1")
+            .paymentReference("paymentReference1")
+            .providerEventId("providerEventId1");
     }
 
     public static Payment getPaymentSample2() {
-        return new Payment().id(2L).gateway("gateway2").transactionNo("transactionNo2").status("status2");
+        return new Payment()
+            .id(2L)
+            .gateway("gateway2")
+            .transactionNo("transactionNo2")
+            .status("status2")
+            .paymentReference("paymentReference2")
+            .providerEventId("providerEventId2");
     }
 
     public static Payment getPaymentRandomSampleGenerator() {
@@ -22,6 +34,8 @@ public class PaymentTestSamples {
             .id(longCount.incrementAndGet())
             .gateway(UUID.randomUUID().toString())
             .transactionNo(UUID.randomUUID().toString())
-            .status(UUID.randomUUID().toString());
+            .status(UUID.randomUUID().toString())
+            .paymentReference(UUID.randomUUID().toString())
+            .providerEventId(UUID.randomUUID().toString());
     }
 }

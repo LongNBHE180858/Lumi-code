@@ -18,8 +18,8 @@
         "title": "Assignment Student"
       },
       "id": "ID",
-      "student": "Student",
-      "assignment": "Assignment"
+      "assignment": "Assignment",
+      "student": "Student"
     }
   }
 }

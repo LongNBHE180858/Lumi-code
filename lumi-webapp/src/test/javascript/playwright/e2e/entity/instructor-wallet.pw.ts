@@ -126,7 +126,7 @@ test.describe('InstructorWallet e2e test', () => {
             url: '/api/instructor-wallets',
             body: {
               ...instructorWalletSample,
-              user: user,
+              instructor: user,
             },
           })
         ).json();
@@ -136,6 +136,9 @@ test.describe('InstructorWallet e2e test', () => {
           route =>
             route.fulfill({
               status: 200,
+              headers: {
+                link: '<http://localhost/api/instructor-wallets?page=0&size=20>; rel="last",<http://localhost/api/instructor-wallets?page=0&size=20>; rel="first"',
+              },
               json: [instructorWallet],
             }),
           { times: 1 },
@@ -220,7 +223,7 @@ test.describe('InstructorWallet e2e test', () => {
       await page.locator(`[data-cy="rowVersion"]`).fill('4312');
       await expect(page.locator(`[data-cy="rowVersion"]`)).toHaveValue('4312');
 
-      await page.locator(`[data-cy="user"]`).selectOption({ index: 1 });
+      await page.locator(`[data-cy="instructor"]`).selectOption({ index: 1 });
 
       const postRequest = page.waitForResponse(
         response => new URL(response.url()).pathname === instructorWalletApiUrl && response.request().method() === 'POST',

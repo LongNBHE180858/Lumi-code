@@ -11,17 +11,24 @@
     <changeSet id="20261012230519-2" author="jhipster">
 
         <addForeignKeyConstraint baseColumnNames="user_id"
-                                 baseTableName="ai_conversation"
-                                 constraintName="fk_ai_conversation__user_id"
+                                 baseTableName="ai_conversations"
+                                 constraintName="fk_ai_conversations__user_id"
                                  referencedColumnNames="id"
                                  referencedTableName="jhi_user"
                                  />
 
         <addForeignKeyConstraint baseColumnNames="lesson_id"
-                                 baseTableName="ai_conversation"
-                                 constraintName="fk_ai_conversation__lesson_id"
+                                 baseTableName="ai_conversations"
+                                 constraintName="fk_ai_conversations__lesson_id"
                                  referencedColumnNames="id"
-                                 referencedTableName="lesson"
+                                 referencedTableName="lessons"
+                                 />
+
+        <addForeignKeyConstraint baseColumnNames="document_id"
+                                 baseTableName="ai_conversations"
+                                 constraintName="fk_ai_conversations__document_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="learning_documents"
                                  />
     </changeSet>
 </databaseChangeLog>

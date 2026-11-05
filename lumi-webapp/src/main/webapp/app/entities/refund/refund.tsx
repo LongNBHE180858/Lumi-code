@@ -131,11 +131,30 @@ export const Refund = () => {
                   <Translate contentKey="lumiApp.refund.createdAt">Created At</Translate>{' '}
                   <FontAwesomeIcon icon={getSortIconByFieldName('createdAt')} />
                 </th>
+                <th className="hand" onClick={sort('processedAt')}>
+                  <Translate contentKey="lumiApp.refund.processedAt">Processed At</Translate>{' '}
+                  <FontAwesomeIcon icon={getSortIconByFieldName('processedAt')} />
+                </th>
+                <th className="hand" onClick={sort('reviewNote')}>
+                  <Translate contentKey="lumiApp.refund.reviewNote">Review Note</Translate>{' '}
+                  <FontAwesomeIcon icon={getSortIconByFieldName('reviewNote')} />
+                </th>
+                <th className="hand" onClick={sort('refundReference')}>
+                  <Translate contentKey="lumiApp.refund.refundReference">Refund Reference</Translate>{' '}
+                  <FontAwesomeIcon icon={getSortIconByFieldName('refundReference')} />
+                </th>
+                <th className="hand" onClick={sort('accessRevokedAt')}>
+                  <Translate contentKey="lumiApp.refund.accessRevokedAt">Access Revoked At</Translate>{' '}
+                  <FontAwesomeIcon icon={getSortIconByFieldName('accessRevokedAt')} />
+                </th>
                 <th>
                   <Translate contentKey="lumiApp.refund.order">Order</Translate> <FontAwesomeIcon icon="sort" />
                 </th>
                 <th>
                   <Translate contentKey="lumiApp.refund.payment">Payment</Translate> <FontAwesomeIcon icon="sort" />
+                </th>
+                <th>
+                  <Translate contentKey="lumiApp.refund.processedBy">Processed By</Translate> <FontAwesomeIcon icon="sort" />
                 </th>
                 <th />
               </tr>
@@ -152,8 +171,15 @@ export const Refund = () => {
                   <td>{refund.reason}</td>
                   <td>{refund.status}</td>
                   <td>{refund.createdAt ? <TextFormat type="date" value={refund.createdAt} format={APP_DATE_FORMAT} /> : null}</td>
-                  <td>{refund.order ? <Link to={`/course-order/${refund.order.id}`}>{refund.order.id}</Link> : ''}</td>
-                  <td>{refund.payment ? <Link to={`/payment/${refund.payment.id}`}>{refund.payment.id}</Link> : ''}</td>
+                  <td>{refund.processedAt ? <TextFormat type="date" value={refund.processedAt} format={APP_DATE_FORMAT} /> : null}</td>
+                  <td>{refund.reviewNote}</td>
+                  <td>{refund.refundReference}</td>
+                  <td>
+                    {refund.accessRevokedAt ? <TextFormat type="date" value={refund.accessRevokedAt} format={APP_DATE_FORMAT} /> : null}
+                  </td>
+                  <td>{refund.order?.id ?? ''}</td>
+                  <td>{refund.payment?.id ?? ''}</td>
+                  <td>{refund.processedBy ? refund.processedBy.login : ''}</td>
                   <td className="text-end">
                     <div className="btn-group flex-btn-group-container">
                       <Button as={Link as any} to={`/refund/${refund.id}`} variant="info" size="sm" data-cy="entityDetailsButton">

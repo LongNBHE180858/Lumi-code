@@ -1,10 +1,10 @@
 package com.lumi.web.rest;
 
 import com.lumi.repository.UserProfileRepository;
-import com.lumi.service.UserProfileQueryService;
 import com.lumi.service.UserProfileService;
 import com.lumi.service.criteria.UserProfileCriteria;
 import com.lumi.service.dto.UserProfileDTO;
+import com.lumi.service.query.UserProfileQueryService;
 import com.lumi.web.rest.errors.BadRequestAlertException;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;

@@ -1,0 +1,31 @@
+id;type;amount;status;idempotency_key;occurred_at;balance_bucket;wallet_id
+1;REFUND;5548.61;tighten hippodrome w;next harp near;2026-10-11T23:51:26;deliberately humble;1
+2;REFUND;22041.42;wherever bind lack;graduate joyful underneath;2026-10-12T01:29:03;sideboard as;2
+3;ADJUSTMENT;4448.63;slip unto;ew because discourse;2026-10-12T20:17:43;likewise however;1
+4;ADJUSTMENT;6341.11;and;acquaintance woot joshingly;2026-10-12T14:33:14;splurge separately t;1
+5;SALE;24556.47;oh clearly rationali;through hover ah;2026-10-12T07:54:51;hence amongst;1
+6;ADJUSTMENT;13411.67;blond;blah tenement bolster;2026-10-11T23:33:46;er;1
+7;REFUND;6720.58;hydrolyze broadside;dock butter wombat;2026-10-12T19:27:01;gosh fooey;2
+8;PAYOUT;19399.03;stale brr;shakily;2026-10-12T07:32:43;keenly pish murky;1
+9;SALE;22096.78;too ocelot below;edge;2026-10-12T11:57:02;far experienced thos;2
+10;SALE;3681.12;sup flash;past;2026-10-12T07:44:04;excluding;2
+11;SALE;31177.77;upwardly;tough;2026-10-12T17:17:13;huff;2
+12;SALE;14780.96;into violently longb;formula chubby measly;2026-10-12T02:49:28;override;1
+13;PAYOUT;15137.18;brr;vice to;2026-10-12T09:37:11;wherever;1
+14;REFUND;31864.5;eek;anaesthetise and;2026-10-11T23:46:14;not nocturnal banish;2
+15;REFUND;24500.48;readjust genuine yuc;neglected than round;2026-10-12T11:49:47;immaculate boyfriend;2
+16;PAYOUT;2287.98;whenever instead;within birth;2026-10-12T07:37:24;velvety;2
+17;PAYOUT;21812.97;indeed forenenst;whether quicker nicely;2026-10-12T22:21:17;order super;1
+18;REFUND;30209.78;parched lost wolf;anti tromp what;2026-10-12T07:51:18;how;2
+19;PAYOUT;28833.08;breakable below doin;pulse;2026-10-12T08:52:19;help license planula;2
+20;ADJUSTMENT;24076.41;perfection phew inwa;veg dally;2026-10-12T17:54:08;drowse in soon;1
+21;SALE;25083.19;into;rival making;2026-10-12T04:43:16;diligently quizzical;1
+22;PAYOUT;27171.7;whose flight;oblong;2026-10-12T14:19:37;rebound voluntarily;1
+23;ADJUSTMENT;10422.99;whose upon;failing;2026-10-12T20:35:45;crank waterlogged;2
+24;ADJUSTMENT;27094.43;huzzah considering a;furthermore;2026-10-12T13:25:19;uh-huh;2
+25;ADJUSTMENT;3790.27;whose juicy;that angrily;2026-10-12T18:41:24;deceivingly blah;1
+26;ADJUSTMENT;21495.22;who courageously til;woot brief underneath;2026-10-12T19:39:28;behest;2
+27;PAYOUT;11283.1;till animated;besides expatiate;2026-10-12T10:58:22;sticker gah huzzah;1
+28;ADJUSTMENT;18142.33;intently moral;garrote;2026-10-12T19:40:05;co-producer testify ;1
+29;SALE;9989.73;amongst;consequently describe absent;2026-10-12T12:04:44;ack;1
+30;ADJUSTMENT;4476.79;annually fiddle;soft drat safely;2026-10-12T20:48:46;between;1

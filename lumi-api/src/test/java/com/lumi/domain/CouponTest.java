@@ -1,6 +1,7 @@
 package com.lumi.domain;
 
 import static com.lumi.domain.CouponTestSamples.*;
+import static com.lumi.domain.CourseTestSamples.*;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.lumi.web.rest.TestUtil;
@@ -20,5 +21,17 @@ class CouponTest {
 
         coupon2 = getCouponSample2();
         assertThat(coupon1).isNotEqualTo(coupon2);
+    }
+
+    @Test
+    void courseTest() {
+        Coupon coupon = getCouponRandomSampleGenerator();
+        Course courseBack = getCourseRandomSampleGenerator();
+
+        coupon.setCourse(courseBack);
+        assertThat(coupon.getCourse()).isEqualTo(courseBack);
+
+        coupon.course(null);
+        assertThat(coupon.getCourse()).isNull();
     }
 }

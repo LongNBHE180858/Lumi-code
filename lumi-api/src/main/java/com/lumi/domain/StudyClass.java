@@ -9,10 +9,10 @@ import java.io.Serializable;
 import java.time.Instant;
 
 /**
- * A StudyClass.
+ * Lưu lớp riêng, giáo viên quản lý, mã tham gia và sĩ số.
  */
 @Entity
-@Table(name = "study_class")
+@Table(name = "classes")
 @SuppressWarnings("common-java:DuplicatedBlocks")
 public class StudyClass implements Serializable {
 
@@ -30,8 +30,7 @@ public class StudyClass implements Serializable {
     @Column(name = "name", length = 255, nullable = false)
     private String name;
 
-    @Size(max = 5000)
-    @Column(name = "description", length = 5000)
+    @Column(name = "description", columnDefinition = "text")
     private String description;
 
     @Size(max = 10)
@@ -42,11 +41,9 @@ public class StudyClass implements Serializable {
     @Column(name = "join_mode")
     private ClassJoinMode joinMode;
 
-    @Min(value = 1)
     @Column(name = "max_students")
     private Integer maxStudents;
 
-    @Min(value = 0)
     @Column(name = "current_students")
     private Integer currentStudents;
 
@@ -59,6 +56,13 @@ public class StudyClass implements Serializable {
 
     @Column(name = "created_at")
     private Instant createdAt;
+
+    @Column(name = "join_code_expires_at")
+    private Instant joinCodeExpiresAt;
+
+    @NotNull
+    @Column(name = "updated_at", nullable = false)
+    private Instant updatedAt;
 
     @ManyToOne(optional = false)
     @NotNull
@@ -202,6 +206,32 @@ public class StudyClass implements Serializable {
         this.createdAt = createdAt;
     }
 
+    public Instant getJoinCodeExpiresAt() {
+        return this.joinCodeExpiresAt;
+    }
+
+    public StudyClass joinCodeExpiresAt(Instant joinCodeExpiresAt) {
+        this.setJoinCodeExpiresAt(joinCodeExpiresAt);
+        return this;
+    }
+
+    public void setJoinCodeExpiresAt(Instant joinCodeExpiresAt) {
+        this.joinCodeExpiresAt = joinCodeExpiresAt;
+    }
+
+    public Instant getUpdatedAt() {
+        return this.updatedAt;
+    }
+
+    public StudyClass updatedAt(Instant updatedAt) {
+        this.setUpdatedAt(updatedAt);
+        return this;
+    }
+
+    public void setUpdatedAt(Instant updatedAt) {
+        this.updatedAt = updatedAt;
+    }
+
     public User getInstructor() {
         return this.instructor;
     }
@@ -274,6 +304,8 @@ public class StudyClass implements Serializable {
             ", status='" + getStatus() + "'" +
             ", isDeleted='" + getIsDeleted() + "'" +
             ", createdAt='" + getCreatedAt() + "'" +
+            ", joinCodeExpiresAt='" + getJoinCodeExpiresAt() + "'" +
+            ", updatedAt='" + getUpdatedAt() + "'" +
             "}";
     }
 }

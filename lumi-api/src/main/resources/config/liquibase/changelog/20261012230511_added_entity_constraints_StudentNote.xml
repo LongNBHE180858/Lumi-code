@@ -11,17 +11,17 @@
     <changeSet id="20261012230511-2" author="jhipster">
 
         <addForeignKeyConstraint baseColumnNames="student_id"
-                                 baseTableName="student_note"
-                                 constraintName="fk_student_note__student_id"
+                                 baseTableName="student_notes"
+                                 constraintName="fk_student_notes__student_id"
                                  referencedColumnNames="id"
                                  referencedTableName="jhi_user"
                                  />
 
         <addForeignKeyConstraint baseColumnNames="lesson_id"
-                                 baseTableName="student_note"
-                                 constraintName="fk_student_note__lesson_id"
+                                 baseTableName="student_notes"
+                                 constraintName="fk_student_notes__lesson_id"
                                  referencedColumnNames="id"
-                                 referencedTableName="lesson"
+                                 referencedTableName="lessons"
                                  />
     </changeSet>
 </databaseChangeLog>

@@ -33,7 +33,6 @@ public class GradeServiceImpl implements GradeService {
     public GradeDTO save(GradeDTO gradeDTO) {
         LOG.debug("Request to save Grade : {}", gradeDTO);
         Grade grade = gradeMapper.toEntity(gradeDTO);
-        if (grade.getActive() == null) grade.setActive(true);
         grade = gradeRepository.save(grade);
         return gradeMapper.toDto(grade);
     }
@@ -42,7 +41,6 @@ public class GradeServiceImpl implements GradeService {
     public GradeDTO update(GradeDTO gradeDTO) {
         LOG.debug("Request to update Grade : {}", gradeDTO);
         Grade grade = gradeMapper.toEntity(gradeDTO);
-        if (grade.getActive() == null) grade.setActive(gradeRepository.findById(gradeDTO.getId()).map(Grade::getActive).orElse(true));
         grade = gradeRepository.save(grade);
         return gradeMapper.toDto(grade);
     }
@@ -72,6 +70,6 @@ public class GradeServiceImpl implements GradeService {
     @Override
     public void delete(Long id) {
         LOG.debug("Request to delete Grade : {}", id);
-        gradeRepository.findById(id).ifPresent(grade -> grade.setActive(false));
+        gradeRepository.findById(id);
     }
 }

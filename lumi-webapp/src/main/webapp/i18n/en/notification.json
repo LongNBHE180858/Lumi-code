@@ -23,6 +23,9 @@
       "isRead": "Is Read",
       "type": "Type",
       "createdAt": "Created At",
+      "targetType": "Target Type",
+      "targetId": "Target Id",
+      "readAt": "Read At",
       "user": "User"
     }
   }

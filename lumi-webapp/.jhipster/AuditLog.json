@@ -3,7 +3,9 @@
     "changelogDate": "20261012231732"
   },
   "applications": ["*"],
+  "documentation": "Lưu dấu vết hành động và thay đổi dữ liệu quan trọng trong hệ thống.",
   "dto": "mapstruct",
+  "entityTableName": "audit_logs",
   "fields": [
     {
       "fieldName": "action",
@@ -31,9 +33,7 @@
     },
     {
       "fieldName": "details",
-      "fieldType": "String",
-      "fieldValidateRules": ["maxlength"],
-      "fieldValidateRulesMaxlength": "5000"
+      "fieldType": "TextBlob"
     },
     {
       "fieldName": "occurredAt",
@@ -50,6 +50,7 @@
       "relationshipName": "actor",
       "relationshipSide": "left",
       "relationshipType": "many-to-one",
+      "relationshipValidateRules": "required",
       "relationshipWithBuiltInEntity": true
     }
   ],

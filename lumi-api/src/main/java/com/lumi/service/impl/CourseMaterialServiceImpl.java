@@ -5,7 +5,11 @@ import com.lumi.repository.CourseMaterialRepository;
 import com.lumi.service.CourseMaterialService;
 import com.lumi.service.dto.CourseMaterialDTO;
 import com.lumi.service.mapper.CourseMaterialMapper;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
@@ -64,6 +68,19 @@ public class CourseMaterialServiceImpl implements CourseMaterialService {
 
     public Page<CourseMaterialDTO> findAllWithEagerRelationships(Pageable pageable) {
         return courseMaterialRepository.findAllWithEagerRelationships(pageable).map(courseMaterialMapper::toDto);
+    }
+
+    /**
+     *  Get all the courseMaterials where LearningDocument is {@code null}.
+     *  @return the list of entities.
+     */
+    @Transactional(readOnly = true)
+    public List<CourseMaterialDTO> findAllWhereLearningDocumentIsNull() {
+        LOG.debug("Request to get all courseMaterials where LearningDocument is null");
+        return StreamSupport.stream(courseMaterialRepository.findAll().spliterator(), false)
+            .filter(courseMaterial -> courseMaterial.getLearningDocument() == null)
+            .map(courseMaterialMapper::toDto)
+            .collect(Collectors.toCollection(LinkedList::new));
     }
 
     @Override

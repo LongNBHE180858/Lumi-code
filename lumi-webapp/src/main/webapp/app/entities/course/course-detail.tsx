@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { Button, Col, Row } from 'react-bootstrap';
-import { TextFormat, Translate, translate } from 'react-jhipster';
+import { TextFormat, Translate } from 'react-jhipster';
 import { Link, useParams } from 'react-router';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -27,48 +27,6 @@ export const CourseDetail = () => {
           <Translate contentKey="lumiApp.course.detail.title">Course</Translate>
         </h2>
         <dl className="jh-entity-details">
-          <dt>
-            <Translate contentKey="lumiApp.course.shortDescription" />
-          </dt>
-          <dd>{courseEntity.shortDescription}</dd>
-          <dt>
-            <Translate contentKey="lumiApp.course.bookSeries" />
-          </dt>
-          <dd>{courseEntity.bookSeries}</dd>
-          <dt>
-            <Translate contentKey="lumiApp.course.targetAudience" />
-          </dt>
-          <dd>{courseEntity.targetAudience}</dd>
-          <dt>
-            <Translate contentKey="lumiApp.course.prerequisites" />
-          </dt>
-          <dd>{courseEntity.prerequisites}</dd>
-          <dt>
-            <Translate contentKey="lumiApp.course.learningObjectives" />
-          </dt>
-          <dd>
-            <ol>
-              {courseEntity.learningObjectives?.map((objective, index) => (
-                <li key={index}>{objective}</li>
-              ))}
-            </ol>
-          </dd>
-          <dt>
-            <Translate contentKey="lumiApp.course.introVideoUrl" />
-          </dt>
-          <dd>{courseEntity.introVideoUrl}</dd>
-          <dt>
-            <Translate contentKey="lumiApp.course.accessDurationValue" />
-          </dt>
-          <dd>{courseEntity.accessDurationValue}</dd>
-          <dt>
-            <Translate contentKey="lumiApp.course.accessDurationUnit" />
-          </dt>
-          <dd>{courseEntity.accessDurationUnit ? translate(`lumiApp.AccessDurationUnit.${courseEntity.accessDurationUnit}`) : ''}</dd>
-          <dt>
-            <Translate contentKey="lumiApp.course.version" />
-          </dt>
-          <dd>{courseEntity.version}</dd>
           <dt>
             <span id="id">
               <Translate contentKey="global.field.id">ID</Translate>
@@ -100,11 +58,65 @@ export const CourseDetail = () => {
           </dt>
           <dd>{courseEntity.price}</dd>
           <dt>
+            <span id="shortDescription">
+              <Translate contentKey="lumiApp.course.shortDescription">Short Description</Translate>
+            </span>
+          </dt>
+          <dd>{courseEntity.shortDescription}</dd>
+          <dt>
+            <span id="bookSeries">
+              <Translate contentKey="lumiApp.course.bookSeries">Book Series</Translate>
+            </span>
+          </dt>
+          <dd>{courseEntity.bookSeries}</dd>
+          <dt>
+            <span id="targetAudience">
+              <Translate contentKey="lumiApp.course.targetAudience">Target Audience</Translate>
+            </span>
+          </dt>
+          <dd>{courseEntity.targetAudience}</dd>
+          <dt>
+            <span id="prerequisites">
+              <Translate contentKey="lumiApp.course.prerequisites">Prerequisites</Translate>
+            </span>
+          </dt>
+          <dd>{courseEntity.prerequisites}</dd>
+          <dt>
+            <span id="learningObjectives">
+              <Translate contentKey="lumiApp.course.learningObjectives">Learning Objectives</Translate>
+            </span>
+          </dt>
+          <dd>{courseEntity.learningObjectives}</dd>
+          <dt>
+            <span id="introVideoUrl">
+              <Translate contentKey="lumiApp.course.introVideoUrl">Intro Video Url</Translate>
+            </span>
+          </dt>
+          <dd>{courseEntity.introVideoUrl}</dd>
+          <dt>
             <span id="validDurationDays">
               <Translate contentKey="lumiApp.course.validDurationDays">Valid Duration Days</Translate>
             </span>
           </dt>
           <dd>{courseEntity.validDurationDays}</dd>
+          <dt>
+            <span id="accessDurationValue">
+              <Translate contentKey="lumiApp.course.accessDurationValue">Access Duration Value</Translate>
+            </span>
+          </dt>
+          <dd>{courseEntity.accessDurationValue}</dd>
+          <dt>
+            <span id="accessDurationUnit">
+              <Translate contentKey="lumiApp.course.accessDurationUnit">Access Duration Unit</Translate>
+            </span>
+          </dt>
+          <dd>{courseEntity.accessDurationUnit}</dd>
+          <dt>
+            <span id="version">
+              <Translate contentKey="lumiApp.course.version">Version</Translate>
+            </span>
+          </dt>
+          <dd>{courseEntity.version}</dd>
           <dt>
             <span id="status">
               <Translate contentKey="lumiApp.course.status">Status</Translate>
@@ -130,21 +142,23 @@ export const CourseDetail = () => {
           </dt>
           <dd>{courseEntity.updatedAt ? <TextFormat value={courseEntity.updatedAt} type="date" format={APP_DATE_FORMAT} /> : null}</dd>
           <dt>
+            <span id="storageLimitBytes">
+              <Translate contentKey="lumiApp.course.storageLimitBytes">Storage Limit Bytes</Translate>
+            </span>
+          </dt>
+          <dd>{courseEntity.storageLimitBytes}</dd>
+          <dt>
             <Translate contentKey="lumiApp.course.author">Author</Translate>
           </dt>
           <dd>{courseEntity.author ? courseEntity.author.login : ''}</dd>
           <dt>
-            <Translate contentKey="lumiApp.course.category">Category</Translate>
-          </dt>
-          <dd>{courseEntity.category ? courseEntity.category.name : ''}</dd>
-          <dt>
             <Translate contentKey="lumiApp.course.subject">Subject</Translate>
           </dt>
-          <dd>{courseEntity.subject ? courseEntity.subject.name : ''}</dd>
+          <dd>{courseEntity.subject ? courseEntity.subject.id : ''}</dd>
           <dt>
             <Translate contentKey="lumiApp.course.grade">Grade</Translate>
           </dt>
-          <dd>{courseEntity.grade ? courseEntity.grade.name : ''}</dd>
+          <dd>{courseEntity.grade ? courseEntity.grade.id : ''}</dd>
         </dl>
         <Button as={Link as any} to="/course" replace variant="info" data-cy="entityDetailsBackButton">
           <FontAwesomeIcon icon="arrow-left" />{' '}

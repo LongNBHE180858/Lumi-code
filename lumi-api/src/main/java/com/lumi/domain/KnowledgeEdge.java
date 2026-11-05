@@ -7,10 +7,10 @@ import java.io.Serial;
 import java.io.Serializable;
 
 /**
- * A KnowledgeEdge.
+ * Lưu quan hệ giữa các đơn vị kiến thức trong đồ thị.
  */
 @Entity
-@Table(name = "knowledge_edge")
+@Table(name = "knowledge_edges")
 @SuppressWarnings("common-java:DuplicatedBlocks")
 public class KnowledgeEdge implements Serializable {
 

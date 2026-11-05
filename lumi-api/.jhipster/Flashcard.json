@@ -3,19 +3,24 @@
     "changelogDate": "20261012230514"
   },
   "applications": ["*"],
+  "documentation": "Lưu nội dung mặt trước, mặt sau và nguồn AI của từng thẻ.",
   "dto": "mapstruct",
+  "entityTableName": "flashcards",
   "fields": [
     {
       "fieldName": "frontText",
-      "fieldType": "String",
-      "fieldValidateRules": ["required", "maxlength"],
-      "fieldValidateRulesMaxlength": "5000"
+      "fieldType": "TextBlob",
+      "fieldValidateRules": ["required"]
     },
     {
       "fieldName": "backText",
-      "fieldType": "String",
-      "fieldValidateRules": ["required", "maxlength"],
-      "fieldValidateRulesMaxlength": "5000"
+      "fieldType": "TextBlob",
+      "fieldValidateRules": ["required"]
+    },
+    {
+      "fieldName": "updatedAt",
+      "fieldType": "Instant",
+      "fieldValidateRules": ["required"]
     }
   ],
   "jpaMetamodelFiltering": true,
@@ -23,12 +28,17 @@
   "pagination": "pagination",
   "relationships": [
     {
-      "otherEntityField": "title",
       "otherEntityName": "flashcardDeck",
       "relationshipName": "deck",
       "relationshipSide": "left",
       "relationshipType": "many-to-one",
       "relationshipValidateRules": "required"
+    },
+    {
+      "otherEntityName": "aiGeneratedContent",
+      "relationshipName": "aiContent",
+      "relationshipSide": "left",
+      "relationshipType": "many-to-one"
     }
   ],
   "searchEngine": "no",

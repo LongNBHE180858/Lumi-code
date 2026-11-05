@@ -8,10 +8,10 @@ import java.io.Serializable;
 import java.time.Instant;
 
 /**
- * A AiMessage.
+ * Lưu tin nhắn AI, nguồn trích dẫn và đánh giá phản hồi của chủ hội thoại.
  */
 @Entity
-@Table(name = "ai_message")
+@Table(name = "ai_messages")
 @SuppressWarnings("common-java:DuplicatedBlocks")
 public class AiMessage implements Serializable {
 
@@ -29,17 +29,36 @@ public class AiMessage implements Serializable {
     @Column(name = "sender_role", length = 20, nullable = false)
     private String senderRole;
 
-    @NotNull
-    @Size(max = 5000)
-    @Column(name = "content", length = 5000, nullable = false)
+    @Column(name = "content", nullable = false, columnDefinition = "text")
     private String content;
 
     @Column(name = "created_at")
     private Instant createdAt;
 
+    @Column(name = "citations", nullable = false, columnDefinition = "text")
+    private String citations;
+
+    @NotNull
+    @Size(max = 20)
+    @Column(name = "generation_status", length = 20, nullable = false)
+    private String generationStatus;
+
+    @Size(max = 100)
+    @Column(name = "model_name", length = 100)
+    private String modelName;
+
+    @Column(name = "feedback_rating")
+    private Integer feedbackRating;
+
+    @Column(name = "feedback_note", columnDefinition = "text")
+    private String feedbackNote;
+
+    @Column(name = "feedback_at")
+    private Instant feedbackAt;
+
     @ManyToOne(optional = false)
     @NotNull
-    @JsonIgnoreProperties(value = { "user", "lesson" }, allowSetters = true)
+    @JsonIgnoreProperties(value = { "user", "lesson", "document" }, allowSetters = true)
     private AiConversation conversation;
 
     // jhipster-needle-entity-add-field - JHipster will add fields here
@@ -96,6 +115,84 @@ public class AiMessage implements Serializable {
         this.createdAt = createdAt;
     }
 
+    public String getCitations() {
+        return this.citations;
+    }
+
+    public AiMessage citations(String citations) {
+        this.setCitations(citations);
+        return this;
+    }
+
+    public void setCitations(String citations) {
+        this.citations = citations;
+    }
+
+    public String getGenerationStatus() {
+        return this.generationStatus;
+    }
+
+    public AiMessage generationStatus(String generationStatus) {
+        this.setGenerationStatus(generationStatus);
+        return this;
+    }
+
+    public void setGenerationStatus(String generationStatus) {
+        this.generationStatus = generationStatus;
+    }
+
+    public String getModelName() {
+        return this.modelName;
+    }
+
+    public AiMessage modelName(String modelName) {
+        this.setModelName(modelName);
+        return this;
+    }
+
+    public void setModelName(String modelName) {
+        this.modelName = modelName;
+    }
+
+    public Integer getFeedbackRating() {
+        return this.feedbackRating;
+    }
+
+    public AiMessage feedbackRating(Integer feedbackRating) {
+        this.setFeedbackRating(feedbackRating);
+        return this;
+    }
+
+    public void setFeedbackRating(Integer feedbackRating) {
+        this.feedbackRating = feedbackRating;
+    }
+
+    public String getFeedbackNote() {
+        return this.feedbackNote;
+    }
+
+    public AiMessage feedbackNote(String feedbackNote) {
+        this.setFeedbackNote(feedbackNote);
+        return this;
+    }
+
+    public void setFeedbackNote(String feedbackNote) {
+        this.feedbackNote = feedbackNote;
+    }
+
+    public Instant getFeedbackAt() {
+        return this.feedbackAt;
+    }
+
+    public AiMessage feedbackAt(Instant feedbackAt) {
+        this.setFeedbackAt(feedbackAt);
+        return this;
+    }
+
+    public void setFeedbackAt(Instant feedbackAt) {
+        this.feedbackAt = feedbackAt;
+    }
+
     public AiConversation getConversation() {
         return this.conversation;
     }
@@ -136,6 +233,12 @@ public class AiMessage implements Serializable {
             ", senderRole='" + getSenderRole() + "'" +
             ", content='" + getContent() + "'" +
             ", createdAt='" + getCreatedAt() + "'" +
+            ", citations='" + getCitations() + "'" +
+            ", generationStatus='" + getGenerationStatus() + "'" +
+            ", modelName='" + getModelName() + "'" +
+            ", feedbackRating=" + getFeedbackRating() +
+            ", feedbackNote='" + getFeedbackNote() + "'" +
+            ", feedbackAt='" + getFeedbackAt() + "'" +
             "}";
     }
 }

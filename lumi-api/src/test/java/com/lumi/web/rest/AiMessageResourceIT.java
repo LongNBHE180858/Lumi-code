@@ -45,6 +45,25 @@ class AiMessageResourceIT {
     private static final Instant DEFAULT_CREATED_AT = Instant.ofEpochMilli(0L);
     private static final Instant UPDATED_CREATED_AT = Instant.ofEpochMilli(1791835009362L);
 
+    private static final String DEFAULT_CITATIONS = "AAAAAAAAAA";
+    private static final String UPDATED_CITATIONS = "BBBBBBBBBB";
+
+    private static final String DEFAULT_GENERATION_STATUS = "AAAAAAAAAA";
+    private static final String UPDATED_GENERATION_STATUS = "BBBBBBBBBB";
+
+    private static final String DEFAULT_MODEL_NAME = "AAAAAAAAAA";
+    private static final String UPDATED_MODEL_NAME = "BBBBBBBBBB";
+
+    private static final Integer DEFAULT_FEEDBACK_RATING = 1;
+    private static final Integer UPDATED_FEEDBACK_RATING = 2;
+    private static final Integer SMALLER_FEEDBACK_RATING = 1 - 1;
+
+    private static final String DEFAULT_FEEDBACK_NOTE = "AAAAAAAAAA";
+    private static final String UPDATED_FEEDBACK_NOTE = "BBBBBBBBBB";
+
+    private static final Instant DEFAULT_FEEDBACK_AT = Instant.ofEpochMilli(0L);
+    private static final Instant UPDATED_FEEDBACK_AT = Instant.ofEpochMilli(1791835009362L);
+
     private static final String ENTITY_API_URL = "/api/ai-messages";
     private static final String ENTITY_API_URL_ID = ENTITY_API_URL + "/{id}";
 
@@ -77,7 +96,16 @@ class AiMessageResourceIT {
      * if they test an entity which requires the current entity.
      */
     public static AiMessage createEntity(EntityManager em) {
-        AiMessage aiMessage = new AiMessage().senderRole(DEFAULT_SENDER_ROLE).content(DEFAULT_CONTENT).createdAt(DEFAULT_CREATED_AT);
+        AiMessage aiMessage = new AiMessage()
+            .senderRole(DEFAULT_SENDER_ROLE)
+            .content(DEFAULT_CONTENT)
+            .createdAt(DEFAULT_CREATED_AT)
+            .citations(DEFAULT_CITATIONS)
+            .generationStatus(DEFAULT_GENERATION_STATUS)
+            .modelName(DEFAULT_MODEL_NAME)
+            .feedbackRating(DEFAULT_FEEDBACK_RATING)
+            .feedbackNote(DEFAULT_FEEDBACK_NOTE)
+            .feedbackAt(DEFAULT_FEEDBACK_AT);
         // Add required entity
         AiConversation aiConversation;
         if (TestUtil.findAll(em, AiConversation.class).isEmpty()) {
@@ -98,7 +126,16 @@ class AiMessageResourceIT {
      * if they test an entity which requires the current entity.
      */
     public static AiMessage createUpdatedEntity(EntityManager em) {
-        AiMessage updatedAiMessage = new AiMessage().senderRole(UPDATED_SENDER_ROLE).content(UPDATED_CONTENT).createdAt(UPDATED_CREATED_AT);
+        AiMessage updatedAiMessage = new AiMessage()
+            .senderRole(UPDATED_SENDER_ROLE)
+            .content(UPDATED_CONTENT)
+            .createdAt(UPDATED_CREATED_AT)
+            .citations(UPDATED_CITATIONS)
+            .generationStatus(UPDATED_GENERATION_STATUS)
+            .modelName(UPDATED_MODEL_NAME)
+            .feedbackRating(UPDATED_FEEDBACK_RATING)
+            .feedbackNote(UPDATED_FEEDBACK_NOTE)
+            .feedbackAt(UPDATED_FEEDBACK_AT);
         // Add required entity
         AiConversation aiConversation;
         if (TestUtil.findAll(em, AiConversation.class).isEmpty()) {
@@ -186,10 +223,10 @@ class AiMessageResourceIT {
 
     @Test
     @Transactional
-    void checkContentIsRequired() throws Exception {
+    void checkGenerationStatusIsRequired() throws Exception {
         long databaseSizeBeforeTest = getRepositoryCount();
         // set the field null
-        aiMessage.setContent(null);
+        aiMessage.setGenerationStatus(null);
 
         // Create the AiMessage, which fails.
         AiMessageDTO aiMessageDTO = aiMessageMapper.toDto(aiMessage);
@@ -215,7 +252,13 @@ class AiMessageResourceIT {
             .andExpect(jsonPath("$.[*].id").value(hasItem(aiMessage.getId().intValue())))
             .andExpect(jsonPath("$.[*].senderRole").value(hasItem(DEFAULT_SENDER_ROLE)))
             .andExpect(jsonPath("$.[*].content").value(hasItem(DEFAULT_CONTENT)))
-            .andExpect(jsonPath("$.[*].createdAt").value(hasItem(DEFAULT_CREATED_AT.toString())));
+            .andExpect(jsonPath("$.[*].createdAt").value(hasItem(DEFAULT_CREATED_AT.toString())))
+            .andExpect(jsonPath("$.[*].citations").value(hasItem(DEFAULT_CITATIONS)))
+            .andExpect(jsonPath("$.[*].generationStatus").value(hasItem(DEFAULT_GENERATION_STATUS)))
+            .andExpect(jsonPath("$.[*].modelName").value(hasItem(DEFAULT_MODEL_NAME)))
+            .andExpect(jsonPath("$.[*].feedbackRating").value(hasItem(DEFAULT_FEEDBACK_RATING)))
+            .andExpect(jsonPath("$.[*].feedbackNote").value(hasItem(DEFAULT_FEEDBACK_NOTE)))
+            .andExpect(jsonPath("$.[*].feedbackAt").value(hasItem(DEFAULT_FEEDBACK_AT.toString())));
     }
 
     @Test
@@ -232,7 +275,13 @@ class AiMessageResourceIT {
             .andExpect(jsonPath("$.id").value(aiMessage.getId().intValue()))
             .andExpect(jsonPath("$.senderRole").value(DEFAULT_SENDER_ROLE))
             .andExpect(jsonPath("$.content").value(DEFAULT_CONTENT))
-            .andExpect(jsonPath("$.createdAt").value(DEFAULT_CREATED_AT.toString()));
+            .andExpect(jsonPath("$.createdAt").value(DEFAULT_CREATED_AT.toString()))
+            .andExpect(jsonPath("$.citations").value(DEFAULT_CITATIONS))
+            .andExpect(jsonPath("$.generationStatus").value(DEFAULT_GENERATION_STATUS))
+            .andExpect(jsonPath("$.modelName").value(DEFAULT_MODEL_NAME))
+            .andExpect(jsonPath("$.feedbackRating").value(DEFAULT_FEEDBACK_RATING))
+            .andExpect(jsonPath("$.feedbackNote").value(DEFAULT_FEEDBACK_NOTE))
+            .andExpect(jsonPath("$.feedbackAt").value(DEFAULT_FEEDBACK_AT.toString()));
     }
 
     @Test
@@ -305,56 +354,6 @@ class AiMessageResourceIT {
 
     @Test
     @Transactional
-    void getAllAiMessagesByContentIsEqualToSomething() throws Exception {
-        // Initialize the database
-        insertedAiMessage = aiMessageRepository.saveAndFlush(aiMessage);
-
-        // Get all the aiMessageList where content equals to
-        defaultAiMessageFiltering("content.equals=" + DEFAULT_CONTENT, "content.equals=" + UPDATED_CONTENT);
-    }
-
-    @Test
-    @Transactional
-    void getAllAiMessagesByContentIsInShouldWork() throws Exception {
-        // Initialize the database
-        insertedAiMessage = aiMessageRepository.saveAndFlush(aiMessage);
-
-        // Get all the aiMessageList where content in
-        defaultAiMessageFiltering("content.in=" + DEFAULT_CONTENT + "," + UPDATED_CONTENT, "content.in=" + UPDATED_CONTENT);
-    }
-
-    @Test
-    @Transactional
-    void getAllAiMessagesByContentIsNullOrNotNull() throws Exception {
-        // Initialize the database
-        insertedAiMessage = aiMessageRepository.saveAndFlush(aiMessage);
-
-        // Get all the aiMessageList where content is not null
-        defaultAiMessageFiltering("content.specified=true", "content.specified=false");
-    }
-
-    @Test
-    @Transactional
-    void getAllAiMessagesByContentContainsSomething() throws Exception {
-        // Initialize the database
-        insertedAiMessage = aiMessageRepository.saveAndFlush(aiMessage);
-
-        // Get all the aiMessageList where content contains
-        defaultAiMessageFiltering("content.contains=" + DEFAULT_CONTENT, "content.contains=" + UPDATED_CONTENT);
-    }
-
-    @Test
-    @Transactional
-    void getAllAiMessagesByContentNotContainsSomething() throws Exception {
-        // Initialize the database
-        insertedAiMessage = aiMessageRepository.saveAndFlush(aiMessage);
-
-        // Get all the aiMessageList where content does not contain
-        defaultAiMessageFiltering("content.doesNotContain=" + UPDATED_CONTENT, "content.doesNotContain=" + DEFAULT_CONTENT);
-    }
-
-    @Test
-    @Transactional
     void getAllAiMessagesByCreatedAtIsEqualToSomething() throws Exception {
         // Initialize the database
         insertedAiMessage = aiMessageRepository.saveAndFlush(aiMessage);
@@ -381,6 +380,236 @@ class AiMessageResourceIT {
 
         // Get all the aiMessageList where createdAt is not null
         defaultAiMessageFiltering("createdAt.specified=true", "createdAt.specified=false");
+    }
+
+    @Test
+    @Transactional
+    void getAllAiMessagesByGenerationStatusIsEqualToSomething() throws Exception {
+        // Initialize the database
+        insertedAiMessage = aiMessageRepository.saveAndFlush(aiMessage);
+
+        // Get all the aiMessageList where generationStatus equals to
+        defaultAiMessageFiltering(
+            "generationStatus.equals=" + DEFAULT_GENERATION_STATUS,
+            "generationStatus.equals=" + UPDATED_GENERATION_STATUS
+        );
+    }
+
+    @Test
+    @Transactional
+    void getAllAiMessagesByGenerationStatusIsInShouldWork() throws Exception {
+        // Initialize the database
+        insertedAiMessage = aiMessageRepository.saveAndFlush(aiMessage);
+
+        // Get all the aiMessageList where generationStatus in
+        defaultAiMessageFiltering(
+            "generationStatus.in=" + DEFAULT_GENERATION_STATUS + "," + UPDATED_GENERATION_STATUS,
+            "generationStatus.in=" + UPDATED_GENERATION_STATUS
+        );
+    }
+
+    @Test
+    @Transactional
+    void getAllAiMessagesByGenerationStatusIsNullOrNotNull() throws Exception {
+        // Initialize the database
+        insertedAiMessage = aiMessageRepository.saveAndFlush(aiMessage);
+
+        // Get all the aiMessageList where generationStatus is not null
+        defaultAiMessageFiltering("generationStatus.specified=true", "generationStatus.specified=false");
+    }
+
+    @Test
+    @Transactional
+    void getAllAiMessagesByGenerationStatusContainsSomething() throws Exception {
+        // Initialize the database
+        insertedAiMessage = aiMessageRepository.saveAndFlush(aiMessage);
+
+        // Get all the aiMessageList where generationStatus contains
+        defaultAiMessageFiltering(
+            "generationStatus.contains=" + DEFAULT_GENERATION_STATUS,
+            "generationStatus.contains=" + UPDATED_GENERATION_STATUS
+        );
+    }
+
+    @Test
+    @Transactional
+    void getAllAiMessagesByGenerationStatusNotContainsSomething() throws Exception {
+        // Initialize the database
+        insertedAiMessage = aiMessageRepository.saveAndFlush(aiMessage);
+
+        // Get all the aiMessageList where generationStatus does not contain
+        defaultAiMessageFiltering(
+            "generationStatus.doesNotContain=" + UPDATED_GENERATION_STATUS,
+            "generationStatus.doesNotContain=" + DEFAULT_GENERATION_STATUS
+        );
+    }
+
+    @Test
+    @Transactional
+    void getAllAiMessagesByModelNameIsEqualToSomething() throws Exception {
+        // Initialize the database
+        insertedAiMessage = aiMessageRepository.saveAndFlush(aiMessage);
+
+        // Get all the aiMessageList where modelName equals to
+        defaultAiMessageFiltering("modelName.equals=" + DEFAULT_MODEL_NAME, "modelName.equals=" + UPDATED_MODEL_NAME);
+    }
+
+    @Test
+    @Transactional
+    void getAllAiMessagesByModelNameIsInShouldWork() throws Exception {
+        // Initialize the database
+        insertedAiMessage = aiMessageRepository.saveAndFlush(aiMessage);
+
+        // Get all the aiMessageList where modelName in
+        defaultAiMessageFiltering("modelName.in=" + DEFAULT_MODEL_NAME + "," + UPDATED_MODEL_NAME, "modelName.in=" + UPDATED_MODEL_NAME);
+    }
+
+    @Test
+    @Transactional
+    void getAllAiMessagesByModelNameIsNullOrNotNull() throws Exception {
+        // Initialize the database
+        insertedAiMessage = aiMessageRepository.saveAndFlush(aiMessage);
+
+        // Get all the aiMessageList where modelName is not null
+        defaultAiMessageFiltering("modelName.specified=true", "modelName.specified=false");
+    }
+
+    @Test
+    @Transactional
+    void getAllAiMessagesByModelNameContainsSomething() throws Exception {
+        // Initialize the database
+        insertedAiMessage = aiMessageRepository.saveAndFlush(aiMessage);
+
+        // Get all the aiMessageList where modelName contains
+        defaultAiMessageFiltering("modelName.contains=" + DEFAULT_MODEL_NAME, "modelName.contains=" + UPDATED_MODEL_NAME);
+    }
+
+    @Test
+    @Transactional
+    void getAllAiMessagesByModelNameNotContainsSomething() throws Exception {
+        // Initialize the database
+        insertedAiMessage = aiMessageRepository.saveAndFlush(aiMessage);
+
+        // Get all the aiMessageList where modelName does not contain
+        defaultAiMessageFiltering("modelName.doesNotContain=" + UPDATED_MODEL_NAME, "modelName.doesNotContain=" + DEFAULT_MODEL_NAME);
+    }
+
+    @Test
+    @Transactional
+    void getAllAiMessagesByFeedbackRatingIsEqualToSomething() throws Exception {
+        // Initialize the database
+        insertedAiMessage = aiMessageRepository.saveAndFlush(aiMessage);
+
+        // Get all the aiMessageList where feedbackRating equals to
+        defaultAiMessageFiltering("feedbackRating.equals=" + DEFAULT_FEEDBACK_RATING, "feedbackRating.equals=" + UPDATED_FEEDBACK_RATING);
+    }
+
+    @Test
+    @Transactional
+    void getAllAiMessagesByFeedbackRatingIsInShouldWork() throws Exception {
+        // Initialize the database
+        insertedAiMessage = aiMessageRepository.saveAndFlush(aiMessage);
+
+        // Get all the aiMessageList where feedbackRating in
+        defaultAiMessageFiltering(
+            "feedbackRating.in=" + DEFAULT_FEEDBACK_RATING + "," + UPDATED_FEEDBACK_RATING,
+            "feedbackRating.in=" + UPDATED_FEEDBACK_RATING
+        );
+    }
+
+    @Test
+    @Transactional
+    void getAllAiMessagesByFeedbackRatingIsNullOrNotNull() throws Exception {
+        // Initialize the database
+        insertedAiMessage = aiMessageRepository.saveAndFlush(aiMessage);
+
+        // Get all the aiMessageList where feedbackRating is not null
+        defaultAiMessageFiltering("feedbackRating.specified=true", "feedbackRating.specified=false");
+    }
+
+    @Test
+    @Transactional
+    void getAllAiMessagesByFeedbackRatingIsGreaterThanOrEqualToSomething() throws Exception {
+        // Initialize the database
+        insertedAiMessage = aiMessageRepository.saveAndFlush(aiMessage);
+
+        // Get all the aiMessageList where feedbackRating is greater than or equal to
+        defaultAiMessageFiltering(
+            "feedbackRating.greaterThanOrEqual=" + DEFAULT_FEEDBACK_RATING,
+            "feedbackRating.greaterThanOrEqual=" + UPDATED_FEEDBACK_RATING
+        );
+    }
+
+    @Test
+    @Transactional
+    void getAllAiMessagesByFeedbackRatingIsLessThanOrEqualToSomething() throws Exception {
+        // Initialize the database
+        insertedAiMessage = aiMessageRepository.saveAndFlush(aiMessage);
+
+        // Get all the aiMessageList where feedbackRating is less than or equal to
+        defaultAiMessageFiltering(
+            "feedbackRating.lessThanOrEqual=" + DEFAULT_FEEDBACK_RATING,
+            "feedbackRating.lessThanOrEqual=" + SMALLER_FEEDBACK_RATING
+        );
+    }
+
+    @Test
+    @Transactional
+    void getAllAiMessagesByFeedbackRatingIsLessThanSomething() throws Exception {
+        // Initialize the database
+        insertedAiMessage = aiMessageRepository.saveAndFlush(aiMessage);
+
+        // Get all the aiMessageList where feedbackRating is less than
+        defaultAiMessageFiltering(
+            "feedbackRating.lessThan=" + UPDATED_FEEDBACK_RATING,
+            "feedbackRating.lessThan=" + DEFAULT_FEEDBACK_RATING
+        );
+    }
+
+    @Test
+    @Transactional
+    void getAllAiMessagesByFeedbackRatingIsGreaterThanSomething() throws Exception {
+        // Initialize the database
+        insertedAiMessage = aiMessageRepository.saveAndFlush(aiMessage);
+
+        // Get all the aiMessageList where feedbackRating is greater than
+        defaultAiMessageFiltering(
+            "feedbackRating.greaterThan=" + SMALLER_FEEDBACK_RATING,
+            "feedbackRating.greaterThan=" + DEFAULT_FEEDBACK_RATING
+        );
+    }
+
+    @Test
+    @Transactional
+    void getAllAiMessagesByFeedbackAtIsEqualToSomething() throws Exception {
+        // Initialize the database
+        insertedAiMessage = aiMessageRepository.saveAndFlush(aiMessage);
+
+        // Get all the aiMessageList where feedbackAt equals to
+        defaultAiMessageFiltering("feedbackAt.equals=" + DEFAULT_FEEDBACK_AT, "feedbackAt.equals=" + UPDATED_FEEDBACK_AT);
+    }
+
+    @Test
+    @Transactional
+    void getAllAiMessagesByFeedbackAtIsInShouldWork() throws Exception {
+        // Initialize the database
+        insertedAiMessage = aiMessageRepository.saveAndFlush(aiMessage);
+
+        // Get all the aiMessageList where feedbackAt in
+        defaultAiMessageFiltering(
+            "feedbackAt.in=" + DEFAULT_FEEDBACK_AT + "," + UPDATED_FEEDBACK_AT,
+            "feedbackAt.in=" + UPDATED_FEEDBACK_AT
+        );
+    }
+
+    @Test
+    @Transactional
+    void getAllAiMessagesByFeedbackAtIsNullOrNotNull() throws Exception {
+        // Initialize the database
+        insertedAiMessage = aiMessageRepository.saveAndFlush(aiMessage);
+
+        // Get all the aiMessageList where feedbackAt is not null
+        defaultAiMessageFiltering("feedbackAt.specified=true", "feedbackAt.specified=false");
     }
 
     @Test
@@ -421,7 +650,13 @@ class AiMessageResourceIT {
             .andExpect(jsonPath("$.[*].id").value(hasItem(aiMessage.getId().intValue())))
             .andExpect(jsonPath("$.[*].senderRole").value(hasItem(DEFAULT_SENDER_ROLE)))
             .andExpect(jsonPath("$.[*].content").value(hasItem(DEFAULT_CONTENT)))
-            .andExpect(jsonPath("$.[*].createdAt").value(hasItem(DEFAULT_CREATED_AT.toString())));
+            .andExpect(jsonPath("$.[*].createdAt").value(hasItem(DEFAULT_CREATED_AT.toString())))
+            .andExpect(jsonPath("$.[*].citations").value(hasItem(DEFAULT_CITATIONS)))
+            .andExpect(jsonPath("$.[*].generationStatus").value(hasItem(DEFAULT_GENERATION_STATUS)))
+            .andExpect(jsonPath("$.[*].modelName").value(hasItem(DEFAULT_MODEL_NAME)))
+            .andExpect(jsonPath("$.[*].feedbackRating").value(hasItem(DEFAULT_FEEDBACK_RATING)))
+            .andExpect(jsonPath("$.[*].feedbackNote").value(hasItem(DEFAULT_FEEDBACK_NOTE)))
+            .andExpect(jsonPath("$.[*].feedbackAt").value(hasItem(DEFAULT_FEEDBACK_AT.toString())));
 
         // Check, that the count call also returns 1
         restAiMessageMockMvc
@@ -469,7 +704,16 @@ class AiMessageResourceIT {
         AiMessage updatedAiMessage = aiMessageRepository.findById(aiMessage.getId()).orElseThrow();
         // Disconnect from session so that the updates on updatedAiMessage are not directly saved in db
         em.detach(updatedAiMessage);
-        updatedAiMessage.senderRole(UPDATED_SENDER_ROLE).content(UPDATED_CONTENT).createdAt(UPDATED_CREATED_AT);
+        updatedAiMessage
+            .senderRole(UPDATED_SENDER_ROLE)
+            .content(UPDATED_CONTENT)
+            .createdAt(UPDATED_CREATED_AT)
+            .citations(UPDATED_CITATIONS)
+            .generationStatus(UPDATED_GENERATION_STATUS)
+            .modelName(UPDATED_MODEL_NAME)
+            .feedbackRating(UPDATED_FEEDBACK_RATING)
+            .feedbackNote(UPDATED_FEEDBACK_NOTE)
+            .feedbackAt(UPDATED_FEEDBACK_AT);
         AiMessageDTO aiMessageDTO = aiMessageMapper.toDto(updatedAiMessage);
 
         restAiMessageMockMvc
@@ -559,7 +803,12 @@ class AiMessageResourceIT {
         AiMessage partialUpdatedAiMessage = new AiMessage();
         partialUpdatedAiMessage.setId(aiMessage.getId());
 
-        partialUpdatedAiMessage.senderRole(UPDATED_SENDER_ROLE);
+        partialUpdatedAiMessage
+            .senderRole(UPDATED_SENDER_ROLE)
+            .citations(UPDATED_CITATIONS)
+            .generationStatus(UPDATED_GENERATION_STATUS)
+            .modelName(UPDATED_MODEL_NAME)
+            .feedbackNote(UPDATED_FEEDBACK_NOTE);
 
         restAiMessageMockMvc
             .perform(
@@ -590,7 +839,16 @@ class AiMessageResourceIT {
         AiMessage partialUpdatedAiMessage = new AiMessage();
         partialUpdatedAiMessage.setId(aiMessage.getId());
 
-        partialUpdatedAiMessage.senderRole(UPDATED_SENDER_ROLE).content(UPDATED_CONTENT).createdAt(UPDATED_CREATED_AT);
+        partialUpdatedAiMessage
+            .senderRole(UPDATED_SENDER_ROLE)
+            .content(UPDATED_CONTENT)
+            .createdAt(UPDATED_CREATED_AT)
+            .citations(UPDATED_CITATIONS)
+            .generationStatus(UPDATED_GENERATION_STATUS)
+            .modelName(UPDATED_MODEL_NAME)
+            .feedbackRating(UPDATED_FEEDBACK_RATING)
+            .feedbackNote(UPDATED_FEEDBACK_NOTE)
+            .feedbackAt(UPDATED_FEEDBACK_AT);
 
         restAiMessageMockMvc
             .perform(

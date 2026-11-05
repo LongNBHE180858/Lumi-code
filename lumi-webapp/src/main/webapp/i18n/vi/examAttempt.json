@@ -23,8 +23,16 @@
       "score": "Score",
       "status": "Status",
       "rowVersion": "Row Version",
-      "student": "Student",
+      "deadlineAt": "Deadline At",
+      "lastSavedAt": "Last Saved At",
+      "submittedAt": "Submitted At",
+      "presentationSnapshot": "Presentation Snapshot",
+      "securityConfigSnapshot": "Security Config Snapshot",
+      "adaptiveState": "Adaptive State",
+      "monitoringStatus": "Monitoring Status",
       "exam": "Exam",
+      "student": "Student",
+      "assignment": "Assignment",
       "proctorSession": "Proctor Session"
     }
   }

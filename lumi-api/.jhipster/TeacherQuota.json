@@ -3,7 +3,9 @@
     "changelogDate": "20261012230452"
   },
   "applications": ["*"],
+  "documentation": "Lưu hạn mức và mức sử dụng tài nguyên của giáo viên.",
   "dto": "mapstruct",
+  "entityTableName": "teacher_quotas",
   "fields": [
     {
       "fieldName": "planExpiresAt",
@@ -11,37 +13,50 @@
     },
     {
       "fieldName": "usedStorageBytes",
-      "fieldType": "Long",
-      "fieldValidateRules": ["min"],
-      "fieldValidateRulesMin": "0"
+      "fieldType": "Long"
     },
     {
       "fieldName": "aiUsedCount",
-      "fieldType": "Integer",
-      "fieldValidateRules": ["min"],
-      "fieldValidateRulesMin": "0"
+      "fieldType": "Integer"
     },
     {
       "fieldName": "rowVersion",
+      "fieldType": "Long"
+    },
+    {
+      "fieldName": "effectiveStorageLimitBytes",
       "fieldType": "Long",
-      "fieldValidateRules": ["min"],
+      "fieldValidateRules": ["required", "min"],
       "fieldValidateRulesMin": "0"
+    },
+    {
+      "fieldName": "aiPeriodStartedAt",
+      "fieldType": "Instant"
+    },
+    {
+      "fieldName": "aiPeriodEndsAt",
+      "fieldType": "Instant"
+    },
+    {
+      "fieldName": "updatedAt",
+      "fieldType": "Instant",
+      "fieldValidateRules": ["required"]
     }
   ],
   "jpaMetamodelFiltering": true,
   "name": "TeacherQuota",
+  "pagination": "pagination",
   "relationships": [
     {
       "otherEntityField": "login",
       "otherEntityName": "user",
-      "relationshipName": "user",
+      "relationshipName": "instructor",
       "relationshipSide": "left",
       "relationshipType": "one-to-one",
       "relationshipValidateRules": "required",
       "relationshipWithBuiltInEntity": true
     },
     {
-      "otherEntityField": "name",
       "otherEntityName": "systemPlan",
       "relationshipName": "currentPlan",
       "relationshipSide": "left",

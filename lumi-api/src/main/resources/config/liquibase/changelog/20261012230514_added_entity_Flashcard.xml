@@ -10,21 +10,28 @@
         Added the entity Flashcard.
     -->
     <changeSet id="20261012230514-1" author="jhipster">
-        <createTable tableName="flashcard">
+        <createTable tableName="flashcards" remarks="Lưu nội dung mặt trước, mặt sau và nguồn AI của từng thẻ.">
             <column name="id" type="bigint">
                 <constraints primaryKey="true" nullable="false"/>
             </column>
-            <column name="front_text" type="varchar(5000)">
+            <column name="front_text" type="${clobType}">
                 <constraints nullable="false" />
             </column>
-            <column name="back_text" type="varchar(5000)">
+            <column name="back_text" type="${clobType}">
+                <constraints nullable="false" />
+            </column>
+            <column name="updated_at" type="${datetimeType}">
                 <constraints nullable="false" />
             </column>
             <column name="deck_id" type="bigint">
                 <constraints nullable="false" />
             </column>
+            <column name="ai_content_id" type="bigint">
+                <constraints nullable="true" />
+            </column>
             <!-- jhipster-needle-liquibase-add-column - JHipster will add columns here -->
         </createTable>
+        <dropDefaultValue tableName="flashcards" columnName="updated_at" columnDataType="${datetimeType}"/>
     </changeSet>
 
     <!-- jhipster-needle-liquibase-add-changeset - JHipster will add changesets here -->
@@ -39,14 +46,15 @@
     -->
     <changeSet id="20261012230514-1-data" author="jhipster" context="faker">
         <loadData
-                  file="../fake-data/flashcard.csv"
+                  file="../fake-data/flashcards.csv"
                   relativeToChangelogFile="true"
                   separator=";"
-                  tableName="flashcard"
+                  tableName="flashcards"
                   usePreparedStatements="true">
             <column name="id" type="numeric"/>
-            <column name="front_text" type="string"/>
-            <column name="back_text" type="string"/>
+            <column name="front_text" type="clob"/>
+            <column name="back_text" type="clob"/>
+            <column name="updated_at" type="date"/>
             <column name="deck_id" type="numeric"/>
             <!-- jhipster-needle-liquibase-add-loadcolumn - JHipster (and/or extensions) can add load columns here -->
         </loadData>

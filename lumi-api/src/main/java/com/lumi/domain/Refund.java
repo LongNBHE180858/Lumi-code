@@ -9,10 +9,10 @@ import java.math.BigDecimal;
 import java.time.Instant;
 
 /**
- * A Refund.
+ * Lưu yêu cầu hoàn tiền, kết quả xử lý và việc thu hồi quyền học.
  */
 @Entity
-@Table(name = "refund")
+@Table(name = "refunds")
 @SuppressWarnings("common-java:DuplicatedBlocks")
 public class Refund implements Serializable {
 
@@ -26,12 +26,10 @@ public class Refund implements Serializable {
     private Long id;
 
     @NotNull
-    @DecimalMin(value = "0")
     @Column(name = "amount", precision = 21, scale = 2, nullable = false)
     private BigDecimal amount;
 
-    @Size(max = 5000)
-    @Column(name = "reason", length = 5000)
+    @Column(name = "reason", columnDefinition = "text")
     private String reason;
 
     @Size(max = 20)
@@ -40,6 +38,19 @@ public class Refund implements Serializable {
 
     @Column(name = "created_at")
     private Instant createdAt;
+
+    @Column(name = "processed_at")
+    private Instant processedAt;
+
+    @Column(name = "review_note", columnDefinition = "text")
+    private String reviewNote;
+
+    @Size(max = 255)
+    @Column(name = "refund_reference", length = 255)
+    private String refundReference;
+
+    @Column(name = "access_revoked_at")
+    private Instant accessRevokedAt;
 
     @ManyToOne(optional = false)
     @NotNull
@@ -50,6 +61,9 @@ public class Refund implements Serializable {
     @NotNull
     @JsonIgnoreProperties(value = { "order" }, allowSetters = true)
     private Payment payment;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    private User processedBy;
 
     // jhipster-needle-entity-add-field - JHipster will add fields here
 
@@ -118,6 +132,58 @@ public class Refund implements Serializable {
         this.createdAt = createdAt;
     }
 
+    public Instant getProcessedAt() {
+        return this.processedAt;
+    }
+
+    public Refund processedAt(Instant processedAt) {
+        this.setProcessedAt(processedAt);
+        return this;
+    }
+
+    public void setProcessedAt(Instant processedAt) {
+        this.processedAt = processedAt;
+    }
+
+    public String getReviewNote() {
+        return this.reviewNote;
+    }
+
+    public Refund reviewNote(String reviewNote) {
+        this.setReviewNote(reviewNote);
+        return this;
+    }
+
+    public void setReviewNote(String reviewNote) {
+        this.reviewNote = reviewNote;
+    }
+
+    public String getRefundReference() {
+        return this.refundReference;
+    }
+
+    public Refund refundReference(String refundReference) {
+        this.setRefundReference(refundReference);
+        return this;
+    }
+
+    public void setRefundReference(String refundReference) {
+        this.refundReference = refundReference;
+    }
+
+    public Instant getAccessRevokedAt() {
+        return this.accessRevokedAt;
+    }
+
+    public Refund accessRevokedAt(Instant accessRevokedAt) {
+        this.setAccessRevokedAt(accessRevokedAt);
+        return this;
+    }
+
+    public void setAccessRevokedAt(Instant accessRevokedAt) {
+        this.accessRevokedAt = accessRevokedAt;
+    }
+
     public CourseOrder getOrder() {
         return this.order;
     }
@@ -141,6 +207,19 @@ public class Refund implements Serializable {
 
     public Refund payment(Payment payment) {
         this.setPayment(payment);
+        return this;
+    }
+
+    public User getProcessedBy() {
+        return this.processedBy;
+    }
+
+    public void setProcessedBy(User user) {
+        this.processedBy = user;
+    }
+
+    public Refund processedBy(User user) {
+        this.setProcessedBy(user);
         return this;
     }
 
@@ -172,6 +251,10 @@ public class Refund implements Serializable {
             ", reason='" + getReason() + "'" +
             ", status='" + getStatus() + "'" +
             ", createdAt='" + getCreatedAt() + "'" +
+            ", processedAt='" + getProcessedAt() + "'" +
+            ", reviewNote='" + getReviewNote() + "'" +
+            ", refundReference='" + getRefundReference() + "'" +
+            ", accessRevokedAt='" + getAccessRevokedAt() + "'" +
             "}";
     }
 }

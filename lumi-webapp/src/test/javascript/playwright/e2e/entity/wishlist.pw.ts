@@ -44,7 +44,7 @@ test.describe('Wishlist e2e test', () => {
       await jhi.authenticatedRequest({
         method: 'POST',
         url: '/api/courses',
-        body: {"title":"feminize pull","description":"pfft annually","thumbnailUrl":"slipper","price":23377.05,"validDurationDays":21747,"status":"ARCHIVED","isDeleted":false,"createdAt":"2026-10-12T19:17:39.013Z","updatedAt":"2026-10-12T00:50:26.856Z"},
+        body: {"title":"feminize pull","description":"Li4vZmFrZS1kYXRhL2Jsb2IvaGlwc3Rlci50eHQ=","thumbnailUrl":"pfft annually","price":10493.83,"shortDescription":"ha for sunbathe","bookSeries":"next excitable","targetAudience":"downright without","prerequisites":"indeed barring","learningObjectives":"Li4vZmFrZS1kYXRhL2Jsb2IvaGlwc3Rlci50eHQ=","introVideoUrl":"sustenance","validDurationDays":20017,"accessDurationValue":18432,"accessDurationUnit":"mmm testin","version":14495,"status":"ACTIVE","isDeleted":true,"createdAt":"2026-10-12T09:01:59.528Z","updatedAt":"2026-10-12T12:49:54.854Z","storageLimitBytes":5512},
       })
     ).json();
   });
@@ -201,6 +201,9 @@ test.describe('Wishlist e2e test', () => {
           route =>
             route.fulfill({
               status: 200,
+              headers: {
+                link: '<http://localhost/api/wishlists?page=0&size=20>; rel="last",<http://localhost/api/wishlists?page=0&size=20>; rel="first"',
+              },
               json: [wishlist],
             }),
           { times: 1 },

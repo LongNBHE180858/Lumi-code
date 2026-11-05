@@ -14,6 +14,7 @@ import applicationProfile from './application-profile';
 import authentication from './authentication';
 import locale from './locale';
 import courseBuilder from 'app/modules/instructor/course-builder/course-builder.reducer';
+import knowledgeGraph from 'app/modules/administration/knowledge-graph/knowledge-graph.reducer';
 
 /* jhipster-needle-add-reducer-import - JHipster will add reducer here */
 
@@ -23,6 +24,7 @@ const rootReducer: ReducersMapObject = {
   applicationProfile,
   administration,
   userManagement,
+  knowledgeGraph,
   register,
   activate,
   passwordReset,

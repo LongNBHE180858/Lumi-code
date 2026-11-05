@@ -21,8 +21,18 @@
       "linkCode": "Link Code",
       "status": "Status",
       "linkedAt": "Linked At",
+      "createdAt": "Created At",
+      "codeExpiresAt": "Code Expires At",
+      "confirmedAt": "Confirmed At",
+      "revokedAt": "Revoked At",
+      "relationshipType": "Relationship Type",
+      "guardianVerificationStatus": "Guardian Verification Status",
+      "guardianVerifiedAt": "Guardian Verified At",
+      "guardianVerificationNote": "Guardian Verification Note",
       "parent": "Parent",
-      "student": "Student"
+      "student": "Student",
+      "confirmedBy": "Confirmed By",
+      "guardianVerifiedBy": "Guardian Verified By"
     }
   }
 }

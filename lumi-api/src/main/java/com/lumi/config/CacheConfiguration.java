@@ -35,7 +35,6 @@ public class CacheConfiguration {
             createCache(cm, com.lumi.domain.TeacherVerification.class.getName());
             createCache(cm, com.lumi.domain.ParentStudentLink.class.getName());
             createCache(cm, com.lumi.domain.AuthSession.class.getName());
-            createCache(cm, com.lumi.domain.Category.class.getName());
             createCache(cm, com.lumi.domain.Subject.class.getName());
             createCache(cm, com.lumi.domain.Grade.class.getName());
             createCache(cm, com.lumi.domain.Course.class.getName());
@@ -66,7 +65,6 @@ public class CacheConfiguration {
             createCache(cm, com.lumi.domain.AssignmentSubmission.class.getName());
             createCache(cm, com.lumi.domain.ExamAttempt.class.getName());
             createCache(cm, com.lumi.domain.ExamAnswer.class.getName());
-            createCache(cm, com.lumi.domain.ProctorSession.class.getName());
             createCache(cm, com.lumi.domain.ProctorEvent.class.getName());
             createCache(cm, com.lumi.domain.StudentNote.class.getName());
             createCache(cm, com.lumi.domain.StudentStreak.class.getName());
@@ -86,6 +84,12 @@ public class CacheConfiguration {
             createCache(cm, com.lumi.domain.Notification.class.getName());
             createCache(cm, com.lumi.domain.AuditLog.class.getName());
             createCache(cm, com.lumi.domain.AssignmentStudent.class.getName());
+            createCache(cm, com.lumi.domain.CourseReviewRequest.class.getName());
+            createCache(cm, com.lumi.domain.LessonProgress.class.getName());
+            createCache(cm, com.lumi.domain.StudentKnowledgeProgress.class.getName());
+            createCache(cm, com.lumi.domain.LearningDocument.class.getName());
+            createCache(cm, com.lumi.domain.AiGeneratedContent.class.getName());
+            createCache(cm, com.lumi.domain.QuestionKnowledgeLink.class.getName());
             // jhipster-needle-caffeine-add-entry
         };
     }

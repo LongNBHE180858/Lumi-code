@@ -11,31 +11,31 @@
     <changeSet id="20261012230454-2" author="jhipster">
 
         <addForeignKeyConstraint baseColumnNames="student_id"
-                                 baseTableName="course_order"
-                                 constraintName="fk_course_order__student_id"
+                                 baseTableName="orders"
+                                 constraintName="fk_orders__student_id"
                                  referencedColumnNames="id"
                                  referencedTableName="jhi_user"
                                  />
 
         <addForeignKeyConstraint baseColumnNames="course_id"
-                                 baseTableName="course_order"
-                                 constraintName="fk_course_order__course_id"
+                                 baseTableName="orders"
+                                 constraintName="fk_orders__course_id"
                                  referencedColumnNames="id"
-                                 referencedTableName="course"
+                                 referencedTableName="courses"
                                  />
 
         <addForeignKeyConstraint baseColumnNames="plan_id"
-                                 baseTableName="course_order"
-                                 constraintName="fk_course_order__plan_id"
+                                 baseTableName="orders"
+                                 constraintName="fk_orders__plan_id"
                                  referencedColumnNames="id"
-                                 referencedTableName="system_plan"
+                                 referencedTableName="system_plans"
                                  />
 
         <addForeignKeyConstraint baseColumnNames="coupon_id"
-                                 baseTableName="course_order"
-                                 constraintName="fk_course_order__coupon_id"
+                                 baseTableName="orders"
+                                 constraintName="fk_orders__coupon_id"
                                  referencedColumnNames="id"
-                                 referencedTableName="coupon"
+                                 referencedTableName="coupons"
                                  />
     </changeSet>
 </databaseChangeLog>

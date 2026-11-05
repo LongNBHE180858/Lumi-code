@@ -5,12 +5,13 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import java.io.Serial;
 import java.io.Serializable;
+import java.time.Instant;
 
 /**
- * A Flashcard.
+ * Lưu nội dung mặt trước, mặt sau và nguồn AI của từng thẻ.
  */
 @Entity
-@Table(name = "flashcard")
+@Table(name = "flashcards")
 @SuppressWarnings("common-java:DuplicatedBlocks")
 public class Flashcard implements Serializable {
 
@@ -23,20 +24,24 @@ public class Flashcard implements Serializable {
     @Column(name = "id")
     private Long id;
 
-    @NotNull
-    @Size(max = 5000)
-    @Column(name = "front_text", length = 5000, nullable = false)
+    @Column(name = "front_text", nullable = false, columnDefinition = "text")
     private String frontText;
 
-    @NotNull
-    @Size(max = 5000)
-    @Column(name = "back_text", length = 5000, nullable = false)
+    @Column(name = "back_text", nullable = false, columnDefinition = "text")
     private String backText;
+
+    @NotNull
+    @Column(name = "updated_at", nullable = false)
+    private Instant updatedAt;
 
     @ManyToOne(optional = false)
     @NotNull
     @JsonIgnoreProperties(value = { "owner", "subject" }, allowSetters = true)
     private FlashcardDeck deck;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JsonIgnoreProperties(value = { "createdBy", "document", "lesson", "reviewedBy", "course" }, allowSetters = true)
+    private AiGeneratedContent aiContent;
 
     // jhipster-needle-entity-add-field - JHipster will add fields here
 
@@ -79,6 +84,19 @@ public class Flashcard implements Serializable {
         this.backText = backText;
     }
 
+    public Instant getUpdatedAt() {
+        return this.updatedAt;
+    }
+
+    public Flashcard updatedAt(Instant updatedAt) {
+        this.setUpdatedAt(updatedAt);
+        return this;
+    }
+
+    public void setUpdatedAt(Instant updatedAt) {
+        this.updatedAt = updatedAt;
+    }
+
     public FlashcardDeck getDeck() {
         return this.deck;
     }
@@ -89,6 +107,19 @@ public class Flashcard implements Serializable {
 
     public Flashcard deck(FlashcardDeck flashcardDeck) {
         this.setDeck(flashcardDeck);
+        return this;
+    }
+
+    public AiGeneratedContent getAiContent() {
+        return this.aiContent;
+    }
+
+    public void setAiContent(AiGeneratedContent aiGeneratedContent) {
+        this.aiContent = aiGeneratedContent;
+    }
+
+    public Flashcard aiContent(AiGeneratedContent aiGeneratedContent) {
+        this.setAiContent(aiGeneratedContent);
         return this;
     }
 
@@ -118,6 +149,7 @@ public class Flashcard implements Serializable {
             "id=" + getId() +
             ", frontText='" + getFrontText() + "'" +
             ", backText='" + getBackText() + "'" +
+            ", updatedAt='" + getUpdatedAt() + "'" +
             "}";
     }
 }

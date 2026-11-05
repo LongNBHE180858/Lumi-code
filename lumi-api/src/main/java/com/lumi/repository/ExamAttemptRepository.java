@@ -30,16 +30,14 @@ public interface ExamAttemptRepository extends JpaRepository<ExamAttempt, Long>,
     }
 
     @Query(
-        value = "select examAttempt from ExamAttempt examAttempt left join fetch examAttempt.student left join fetch examAttempt.exam",
+        value = "select examAttempt from ExamAttempt examAttempt left join fetch examAttempt.student",
         countQuery = "select count(examAttempt) from ExamAttempt examAttempt"
     )
     Page<ExamAttempt> findAllWithToOneRelationships(Pageable pageable);
 
-    @Query("select examAttempt from ExamAttempt examAttempt left join fetch examAttempt.student left join fetch examAttempt.exam")
+    @Query("select examAttempt from ExamAttempt examAttempt left join fetch examAttempt.student")
     List<ExamAttempt> findAllWithToOneRelationships();
 
-    @Query(
-        "select examAttempt from ExamAttempt examAttempt left join fetch examAttempt.student left join fetch examAttempt.exam where examAttempt.id =:id"
-    )
+    @Query("select examAttempt from ExamAttempt examAttempt left join fetch examAttempt.student where examAttempt.id =:id")
     Optional<ExamAttempt> findOneWithToOneRelationships(@Param("id") Long id);
 }

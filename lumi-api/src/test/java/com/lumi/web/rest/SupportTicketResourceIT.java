@@ -78,6 +78,7 @@ class SupportTicketResourceIT {
             .getContent()
             .getFirst();
         assertThat(ticket.getCreatedAt()).isNotNull();
+        assertThat(ticket.getUpdatedAt()).isEqualTo(ticket.getCreatedAt());
         TicketMessage message = messageRepository
             .findByTicketIdOrderByCreatedAtAscIdAsc(ticket.getId(), org.springframework.data.domain.PageRequest.of(0, 10))
             .getContent()
@@ -85,6 +86,7 @@ class SupportTicketResourceIT {
         assertThat(message.getSender().getId()).isEqualTo(owner.getId());
         assertThat(message.getContent()).isEqualTo("First message");
         assertThat(message.getCreatedAt()).isNotNull();
+        assertThat(message.getCreatedAt()).isEqualTo(ticket.getUpdatedAt());
     }
 
     @Test
@@ -166,6 +168,7 @@ class SupportTicketResourceIT {
             .andExpect(jsonPath("$.senderLogin").value("ticketowner"));
         entityManager.flush();
         assertThat(ticket.getStatus()).isEqualTo("IN_PROGRESS");
+        assertThat(ticket.getUpdatedAt()).isAfter(ticket.getCreatedAt());
     }
 
     @Test
@@ -279,7 +282,14 @@ class SupportTicketResourceIT {
     }
 
     private SupportTicket persistTicket(User owner, String status) {
-        SupportTicket ticket = new SupportTicket().type("GENERAL").subject("Need help").status(status).createdAt(Instant.now()).user(owner);
+        Instant createdAt = Instant.now().minusSeconds(60);
+        SupportTicket ticket = new SupportTicket()
+            .type("GENERAL")
+            .subject("Need help")
+            .status(status)
+            .createdAt(createdAt)
+            .updatedAt(createdAt)
+            .user(owner);
         entityManager.persist(ticket);
         entityManager.flush();
         return ticket;

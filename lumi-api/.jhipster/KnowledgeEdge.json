@@ -3,7 +3,9 @@
     "changelogDate": "20261012230517"
   },
   "applications": ["*"],
+  "documentation": "Lưu quan hệ giữa các đơn vị kiến thức trong đồ thị.",
   "dto": "mapstruct",
+  "entityTableName": "knowledge_edges",
   "fields": [
     {
       "fieldName": "relationType",
@@ -14,9 +16,9 @@
   ],
   "jpaMetamodelFiltering": true,
   "name": "KnowledgeEdge",
+  "pagination": "pagination",
   "relationships": [
     {
-      "otherEntityField": "title",
       "otherEntityName": "knowledgeNode",
       "relationshipName": "fromNode",
       "relationshipSide": "left",
@@ -24,7 +26,6 @@
       "relationshipValidateRules": "required"
     },
     {
-      "otherEntityField": "title",
       "otherEntityName": "knowledgeNode",
       "relationshipName": "toNode",
       "relationshipSide": "left",

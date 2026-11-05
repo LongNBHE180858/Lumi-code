@@ -1,0 +1,27 @@
+{
+  "lumiApp": {
+    "ticketMessage": {
+      "home": {
+        "title": "Ticket Messages",
+        "refreshListLabel": "Refresh list",
+        "createLabel": "Create a new Ticket Message",
+        "createOrEditLabel": "Create or edit a Ticket Message",
+        "notFound": "No Ticket Messages found"
+      },
+      "created": "A new Ticket Message is created with identifier {{ param }}",
+      "updated": "A Ticket Message is updated with identifier {{ param }}",
+      "deleted": "A Ticket Message is deleted with identifier {{ param }}",
+      "delete": {
+        "question": "Are you sure you want to delete Ticket Message {{ id }}?"
+      },
+      "detail": {
+        "title": "Ticket Message"
+      },
+      "id": "ID",
+      "content": "Content",
+      "createdAt": "Created At",
+      "ticket": "Ticket",
+      "sender": "Sender"
+    }
+  }
+}

@@ -5,12 +5,11 @@ import com.lumi.repository.ParentStudentLinkRepository;
 import com.lumi.service.ParentStudentLinkService;
 import com.lumi.service.dto.ParentStudentLinkDTO;
 import com.lumi.service.mapper.ParentStudentLinkMapper;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -66,12 +65,8 @@ public class ParentStudentLinkServiceImpl implements ParentStudentLinkService {
             .map(parentStudentLinkMapper::toDto);
     }
 
-    public List<ParentStudentLinkDTO> findAllWithEagerRelationships() {
-        return parentStudentLinkRepository
-            .findAllWithEagerRelationships()
-            .stream()
-            .map(parentStudentLinkMapper::toDto)
-            .collect(Collectors.toCollection(LinkedList::new));
+    public Page<ParentStudentLinkDTO> findAllWithEagerRelationships(Pageable pageable) {
+        return parentStudentLinkRepository.findAllWithEagerRelationships(pageable).map(parentStudentLinkMapper::toDto);
     }
 
     @Override

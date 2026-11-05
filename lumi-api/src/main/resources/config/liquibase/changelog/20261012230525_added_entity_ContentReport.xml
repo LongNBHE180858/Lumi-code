@@ -10,7 +10,7 @@
         Added the entity ContentReport.
     -->
     <changeSet id="20261012230525-1" author="jhipster">
-        <createTable tableName="content_report">
+        <createTable tableName="content_reports" remarks="Lưu báo sai nội dung, đối tượng bị báo và kết quả xử lý.">
             <column name="id" type="bigint">
                 <constraints primaryKey="true" nullable="false"/>
             </column>
@@ -20,7 +20,7 @@
             <column name="target_id" type="bigint">
                 <constraints nullable="false" />
             </column>
-            <column name="reason" type="varchar(5000)">
+            <column name="reason" type="${clobType}">
                 <constraints nullable="false" />
             </column>
             <column name="status" type="varchar(20)">
@@ -29,12 +29,28 @@
             <column name="created_at" type="${datetimeType}">
                 <constraints nullable="true" />
             </column>
+            <column name="resolved_at" type="${datetimeType}">
+                <constraints nullable="true" />
+            </column>
+            <column name="resolution_note" type="${clobType}">
+                <constraints nullable="true" />
+            </column>
+            <column name="target_version" type="varchar(100)">
+                <constraints nullable="true" />
+            </column>
             <column name="reporter_id" type="bigint">
                 <constraints nullable="false" />
             </column>
+            <column name="assigned_to_id" type="bigint">
+                <constraints nullable="true" />
+            </column>
+            <column name="resolved_by_id" type="bigint">
+                <constraints nullable="true" />
+            </column>
             <!-- jhipster-needle-liquibase-add-column - JHipster will add columns here -->
         </createTable>
-        <dropDefaultValue tableName="content_report" columnName="created_at" columnDataType="${datetimeType}"/>
+        <dropDefaultValue tableName="content_reports" columnName="created_at" columnDataType="${datetimeType}"/>
+        <dropDefaultValue tableName="content_reports" columnName="resolved_at" columnDataType="${datetimeType}"/>
     </changeSet>
 
     <!-- jhipster-needle-liquibase-add-changeset - JHipster will add changesets here -->
@@ -49,17 +65,20 @@
     -->
     <changeSet id="20261012230525-1-data" author="jhipster" context="faker">
         <loadData
-                  file="../fake-data/content_report.csv"
+                  file="../fake-data/content_reports.csv"
                   relativeToChangelogFile="true"
                   separator=";"
-                  tableName="content_report"
+                  tableName="content_reports"
                   usePreparedStatements="true">
             <column name="id" type="numeric"/>
             <column name="target_type" type="string"/>
             <column name="target_id" type="numeric"/>
-            <column name="reason" type="string"/>
+            <column name="reason" type="clob"/>
             <column name="status" type="string"/>
             <column name="created_at" type="date"/>
+            <column name="resolved_at" type="date"/>
+            <column name="resolution_note" type="clob"/>
+            <column name="target_version" type="string"/>
             <column name="reporter_id" type="numeric"/>
             <!-- jhipster-needle-liquibase-add-loadcolumn - JHipster (and/or extensions) can add load columns here -->
         </loadData>

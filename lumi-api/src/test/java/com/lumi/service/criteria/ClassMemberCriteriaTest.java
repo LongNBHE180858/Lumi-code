@@ -74,8 +74,11 @@ class ClassMemberCriteriaTest {
         classMemberCriteria.id();
         classMemberCriteria.status();
         classMemberCriteria.joinedAt();
-        classMemberCriteria.studentId();
+        classMemberCriteria.requestedAt();
+        classMemberCriteria.leftAt();
+        classMemberCriteria.updatedAt();
         classMemberCriteria.studyClassId();
+        classMemberCriteria.studentId();
         classMemberCriteria.distinct();
     }
 
@@ -85,8 +88,11 @@ class ClassMemberCriteriaTest {
                 condition.apply(criteria.getId()) &&
                 condition.apply(criteria.getStatus()) &&
                 condition.apply(criteria.getJoinedAt()) &&
-                condition.apply(criteria.getStudentId()) &&
+                condition.apply(criteria.getRequestedAt()) &&
+                condition.apply(criteria.getLeftAt()) &&
+                condition.apply(criteria.getUpdatedAt()) &&
                 condition.apply(criteria.getStudyClassId()) &&
+                condition.apply(criteria.getStudentId()) &&
                 condition.apply(criteria.getDistinct()),
             "every filter matches"
         );
@@ -98,8 +104,11 @@ class ClassMemberCriteriaTest {
                 condition.apply(criteria.getId(), copy.getId()) &&
                 condition.apply(criteria.getStatus(), copy.getStatus()) &&
                 condition.apply(criteria.getJoinedAt(), copy.getJoinedAt()) &&
-                condition.apply(criteria.getStudentId(), copy.getStudentId()) &&
+                condition.apply(criteria.getRequestedAt(), copy.getRequestedAt()) &&
+                condition.apply(criteria.getLeftAt(), copy.getLeftAt()) &&
+                condition.apply(criteria.getUpdatedAt(), copy.getUpdatedAt()) &&
                 condition.apply(criteria.getStudyClassId(), copy.getStudyClassId()) &&
+                condition.apply(criteria.getStudentId(), copy.getStudentId()) &&
                 condition.apply(criteria.getDistinct(), copy.getDistinct()),
             "every filter matches"
         );

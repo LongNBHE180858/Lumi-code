@@ -10,14 +10,14 @@
         Added the entity StudentNote.
     -->
     <changeSet id="20261012230511-1" author="jhipster">
-        <createTable tableName="student_note">
+        <createTable tableName="student_notes" remarks="Lưu ghi chú cá nhân của học sinh theo bài học hoặc mốc video.">
             <column name="id" type="bigint">
                 <constraints primaryKey="true" nullable="false"/>
             </column>
             <column name="video_timestamp" type="integer">
                 <constraints nullable="true" />
             </column>
-            <column name="content" type="varchar(5000)">
+            <column name="content" type="${clobType}">
                 <constraints nullable="false" />
             </column>
             <column name="created_at" type="${datetimeType}">
@@ -31,7 +31,7 @@
             </column>
             <!-- jhipster-needle-liquibase-add-column - JHipster will add columns here -->
         </createTable>
-        <dropDefaultValue tableName="student_note" columnName="created_at" columnDataType="${datetimeType}"/>
+        <dropDefaultValue tableName="student_notes" columnName="created_at" columnDataType="${datetimeType}"/>
     </changeSet>
 
     <!-- jhipster-needle-liquibase-add-changeset - JHipster will add changesets here -->
@@ -46,14 +46,14 @@
     -->
     <changeSet id="20261012230511-1-data" author="jhipster" context="faker">
         <loadData
-                  file="../fake-data/student_note.csv"
+                  file="../fake-data/student_notes.csv"
                   relativeToChangelogFile="true"
                   separator=";"
-                  tableName="student_note"
+                  tableName="student_notes"
                   usePreparedStatements="true">
             <column name="id" type="numeric"/>
             <column name="video_timestamp" type="numeric"/>
-            <column name="content" type="string"/>
+            <column name="content" type="clob"/>
             <column name="created_at" type="date"/>
             <column name="student_id" type="numeric"/>
             <column name="lesson_id" type="numeric"/>

@@ -36,6 +36,9 @@ public interface SupportTicketRepository extends JpaRepository<SupportTicket, Lo
     @Query("select ticket from SupportTicket ticket join fetch ticket.user where ticket.id = :id")
     Optional<SupportTicket> findByIdForUpdate(@Param("id") Long id);
 
+    @Query("select supportTicket from SupportTicket supportTicket where supportTicket.assignedTo.login = ?#{authentication.name}")
+    List<SupportTicket> findByAssignedToIsCurrentUser();
+
     default Optional<SupportTicket> findOneWithEagerRelationships(Long id) {
         return this.findOneWithToOneRelationships(id);
     }
@@ -49,14 +52,18 @@ public interface SupportTicketRepository extends JpaRepository<SupportTicket, Lo
     }
 
     @Query(
-        value = "select supportTicket from SupportTicket supportTicket left join fetch supportTicket.user",
+        value = "select supportTicket from SupportTicket supportTicket left join fetch supportTicket.user left join fetch supportTicket.assignedTo",
         countQuery = "select count(supportTicket) from SupportTicket supportTicket"
     )
     Page<SupportTicket> findAllWithToOneRelationships(Pageable pageable);
 
-    @Query("select supportTicket from SupportTicket supportTicket left join fetch supportTicket.user")
+    @Query(
+        "select supportTicket from SupportTicket supportTicket left join fetch supportTicket.user left join fetch supportTicket.assignedTo"
+    )
     List<SupportTicket> findAllWithToOneRelationships();
 
-    @Query("select supportTicket from SupportTicket supportTicket left join fetch supportTicket.user where supportTicket.id =:id")
+    @Query(
+        "select supportTicket from SupportTicket supportTicket left join fetch supportTicket.user left join fetch supportTicket.assignedTo where supportTicket.id =:id"
+    )
     Optional<SupportTicket> findOneWithToOneRelationships(@Param("id") Long id);
 }

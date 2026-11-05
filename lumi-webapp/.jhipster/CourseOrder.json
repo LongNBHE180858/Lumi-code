@@ -3,25 +3,23 @@
     "changelogDate": "20261012231659"
   },
   "applications": ["*"],
+  "documentation": "Lưu đơn mua khóa học hoặc gói dịch vụ cùng quyền lợi và chính sách giá tại lúc mua.",
   "dto": "mapstruct",
+  "entityTableName": "orders",
   "fields": [
     {
       "fieldName": "originalPrice",
       "fieldType": "BigDecimal",
-      "fieldValidateRules": ["required", "min"],
-      "fieldValidateRulesMin": "0"
+      "fieldValidateRules": ["required"]
     },
     {
       "fieldName": "discountAmount",
-      "fieldType": "BigDecimal",
-      "fieldValidateRules": ["min"],
-      "fieldValidateRulesMin": "0"
+      "fieldType": "BigDecimal"
     },
     {
       "fieldName": "finalPrice",
       "fieldType": "BigDecimal",
-      "fieldValidateRules": ["required", "min"],
-      "fieldValidateRulesMin": "0"
+      "fieldValidateRules": ["required"]
     },
     {
       "fieldName": "revenueSplitRate",
@@ -32,7 +30,7 @@
     {
       "fieldName": "status",
       "fieldType": "OrderStatus",
-      "fieldValues": "PENDING,PAID,CANCELLED,REFUNDED"
+      "fieldValues": "PENDING,PAID,CANCELLED,REFUNDED,EXPIRED"
     },
     {
       "fieldName": "idempotencyKey",
@@ -42,13 +40,84 @@
     },
     {
       "fieldName": "rowVersion",
-      "fieldType": "Long",
-      "fieldValidateRules": ["min"],
-      "fieldValidateRulesMin": "0"
+      "fieldType": "Long"
     },
     {
       "fieldName": "createdAt",
       "fieldType": "Instant"
+    },
+    {
+      "fieldName": "instructorSharePercent",
+      "fieldType": "BigDecimal",
+      "fieldValidateRules": ["min", "max"],
+      "fieldValidateRulesMax": "100",
+      "fieldValidateRulesMin": "0"
+    },
+    {
+      "fieldName": "instructorAmount",
+      "fieldType": "BigDecimal",
+      "fieldValidateRules": ["min"],
+      "fieldValidateRulesMin": "0"
+    },
+    {
+      "fieldName": "platformAmount",
+      "fieldType": "BigDecimal",
+      "fieldValidateRules": ["min"],
+      "fieldValidateRulesMin": "0"
+    },
+    {
+      "fieldName": "orderType",
+      "fieldType": "String",
+      "fieldValidateRules": ["required", "maxlength"],
+      "fieldValidateRulesMaxlength": "20"
+    },
+    {
+      "fieldName": "expiresAt",
+      "fieldType": "Instant",
+      "fieldValidateRules": ["required"]
+    },
+    {
+      "fieldName": "paidAt",
+      "fieldType": "Instant"
+    },
+    {
+      "fieldName": "accessDurationValue",
+      "fieldType": "Integer",
+      "fieldValidateRules": ["min"],
+      "fieldValidateRulesMin": "1"
+    },
+    {
+      "fieldName": "accessDurationUnit",
+      "fieldType": "String",
+      "fieldValidateRules": ["maxlength"],
+      "fieldValidateRulesMaxlength": "10"
+    },
+    {
+      "fieldName": "entitlementStartsAt",
+      "fieldType": "Instant"
+    },
+    {
+      "fieldName": "entitlementExpiresAt",
+      "fieldType": "Instant"
+    },
+    {
+      "fieldName": "entitlementStatus",
+      "fieldType": "String",
+      "fieldValidateRules": ["maxlength"],
+      "fieldValidateRulesMaxlength": "20"
+    },
+    {
+      "fieldName": "planSnapshot",
+      "fieldType": "TextBlob"
+    },
+    {
+      "fieldName": "updatedAt",
+      "fieldType": "Instant",
+      "fieldValidateRules": ["required"]
+    },
+    {
+      "fieldName": "pricingSnapshot",
+      "fieldType": "TextBlob"
     }
   ],
   "jpaMetamodelFiltering": true,
@@ -65,21 +134,18 @@
       "relationshipWithBuiltInEntity": true
     },
     {
-      "otherEntityField": "title",
       "otherEntityName": "course",
       "relationshipName": "course",
       "relationshipSide": "left",
       "relationshipType": "many-to-one"
     },
     {
-      "otherEntityField": "name",
       "otherEntityName": "systemPlan",
       "relationshipName": "plan",
       "relationshipSide": "left",
       "relationshipType": "many-to-one"
     },
     {
-      "otherEntityField": "code",
       "otherEntityName": "coupon",
       "relationshipName": "coupon",
       "relationshipSide": "left",

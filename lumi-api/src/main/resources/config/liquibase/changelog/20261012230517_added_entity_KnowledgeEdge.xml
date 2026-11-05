@@ -10,7 +10,7 @@
         Added the entity KnowledgeEdge.
     -->
     <changeSet id="20261012230517-1" author="jhipster">
-        <createTable tableName="knowledge_edge">
+        <createTable tableName="knowledge_edges" remarks="Lưu quan hệ giữa các đơn vị kiến thức trong đồ thị.">
             <column name="id" type="bigint">
                 <constraints primaryKey="true" nullable="false"/>
             </column>
@@ -39,10 +39,10 @@
     -->
     <changeSet id="20261012230517-1-data" author="jhipster" context="faker">
         <loadData
-                  file="../fake-data/knowledge_edge.csv"
+                  file="../fake-data/knowledge_edges.csv"
                   relativeToChangelogFile="true"
                   separator=";"
-                  tableName="knowledge_edge"
+                  tableName="knowledge_edges"
                   usePreparedStatements="true">
             <column name="id" type="numeric"/>
             <column name="relation_type" type="string"/>

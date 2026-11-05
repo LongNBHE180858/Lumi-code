@@ -10,7 +10,7 @@
         Added the entity Wishlist.
     -->
     <changeSet id="20261012230446-1" author="jhipster">
-        <createTable tableName="wishlist">
+        <createTable tableName="wishlists" remarks="Lưu danh sách khóa học yêu thích của học sinh.">
             <column name="id" type="bigint">
                 <constraints primaryKey="true" nullable="false"/>
             </column>
@@ -25,7 +25,7 @@
             </column>
             <!-- jhipster-needle-liquibase-add-column - JHipster will add columns here -->
         </createTable>
-        <dropDefaultValue tableName="wishlist" columnName="created_at" columnDataType="${datetimeType}"/>
+        <dropDefaultValue tableName="wishlists" columnName="created_at" columnDataType="${datetimeType}"/>
     </changeSet>
 
     <!-- jhipster-needle-liquibase-add-changeset - JHipster will add changesets here -->
@@ -40,10 +40,10 @@
     -->
     <changeSet id="20261012230446-1-data" author="jhipster" context="faker">
         <loadData
-                  file="../fake-data/wishlist.csv"
+                  file="../fake-data/wishlists.csv"
                   relativeToChangelogFile="true"
                   separator=";"
-                  tableName="wishlist"
+                  tableName="wishlists"
                   usePreparedStatements="true">
             <column name="id" type="numeric"/>
             <column name="created_at" type="date"/>

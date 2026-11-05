@@ -10,15 +10,18 @@
         Added the entity QuestionOption.
     -->
     <changeSet id="20261012230502-1" author="jhipster">
-        <createTable tableName="question_option">
+        <createTable tableName="question_options" remarks="Lưu các lựa chọn và đáp án đúng của câu hỏi trắc nghiệm.">
             <column name="id" type="bigint">
                 <constraints primaryKey="true" nullable="false"/>
             </column>
-            <column name="content" type="varchar(5000)">
+            <column name="content" type="${clobType}">
                 <constraints nullable="false" />
             </column>
             <column name="is_correct" type="boolean">
                 <constraints nullable="true" />
+            </column>
+            <column name="order_index" type="integer">
+                <constraints nullable="false" />
             </column>
             <column name="question_id" type="bigint">
                 <constraints nullable="false" />
@@ -39,14 +42,15 @@
     -->
     <changeSet id="20261012230502-1-data" author="jhipster" context="faker">
         <loadData
-                  file="../fake-data/question_option.csv"
+                  file="../fake-data/question_options.csv"
                   relativeToChangelogFile="true"
                   separator=";"
-                  tableName="question_option"
+                  tableName="question_options"
                   usePreparedStatements="true">
             <column name="id" type="numeric"/>
-            <column name="content" type="string"/>
+            <column name="content" type="clob"/>
             <column name="is_correct" type="boolean"/>
+            <column name="order_index" type="numeric"/>
             <column name="question_id" type="numeric"/>
             <!-- jhipster-needle-liquibase-add-loadcolumn - JHipster (and/or extensions) can add load columns here -->
         </loadData>

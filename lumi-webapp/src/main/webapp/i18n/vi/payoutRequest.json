@@ -23,7 +23,13 @@
       "bankAccount": "Bank Account",
       "status": "Status",
       "createdAt": "Created At",
-      "wallet": "Wallet"
+      "accountHolderName": "Account Holder Name",
+      "processedAt": "Processed At",
+      "rejectionReason": "Rejection Reason",
+      "transferReference": "Transfer Reference",
+      "updatedAt": "Updated At",
+      "wallet": "Wallet",
+      "processedBy": "Processed By"
     }
   }
 }

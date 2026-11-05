@@ -1,10 +1,10 @@
 package com.lumi.web.rest;
 
 import com.lumi.repository.AuthSessionRepository;
-import com.lumi.service.AuthSessionQueryService;
 import com.lumi.service.AuthSessionService;
 import com.lumi.service.criteria.AuthSessionCriteria;
 import com.lumi.service.dto.AuthSessionDTO;
+import com.lumi.service.query.AuthSessionQueryService;
 import com.lumi.web.rest.errors.BadRequestAlertException;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;

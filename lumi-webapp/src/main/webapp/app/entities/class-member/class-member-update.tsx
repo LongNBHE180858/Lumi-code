@@ -20,8 +20,8 @@ export const ClassMemberUpdate = () => {
   const { id } = useParams<'id'>();
   const isNew = id === undefined;
 
-  const users = useAppSelector(state => state.userManagement.users);
   const studyClasses = useAppSelector(state => state.studyClass.entities);
+  const users = useAppSelector(state => state.userManagement.users);
   const classMemberEntity = useAppSelector(state => state.classMember.entity);
   const loading = useAppSelector(state => state.classMember.loading);
   const updating = useAppSelector(state => state.classMember.updating);
@@ -38,8 +38,8 @@ export const ClassMemberUpdate = () => {
       dispatch(getEntity(id));
     }
 
-    dispatch(getUsers({}));
     dispatch(getStudyClasses({}));
+    dispatch(getUsers({}));
   }, []);
 
   useEffect(() => {
@@ -53,12 +53,15 @@ export const ClassMemberUpdate = () => {
       values.id = Number(values.id);
     }
     values.joinedAt = convertDateTimeToServer(values.joinedAt);
+    values.requestedAt = convertDateTimeToServer(values.requestedAt);
+    values.leftAt = convertDateTimeToServer(values.leftAt);
+    values.updatedAt = convertDateTimeToServer(values.updatedAt);
 
     const entity = {
       ...classMemberEntity,
       ...values,
-      student: users.find(it => it.id.toString() === values.student?.toString()),
       studyClass: studyClasses.find(it => it.id.toString() === values.studyClass?.toString()),
+      student: users.find(it => it.id.toString() === values.student?.toString()),
     };
 
     if (isNew) {
@@ -72,12 +75,18 @@ export const ClassMemberUpdate = () => {
     isNew
       ? {
           joinedAt: displayDefaultDateTime(),
+          requestedAt: displayDefaultDateTime(),
+          leftAt: displayDefaultDateTime(),
+          updatedAt: displayDefaultDateTime(),
         }
       : {
           ...classMemberEntity,
           joinedAt: convertDateTimeFromServer(classMemberEntity.joinedAt),
-          student: classMemberEntity?.student?.id,
+          requestedAt: convertDateTimeFromServer(classMemberEntity.requestedAt),
+          leftAt: convertDateTimeFromServer(classMemberEntity.leftAt),
+          updatedAt: convertDateTimeFromServer(classMemberEntity.updatedAt),
           studyClass: classMemberEntity?.studyClass?.id,
+          student: classMemberEntity?.student?.id,
         };
 
   return (
@@ -124,25 +133,35 @@ export const ClassMemberUpdate = () => {
                 placeholder="YYYY-MM-DD HH:mm"
               />
               <ValidatedField
-                id="class-member-student"
-                name="student"
-                data-cy="student"
-                label={translate('lumiApp.classMember.student')}
-                type="select"
-                required
-              >
-                <option value="" key="0" />
-                {users
-                  ? users.map(otherEntity => (
-                      <option value={otherEntity.id} key={otherEntity.id}>
-                        {otherEntity.login}
-                      </option>
-                    ))
-                  : null}
-              </ValidatedField>
-              <FormText>
-                <Translate contentKey="entity.validation.required">This field is required.</Translate>
-              </FormText>
+                label={translate('lumiApp.classMember.requestedAt')}
+                id="class-member-requestedAt"
+                name="requestedAt"
+                data-cy="requestedAt"
+                type="datetime-local"
+                placeholder="YYYY-MM-DD HH:mm"
+                validate={{
+                  required: { value: true, message: translate('entity.validation.required') },
+                }}
+              />
+              <ValidatedField
+                label={translate('lumiApp.classMember.leftAt')}
+                id="class-member-leftAt"
+                name="leftAt"
+                data-cy="leftAt"
+                type="datetime-local"
+                placeholder="YYYY-MM-DD HH:mm"
+              />
+              <ValidatedField
+                label={translate('lumiApp.classMember.updatedAt')}
+                id="class-member-updatedAt"
+                name="updatedAt"
+                data-cy="updatedAt"
+                type="datetime-local"
+                placeholder="YYYY-MM-DD HH:mm"
+                validate={{
+                  required: { value: true, message: translate('entity.validation.required') },
+                }}
+              />
               <ValidatedField
                 id="class-member-studyClass"
                 name="studyClass"
@@ -155,7 +174,27 @@ export const ClassMemberUpdate = () => {
                 {studyClasses
                   ? studyClasses.map(otherEntity => (
                       <option value={otherEntity.id} key={otherEntity.id}>
-                        {otherEntity.name}
+                        {otherEntity.id}
+                      </option>
+                    ))
+                  : null}
+              </ValidatedField>
+              <FormText>
+                <Translate contentKey="entity.validation.required">This field is required.</Translate>
+              </FormText>
+              <ValidatedField
+                id="class-member-student"
+                name="student"
+                data-cy="student"
+                label={translate('lumiApp.classMember.student')}
+                type="select"
+                required
+              >
+                <option value="" key="0" />
+                {users
+                  ? users.map(otherEntity => (
+                      <option value={otherEntity.id} key={otherEntity.id}>
+                        {otherEntity.login}
                       </option>
                     ))
                   : null}

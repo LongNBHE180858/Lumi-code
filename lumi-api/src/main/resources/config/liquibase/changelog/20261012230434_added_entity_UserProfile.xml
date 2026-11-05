@@ -10,14 +10,14 @@
         Added the entity UserProfile.
     -->
     <changeSet id="20261012230434-1" author="jhipster">
-        <createTable tableName="user_profile">
+        <createTable tableName="user_profiles" remarks="Lưu hồ sơ mở rộng, thông tin trường học và trạng thái giáo viên của người dùng.">
             <column name="id" type="bigint">
                 <constraints primaryKey="true" nullable="false"/>
             </column>
             <column name="phone_number" type="varchar(20)">
-                <constraints nullable="true" unique="true" uniqueConstraintName="ux_user_profile__phone_number" />
+                <constraints nullable="true" unique="true" uniqueConstraintName="ux_user_profiles__phone_number" />
             </column>
-            <column name="bio" type="varchar(5000)">
+            <column name="bio" type="${clobType}">
                 <constraints nullable="true" />
             </column>
             <column name="school_name" type="varchar(255)">
@@ -35,12 +35,15 @@
             <column name="updated_at" type="${datetimeType}">
                 <constraints nullable="true" />
             </column>
+            <column name="birth_date" type="date">
+                <constraints nullable="true" />
+            </column>
             <column name="user_id" type="bigint">
-                <constraints nullable="false" unique="true" uniqueConstraintName="ux_user_profile__user_id" />
+                <constraints nullable="false" unique="true" uniqueConstraintName="ux_user_profiles__user_id" />
             </column>
             <!-- jhipster-needle-liquibase-add-column - JHipster will add columns here -->
         </createTable>
-        <dropDefaultValue tableName="user_profile" columnName="updated_at" columnDataType="${datetimeType}"/>
+        <dropDefaultValue tableName="user_profiles" columnName="updated_at" columnDataType="${datetimeType}"/>
     </changeSet>
 
     <!-- jhipster-needle-liquibase-add-changeset - JHipster will add changesets here -->
@@ -55,19 +58,20 @@
     -->
     <changeSet id="20261012230434-1-data" author="jhipster" context="faker">
         <loadData
-                  file="../fake-data/user_profile.csv"
+                  file="../fake-data/user_profiles.csv"
                   relativeToChangelogFile="true"
                   separator=";"
-                  tableName="user_profile"
+                  tableName="user_profiles"
                   usePreparedStatements="true">
             <column name="id" type="numeric"/>
             <column name="phone_number" type="string"/>
-            <column name="bio" type="string"/>
+            <column name="bio" type="clob"/>
             <column name="school_name" type="string"/>
             <column name="grade_level" type="numeric"/>
             <column name="is_2_fa_enabled" type="boolean"/>
             <column name="instructor_status" type="string"/>
             <column name="updated_at" type="date"/>
+            <column name="birth_date" type="date"/>
             <column name="user_id" type="numeric"/>
             <!-- jhipster-needle-liquibase-add-loadcolumn - JHipster (and/or extensions) can add load columns here -->
         </loadData>

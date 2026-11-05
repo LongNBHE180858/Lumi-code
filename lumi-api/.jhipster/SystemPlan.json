@@ -3,7 +3,9 @@
     "changelogDate": "20261012230451"
   },
   "applications": ["*"],
+  "documentation": "Lưu gói dịch vụ, giá, thời hạn và hạn mức quyền lợi.",
   "dto": "mapstruct",
+  "entityTableName": "system_plans",
   "fields": [
     {
       "fieldName": "name",
@@ -14,32 +16,67 @@
     {
       "fieldName": "price",
       "fieldType": "BigDecimal",
-      "fieldValidateRules": ["required", "min"],
-      "fieldValidateRulesMin": "0"
+      "fieldValidateRules": ["required"]
     },
     {
       "fieldName": "durationDays",
       "fieldType": "Integer",
-      "fieldValidateRules": ["required", "min"],
-      "fieldValidateRulesMin": "1"
+      "fieldValidateRules": ["required"]
     },
     {
       "fieldName": "storageQuotaMb",
       "fieldType": "Long",
-      "fieldValidateRules": ["required", "min"],
-      "fieldValidateRulesMin": "0"
+      "fieldValidateRules": ["required"]
     },
     {
       "fieldName": "aiGenerationLimit",
       "fieldType": "Integer",
-      "fieldValidateRules": ["required", "min"],
-      "fieldValidateRulesMin": "0"
+      "fieldValidateRules": ["required"]
+    },
+    {
+      "fieldName": "packageKey",
+      "fieldType": "String",
+      "fieldValidateRules": ["maxlength"],
+      "fieldValidateRulesMaxlength": "36"
     },
     {
       "fieldName": "maxClasses",
       "fieldType": "Integer",
-      "fieldValidateRules": ["required", "min"],
-      "fieldValidateRulesMin": "1"
+      "fieldValidateRules": ["required"]
+    },
+    {
+      "fieldName": "planType",
+      "fieldType": "String",
+      "fieldValidateRules": ["required", "maxlength"],
+      "fieldValidateRulesMaxlength": "30"
+    },
+    {
+      "fieldName": "targetRole",
+      "fieldType": "String",
+      "fieldValidateRules": ["required", "maxlength"],
+      "fieldValidateRulesMaxlength": "20"
+    },
+    {
+      "fieldName": "status",
+      "fieldType": "String",
+      "fieldValidateRules": ["required", "maxlength"],
+      "fieldValidateRulesMaxlength": "20"
+    },
+    {
+      "fieldName": "aiLimitPeriod",
+      "fieldType": "String",
+      "fieldValidateRules": ["required", "maxlength"],
+      "fieldValidateRulesMaxlength": "20"
+    },
+    {
+      "fieldName": "features",
+      "fieldType": "TextBlob",
+      "fieldValidateRules": ["required"]
+    },
+    {
+      "fieldName": "updatedAt",
+      "fieldType": "Instant",
+      "fieldValidateRules": ["required"]
     }
   ],
   "jpaMetamodelFiltering": true,

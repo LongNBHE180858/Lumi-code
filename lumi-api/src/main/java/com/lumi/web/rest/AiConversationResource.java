@@ -1,10 +1,10 @@
 package com.lumi.web.rest;
 
 import com.lumi.repository.AiConversationRepository;
-import com.lumi.service.AiConversationQueryService;
 import com.lumi.service.AiConversationService;
 import com.lumi.service.criteria.AiConversationCriteria;
 import com.lumi.service.dto.AiConversationDTO;
+import com.lumi.service.query.AiConversationQueryService;
 import com.lumi.web.rest.errors.BadRequestAlertException;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;

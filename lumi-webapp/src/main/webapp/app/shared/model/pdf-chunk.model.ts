@@ -1,11 +1,13 @@
-import { ICourseMaterial } from 'app/shared/model/course-material.model';
+import { ILearningDocument } from 'app/shared/model/learning-document.model';
 
 export interface IPdfChunk {
   id?: number;
   pageNumber?: number | null;
   chunkText?: string;
   embedding?: string | null;
-  material?: ICourseMaterial;
+  chunkIndex?: number;
+  indexVersion?: number;
+  material?: ILearningDocument;
 }
 
 export const defaultValue: Readonly<IPdfChunk> = {};

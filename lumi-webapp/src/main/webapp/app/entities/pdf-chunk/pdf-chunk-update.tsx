@@ -6,7 +6,7 @@ import { Link, useNavigate, useParams } from 'react-router';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import { useAppDispatch, useAppSelector } from 'app/config/store';
-import { getEntities as getCourseMaterials } from 'app/entities/course-material/course-material.reducer';
+import { getEntities as getLearningDocuments } from 'app/entities/learning-document/learning-document.reducer';
 
 import { createEntity, getEntity, reset, updateEntity } from './pdf-chunk.reducer';
 
@@ -18,14 +18,14 @@ export const PdfChunkUpdate = () => {
   const { id } = useParams<'id'>();
   const isNew = id === undefined;
 
-  const courseMaterials = useAppSelector(state => state.courseMaterial.entities);
+  const learningDocuments = useAppSelector(state => state.learningDocument.entities);
   const pdfChunkEntity = useAppSelector(state => state.pdfChunk.entity);
   const loading = useAppSelector(state => state.pdfChunk.loading);
   const updating = useAppSelector(state => state.pdfChunk.updating);
   const updateSuccess = useAppSelector(state => state.pdfChunk.updateSuccess);
 
   const handleClose = () => {
-    navigate('/pdf-chunk');
+    navigate(`/pdf-chunk${location.search}`);
   };
 
   useEffect(() => {
@@ -35,7 +35,7 @@ export const PdfChunkUpdate = () => {
       dispatch(getEntity(id));
     }
 
-    dispatch(getCourseMaterials({}));
+    dispatch(getLearningDocuments({}));
   }, []);
 
   useEffect(() => {
@@ -51,11 +51,17 @@ export const PdfChunkUpdate = () => {
     if (values.pageNumber !== undefined && typeof values.pageNumber !== 'number') {
       values.pageNumber = Number(values.pageNumber);
     }
+    if (values.chunkIndex !== undefined && typeof values.chunkIndex !== 'number') {
+      values.chunkIndex = Number(values.chunkIndex);
+    }
+    if (values.indexVersion !== undefined && typeof values.indexVersion !== 'number') {
+      values.indexVersion = Number(values.indexVersion);
+    }
 
     const entity = {
       ...pdfChunkEntity,
       ...values,
-      material: courseMaterials.find(it => it.id.toString() === values.material?.toString()),
+      material: learningDocuments.find(it => it.id.toString() === values.material?.toString()),
     };
 
     if (isNew) {
@@ -104,20 +110,15 @@ export const PdfChunkUpdate = () => {
                 name="pageNumber"
                 data-cy="pageNumber"
                 type="text"
-                validate={{
-                  min: { value: 1, message: translate('entity.validation.min', { min: 1 }) },
-                  validate: v => isNumber(v) || translate('entity.validation.number'),
-                }}
               />
               <ValidatedField
                 label={translate('lumiApp.pdfChunk.chunkText')}
                 id="pdf-chunk-chunkText"
                 name="chunkText"
                 data-cy="chunkText"
-                type="text"
+                type="textarea"
                 validate={{
                   required: { value: true, message: translate('entity.validation.required') },
-                  maxLength: { value: 5000, message: translate('entity.validation.maxlength', { max: 5000 }) },
                 }}
               />
               <ValidatedField
@@ -125,9 +126,30 @@ export const PdfChunkUpdate = () => {
                 id="pdf-chunk-embedding"
                 name="embedding"
                 data-cy="embedding"
+                type="textarea"
+              />
+              <ValidatedField
+                label={translate('lumiApp.pdfChunk.chunkIndex')}
+                id="pdf-chunk-chunkIndex"
+                name="chunkIndex"
+                data-cy="chunkIndex"
                 type="text"
                 validate={{
-                  maxLength: { value: 5000, message: translate('entity.validation.maxlength', { max: 5000 }) },
+                  required: { value: true, message: translate('entity.validation.required') },
+                  min: { value: 0, message: translate('entity.validation.min', { min: 0 }) },
+                  validate: v => isNumber(v) || translate('entity.validation.number'),
+                }}
+              />
+              <ValidatedField
+                label={translate('lumiApp.pdfChunk.indexVersion')}
+                id="pdf-chunk-indexVersion"
+                name="indexVersion"
+                data-cy="indexVersion"
+                type="text"
+                validate={{
+                  required: { value: true, message: translate('entity.validation.required') },
+                  min: { value: 1, message: translate('entity.validation.min', { min: 1 }) },
+                  validate: v => isNumber(v) || translate('entity.validation.number'),
                 }}
               />
               <ValidatedField
@@ -139,8 +161,8 @@ export const PdfChunkUpdate = () => {
                 required
               >
                 <option value="" key="0" />
-                {courseMaterials
-                  ? courseMaterials.map(otherEntity => (
+                {learningDocuments
+                  ? learningDocuments.map(otherEntity => (
                       <option value={otherEntity.id} key={otherEntity.id}>
                         {otherEntity.id}
                       </option>

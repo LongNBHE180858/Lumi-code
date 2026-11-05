@@ -139,6 +139,7 @@ public class UserProfileServiceImpl implements UserProfileService {
             .id(user.getId())
             .login(user.getLogin())
             .email(user.getEmail())
+            .birthDate(userProfile.getBirthDate())
             .firstName(user.getFirstName())
             .lastName(user.getLastName())
             .fullName(
@@ -200,6 +201,9 @@ public class UserProfileServiceImpl implements UserProfileService {
             user.setImageUrl(accountProfileDTO.getImageUrl());
         }
         // cập nhật bảng UserProfile
+        if (accountProfileDTO.getBirthDate() != null) {
+            userProfile.setBirthDate(accountProfileDTO.getBirthDate());
+        }
         userProfile.setBio(accountProfileDTO.getBio());
         userProfile.setPhoneNumber(phoneNumber);
         userProfile.setSchoolName(accountProfileDTO.getSchoolName());
@@ -218,7 +222,7 @@ public class UserProfileServiceImpl implements UserProfileService {
         );
 
         long enrolledCourseCount = courseEnrollmentRepository.countDistinctCourseByStudentId(userId);
-        StudentStreak streak = studentStreakRepository.findByUserId(userId).orElse(null);
+        StudentStreak streak = studentStreakRepository.findByStudent_Id(userId).orElse(null);
 
         return StudentProfileStatisticsDTO.builder()
             .enrolledCourseCount(enrolledCourseCount)

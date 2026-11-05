@@ -135,8 +135,31 @@ export const PayoutRequest = () => {
                   <Translate contentKey="lumiApp.payoutRequest.createdAt">Created At</Translate>{' '}
                   <FontAwesomeIcon icon={getSortIconByFieldName('createdAt')} />
                 </th>
+                <th className="hand" onClick={sort('accountHolderName')}>
+                  <Translate contentKey="lumiApp.payoutRequest.accountHolderName">Account Holder Name</Translate>{' '}
+                  <FontAwesomeIcon icon={getSortIconByFieldName('accountHolderName')} />
+                </th>
+                <th className="hand" onClick={sort('processedAt')}>
+                  <Translate contentKey="lumiApp.payoutRequest.processedAt">Processed At</Translate>{' '}
+                  <FontAwesomeIcon icon={getSortIconByFieldName('processedAt')} />
+                </th>
+                <th className="hand" onClick={sort('rejectionReason')}>
+                  <Translate contentKey="lumiApp.payoutRequest.rejectionReason">Rejection Reason</Translate>{' '}
+                  <FontAwesomeIcon icon={getSortIconByFieldName('rejectionReason')} />
+                </th>
+                <th className="hand" onClick={sort('transferReference')}>
+                  <Translate contentKey="lumiApp.payoutRequest.transferReference">Transfer Reference</Translate>{' '}
+                  <FontAwesomeIcon icon={getSortIconByFieldName('transferReference')} />
+                </th>
+                <th className="hand" onClick={sort('updatedAt')}>
+                  <Translate contentKey="lumiApp.payoutRequest.updatedAt">Updated At</Translate>{' '}
+                  <FontAwesomeIcon icon={getSortIconByFieldName('updatedAt')} />
+                </th>
                 <th>
                   <Translate contentKey="lumiApp.payoutRequest.wallet">Wallet</Translate> <FontAwesomeIcon icon="sort" />
+                </th>
+                <th>
+                  <Translate contentKey="lumiApp.payoutRequest.processedBy">Processed By</Translate> <FontAwesomeIcon icon="sort" />
                 </th>
                 <th />
               </tr>
@@ -156,6 +179,17 @@ export const PayoutRequest = () => {
                   <td>
                     {payoutRequest.createdAt ? <TextFormat type="date" value={payoutRequest.createdAt} format={APP_DATE_FORMAT} /> : null}
                   </td>
+                  <td>{payoutRequest.accountHolderName}</td>
+                  <td>
+                    {payoutRequest.processedAt ? (
+                      <TextFormat type="date" value={payoutRequest.processedAt} format={APP_DATE_FORMAT} />
+                    ) : null}
+                  </td>
+                  <td>{payoutRequest.rejectionReason}</td>
+                  <td>{payoutRequest.transferReference}</td>
+                  <td>
+                    {payoutRequest.updatedAt ? <TextFormat type="date" value={payoutRequest.updatedAt} format={APP_DATE_FORMAT} /> : null}
+                  </td>
                   <td>
                     {payoutRequest.wallet ? (
                       <Link to={`/instructor-wallet/${payoutRequest.wallet.id}`}>{payoutRequest.wallet.id}</Link>
@@ -163,6 +197,7 @@ export const PayoutRequest = () => {
                       ''
                     )}
                   </td>
+                  <td>{payoutRequest.processedBy ? payoutRequest.processedBy.login : ''}</td>
                   <td className="text-end">
                     <div className="btn-group flex-btn-group-container">
                       <Button

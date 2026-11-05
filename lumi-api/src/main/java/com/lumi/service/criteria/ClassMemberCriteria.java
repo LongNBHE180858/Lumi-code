@@ -30,9 +30,15 @@ public class ClassMemberCriteria implements Serializable, Criteria {
 
     private InstantFilter joinedAt;
 
-    private LongFilter studentId;
+    private InstantFilter requestedAt;
+
+    private InstantFilter leftAt;
+
+    private InstantFilter updatedAt;
 
     private LongFilter studyClassId;
+
+    private LongFilter studentId;
 
     private Boolean distinct;
 
@@ -42,8 +48,11 @@ public class ClassMemberCriteria implements Serializable, Criteria {
         this.id = other.optionalId().map(LongFilter::copy).orElse(null);
         this.status = other.optionalStatus().map(StringFilter::copy).orElse(null);
         this.joinedAt = other.optionalJoinedAt().map(InstantFilter::copy).orElse(null);
-        this.studentId = other.optionalStudentId().map(LongFilter::copy).orElse(null);
+        this.requestedAt = other.optionalRequestedAt().map(InstantFilter::copy).orElse(null);
+        this.leftAt = other.optionalLeftAt().map(InstantFilter::copy).orElse(null);
+        this.updatedAt = other.optionalUpdatedAt().map(InstantFilter::copy).orElse(null);
         this.studyClassId = other.optionalStudyClassId().map(LongFilter::copy).orElse(null);
+        this.studentId = other.optionalStudentId().map(LongFilter::copy).orElse(null);
         this.distinct = other.distinct;
     }
 
@@ -109,23 +118,61 @@ public class ClassMemberCriteria implements Serializable, Criteria {
         this.joinedAt = joinedAt;
     }
 
-    public LongFilter getStudentId() {
-        return studentId;
+    public InstantFilter getRequestedAt() {
+        return requestedAt;
     }
 
-    public Optional<LongFilter> optionalStudentId() {
-        return Optional.ofNullable(studentId);
+    public Optional<InstantFilter> optionalRequestedAt() {
+        return Optional.ofNullable(requestedAt);
     }
 
-    public LongFilter studentId() {
-        if (studentId == null) {
-            setStudentId(new LongFilter());
+    public InstantFilter requestedAt() {
+        if (requestedAt == null) {
+            setRequestedAt(new InstantFilter());
         }
-        return studentId;
+        return requestedAt;
     }
 
-    public void setStudentId(LongFilter studentId) {
-        this.studentId = studentId;
+    public void setRequestedAt(InstantFilter requestedAt) {
+        this.requestedAt = requestedAt;
+    }
+
+    public InstantFilter getLeftAt() {
+        return leftAt;
+    }
+
+    public Optional<InstantFilter> optionalLeftAt() {
+        return Optional.ofNullable(leftAt);
+    }
+
+    public InstantFilter leftAt() {
+        if (leftAt == null) {
+            setLeftAt(new InstantFilter());
+        }
+        return leftAt;
+    }
+
+    public void setLeftAt(InstantFilter leftAt) {
+        this.leftAt = leftAt;
+    }
+
+    public InstantFilter getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public Optional<InstantFilter> optionalUpdatedAt() {
+        return Optional.ofNullable(updatedAt);
+    }
+
+    public InstantFilter updatedAt() {
+        if (updatedAt == null) {
+            setUpdatedAt(new InstantFilter());
+        }
+        return updatedAt;
+    }
+
+    public void setUpdatedAt(InstantFilter updatedAt) {
+        this.updatedAt = updatedAt;
     }
 
     public LongFilter getStudyClassId() {
@@ -145,6 +192,25 @@ public class ClassMemberCriteria implements Serializable, Criteria {
 
     public void setStudyClassId(LongFilter studyClassId) {
         this.studyClassId = studyClassId;
+    }
+
+    public LongFilter getStudentId() {
+        return studentId;
+    }
+
+    public Optional<LongFilter> optionalStudentId() {
+        return Optional.ofNullable(studentId);
+    }
+
+    public LongFilter studentId() {
+        if (studentId == null) {
+            setStudentId(new LongFilter());
+        }
+        return studentId;
+    }
+
+    public void setStudentId(LongFilter studentId) {
+        this.studentId = studentId;
     }
 
     public Boolean getDistinct() {
@@ -179,15 +245,18 @@ public class ClassMemberCriteria implements Serializable, Criteria {
             Objects.equals(id, that.id) &&
             Objects.equals(status, that.status) &&
             Objects.equals(joinedAt, that.joinedAt) &&
-            Objects.equals(studentId, that.studentId) &&
+            Objects.equals(requestedAt, that.requestedAt) &&
+            Objects.equals(leftAt, that.leftAt) &&
+            Objects.equals(updatedAt, that.updatedAt) &&
             Objects.equals(studyClassId, that.studyClassId) &&
+            Objects.equals(studentId, that.studentId) &&
             Objects.equals(distinct, that.distinct)
         );
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, status, joinedAt, studentId, studyClassId, distinct);
+        return Objects.hash(id, status, joinedAt, requestedAt, leftAt, updatedAt, studyClassId, studentId, distinct);
     }
 
     // prettier-ignore
@@ -197,8 +266,11 @@ public class ClassMemberCriteria implements Serializable, Criteria {
             optionalId().map(f -> "id=" + f + ", ").orElse("") +
             optionalStatus().map(f -> "status=" + f + ", ").orElse("") +
             optionalJoinedAt().map(f -> "joinedAt=" + f + ", ").orElse("") +
-            optionalStudentId().map(f -> "studentId=" + f + ", ").orElse("") +
+            optionalRequestedAt().map(f -> "requestedAt=" + f + ", ").orElse("") +
+            optionalLeftAt().map(f -> "leftAt=" + f + ", ").orElse("") +
+            optionalUpdatedAt().map(f -> "updatedAt=" + f + ", ").orElse("") +
             optionalStudyClassId().map(f -> "studyClassId=" + f + ", ").orElse("") +
+            optionalStudentId().map(f -> "studentId=" + f + ", ").orElse("") +
             optionalDistinct().map(f -> "distinct=" + f + ", ").orElse("") +
         "}";
     }

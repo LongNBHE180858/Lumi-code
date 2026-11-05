@@ -1,14 +1,19 @@
 package com.lumi.service.dto;
 
 import com.lumi.domain.enumeration.InstructorApplicationStatus;
+import com.lumi.domain.enumeration.RecordStatus;
+import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.persistence.Lob;
 import jakarta.validation.constraints.*;
 import java.io.Serializable;
 import java.time.Instant;
+import java.time.LocalDate;
 import java.util.Objects;
 
 /**
  * A DTO for the {@link com.lumi.domain.UserProfile} entity.
  */
+@Schema(description = "Lưu hồ sơ mở rộng, thông tin trường học và trạng thái giáo viên của người dùng.")
 @SuppressWarnings("common-java:DuplicatedBlocks")
 public class UserProfileDTO implements Serializable {
 
@@ -17,7 +22,7 @@ public class UserProfileDTO implements Serializable {
     @Size(max = 20)
     private String phoneNumber;
 
-    @Size(max = 5000)
+    @Lob
     private String bio;
 
     @Size(max = 255)
@@ -26,6 +31,8 @@ public class UserProfileDTO implements Serializable {
     @Min(value = 1)
     @Max(value = 12)
     private Integer gradeLevel;
+
+    private LocalDate birthDate;
 
     private Boolean is2faEnabled;
 
@@ -100,6 +107,14 @@ public class UserProfileDTO implements Serializable {
         this.updatedAt = updatedAt;
     }
 
+    public LocalDate getBirthDate() {
+        return birthDate;
+    }
+
+    public void setBirthDate(LocalDate birthDate) {
+        this.birthDate = birthDate;
+    }
+
     public UserDTO getUser() {
         return user;
     }
@@ -141,6 +156,7 @@ public class UserProfileDTO implements Serializable {
             ", is2faEnabled='" + getIs2faEnabled() + "'" +
             ", instructorStatus='" + getInstructorStatus() + "'" +
             ", updatedAt='" + getUpdatedAt() + "'" +
+            ", birthDate='" + getBirthDate() + "'" +
             ", user=" + getUser() +
             "}";
     }

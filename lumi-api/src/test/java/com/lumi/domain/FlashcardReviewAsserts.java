@@ -54,7 +54,10 @@ public class FlashcardReviewAsserts {
                     .as("check intervalDays")
                     .usingComparator(bigDecimalCompareTo)
                     .isEqualTo(expected.getIntervalDays())
-            );
+            )
+            .satisfies(a -> assertThat(a.getLastReviewedAt()).as("check lastReviewedAt").isEqualTo(expected.getLastReviewedAt()))
+            .satisfies(a -> assertThat(a.getLastRating()).as("check lastRating").isEqualTo(expected.getLastRating()))
+            .satisfies(a -> assertThat(a.getReviewCount()).as("check reviewCount").isEqualTo(expected.getReviewCount()));
     }
 
     /**

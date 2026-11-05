@@ -2,6 +2,7 @@ package com.lumi.domain;
 
 import static com.lumi.domain.CourseEnrollmentTestSamples.*;
 import static com.lumi.domain.CourseTestSamples.*;
+import static com.lumi.domain.LessonTestSamples.*;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.lumi.web.rest.TestUtil;
@@ -33,5 +34,17 @@ class CourseEnrollmentTest {
 
         courseEnrollment.course(null);
         assertThat(courseEnrollment.getCourse()).isNull();
+    }
+
+    @Test
+    void lastAccessedLessonTest() {
+        CourseEnrollment courseEnrollment = getCourseEnrollmentRandomSampleGenerator();
+        Lesson lessonBack = getLessonRandomSampleGenerator();
+
+        courseEnrollment.setLastAccessedLesson(lessonBack);
+        assertThat(courseEnrollment.getLastAccessedLesson()).isEqualTo(lessonBack);
+
+        courseEnrollment.lastAccessedLesson(null);
+        assertThat(courseEnrollment.getLastAccessedLesson()).isNull();
     }
 }

@@ -3,19 +3,18 @@
     "changelogDate": "20261012231701"
   },
   "applications": ["*"],
+  "documentation": "Lưu yêu cầu hoàn tiền, kết quả xử lý và việc thu hồi quyền học.",
   "dto": "mapstruct",
+  "entityTableName": "refunds",
   "fields": [
     {
       "fieldName": "amount",
       "fieldType": "BigDecimal",
-      "fieldValidateRules": ["required", "min"],
-      "fieldValidateRulesMin": "0"
+      "fieldValidateRules": ["required"]
     },
     {
       "fieldName": "reason",
-      "fieldType": "String",
-      "fieldValidateRules": ["maxlength"],
-      "fieldValidateRulesMaxlength": "5000"
+      "fieldType": "TextBlob"
     },
     {
       "fieldName": "status",
@@ -25,6 +24,24 @@
     },
     {
       "fieldName": "createdAt",
+      "fieldType": "Instant"
+    },
+    {
+      "fieldName": "processedAt",
+      "fieldType": "Instant"
+    },
+    {
+      "fieldName": "reviewNote",
+      "fieldType": "TextBlob"
+    },
+    {
+      "fieldName": "refundReference",
+      "fieldType": "String",
+      "fieldValidateRules": ["maxlength"],
+      "fieldValidateRulesMaxlength": "255"
+    },
+    {
+      "fieldName": "accessRevokedAt",
       "fieldType": "Instant"
     }
   ],
@@ -45,6 +62,14 @@
       "relationshipSide": "left",
       "relationshipType": "many-to-one",
       "relationshipValidateRules": "required"
+    },
+    {
+      "otherEntityField": "login",
+      "otherEntityName": "user",
+      "relationshipName": "processedBy",
+      "relationshipSide": "left",
+      "relationshipType": "many-to-one",
+      "relationshipWithBuiltInEntity": true
     }
   ],
   "service": "serviceImpl"

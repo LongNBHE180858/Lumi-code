@@ -58,6 +58,32 @@ export const RefundDetail = () => {
           </dt>
           <dd>{refundEntity.createdAt ? <TextFormat value={refundEntity.createdAt} type="date" format={APP_DATE_FORMAT} /> : null}</dd>
           <dt>
+            <span id="processedAt">
+              <Translate contentKey="lumiApp.refund.processedAt">Processed At</Translate>
+            </span>
+          </dt>
+          <dd>{refundEntity.processedAt ? <TextFormat value={refundEntity.processedAt} type="date" format={APP_DATE_FORMAT} /> : null}</dd>
+          <dt>
+            <span id="reviewNote">
+              <Translate contentKey="lumiApp.refund.reviewNote">Review Note</Translate>
+            </span>
+          </dt>
+          <dd>{refundEntity.reviewNote}</dd>
+          <dt>
+            <span id="refundReference">
+              <Translate contentKey="lumiApp.refund.refundReference">Refund Reference</Translate>
+            </span>
+          </dt>
+          <dd>{refundEntity.refundReference}</dd>
+          <dt>
+            <span id="accessRevokedAt">
+              <Translate contentKey="lumiApp.refund.accessRevokedAt">Access Revoked At</Translate>
+            </span>
+          </dt>
+          <dd>
+            {refundEntity.accessRevokedAt ? <TextFormat value={refundEntity.accessRevokedAt} type="date" format={APP_DATE_FORMAT} /> : null}
+          </dd>
+          <dt>
             <Translate contentKey="lumiApp.refund.order">Order</Translate>
           </dt>
           <dd>{refundEntity.order ? refundEntity.order.id : ''}</dd>
@@ -65,6 +91,10 @@ export const RefundDetail = () => {
             <Translate contentKey="lumiApp.refund.payment">Payment</Translate>
           </dt>
           <dd>{refundEntity.payment ? refundEntity.payment.id : ''}</dd>
+          <dt>
+            <Translate contentKey="lumiApp.refund.processedBy">Processed By</Translate>
+          </dt>
+          <dd>{refundEntity.processedBy ? refundEntity.processedBy.login : ''}</dd>
         </dl>
         <Button as={Link as any} to="/refund" replace variant="info" data-cy="entityDetailsBackButton">
           <FontAwesomeIcon icon="arrow-left" />{' '}

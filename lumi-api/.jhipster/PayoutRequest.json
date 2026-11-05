@@ -3,13 +3,14 @@
     "changelogDate": "20261012230459"
   },
   "applications": ["*"],
+  "documentation": "Lưu yêu cầu rút tiền và thông tin xử lý chuyển khoản cho giáo viên.",
   "dto": "mapstruct",
+  "entityTableName": "payout_requests",
   "fields": [
     {
       "fieldName": "amount",
       "fieldType": "BigDecimal",
-      "fieldValidateRules": ["required", "min"],
-      "fieldValidateRulesMin": "0.01"
+      "fieldValidateRules": ["required"]
     },
     {
       "fieldName": "bankCode",
@@ -32,6 +33,31 @@
     {
       "fieldName": "createdAt",
       "fieldType": "Instant"
+    },
+    {
+      "fieldName": "accountHolderName",
+      "fieldType": "String",
+      "fieldValidateRules": ["required", "maxlength"],
+      "fieldValidateRulesMaxlength": "255"
+    },
+    {
+      "fieldName": "processedAt",
+      "fieldType": "Instant"
+    },
+    {
+      "fieldName": "rejectionReason",
+      "fieldType": "TextBlob"
+    },
+    {
+      "fieldName": "transferReference",
+      "fieldType": "String",
+      "fieldValidateRules": ["maxlength"],
+      "fieldValidateRulesMaxlength": "255"
+    },
+    {
+      "fieldName": "updatedAt",
+      "fieldType": "Instant",
+      "fieldValidateRules": ["required"]
     }
   ],
   "jpaMetamodelFiltering": true,
@@ -44,6 +70,14 @@
       "relationshipSide": "left",
       "relationshipType": "many-to-one",
       "relationshipValidateRules": "required"
+    },
+    {
+      "otherEntityField": "login",
+      "otherEntityName": "user",
+      "relationshipName": "processedBy",
+      "relationshipSide": "left",
+      "relationshipType": "many-to-one",
+      "relationshipWithBuiltInEntity": true
     }
   ],
   "searchEngine": "no",

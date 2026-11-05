@@ -10,7 +10,7 @@
         Added the entity SystemPlan.
     -->
     <changeSet id="20261012230451-1" author="jhipster">
-        <createTable tableName="system_plan">
+        <createTable tableName="system_plans" remarks="Lưu gói dịch vụ, giá, thời hạn và hạn mức quyền lợi.">
             <column name="id" type="bigint">
                 <constraints primaryKey="true" nullable="false"/>
             </column>
@@ -29,11 +29,31 @@
             <column name="ai_generation_limit" type="integer">
                 <constraints nullable="false" />
             </column>
+            <column name="package_key" type="varchar(36)"/>
             <column name="max_classes" type="integer">
+                <constraints nullable="false" />
+            </column>
+            <column name="plan_type" type="varchar(30)">
+                <constraints nullable="false" />
+            </column>
+            <column name="target_role" type="varchar(20)">
+                <constraints nullable="false" />
+            </column>
+            <column name="status" type="varchar(20)">
+                <constraints nullable="false" />
+            </column>
+            <column name="ai_limit_period" type="varchar(20)">
+                <constraints nullable="false" />
+            </column>
+            <column name="features" type="${clobType}">
+                <constraints nullable="false" />
+            </column>
+            <column name="updated_at" type="${datetimeType}">
                 <constraints nullable="false" />
             </column>
             <!-- jhipster-needle-liquibase-add-column - JHipster will add columns here -->
         </createTable>
+        <dropDefaultValue tableName="system_plans" columnName="updated_at" columnDataType="${datetimeType}"/>
     </changeSet>
 
     <!-- jhipster-needle-liquibase-add-changeset - JHipster will add changesets here -->
@@ -48,10 +68,10 @@
     -->
     <changeSet id="20261012230451-1-data" author="jhipster" context="faker">
         <loadData
-                  file="../fake-data/system_plan.csv"
+                  file="../fake-data/system_plans.csv"
                   relativeToChangelogFile="true"
                   separator=";"
-                  tableName="system_plan"
+                  tableName="system_plans"
                   usePreparedStatements="true">
             <column name="id" type="numeric"/>
             <column name="name" type="string"/>
@@ -60,6 +80,12 @@
             <column name="storage_quota_mb" type="numeric"/>
             <column name="ai_generation_limit" type="numeric"/>
             <column name="max_classes" type="numeric"/>
+            <column name="plan_type" type="string"/>
+            <column name="target_role" type="string"/>
+            <column name="status" type="string"/>
+            <column name="ai_limit_period" type="string"/>
+            <column name="features" type="clob"/>
+            <column name="updated_at" type="date"/>
             <!-- jhipster-needle-liquibase-add-loadcolumn - JHipster (and/or extensions) can add load columns here -->
         </loadData>
     </changeSet>

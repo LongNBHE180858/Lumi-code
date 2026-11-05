@@ -9,10 +9,10 @@ import java.math.BigDecimal;
 import java.time.Instant;
 
 /**
- * A CourseEnrollment.
+ * Lưu quyền học, thời hạn và tiến độ tổng hợp của học sinh theo khóa.
  */
 @Entity
-@Table(name = "course_enrollment")
+@Table(name = "course_enrollments")
 @SuppressWarnings("common-java:DuplicatedBlocks")
 public class CourseEnrollment implements Serializable {
 
@@ -25,8 +25,6 @@ public class CourseEnrollment implements Serializable {
     @Column(name = "id")
     private Long id;
 
-    @DecimalMin(value = "0")
-    @DecimalMax(value = "100")
     @Column(name = "progress_percent", precision = 21, scale = 2)
     private BigDecimal progressPercent;
 
@@ -41,14 +39,22 @@ public class CourseEnrollment implements Serializable {
     @Column(name = "expires_at", nullable = false)
     private Instant expiresAt;
 
+    @NotNull
+    @Column(name = "updated_at", nullable = false)
+    private Instant updatedAt;
+
+    @ManyToOne(optional = false)
+    @NotNull
+    @JsonIgnoreProperties(value = { "author", "subject", "grade" }, allowSetters = true)
+    private Course course;
+
     @ManyToOne(optional = false)
     @NotNull
     private User student;
 
-    @ManyToOne(optional = false)
-    @NotNull
-    @JsonIgnoreProperties(value = { "author", "category", "subject", "grade" }, allowSetters = true)
-    private Course course;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JsonIgnoreProperties(value = { "chapter" }, allowSetters = true)
+    private Lesson lastAccessedLesson;
 
     // jhipster-needle-entity-add-field - JHipster will add fields here
 
@@ -117,6 +123,32 @@ public class CourseEnrollment implements Serializable {
         this.expiresAt = expiresAt;
     }
 
+    public Instant getUpdatedAt() {
+        return this.updatedAt;
+    }
+
+    public CourseEnrollment updatedAt(Instant updatedAt) {
+        this.setUpdatedAt(updatedAt);
+        return this;
+    }
+
+    public void setUpdatedAt(Instant updatedAt) {
+        this.updatedAt = updatedAt;
+    }
+
+    public Course getCourse() {
+        return this.course;
+    }
+
+    public void setCourse(Course course) {
+        this.course = course;
+    }
+
+    public CourseEnrollment course(Course course) {
+        this.setCourse(course);
+        return this;
+    }
+
     public User getStudent() {
         return this.student;
     }
@@ -130,16 +162,16 @@ public class CourseEnrollment implements Serializable {
         return this;
     }
 
-    public Course getCourse() {
-        return this.course;
+    public Lesson getLastAccessedLesson() {
+        return this.lastAccessedLesson;
     }
 
-    public void setCourse(Course course) {
-        this.course = course;
+    public void setLastAccessedLesson(Lesson lesson) {
+        this.lastAccessedLesson = lesson;
     }
 
-    public CourseEnrollment course(Course course) {
-        this.setCourse(course);
+    public CourseEnrollment lastAccessedLesson(Lesson lesson) {
+        this.setLastAccessedLesson(lesson);
         return this;
     }
 
@@ -171,6 +203,7 @@ public class CourseEnrollment implements Serializable {
             ", status='" + getStatus() + "'" +
             ", enrolledAt='" + getEnrolledAt() + "'" +
             ", expiresAt='" + getExpiresAt() + "'" +
+            ", updatedAt='" + getUpdatedAt() + "'" +
             "}";
     }
 }

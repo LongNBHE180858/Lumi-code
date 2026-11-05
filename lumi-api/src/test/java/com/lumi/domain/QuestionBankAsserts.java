@@ -47,7 +47,10 @@ public class QuestionBankAsserts {
     public static void assertQuestionBankUpdatableFieldsEquals(QuestionBank expected, QuestionBank actual) {
         assertThat(actual)
             .as("Verify QuestionBank relevant properties")
-            .satisfies(a -> assertThat(a.getName()).as("check name").isEqualTo(expected.getName()));
+            .satisfies(a -> assertThat(a.getName()).as("check name").isEqualTo(expected.getName()))
+            .satisfies(a -> assertThat(a.getVisibility()).as("check visibility").isEqualTo(expected.getVisibility()))
+            .satisfies(a -> assertThat(a.getCreatedAt()).as("check createdAt").isEqualTo(expected.getCreatedAt()))
+            .satisfies(a -> assertThat(a.getUpdatedAt()).as("check updatedAt").isEqualTo(expected.getUpdatedAt()));
     }
 
     /**
@@ -57,6 +60,9 @@ public class QuestionBankAsserts {
      * @param actual the actual entity
      */
     public static void assertQuestionBankUpdatableRelationshipsEquals(QuestionBank expected, QuestionBank actual) {
-        // empty method
+        assertThat(actual)
+            .as("Verify QuestionBank relationships")
+            .satisfies(a -> assertThat(a.getSubject()).as("check subject").isEqualTo(expected.getSubject()))
+            .satisfies(a -> assertThat(a.getGrade()).as("check grade").isEqualTo(expected.getGrade()));
     }
 }

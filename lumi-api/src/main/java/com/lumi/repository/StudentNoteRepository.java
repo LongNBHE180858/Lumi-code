@@ -30,16 +30,14 @@ public interface StudentNoteRepository extends JpaRepository<StudentNote, Long>,
     }
 
     @Query(
-        value = "select studentNote from StudentNote studentNote left join fetch studentNote.student left join fetch studentNote.lesson",
+        value = "select studentNote from StudentNote studentNote left join fetch studentNote.student",
         countQuery = "select count(studentNote) from StudentNote studentNote"
     )
     Page<StudentNote> findAllWithToOneRelationships(Pageable pageable);
 
-    @Query("select studentNote from StudentNote studentNote left join fetch studentNote.student left join fetch studentNote.lesson")
+    @Query("select studentNote from StudentNote studentNote left join fetch studentNote.student")
     List<StudentNote> findAllWithToOneRelationships();
 
-    @Query(
-        "select studentNote from StudentNote studentNote left join fetch studentNote.student left join fetch studentNote.lesson where studentNote.id =:id"
-    )
+    @Query("select studentNote from StudentNote studentNote left join fetch studentNote.student where studentNote.id =:id")
     Optional<StudentNote> findOneWithToOneRelationships(@Param("id") Long id);
 }

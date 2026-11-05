@@ -15,6 +15,7 @@ import com.lumi.repository.TicketMessageRepository;
 import com.lumi.repository.UserRepository;
 import com.lumi.service.dto.SupportTicketCreateRequest;
 import com.lumi.service.dto.TicketMessageCreateRequest;
+import java.time.Instant;
 import java.util.Optional;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -72,11 +73,15 @@ class SupportTicketManagementServiceTest {
 
         var result = service.create(new SupportTicketCreateRequest(" GENERAL ", " Need help ", " First message "));
 
+        ArgumentCaptor<SupportTicket> ticketCaptor = ArgumentCaptor.forClass(SupportTicket.class);
+        verify(ticketRepository).save(ticketCaptor.capture());
         ArgumentCaptor<TicketMessage> messageCaptor = ArgumentCaptor.forClass(TicketMessage.class);
         verify(messageRepository).save(messageCaptor.capture());
         assertThat(result.status()).isEqualTo("OPEN");
         assertThat(result.userId()).isEqualTo(owner.getId());
         assertThat(result.type()).isEqualTo("GENERAL");
+        assertThat(ticketCaptor.getValue().getUpdatedAt()).isEqualTo(ticketCaptor.getValue().getCreatedAt());
+        assertThat(messageCaptor.getValue().getCreatedAt()).isEqualTo(ticketCaptor.getValue().getUpdatedAt());
         assertThat(messageCaptor.getValue().getSender()).isSameAs(owner);
         assertThat(messageCaptor.getValue().getTicket().getId()).isEqualTo(21L);
         assertThat(messageCaptor.getValue().getContent()).isEqualTo("First message");
@@ -112,6 +117,7 @@ class SupportTicketManagementServiceTest {
         service.addMessage(21L, new TicketMessageCreateRequest("Still need help"));
 
         assertThat(ticket.getStatus()).isEqualTo("IN_PROGRESS");
+        assertThat(ticket.getUpdatedAt()).isAfter(ticket.getCreatedAt());
     }
 
     @Test
@@ -124,6 +130,20 @@ class SupportTicketManagementServiceTest {
         service.addMessage(21L, new TicketMessageCreateRequest("Need a reply"));
 
         assertThat(ticket.getStatus()).isEqualTo("IN_PROGRESS");
+    }
+
+    @Test
+    void messageRefreshesUpdatedAtWithoutChangingStatus() {
+        when(userRepository.findOneByLogin("ticketowner")).thenReturn(Optional.of(owner));
+        SupportTicket ticket = ticket("IN_PROGRESS");
+        when(ticketRepository.findByIdForUpdate(21L)).thenReturn(Optional.of(ticket));
+        when(messageRepository.save(any(TicketMessage.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        var message = service.addMessage(21L, new TicketMessageCreateRequest("New detail"));
+
+        assertThat(ticket.getStatus()).isEqualTo("IN_PROGRESS");
+        assertThat(ticket.getUpdatedAt()).isAfter(ticket.getCreatedAt());
+        assertThat(ticket.getUpdatedAt()).isEqualTo(message.createdAt());
     }
 
     @Test
@@ -153,14 +173,37 @@ class SupportTicketManagementServiceTest {
         authenticate("ticketadmin", "ROLE_ADMIN");
         when(ticketRepository.findByIdForUpdate(21L)).thenReturn(Optional.of(ticket));
         assertThat(service.changeStatus(21L, SupportTicketStatus.RESOLVED).status()).isEqualTo("RESOLVED");
+        Instant resolvedAt = ticket.getUpdatedAt();
+        assertThat(resolvedAt).isAfter(ticket.getCreatedAt());
 
         authenticate("ticketowner", "ROLE_USER");
         when(userRepository.findOneByLogin("ticketowner")).thenReturn(Optional.of(owner));
         assertThat(service.reopen(21L).status()).isEqualTo("IN_PROGRESS");
+        assertThat(ticket.getUpdatedAt()).isAfterOrEqualTo(resolvedAt);
+    }
+
+    @Test
+    void repeatingSameStatusPreservesUpdatedAt() {
+        authenticate("ticketadmin", "ROLE_ADMIN");
+        SupportTicket ticket = ticket("IN_PROGRESS");
+        Instant previousActivity = ticket.getUpdatedAt();
+        when(ticketRepository.findByIdForUpdate(21L)).thenReturn(Optional.of(ticket));
+
+        service.changeStatus(21L, SupportTicketStatus.IN_PROGRESS);
+
+        assertThat(ticket.getUpdatedAt()).isEqualTo(previousActivity);
     }
 
     private SupportTicket ticket(String status) {
-        return new SupportTicket().id(21L).type("GENERAL").subject("Need help").status(status).user(owner);
+        Instant createdAt = Instant.now().minusSeconds(60);
+        return new SupportTicket()
+            .id(21L)
+            .type("GENERAL")
+            .subject("Need help")
+            .status(status)
+            .createdAt(createdAt)
+            .updatedAt(createdAt)
+            .user(owner);
     }
 
     private void authenticate(String login, String role) {

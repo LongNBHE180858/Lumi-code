@@ -1,0 +1,33 @@
+{
+  "lumiApp": {
+    "courseReviewRequest": {
+      "home": {
+        "title": "Course Review Requests",
+        "refreshListLabel": "Refresh list",
+        "createLabel": "Thêm mới một Course Review Request",
+        "createOrEditLabel": "Thêm mới hoặc cập nhật Course Review Request",
+        "notFound": "No Course Review Requests found"
+      },
+      "created": "Một Course Review Request mới được tạo với định danh {{ param }}",
+      "updated": "Một Course Review Request cập nhật với định danh {{ param }}",
+      "deleted": "Một Course Review Request đã xóa với định danh {{ param }}",
+      "delete": {
+        "question": "Bạn có chắc là muốn xóa Course Review Request {{ id }}?"
+      },
+      "detail": {
+        "title": "Course Review Request"
+      },
+      "id": "ID",
+      "courseVersion": "Course Version",
+      "status": "Status",
+      "submissionNote": "Submission Note",
+      "rightsConfirmedAt": "Rights Confirmed At",
+      "submittedAt": "Submitted At",
+      "reviewedAt": "Reviewed At",
+      "reviewerFeedback": "Reviewer Feedback",
+      "course": "Course",
+      "submittedBy": "Submitted By",
+      "reviewedBy": "Reviewed By"
+    }
+  }
+}

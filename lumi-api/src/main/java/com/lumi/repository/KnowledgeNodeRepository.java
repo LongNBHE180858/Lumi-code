@@ -12,6 +12,7 @@ import org.springframework.stereotype.Repository;
 /**
  * Spring Data JPA repository for the KnowledgeNode entity.
  */
+@SuppressWarnings("unused")
 @Repository
 public interface KnowledgeNodeRepository extends JpaRepository<KnowledgeNode, Long>, JpaSpecificationExecutor<KnowledgeNode> {
     default Optional<KnowledgeNode> findOneWithEagerRelationships(Long id) {
@@ -37,4 +38,11 @@ public interface KnowledgeNodeRepository extends JpaRepository<KnowledgeNode, Lo
 
     @Query("select knowledgeNode from KnowledgeNode knowledgeNode left join fetch knowledgeNode.subject where knowledgeNode.id =:id")
     Optional<KnowledgeNode> findOneWithToOneRelationships(@Param("id") Long id);
+
+    List<KnowledgeNode> findAllBySubjectId(Long subjectId);
+
+    @Query(
+        "select knowledgeNode from KnowledgeNode knowledgeNode left join fetch knowledgeNode.subject where knowledgeNode.subject.id = :subjectId"
+    )
+    List<KnowledgeNode> findAllWithSubjectBySubjectId(@Param("subjectId") Long subjectId);
 }

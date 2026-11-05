@@ -3,7 +3,9 @@
     "changelogDate": "20261012231721"
   },
   "applications": ["*"],
+  "documentation": "Lưu các đơn vị kiến thức dùng để phân tích năng lực và gợi ý học tập.",
   "dto": "mapstruct",
+  "entityTableName": "knowledge_nodes",
   "fields": [
     {
       "fieldName": "title",
@@ -23,7 +25,6 @@
   "pagination": "pagination",
   "relationships": [
     {
-      "otherEntityField": "name",
       "otherEntityName": "subject",
       "relationshipName": "subject",
       "relationshipSide": "left",

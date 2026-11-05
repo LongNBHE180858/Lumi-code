@@ -7,10 +7,10 @@ import java.io.Serializable;
 import java.time.Instant;
 
 /**
- * A AuditLog.
+ * Lưu dấu vết hành động và thay đổi dữ liệu quan trọng trong hệ thống.
  */
 @Entity
-@Table(name = "audit_log")
+@Table(name = "audit_logs")
 @SuppressWarnings("common-java:DuplicatedBlocks")
 public class AuditLog implements Serializable {
 
@@ -42,14 +42,14 @@ public class AuditLog implements Serializable {
     @Column(name = "ip_address", length = 50)
     private String ipAddress;
 
-    @Size(max = 5000)
-    @Column(name = "details", length = 5000)
+    @Column(name = "details", columnDefinition = "text")
     private String details;
 
     @Column(name = "occurred_at")
     private Instant occurredAt;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(optional = false)
+    @NotNull
     private User actor;
 
     // jhipster-needle-entity-add-field - JHipster will add fields here

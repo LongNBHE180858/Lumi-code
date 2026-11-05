@@ -12,7 +12,7 @@ import {
 import { expect, test } from '../../support/fixtures';
 
 const courseMaterialPageUrl = '/course-material';
-// const courseMaterialSample = {"fileType":"omelet joyfully","fileUrl":"gifted"};
+// const courseMaterialSample = {"fileType":"energetically","fileUrl":"amendment","updatedAt":"2026-10-12T09:02:11.928Z"};
 
 const courseMaterialApiUrl = '/api/course-materials';
 
@@ -35,7 +35,7 @@ test.describe('CourseMaterial e2e test', () => {
       await jhi.authenticatedRequest({
         method: 'POST',
         url: '/api/lessons',
-        body: {"title":"simplistic","contentType":"after knickers","orderIndex":28230,"isPreview":true,"durationMinutes":23882,"status":"DRAFT"},
+        body: {"title":"simplistic","description":"Li4vZmFrZS1kYXRhL2Jsb2IvaGlwc3Rlci50eHQ=","contentType":"after knickers","videoUrl":"pish cleverly violently","videoFileName":"lively reopen friendly","videoSizeBytes":23698,"orderIndex":27016,"isPreview":true,"durationMinutes":28798,"status":"ACTIVE","durationSeconds":10521,"videoObjectKey":"once pivot","updatedAt":"2026-10-12T03:34:09.113Z"},
       })
     ).json();
   });
@@ -47,6 +47,12 @@ test.describe('CourseMaterial e2e test', () => {
     await page.route(
       url => url.pathname === '/api/lessons',
       route => route.fulfill({ status: 200, json: [lesson].filter(Boolean) }),
+    );
+    // A url predicate rather than a glob: a glob's wildcards would close the "Disabled due to
+    // incompatibility" block comment that wraps this section when the create test is skipped.
+    await page.route(
+      url => url.pathname === '/api/learning-documents',
+      route => route.fulfill({ status: 200, json: [].filter(Boolean) }),
     );
   });
    */
@@ -214,14 +220,33 @@ test.describe('CourseMaterial e2e test', () => {
 
     // Reason: cannot create a required entity with relationship with required relationships.
     test.skip('should create an instance of CourseMaterial', async ({ page }) => {
-      await page.locator(`[data-cy="fileType"]`).fill('lieu ew malfunction');
-      await expect(page.locator(`[data-cy="fileType"]`)).toHaveValue('lieu ew malfunction');
+      await page.locator(`[data-cy="fileName"]`).fill('lieu ew malfunction');
+      await expect(page.locator(`[data-cy="fileName"]`)).toHaveValue('lieu ew malfunction');
 
-      await page.locator(`[data-cy="fileUrl"]`).fill('recklessly fishery');
-      await expect(page.locator(`[data-cy="fileUrl"]`)).toHaveValue('recklessly fishery');
+      await page.locator(`[data-cy="displayName"]`).fill('recklessly fishery');
+      await expect(page.locator(`[data-cy="displayName"]`)).toHaveValue('recklessly fishery');
 
-      await page.locator(`[data-cy="fileSizeBytes"]`).fill('2615');
-      await expect(page.locator(`[data-cy="fileSizeBytes"]`)).toHaveValue('2615');
+      await page.locator(`[data-cy="mimeType"]`).fill('truthfully');
+      await expect(page.locator(`[data-cy="mimeType"]`)).toHaveValue('truthfully');
+
+      await page.locator(`[data-cy="orderIndex"]`).fill('20374');
+      await expect(page.locator(`[data-cy="orderIndex"]`)).toHaveValue('20374');
+
+      await page.locator(`[data-cy="fileType"]`).fill('dime gifted');
+      await expect(page.locator(`[data-cy="fileType"]`)).toHaveValue('dime gifted');
+
+      await page.locator(`[data-cy="fileUrl"]`).fill('fisherman');
+      await expect(page.locator(`[data-cy="fileUrl"]`)).toHaveValue('fisherman');
+
+      await page.locator(`[data-cy="fileSizeBytes"]`).fill('24087');
+      await expect(page.locator(`[data-cy="fileSizeBytes"]`)).toHaveValue('24087');
+
+      await page.locator(`[data-cy="fileObjectKey"]`).fill('past nightlife');
+      await expect(page.locator(`[data-cy="fileObjectKey"]`)).toHaveValue('past nightlife');
+
+      await page.locator(`[data-cy="updatedAt"]`).fill('2026-10-12T02:58');
+      await page.locator(`[data-cy="updatedAt"]`).blur();
+      await expect(page.locator(`[data-cy="updatedAt"]`)).toHaveValue('2026-10-12T02:58');
 
       await page.locator(`[data-cy="lesson"]`).selectOption({ index: 1 });
 

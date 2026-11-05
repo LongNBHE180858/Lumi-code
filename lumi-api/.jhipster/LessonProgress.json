@@ -1,0 +1,57 @@
+{
+  "annotations": {
+    "changelogDate": "20261101222542"
+  },
+  "applications": ["*"],
+  "documentation": "Lưu tiến độ từng bài và vị trí phát video gần nhất của học sinh.",
+  "dto": "mapstruct",
+  "entityTableName": "lesson_progress",
+  "fields": [
+    {
+      "fieldName": "status",
+      "fieldType": "String",
+      "fieldValidateRules": ["required", "maxlength"],
+      "fieldValidateRulesMaxlength": "20"
+    },
+    {
+      "fieldName": "lastPositionSeconds",
+      "fieldType": "BigDecimal",
+      "fieldValidateRules": ["required", "min"],
+      "fieldValidateRulesMin": "0"
+    },
+    {
+      "fieldName": "lastAccessedAt",
+      "fieldType": "Instant"
+    },
+    {
+      "fieldName": "completedAt",
+      "fieldType": "Instant"
+    },
+    {
+      "fieldName": "rowVersion",
+      "fieldType": "Long",
+      "fieldValidateRules": ["required"]
+    }
+  ],
+  "jpaMetamodelFiltering": true,
+  "name": "LessonProgress",
+  "pagination": "pagination",
+  "relationships": [
+    {
+      "otherEntityName": "courseEnrollment",
+      "relationshipName": "enrollment",
+      "relationshipSide": "left",
+      "relationshipType": "many-to-one",
+      "relationshipValidateRules": "required"
+    },
+    {
+      "otherEntityName": "lesson",
+      "relationshipName": "lesson",
+      "relationshipSide": "left",
+      "relationshipType": "many-to-one",
+      "relationshipValidateRules": "required"
+    }
+  ],
+  "searchEngine": "no",
+  "service": "serviceImpl"
+}

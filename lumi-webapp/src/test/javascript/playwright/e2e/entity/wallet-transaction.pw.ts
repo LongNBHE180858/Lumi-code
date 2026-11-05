@@ -12,7 +12,7 @@ import {
 import { expect, test } from '../../support/fixtures';
 
 const walletTransactionPageUrl = '/wallet-transaction';
-// const walletTransactionSample = {"type":"ADJUSTMENT","amount":31677.53,"status":"broadcast including "};
+// const walletTransactionSample = {"type":"SALE","amount":3675.03,"status":"growing","balanceBucket":"meanwhile marvelous"};
 
 const walletTransactionApiUrl = '/api/wallet-transactions';
 
@@ -52,6 +52,18 @@ test.describe('WalletTransaction e2e test', () => {
     // incompatibility" block comment that wraps this section when the create test is skipped.
     await page.route(
       url => url.pathname === '/api/course-orders',
+      route => route.fulfill({ status: 200, json: [].filter(Boolean) }),
+    );
+    // A url predicate rather than a glob: a glob's wildcards would close the "Disabled due to
+    // incompatibility" block comment that wraps this section when the create test is skipped.
+    await page.route(
+      url => url.pathname === '/api/payout-requests',
+      route => route.fulfill({ status: 200, json: [].filter(Boolean) }),
+    );
+    // A url predicate rather than a glob: a glob's wildcards would close the "Disabled due to
+    // incompatibility" block comment that wraps this section when the create test is skipped.
+    await page.route(
+      url => url.pathname === '/api/refunds',
       route => route.fulfill({ status: 200, json: [].filter(Boolean) }),
     );
   });
@@ -235,6 +247,9 @@ test.describe('WalletTransaction e2e test', () => {
       await page.locator(`[data-cy="occurredAt"]`).fill('2026-10-11T23:43');
       await page.locator(`[data-cy="occurredAt"]`).blur();
       await expect(page.locator(`[data-cy="occurredAt"]`)).toHaveValue('2026-10-11T23:43');
+
+      await page.locator(`[data-cy="balanceBucket"]`).fill('poorly accessorise t');
+      await expect(page.locator(`[data-cy="balanceBucket"]`)).toHaveValue('poorly accessorise t');
 
       await page.locator(`[data-cy="wallet"]`).selectOption({ index: 1 });
 

@@ -77,6 +77,7 @@ class AuthSessionCriteriaTest {
         authSessionCriteria.expiresAt();
         authSessionCriteria.isRevoked();
         authSessionCriteria.createdAt();
+        authSessionCriteria.refreshTokenHash();
         authSessionCriteria.userId();
         authSessionCriteria.distinct();
     }
@@ -90,6 +91,7 @@ class AuthSessionCriteriaTest {
                 condition.apply(criteria.getExpiresAt()) &&
                 condition.apply(criteria.getIsRevoked()) &&
                 condition.apply(criteria.getCreatedAt()) &&
+                condition.apply(criteria.getRefreshTokenHash()) &&
                 condition.apply(criteria.getUserId()) &&
                 condition.apply(criteria.getDistinct()),
             "every filter matches"
@@ -105,6 +107,7 @@ class AuthSessionCriteriaTest {
                 condition.apply(criteria.getExpiresAt(), copy.getExpiresAt()) &&
                 condition.apply(criteria.getIsRevoked(), copy.getIsRevoked()) &&
                 condition.apply(criteria.getCreatedAt(), copy.getCreatedAt()) &&
+                condition.apply(criteria.getRefreshTokenHash(), copy.getRefreshTokenHash()) &&
                 condition.apply(criteria.getUserId(), copy.getUserId()) &&
                 condition.apply(criteria.getDistinct(), copy.getDistinct()),
             "every filter matches"

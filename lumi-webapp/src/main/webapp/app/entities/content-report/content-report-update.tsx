@@ -51,11 +51,14 @@ export const ContentReportUpdate = () => {
       values.targetId = Number(values.targetId);
     }
     values.createdAt = convertDateTimeToServer(values.createdAt);
+    values.resolvedAt = convertDateTimeToServer(values.resolvedAt);
 
     const entity = {
       ...contentReportEntity,
       ...values,
       reporter: users.find(it => it.id.toString() === values.reporter?.toString()),
+      assignedTo: users.find(it => it.id.toString() === values.assignedTo?.toString()),
+      resolvedBy: users.find(it => it.id.toString() === values.resolvedBy?.toString()),
     };
 
     if (isNew) {
@@ -69,11 +72,15 @@ export const ContentReportUpdate = () => {
     isNew
       ? {
           createdAt: displayDefaultDateTime(),
+          resolvedAt: displayDefaultDateTime(),
         }
       : {
           ...contentReportEntity,
           createdAt: convertDateTimeFromServer(contentReportEntity.createdAt),
+          resolvedAt: convertDateTimeFromServer(contentReportEntity.resolvedAt),
           reporter: contentReportEntity?.reporter?.id,
+          assignedTo: contentReportEntity?.assignedTo?.id,
+          resolvedBy: contentReportEntity?.resolvedBy?.id,
         };
 
   return (
@@ -128,10 +135,9 @@ export const ContentReportUpdate = () => {
                 id="content-report-reason"
                 name="reason"
                 data-cy="reason"
-                type="text"
+                type="textarea"
                 validate={{
                   required: { value: true, message: translate('entity.validation.required') },
-                  maxLength: { value: 5000, message: translate('entity.validation.maxlength', { max: 5000 }) },
                 }}
               />
               <ValidatedField
@@ -153,6 +159,31 @@ export const ContentReportUpdate = () => {
                 placeholder="YYYY-MM-DD HH:mm"
               />
               <ValidatedField
+                label={translate('lumiApp.contentReport.resolvedAt')}
+                id="content-report-resolvedAt"
+                name="resolvedAt"
+                data-cy="resolvedAt"
+                type="datetime-local"
+                placeholder="YYYY-MM-DD HH:mm"
+              />
+              <ValidatedField
+                label={translate('lumiApp.contentReport.resolutionNote')}
+                id="content-report-resolutionNote"
+                name="resolutionNote"
+                data-cy="resolutionNote"
+                type="textarea"
+              />
+              <ValidatedField
+                label={translate('lumiApp.contentReport.targetVersion')}
+                id="content-report-targetVersion"
+                name="targetVersion"
+                data-cy="targetVersion"
+                type="text"
+                validate={{
+                  maxLength: { value: 100, message: translate('entity.validation.maxlength', { max: 100 }) },
+                }}
+              />
+              <ValidatedField
                 id="content-report-reporter"
                 name="reporter"
                 data-cy="reporter"
@@ -172,6 +203,38 @@ export const ContentReportUpdate = () => {
               <FormText>
                 <Translate contentKey="entity.validation.required">This field is required.</Translate>
               </FormText>
+              <ValidatedField
+                id="content-report-assignedTo"
+                name="assignedTo"
+                data-cy="assignedTo"
+                label={translate('lumiApp.contentReport.assignedTo')}
+                type="select"
+              >
+                <option value="" key="0" />
+                {users
+                  ? users.map(otherEntity => (
+                      <option value={otherEntity.id} key={otherEntity.id}>
+                        {otherEntity.login}
+                      </option>
+                    ))
+                  : null}
+              </ValidatedField>
+              <ValidatedField
+                id="content-report-resolvedBy"
+                name="resolvedBy"
+                data-cy="resolvedBy"
+                label={translate('lumiApp.contentReport.resolvedBy')}
+                type="select"
+              >
+                <option value="" key="0" />
+                {users
+                  ? users.map(otherEntity => (
+                      <option value={otherEntity.id} key={otherEntity.id}>
+                        {otherEntity.login}
+                      </option>
+                    ))
+                  : null}
+              </ValidatedField>
               <Button as={Link as any} id="cancel-save" data-cy="entityCreateCancelButton" to="/content-report" replace variant="info">
                 <FontAwesomeIcon icon="arrow-left" />
                 &nbsp;

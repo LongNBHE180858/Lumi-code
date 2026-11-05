@@ -12,6 +12,7 @@ import org.springframework.stereotype.Repository;
 /**
  * Spring Data JPA repository for the KnowledgeEdge entity.
  */
+@SuppressWarnings("unused")
 @Repository
 public interface KnowledgeEdgeRepository extends JpaRepository<KnowledgeEdge, Long>, JpaSpecificationExecutor<KnowledgeEdge> {
     default Optional<KnowledgeEdge> findOneWithEagerRelationships(Long id) {
@@ -41,4 +42,15 @@ public interface KnowledgeEdgeRepository extends JpaRepository<KnowledgeEdge, Lo
         "select knowledgeEdge from KnowledgeEdge knowledgeEdge left join fetch knowledgeEdge.fromNode left join fetch knowledgeEdge.toNode where knowledgeEdge.id =:id"
     )
     Optional<KnowledgeEdge> findOneWithToOneRelationships(@Param("id") Long id);
+
+    @Query(
+        "select e from KnowledgeEdge e " +
+            "left join fetch e.fromNode fn " +
+            "left join fetch e.toNode tn " +
+            "where fn.subject.id = :subjectId and tn.subject.id = :subjectId"
+    )
+    List<KnowledgeEdge> findAllBySubjectId(@Param("subjectId") Long subjectId);
+
+    @Query("select e from KnowledgeEdge e " + "where e.fromNode.subject.id = :subjectId or e.toNode.subject.id = :subjectId")
+    List<KnowledgeEdge> findAllReferencingSubjectId(@Param("subjectId") Long subjectId);
 }

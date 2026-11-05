@@ -48,7 +48,8 @@ public class QuestionOptionAsserts {
         assertThat(actual)
             .as("Verify QuestionOption relevant properties")
             .satisfies(a -> assertThat(a.getContent()).as("check content").isEqualTo(expected.getContent()))
-            .satisfies(a -> assertThat(a.getIsCorrect()).as("check isCorrect").isEqualTo(expected.getIsCorrect()));
+            .satisfies(a -> assertThat(a.getIsCorrect()).as("check isCorrect").isEqualTo(expected.getIsCorrect()))
+            .satisfies(a -> assertThat(a.getOrderIndex()).as("check orderIndex").isEqualTo(expected.getOrderIndex()));
     }
 
     /**

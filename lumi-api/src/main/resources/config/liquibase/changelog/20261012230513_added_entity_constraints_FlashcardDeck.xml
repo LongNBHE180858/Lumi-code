@@ -11,17 +11,17 @@
     <changeSet id="20261012230513-2" author="jhipster">
 
         <addForeignKeyConstraint baseColumnNames="owner_id"
-                                 baseTableName="flashcard_deck"
-                                 constraintName="fk_flashcard_deck__owner_id"
+                                 baseTableName="flashcard_decks"
+                                 constraintName="fk_flashcard_decks__owner_id"
                                  referencedColumnNames="id"
                                  referencedTableName="jhi_user"
                                  />
 
         <addForeignKeyConstraint baseColumnNames="subject_id"
-                                 baseTableName="flashcard_deck"
-                                 constraintName="fk_flashcard_deck__subject_id"
+                                 baseTableName="flashcard_decks"
+                                 constraintName="fk_flashcard_decks__subject_id"
                                  referencedColumnNames="id"
-                                 referencedTableName="subject"
+                                 referencedTableName="subjects"
                                  />
     </changeSet>
 </databaseChangeLog>

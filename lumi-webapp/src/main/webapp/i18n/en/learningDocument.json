@@ -1,0 +1,42 @@
+{
+  "lumiApp": {
+    "learningDocument": {
+      "home": {
+        "title": "Learning Documents",
+        "refreshListLabel": "Refresh list",
+        "createLabel": "Create a new Learning Document",
+        "createOrEditLabel": "Create or edit a Learning Document",
+        "notFound": "No Learning Documents found"
+      },
+      "created": "A new Learning Document is created with identifier {{ param }}",
+      "updated": "A Learning Document is updated with identifier {{ param }}",
+      "deleted": "A Learning Document is deleted with identifier {{ param }}",
+      "delete": {
+        "question": "Are you sure you want to delete Learning Document {{ id }}?"
+      },
+      "detail": {
+        "title": "Learning Document"
+      },
+      "id": "ID",
+      "sourceType": "Source Type",
+      "title": "Title",
+      "fileObjectKey": "File Object Key",
+      "contentHash": "Content Hash",
+      "sourceVersion": "Source Version",
+      "processingStatus": "Processing Status",
+      "indexStatus": "Index Status",
+      "extractedTextObjectKey": "Extracted Text Object Key",
+      "embeddingModel": "Embedding Model",
+      "errorMessage": "Error Message",
+      "createdAt": "Created At",
+      "updatedAt": "Updated At",
+      "bookSeries": "Book Series",
+      "sourceMetadata": "Source Metadata",
+      "courseMaterial": "Course Material",
+      "classMaterial": "Class Material",
+      "uploadedBy": "Uploaded By",
+      "subject": "Subject",
+      "grade": "Grade"
+    }
+  }
+}

@@ -72,9 +72,23 @@ export const TeacherVerificationDetail = () => {
             ) : null}
           </dd>
           <dt>
+            <span id="reviewedAt">
+              <Translate contentKey="lumiApp.teacherVerification.reviewedAt">Reviewed At</Translate>
+            </span>
+          </dt>
+          <dd>
+            {teacherVerificationEntity.reviewedAt ? (
+              <TextFormat value={teacherVerificationEntity.reviewedAt} type="date" format={APP_DATE_FORMAT} />
+            ) : null}
+          </dd>
+          <dt>
             <Translate contentKey="lumiApp.teacherVerification.user">User</Translate>
           </dt>
           <dd>{teacherVerificationEntity.user ? teacherVerificationEntity.user.login : ''}</dd>
+          <dt>
+            <Translate contentKey="lumiApp.teacherVerification.reviewedBy">Reviewed By</Translate>
+          </dt>
+          <dd>{teacherVerificationEntity.reviewedBy ? teacherVerificationEntity.reviewedBy.login : ''}</dd>
         </dl>
         <Button as={Link as any} to="/teacher-verification" replace variant="info" data-cy="entityDetailsBackButton">
           <FontAwesomeIcon icon="arrow-left" />{' '}

@@ -6,10 +6,10 @@ import java.io.Serial;
 import java.io.Serializable;
 
 /**
- * A Subject.
+ * Lưu danh mục môn học của hệ thống.
  */
 @Entity
-@Table(name = "subject")
+@Table(name = "subjects")
 @SuppressWarnings("common-java:DuplicatedBlocks")
 public class Subject implements Serializable {
 
@@ -27,20 +27,8 @@ public class Subject implements Serializable {
     @Column(name = "name", length = 100, nullable = false, unique = true)
     private String name;
 
-    @Size(max = 5000)
-    @Column(name = "description", length = 5000)
+    @Column(name = "description", columnDefinition = "text")
     private String description;
-
-    @Column(name = "active", nullable = false)
-    private Boolean active = true;
-
-    public Boolean getActive() {
-        return active;
-    }
-
-    public void setActive(Boolean active) {
-        this.active = active;
-    }
 
     // jhipster-needle-entity-add-field - JHipster will add fields here
 

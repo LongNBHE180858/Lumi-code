@@ -3,32 +3,42 @@
     "changelogDate": "20261012230518"
   },
   "applications": ["*"],
+  "documentation": "Lưu đoạn văn bản và embedding được tách từ nguồn tài liệu.",
   "dto": "mapstruct",
+  "entityTableName": "pdf_chunks",
   "fields": [
     {
       "fieldName": "pageNumber",
-      "fieldType": "Integer",
-      "fieldValidateRules": ["min"],
-      "fieldValidateRulesMin": "1"
+      "fieldType": "Integer"
     },
     {
       "fieldName": "chunkText",
-      "fieldType": "String",
-      "fieldValidateRules": ["required", "maxlength"],
-      "fieldValidateRulesMaxlength": "5000"
+      "fieldType": "TextBlob",
+      "fieldValidateRules": ["required"]
     },
     {
       "fieldName": "embedding",
-      "fieldType": "String",
-      "fieldValidateRules": ["maxlength"],
-      "fieldValidateRulesMaxlength": "5000"
+      "fieldType": "TextBlob"
+    },
+    {
+      "fieldName": "chunkIndex",
+      "fieldType": "Integer",
+      "fieldValidateRules": ["required", "min"],
+      "fieldValidateRulesMin": "0"
+    },
+    {
+      "fieldName": "indexVersion",
+      "fieldType": "Integer",
+      "fieldValidateRules": ["required", "min"],
+      "fieldValidateRulesMin": "1"
     }
   ],
   "jpaMetamodelFiltering": true,
   "name": "PdfChunk",
+  "pagination": "pagination",
   "relationships": [
     {
-      "otherEntityName": "courseMaterial",
+      "otherEntityName": "learningDocument",
       "relationshipName": "material",
       "relationshipSide": "left",
       "relationshipType": "many-to-one",

@@ -8,6 +8,10 @@ import com.lumi.service.dto.GradeDTO;
 import com.lumi.service.dto.StudyClassDTO;
 import com.lumi.service.dto.SubjectDTO;
 import com.lumi.service.dto.UserDTO;
+import com.lumi.service.dto.studyClass.CreateStudyClassRequestDTO;
+import com.lumi.service.dto.studyClass.StudyClassDetailDTO;
+import com.lumi.service.dto.studyClass.UpdateStudyClassRequestDTO;
+import java.util.List;
 import org.mapstruct.*;
 
 /**
@@ -16,8 +20,8 @@ import org.mapstruct.*;
 @Mapper(componentModel = "spring")
 public interface StudyClassMapper extends EntityMapper<StudyClassDTO, StudyClass> {
     @Mapping(target = "instructor", source = "instructor", qualifiedByName = "userLogin")
-    @Mapping(target = "subject", source = "subject", qualifiedByName = "subjectName")
-    @Mapping(target = "grade", source = "grade", qualifiedByName = "gradeName")
+    @Mapping(target = "subject", source = "subject", qualifiedByName = "subjectId")
+    @Mapping(target = "grade", source = "grade", qualifiedByName = "gradeId")
     StudyClassDTO toDto(StudyClass s);
 
     @Named("userLogin")
@@ -26,15 +30,19 @@ public interface StudyClassMapper extends EntityMapper<StudyClassDTO, StudyClass
     @Mapping(target = "login", source = "login")
     UserDTO toDtoUserLogin(User user);
 
-    @Named("subjectName")
+    @Named("subjectId")
     @BeanMapping(ignoreByDefault = true)
     @Mapping(target = "id", source = "id")
-    @Mapping(target = "name", source = "name")
-    SubjectDTO toDtoSubjectName(Subject subject);
+    SubjectDTO toDtoSubjectId(Subject subject);
 
-    @Named("gradeName")
+    @Named("gradeId")
     @BeanMapping(ignoreByDefault = true)
     @Mapping(target = "id", source = "id")
     @Mapping(target = "name", source = "name")
     GradeDTO toDtoGradeName(Grade grade);
+
+    StudyClass toStudyClass(CreateStudyClassRequestDTO request);
+    StudyClassDetailDTO toStudyClassDetail(StudyClass studyClass);
+    void updateStudyClass(@MappingTarget StudyClass studyClass, UpdateStudyClassRequestDTO update);
+    List<StudyClassDetailDTO> toStudyClassDetailList(List<StudyClass> classes);
 }

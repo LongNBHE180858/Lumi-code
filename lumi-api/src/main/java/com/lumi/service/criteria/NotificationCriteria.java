@@ -28,13 +28,17 @@ public class NotificationCriteria implements Serializable, Criteria {
 
     private StringFilter title;
 
-    private StringFilter content;
-
     private BooleanFilter isRead;
 
     private StringFilter type;
 
     private InstantFilter createdAt;
+
+    private StringFilter targetType;
+
+    private LongFilter targetId;
+
+    private InstantFilter readAt;
 
     private LongFilter userId;
 
@@ -45,10 +49,12 @@ public class NotificationCriteria implements Serializable, Criteria {
     public NotificationCriteria(NotificationCriteria other) {
         this.id = other.optionalId().map(LongFilter::copy).orElse(null);
         this.title = other.optionalTitle().map(StringFilter::copy).orElse(null);
-        this.content = other.optionalContent().map(StringFilter::copy).orElse(null);
         this.isRead = other.optionalIsRead().map(BooleanFilter::copy).orElse(null);
         this.type = other.optionalType().map(StringFilter::copy).orElse(null);
         this.createdAt = other.optionalCreatedAt().map(InstantFilter::copy).orElse(null);
+        this.targetType = other.optionalTargetType().map(StringFilter::copy).orElse(null);
+        this.targetId = other.optionalTargetId().map(LongFilter::copy).orElse(null);
+        this.readAt = other.optionalReadAt().map(InstantFilter::copy).orElse(null);
         this.userId = other.optionalUserId().map(LongFilter::copy).orElse(null);
         this.distinct = other.distinct;
     }
@@ -94,25 +100,6 @@ public class NotificationCriteria implements Serializable, Criteria {
 
     public void setTitle(StringFilter title) {
         this.title = title;
-    }
-
-    public StringFilter getContent() {
-        return content;
-    }
-
-    public Optional<StringFilter> optionalContent() {
-        return Optional.ofNullable(content);
-    }
-
-    public StringFilter content() {
-        if (content == null) {
-            setContent(new StringFilter());
-        }
-        return content;
-    }
-
-    public void setContent(StringFilter content) {
-        this.content = content;
     }
 
     public BooleanFilter getIsRead() {
@@ -172,6 +159,63 @@ public class NotificationCriteria implements Serializable, Criteria {
         this.createdAt = createdAt;
     }
 
+    public StringFilter getTargetType() {
+        return targetType;
+    }
+
+    public Optional<StringFilter> optionalTargetType() {
+        return Optional.ofNullable(targetType);
+    }
+
+    public StringFilter targetType() {
+        if (targetType == null) {
+            setTargetType(new StringFilter());
+        }
+        return targetType;
+    }
+
+    public void setTargetType(StringFilter targetType) {
+        this.targetType = targetType;
+    }
+
+    public LongFilter getTargetId() {
+        return targetId;
+    }
+
+    public Optional<LongFilter> optionalTargetId() {
+        return Optional.ofNullable(targetId);
+    }
+
+    public LongFilter targetId() {
+        if (targetId == null) {
+            setTargetId(new LongFilter());
+        }
+        return targetId;
+    }
+
+    public void setTargetId(LongFilter targetId) {
+        this.targetId = targetId;
+    }
+
+    public InstantFilter getReadAt() {
+        return readAt;
+    }
+
+    public Optional<InstantFilter> optionalReadAt() {
+        return Optional.ofNullable(readAt);
+    }
+
+    public InstantFilter readAt() {
+        if (readAt == null) {
+            setReadAt(new InstantFilter());
+        }
+        return readAt;
+    }
+
+    public void setReadAt(InstantFilter readAt) {
+        this.readAt = readAt;
+    }
+
     public LongFilter getUserId() {
         return userId;
     }
@@ -222,10 +266,12 @@ public class NotificationCriteria implements Serializable, Criteria {
         return (
             Objects.equals(id, that.id) &&
             Objects.equals(title, that.title) &&
-            Objects.equals(content, that.content) &&
             Objects.equals(isRead, that.isRead) &&
             Objects.equals(type, that.type) &&
             Objects.equals(createdAt, that.createdAt) &&
+            Objects.equals(targetType, that.targetType) &&
+            Objects.equals(targetId, that.targetId) &&
+            Objects.equals(readAt, that.readAt) &&
             Objects.equals(userId, that.userId) &&
             Objects.equals(distinct, that.distinct)
         );
@@ -233,7 +279,7 @@ public class NotificationCriteria implements Serializable, Criteria {
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, title, content, isRead, type, createdAt, userId, distinct);
+        return Objects.hash(id, title, isRead, type, createdAt, targetType, targetId, readAt, userId, distinct);
     }
 
     // prettier-ignore
@@ -242,10 +288,12 @@ public class NotificationCriteria implements Serializable, Criteria {
         return "NotificationCriteria{" +
             optionalId().map(f -> "id=" + f + ", ").orElse("") +
             optionalTitle().map(f -> "title=" + f + ", ").orElse("") +
-            optionalContent().map(f -> "content=" + f + ", ").orElse("") +
             optionalIsRead().map(f -> "isRead=" + f + ", ").orElse("") +
             optionalType().map(f -> "type=" + f + ", ").orElse("") +
             optionalCreatedAt().map(f -> "createdAt=" + f + ", ").orElse("") +
+            optionalTargetType().map(f -> "targetType=" + f + ", ").orElse("") +
+            optionalTargetId().map(f -> "targetId=" + f + ", ").orElse("") +
+            optionalReadAt().map(f -> "readAt=" + f + ", ").orElse("") +
             optionalUserId().map(f -> "userId=" + f + ", ").orElse("") +
             optionalDistinct().map(f -> "distinct=" + f + ", ").orElse("") +
         "}";

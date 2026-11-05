@@ -11,10 +11,17 @@
     <changeSet id="20261012230453-2" author="jhipster">
 
         <addForeignKeyConstraint baseColumnNames="instructor_id"
-                                 baseTableName="coupon"
-                                 constraintName="fk_coupon__instructor_id"
+                                 baseTableName="coupons"
+                                 constraintName="fk_coupons__instructor_id"
                                  referencedColumnNames="id"
                                  referencedTableName="jhi_user"
+                                 />
+
+        <addForeignKeyConstraint baseColumnNames="course_id"
+                                 baseTableName="coupons"
+                                 constraintName="fk_coupons__course_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="courses"
                                  />
     </changeSet>
 </databaseChangeLog>

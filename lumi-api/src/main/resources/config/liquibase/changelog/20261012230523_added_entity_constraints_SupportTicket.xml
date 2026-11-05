@@ -11,8 +11,15 @@
     <changeSet id="20261012230523-2" author="jhipster">
 
         <addForeignKeyConstraint baseColumnNames="user_id"
-                                 baseTableName="support_ticket"
-                                 constraintName="fk_support_ticket__user_id"
+                                 baseTableName="support_tickets"
+                                 constraintName="fk_support_tickets__user_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="jhi_user"
+                                 />
+
+        <addForeignKeyConstraint baseColumnNames="assigned_to_id"
+                                 baseTableName="support_tickets"
+                                 constraintName="fk_support_tickets__assigned_to_id"
                                  referencedColumnNames="id"
                                  referencedTableName="jhi_user"
                                  />

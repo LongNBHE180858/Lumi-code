@@ -1,5 +1,7 @@
 package com.lumi.service.dto;
 
+import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.persistence.Lob;
 import jakarta.validation.constraints.*;
 import java.io.Serializable;
 import java.math.BigDecimal;
@@ -9,16 +11,16 @@ import java.util.Objects;
 /**
  * A DTO for the {@link com.lumi.domain.Refund} entity.
  */
+@Schema(description = "Lưu yêu cầu hoàn tiền, kết quả xử lý và việc thu hồi quyền học.")
 @SuppressWarnings("common-java:DuplicatedBlocks")
 public class RefundDTO implements Serializable {
 
     private Long id;
 
     @NotNull
-    @DecimalMin(value = "0")
     private BigDecimal amount;
 
-    @Size(max = 5000)
+    @Lob
     private String reason;
 
     @Size(max = 20)
@@ -26,11 +28,23 @@ public class RefundDTO implements Serializable {
 
     private Instant createdAt;
 
+    private Instant processedAt;
+
+    @Lob
+    private String reviewNote;
+
+    @Size(max = 255)
+    private String refundReference;
+
+    private Instant accessRevokedAt;
+
     @NotNull
     private CourseOrderDTO order;
 
     @NotNull
     private PaymentDTO payment;
+
+    private UserDTO processedBy;
 
     public Long getId() {
         return id;
@@ -72,6 +86,38 @@ public class RefundDTO implements Serializable {
         this.createdAt = createdAt;
     }
 
+    public Instant getProcessedAt() {
+        return processedAt;
+    }
+
+    public void setProcessedAt(Instant processedAt) {
+        this.processedAt = processedAt;
+    }
+
+    public String getReviewNote() {
+        return reviewNote;
+    }
+
+    public void setReviewNote(String reviewNote) {
+        this.reviewNote = reviewNote;
+    }
+
+    public String getRefundReference() {
+        return refundReference;
+    }
+
+    public void setRefundReference(String refundReference) {
+        this.refundReference = refundReference;
+    }
+
+    public Instant getAccessRevokedAt() {
+        return accessRevokedAt;
+    }
+
+    public void setAccessRevokedAt(Instant accessRevokedAt) {
+        this.accessRevokedAt = accessRevokedAt;
+    }
+
     public CourseOrderDTO getOrder() {
         return order;
     }
@@ -86,6 +132,14 @@ public class RefundDTO implements Serializable {
 
     public void setPayment(PaymentDTO payment) {
         this.payment = payment;
+    }
+
+    public UserDTO getProcessedBy() {
+        return processedBy;
+    }
+
+    public void setProcessedBy(UserDTO processedBy) {
+        this.processedBy = processedBy;
     }
 
     @Override
@@ -118,8 +172,13 @@ public class RefundDTO implements Serializable {
             ", reason='" + getReason() + "'" +
             ", status='" + getStatus() + "'" +
             ", createdAt='" + getCreatedAt() + "'" +
+            ", processedAt='" + getProcessedAt() + "'" +
+            ", reviewNote='" + getReviewNote() + "'" +
+            ", refundReference='" + getRefundReference() + "'" +
+            ", accessRevokedAt='" + getAccessRevokedAt() + "'" +
             ", order=" + getOrder() +
             ", payment=" + getPayment() +
+            ", processedBy=" + getProcessedBy() +
             "}";
     }
 }

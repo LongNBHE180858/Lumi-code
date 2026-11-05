@@ -49,7 +49,25 @@ public class ParentStudentLinkAsserts {
             .as("Verify ParentStudentLink relevant properties")
             .satisfies(a -> assertThat(a.getLinkCode()).as("check linkCode").isEqualTo(expected.getLinkCode()))
             .satisfies(a -> assertThat(a.getStatus()).as("check status").isEqualTo(expected.getStatus()))
-            .satisfies(a -> assertThat(a.getLinkedAt()).as("check linkedAt").isEqualTo(expected.getLinkedAt()));
+            .satisfies(a -> assertThat(a.getLinkedAt()).as("check linkedAt").isEqualTo(expected.getLinkedAt()))
+            .satisfies(a -> assertThat(a.getCreatedAt()).as("check createdAt").isEqualTo(expected.getCreatedAt()))
+            .satisfies(a -> assertThat(a.getCodeExpiresAt()).as("check codeExpiresAt").isEqualTo(expected.getCodeExpiresAt()))
+            .satisfies(a -> assertThat(a.getConfirmedAt()).as("check confirmedAt").isEqualTo(expected.getConfirmedAt()))
+            .satisfies(a -> assertThat(a.getRevokedAt()).as("check revokedAt").isEqualTo(expected.getRevokedAt()))
+            .satisfies(a -> assertThat(a.getRelationshipType()).as("check relationshipType").isEqualTo(expected.getRelationshipType()))
+            .satisfies(a ->
+                assertThat(a.getGuardianVerificationStatus())
+                    .as("check guardianVerificationStatus")
+                    .isEqualTo(expected.getGuardianVerificationStatus())
+            )
+            .satisfies(a ->
+                assertThat(a.getGuardianVerifiedAt()).as("check guardianVerifiedAt").isEqualTo(expected.getGuardianVerifiedAt())
+            )
+            .satisfies(a ->
+                assertThat(a.getGuardianVerificationNote())
+                    .as("check guardianVerificationNote")
+                    .isEqualTo(expected.getGuardianVerificationNote())
+            );
     }
 
     /**

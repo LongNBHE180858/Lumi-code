@@ -1,9 +1,8 @@
 package com.lumi.service;
 
 import com.lumi.service.dto.CourseMaterialDTO;
+import java.util.List;
 import java.util.Optional;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 
 /**
  * Service Interface for managing {@link com.lumi.domain.CourseMaterial}.
@@ -34,12 +33,11 @@ public interface CourseMaterialService {
     Optional<CourseMaterialDTO> partialUpdate(CourseMaterialDTO courseMaterialDTO);
 
     /**
-     * Get all the courseMaterials with eager load of many-to-many relationships.
+     * Get all the CourseMaterialDTO where LearningDocument is {@code null}.
      *
-     * @param pageable the pagination information.
-     * @return the list of entities.
+     * @return the {@link List} of entities.
      */
-    Page<CourseMaterialDTO> findAllWithEagerRelationships(Pageable pageable);
+    List<CourseMaterialDTO> findAllWhereLearningDocumentIsNull();
 
     /**
      * Get the "id" courseMaterial.

@@ -123,11 +123,18 @@ export const AiConversation = () => {
                   <Translate contentKey="lumiApp.aiConversation.createdAt">Created At</Translate>{' '}
                   <FontAwesomeIcon icon={getSortIconByFieldName('createdAt')} />
                 </th>
+                <th className="hand" onClick={sort('updatedAt')}>
+                  <Translate contentKey="lumiApp.aiConversation.updatedAt">Updated At</Translate>{' '}
+                  <FontAwesomeIcon icon={getSortIconByFieldName('updatedAt')} />
+                </th>
                 <th>
                   <Translate contentKey="lumiApp.aiConversation.user">User</Translate> <FontAwesomeIcon icon="sort" />
                 </th>
                 <th>
                   <Translate contentKey="lumiApp.aiConversation.lesson">Lesson</Translate> <FontAwesomeIcon icon="sort" />
+                </th>
+                <th>
+                  <Translate contentKey="lumiApp.aiConversation.document">Document</Translate> <FontAwesomeIcon icon="sort" />
                 </th>
                 <th />
               </tr>
@@ -144,9 +151,17 @@ export const AiConversation = () => {
                   <td>
                     {aiConversation.createdAt ? <TextFormat type="date" value={aiConversation.createdAt} format={APP_DATE_FORMAT} /> : null}
                   </td>
-                  <td>{aiConversation.user ? aiConversation.user.login : ''}</td>
                   <td>
-                    {aiConversation.lesson ? <Link to={`/lesson/${aiConversation.lesson.id}`}>{aiConversation.lesson.title}</Link> : ''}
+                    {aiConversation.updatedAt ? <TextFormat type="date" value={aiConversation.updatedAt} format={APP_DATE_FORMAT} /> : null}
+                  </td>
+                  <td>{aiConversation.user ? aiConversation.user.login : ''}</td>
+                  <td>{aiConversation.lesson ? <Link to={`/lesson/${aiConversation.lesson.id}`}>{aiConversation.lesson.id}</Link> : ''}</td>
+                  <td>
+                    {aiConversation.document ? (
+                      <Link to={`/learning-document/${aiConversation.document.id}`}>{aiConversation.document.id}</Link>
+                    ) : (
+                      ''
+                    )}
                   </td>
                   <td className="text-end">
                     <div className="btn-group flex-btn-group-container">

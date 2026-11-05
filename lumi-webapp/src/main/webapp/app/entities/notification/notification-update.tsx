@@ -48,6 +48,10 @@ export const NotificationUpdate = () => {
       values.id = Number(values.id);
     }
     values.createdAt = convertDateTimeToServer(values.createdAt);
+    if (values.targetId !== undefined && typeof values.targetId !== 'number') {
+      values.targetId = Number(values.targetId);
+    }
+    values.readAt = convertDateTimeToServer(values.readAt);
 
     const entity = {
       ...notificationEntity,
@@ -66,10 +70,12 @@ export const NotificationUpdate = () => {
     isNew
       ? {
           createdAt: displayDefaultDateTime(),
+          readAt: displayDefaultDateTime(),
         }
       : {
           ...notificationEntity,
           createdAt: convertDateTimeFromServer(notificationEntity.createdAt),
+          readAt: convertDateTimeFromServer(notificationEntity.readAt),
           user: notificationEntity?.user?.id,
         };
 
@@ -114,10 +120,9 @@ export const NotificationUpdate = () => {
                 id="notification-content"
                 name="content"
                 data-cy="content"
-                type="text"
+                type="textarea"
                 validate={{
                   required: { value: true, message: translate('entity.validation.required') },
-                  maxLength: { value: 5000, message: translate('entity.validation.maxlength', { max: 5000 }) },
                 }}
               />
               <ValidatedField
@@ -144,6 +149,31 @@ export const NotificationUpdate = () => {
                 id="notification-createdAt"
                 name="createdAt"
                 data-cy="createdAt"
+                type="datetime-local"
+                placeholder="YYYY-MM-DD HH:mm"
+              />
+              <ValidatedField
+                label={translate('lumiApp.notification.targetType')}
+                id="notification-targetType"
+                name="targetType"
+                data-cy="targetType"
+                type="text"
+                validate={{
+                  maxLength: { value: 50, message: translate('entity.validation.maxlength', { max: 50 }) },
+                }}
+              />
+              <ValidatedField
+                label={translate('lumiApp.notification.targetId')}
+                id="notification-targetId"
+                name="targetId"
+                data-cy="targetId"
+                type="text"
+              />
+              <ValidatedField
+                label={translate('lumiApp.notification.readAt')}
+                id="notification-readAt"
+                name="readAt"
+                data-cy="readAt"
                 type="datetime-local"
                 placeholder="YYYY-MM-DD HH:mm"
               />

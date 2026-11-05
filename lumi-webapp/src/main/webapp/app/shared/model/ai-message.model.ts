@@ -7,6 +7,12 @@ export interface IAiMessage {
   senderRole?: string;
   content?: string;
   createdAt?: dayjs.Dayjs | null;
+  citations?: string;
+  generationStatus?: string;
+  modelName?: string | null;
+  feedbackRating?: number | null;
+  feedbackNote?: string | null;
+  feedbackAt?: dayjs.Dayjs | null;
   conversation?: IAiConversation;
 }
 

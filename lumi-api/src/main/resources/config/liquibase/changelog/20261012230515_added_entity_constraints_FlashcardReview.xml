@@ -11,17 +11,17 @@
     <changeSet id="20261012230515-2" author="jhipster">
 
         <addForeignKeyConstraint baseColumnNames="student_id"
-                                 baseTableName="flashcard_review"
-                                 constraintName="fk_flashcard_review__student_id"
+                                 baseTableName="flashcard_reviews"
+                                 constraintName="fk_flashcard_reviews__student_id"
                                  referencedColumnNames="id"
                                  referencedTableName="jhi_user"
                                  />
 
         <addForeignKeyConstraint baseColumnNames="flashcard_id"
-                                 baseTableName="flashcard_review"
-                                 constraintName="fk_flashcard_review__flashcard_id"
+                                 baseTableName="flashcard_reviews"
+                                 constraintName="fk_flashcard_reviews__flashcard_id"
                                  referencedColumnNames="id"
-                                 referencedTableName="flashcard"
+                                 referencedTableName="flashcards"
                                  />
     </changeSet>
 </databaseChangeLog>

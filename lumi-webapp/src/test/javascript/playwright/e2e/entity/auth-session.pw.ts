@@ -12,7 +12,7 @@ import {
 import { expect, test } from '../../support/fixtures';
 
 const authSessionPageUrl = '/auth-session';
-// const authSessionSample = {"expiresAt":"2026-10-12T13:20:05.784Z"};
+// const authSessionSample = {"expiresAt":"2026-10-12T22:38:09.422Z"};
 
 const authSessionApiUrl = '/api/auth-sessions';
 
@@ -231,6 +231,9 @@ test.describe('AuthSession e2e test', () => {
       await page.locator(`[data-cy="createdAt"]`).fill('2026-10-12T07:41');
       await page.locator(`[data-cy="createdAt"]`).blur();
       await expect(page.locator(`[data-cy="createdAt"]`)).toHaveValue('2026-10-12T07:41');
+
+      await page.locator(`[data-cy="refreshTokenHash"]`).fill('blacken repeatedly');
+      await expect(page.locator(`[data-cy="refreshTokenHash"]`)).toHaveValue('blacken repeatedly');
 
       await page.locator(`[data-cy="user"]`).selectOption({ index: 1 });
 

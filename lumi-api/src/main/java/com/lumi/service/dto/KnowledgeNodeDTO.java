@@ -1,5 +1,6 @@
 package com.lumi.service.dto;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.*;
 import java.io.Serializable;
 import java.util.Objects;
@@ -7,6 +8,7 @@ import java.util.Objects;
 /**
  * A DTO for the {@link com.lumi.domain.KnowledgeNode} entity.
  */
+@Schema(description = "Lưu các đơn vị kiến thức dùng để phân tích năng lực và gợi ý học tập.")
 @SuppressWarnings("common-java:DuplicatedBlocks")
 public class KnowledgeNodeDTO implements Serializable {
 

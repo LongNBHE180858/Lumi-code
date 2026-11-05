@@ -10,6 +10,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.lumi.IntegrationTest;
 import com.lumi.domain.SystemPlan;
+import com.lumi.domain.enumeration.PremiumAiLimitPeriod;
+import com.lumi.domain.enumeration.PremiumPackageStatus;
 import com.lumi.domain.enumeration.PremiumPackageType;
 import com.lumi.repository.SystemPlanRepository;
 import com.lumi.service.dto.PremiumPackageRequest;
@@ -48,6 +50,7 @@ class AdminPremiumPackageResourceIT {
             .andExpect(status().isCreated())
             .andExpect(jsonPath("$.packageType").value("PARENT_FAMILY"))
             .andExpect(jsonPath("$.coveredPeople").value(4))
+            .andExpect(jsonPath("$.aiLimitPeriod").value("MONTH"))
             .andExpect(jsonPath("$.available").value(false));
     }
 
@@ -80,6 +83,7 @@ class AdminPremiumPackageResourceIT {
             60,
             2048L,
             20,
+            PremiumAiLimitPeriod.DAY,
             3
         );
 
@@ -93,11 +97,9 @@ class AdminPremiumPackageResourceIT {
             .andExpect(jsonPath("$.price").value(200000));
 
         SystemPlan previous = repository.findById(first.getId()).orElseThrow();
-        assertThat(previous.getCurrentRevision()).isFalse();
+        assertThat(previous.getStatus()).isEqualTo(PremiumPackageStatus.SUPERSEDED.name());
         assertThat(previous.getPrice()).isEqualByComparingTo("100000");
-        assertThat(
-            repository.findByCurrentRevisionTrue(org.springframework.data.domain.Pageable.unpaged()).getTotalElements()
-        ).isGreaterThanOrEqualTo(1);
+        assertThat(previous.getPackageKey()).isNotNull();
         mvc.perform(get(URL + "/{id}", first.getId())).andExpect(status().isNotFound());
         mvc.perform(
             put(URL + "/{id}", first.getId())
@@ -109,7 +111,7 @@ class AdminPremiumPackageResourceIT {
     @Test
     void listsCurrentPackagesWithPagination() throws Exception {
         SystemPlan old = plan(PremiumPackageType.PARENT_FAMILY);
-        old.setCurrentRevision(false);
+        old.setStatus(PremiumPackageStatus.SUPERSEDED.name());
         repository.saveAndFlush(old);
         SystemPlan current = repository.saveAndFlush(plan(PremiumPackageType.PARENT_PERSONAL));
 
@@ -159,7 +161,7 @@ class AdminPremiumPackageResourceIT {
             .getContentAsString();
 
         Long newId = objectMapper.readTree(response).get("id").asLong();
-        assertThat(repository.findById(legacy.getId()).orElseThrow().getPackageType()).isNull();
+        assertThat(repository.findById(legacy.getId()).orElseThrow().getPlanType()).isEqualTo("LEGACY");
         assertThat(repository.findById(legacy.getId()).orElseThrow().getPackageKey()).isEqualTo(
             repository.findById(newId).orElseThrow().getPackageKey()
         );
@@ -184,6 +186,7 @@ class AdminPremiumPackageResourceIT {
             30,
             100L,
             10,
+            PremiumAiLimitPeriod.MONTH,
             null
         );
         mvc.perform(post(URL).contentType(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsBytes(fractional))).andExpect(
@@ -209,6 +212,7 @@ class AdminPremiumPackageResourceIT {
             30,
             0L,
             0,
+            PremiumAiLimitPeriod.DAY,
             null
         );
         mvc.perform(post(URL).contentType(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsBytes(negativePrice))).andExpect(
@@ -255,7 +259,7 @@ class AdminPremiumPackageResourceIT {
     }
 
     private PremiumPackageRequest request(PremiumPackageType type, Integer maxClasses) {
-        return new PremiumPackageRequest("Family", type, new BigDecimal("100000"), 30, 1024L, 10, maxClasses);
+        return new PremiumPackageRequest("Family", type, new BigDecimal("100000"), 30, 1024L, 10, PremiumAiLimitPeriod.MONTH, maxClasses);
     }
 
     private SystemPlan plan(PremiumPackageType type) {
@@ -265,9 +269,13 @@ class AdminPremiumPackageResourceIT {
             .durationDays(30)
             .storageQuotaMb(1024L)
             .aiGenerationLimit(10)
-            .maxClasses(type == null ? 1 : 2);
-        plan.setPackageType(type);
-        plan.setPackageKey(type == null ? null : java.util.UUID.randomUUID().toString());
+            .maxClasses(type == PremiumPackageType.INSTRUCTOR_CLASS || type == PremiumPackageType.INSTRUCTOR_PERSONAL ? 2 : 0)
+            .aiLimitPeriod("MONTH")
+            .features("[\"AI_REQUESTS\"]")
+            .updatedAt(java.time.Instant.now())
+            .status(PremiumPackageStatus.UNAVAILABLE.name());
+        plan.setPlanType(type == null ? "LEGACY" : type.getPlanType());
+        plan.setTargetRole(type == null ? "LEGACY" : type.getTargetRole());
         return plan;
     }
 }

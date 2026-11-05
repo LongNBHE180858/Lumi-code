@@ -12,7 +12,7 @@ import {
 import { expect, test } from '../../support/fixtures';
 
 const notificationPageUrl = '/notification';
-// const notificationSample = {"title":"smoothly inside","content":"guzzle","type":"furthermore"};
+// const notificationSample = {"title":"hearten","content":"Li4vZmFrZS1kYXRhL2Jsb2IvaGlwc3Rlci50eHQ=","type":"glider cop-out secret"};
 
 const notificationApiUrl = '/api/notifications';
 
@@ -217,19 +217,29 @@ test.describe('Notification e2e test', () => {
       await page.locator(`[data-cy="title"]`).fill('boohoo colorful softly');
       await expect(page.locator(`[data-cy="title"]`)).toHaveValue('boohoo colorful softly');
 
-      await page.locator(`[data-cy="content"]`).fill('ouch but');
-      await expect(page.locator(`[data-cy="content"]`)).toHaveValue('ouch but');
+      await page.locator(`[data-cy="content"]`).fill('../fake-data/blob/hipster.txt');
+      await expect(page.locator(`[data-cy="content"]`)).toHaveValue(new RegExp('../fake-data/blob/hipster.txt'));
 
       await expect(page.locator(`[data-cy="isRead"]`)).not.toBeChecked();
       await page.locator(`[data-cy="isRead"]`).click();
       await expect(page.locator(`[data-cy="isRead"]`)).toBeChecked();
 
-      await page.locator(`[data-cy="type"]`).fill('bin version fictionalize');
-      await expect(page.locator(`[data-cy="type"]`)).toHaveValue('bin version fictionalize');
+      await page.locator(`[data-cy="type"]`).fill('of');
+      await expect(page.locator(`[data-cy="type"]`)).toHaveValue('of');
 
-      await page.locator(`[data-cy="createdAt"]`).fill('2026-10-12T11:25');
+      await page.locator(`[data-cy="createdAt"]`).fill('2026-10-12T22:29');
       await page.locator(`[data-cy="createdAt"]`).blur();
-      await expect(page.locator(`[data-cy="createdAt"]`)).toHaveValue('2026-10-12T11:25');
+      await expect(page.locator(`[data-cy="createdAt"]`)).toHaveValue('2026-10-12T22:29');
+
+      await page.locator(`[data-cy="targetType"]`).fill('cod');
+      await expect(page.locator(`[data-cy="targetType"]`)).toHaveValue('cod');
+
+      await page.locator(`[data-cy="targetId"]`).fill('21246');
+      await expect(page.locator(`[data-cy="targetId"]`)).toHaveValue('21246');
+
+      await page.locator(`[data-cy="readAt"]`).fill('2026-10-12T17:06');
+      await page.locator(`[data-cy="readAt"]`).blur();
+      await expect(page.locator(`[data-cy="readAt"]`)).toHaveValue('2026-10-12T17:06');
 
       await page.locator(`[data-cy="user"]`).selectOption({ index: 1 });
 

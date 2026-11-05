@@ -8,10 +8,10 @@ import java.io.Serializable;
 import java.math.BigDecimal;
 
 /**
- * A ExamQuestion.
+ * Lưu câu hỏi được chọn vào đề, thứ tự và điểm tối đa của câu.
  */
 @Entity
-@Table(name = "exam_question")
+@Table(name = "exam_questions")
 @SuppressWarnings("common-java:DuplicatedBlocks")
 public class ExamQuestion implements Serializable {
 
@@ -25,23 +25,21 @@ public class ExamQuestion implements Serializable {
     private Long id;
 
     @NotNull
-    @Min(value = 0)
     @Column(name = "order_index", nullable = false)
     private Integer orderIndex;
 
     @NotNull
-    @DecimalMin(value = "0")
     @Column(name = "score", precision = 21, scale = 2, nullable = false)
     private BigDecimal score;
 
     @ManyToOne(optional = false)
     @NotNull
-    @JsonIgnoreProperties(value = { "studyClass" }, allowSetters = true)
+    @JsonIgnoreProperties(value = { "studyClass", "createdBy", "lesson", "assignedStudent" }, allowSetters = true)
     private Exam exam;
 
     @ManyToOne(optional = false)
     @NotNull
-    @JsonIgnoreProperties(value = { "bank" }, allowSetters = true)
+    @JsonIgnoreProperties(value = { "bank", "createdBy", "aiContent", "subject", "grade", "previousQuestion" }, allowSetters = true)
     private Question question;
 
     // jhipster-needle-entity-add-field - JHipster will add fields here

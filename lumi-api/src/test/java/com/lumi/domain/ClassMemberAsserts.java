@@ -48,7 +48,10 @@ public class ClassMemberAsserts {
         assertThat(actual)
             .as("Verify ClassMember relevant properties")
             .satisfies(a -> assertThat(a.getStatus()).as("check status").isEqualTo(expected.getStatus()))
-            .satisfies(a -> assertThat(a.getJoinedAt()).as("check joinedAt").isEqualTo(expected.getJoinedAt()));
+            .satisfies(a -> assertThat(a.getJoinedAt()).as("check joinedAt").isEqualTo(expected.getJoinedAt()))
+            .satisfies(a -> assertThat(a.getRequestedAt()).as("check requestedAt").isEqualTo(expected.getRequestedAt()))
+            .satisfies(a -> assertThat(a.getLeftAt()).as("check leftAt").isEqualTo(expected.getLeftAt()))
+            .satisfies(a -> assertThat(a.getUpdatedAt()).as("check updatedAt").isEqualTo(expected.getUpdatedAt()));
     }
 
     /**

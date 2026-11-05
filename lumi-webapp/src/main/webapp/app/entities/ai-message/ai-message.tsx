@@ -144,6 +144,30 @@ export const AiMessage = () => {
                     <Translate contentKey="lumiApp.aiMessage.createdAt">Created At</Translate>{' '}
                     <FontAwesomeIcon icon={getSortIconByFieldName('createdAt')} />
                   </th>
+                  <th className="hand" onClick={sort('citations')}>
+                    <Translate contentKey="lumiApp.aiMessage.citations">Citations</Translate>{' '}
+                    <FontAwesomeIcon icon={getSortIconByFieldName('citations')} />
+                  </th>
+                  <th className="hand" onClick={sort('generationStatus')}>
+                    <Translate contentKey="lumiApp.aiMessage.generationStatus">Generation Status</Translate>{' '}
+                    <FontAwesomeIcon icon={getSortIconByFieldName('generationStatus')} />
+                  </th>
+                  <th className="hand" onClick={sort('modelName')}>
+                    <Translate contentKey="lumiApp.aiMessage.modelName">Model Name</Translate>{' '}
+                    <FontAwesomeIcon icon={getSortIconByFieldName('modelName')} />
+                  </th>
+                  <th className="hand" onClick={sort('feedbackRating')}>
+                    <Translate contentKey="lumiApp.aiMessage.feedbackRating">Feedback Rating</Translate>{' '}
+                    <FontAwesomeIcon icon={getSortIconByFieldName('feedbackRating')} />
+                  </th>
+                  <th className="hand" onClick={sort('feedbackNote')}>
+                    <Translate contentKey="lumiApp.aiMessage.feedbackNote">Feedback Note</Translate>{' '}
+                    <FontAwesomeIcon icon={getSortIconByFieldName('feedbackNote')} />
+                  </th>
+                  <th className="hand" onClick={sort('feedbackAt')}>
+                    <Translate contentKey="lumiApp.aiMessage.feedbackAt">Feedback At</Translate>{' '}
+                    <FontAwesomeIcon icon={getSortIconByFieldName('feedbackAt')} />
+                  </th>
                   <th>
                     <Translate contentKey="lumiApp.aiMessage.conversation">Conversation</Translate> <FontAwesomeIcon icon="sort" />
                   </th>
@@ -161,6 +185,14 @@ export const AiMessage = () => {
                     <td>{aiMessage.senderRole}</td>
                     <td>{aiMessage.content}</td>
                     <td>{aiMessage.createdAt ? <TextFormat type="date" value={aiMessage.createdAt} format={APP_DATE_FORMAT} /> : null}</td>
+                    <td>{aiMessage.citations}</td>
+                    <td>{aiMessage.generationStatus}</td>
+                    <td>{aiMessage.modelName}</td>
+                    <td>{aiMessage.feedbackRating}</td>
+                    <td>{aiMessage.feedbackNote}</td>
+                    <td>
+                      {aiMessage.feedbackAt ? <TextFormat type="date" value={aiMessage.feedbackAt} format={APP_DATE_FORMAT} /> : null}
+                    </td>
                     <td>
                       {aiMessage.conversation ? (
                         <Link to={`/ai-conversation/${aiMessage.conversation.id}`}>{aiMessage.conversation.id}</Link>

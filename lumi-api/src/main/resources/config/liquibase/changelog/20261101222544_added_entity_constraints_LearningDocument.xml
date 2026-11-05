@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd
+                        http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
+    <!--
+        Added the constraints for entity LearningDocument.
+    -->
+    <changeSet id="20261101222544-2" author="jhipster">
+
+        <addForeignKeyConstraint baseColumnNames="course_material_id"
+                                 baseTableName="learning_documents"
+                                 constraintName="fk_learning_documents__course_material_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="course_materials"
+                                 />
+
+        <addForeignKeyConstraint baseColumnNames="class_material_id"
+                                 baseTableName="learning_documents"
+                                 constraintName="fk_learning_documents__class_material_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="class_materials"
+                                 />
+
+        <addForeignKeyConstraint baseColumnNames="uploaded_by_id"
+                                 baseTableName="learning_documents"
+                                 constraintName="fk_learning_documents__uploaded_by_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="jhi_user"
+                                 />
+
+        <addForeignKeyConstraint baseColumnNames="subject_id"
+                                 baseTableName="learning_documents"
+                                 constraintName="fk_learning_documents__subject_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="subjects"
+                                 />
+
+        <addForeignKeyConstraint baseColumnNames="grade_id"
+                                 baseTableName="learning_documents"
+                                 constraintName="fk_learning_documents__grade_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="grades"
+                                 />
+    </changeSet>
+</databaseChangeLog>

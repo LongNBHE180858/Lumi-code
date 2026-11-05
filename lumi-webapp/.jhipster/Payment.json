@@ -3,7 +3,9 @@
     "changelogDate": "20261012231700"
   },
   "applications": ["*"],
+  "documentation": "Lưu giao dịch thanh toán và thông tin đối chiếu từ cổng thanh toán.",
   "dto": "mapstruct",
+  "entityTableName": "payments",
   "fields": [
     {
       "fieldName": "gateway",
@@ -20,8 +22,7 @@
     {
       "fieldName": "amount",
       "fieldType": "BigDecimal",
-      "fieldValidateRules": ["required", "min"],
-      "fieldValidateRulesMin": "0"
+      "fieldValidateRules": ["required"]
     },
     {
       "fieldName": "status",
@@ -31,6 +32,22 @@
     },
     {
       "fieldName": "paidAt",
+      "fieldType": "Instant"
+    },
+    {
+      "fieldName": "paymentReference",
+      "fieldType": "String",
+      "fieldValidateRules": ["maxlength"],
+      "fieldValidateRulesMaxlength": "255"
+    },
+    {
+      "fieldName": "providerEventId",
+      "fieldType": "String",
+      "fieldValidateRules": ["maxlength"],
+      "fieldValidateRulesMaxlength": "255"
+    },
+    {
+      "fieldName": "receivedAt",
       "fieldType": "Instant"
     }
   ],

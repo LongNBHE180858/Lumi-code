@@ -1,5 +1,6 @@
 package com.lumi.service.dto;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.*;
 import java.io.Serializable;
 import java.time.Instant;
@@ -8,6 +9,7 @@ import java.util.Objects;
 /**
  * A DTO for the {@link com.lumi.domain.ClassMaterial} entity.
  */
+@Schema(description = "Lưu tài liệu được giáo viên chia sẻ trong lớp riêng.")
 @SuppressWarnings("common-java:DuplicatedBlocks")
 public class ClassMaterialDTO implements Serializable {
 
@@ -26,10 +28,15 @@ public class ClassMaterialDTO implements Serializable {
     private String fileUrl;
 
     @NotNull
-    @Min(value = 0L)
     private Long fileSizeBytes;
 
     private Instant uploadedAt;
+
+    @Size(max = 1000)
+    private String fileObjectKey;
+
+    @NotNull
+    private Instant updatedAt;
 
     @NotNull
     private StudyClassDTO studyClass;
@@ -82,6 +89,22 @@ public class ClassMaterialDTO implements Serializable {
         this.uploadedAt = uploadedAt;
     }
 
+    public String getFileObjectKey() {
+        return fileObjectKey;
+    }
+
+    public void setFileObjectKey(String fileObjectKey) {
+        this.fileObjectKey = fileObjectKey;
+    }
+
+    public Instant getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public void setUpdatedAt(Instant updatedAt) {
+        this.updatedAt = updatedAt;
+    }
+
     public StudyClassDTO getStudyClass() {
         return studyClass;
     }
@@ -121,6 +144,8 @@ public class ClassMaterialDTO implements Serializable {
             ", fileUrl='" + getFileUrl() + "'" +
             ", fileSizeBytes=" + getFileSizeBytes() +
             ", uploadedAt='" + getUploadedAt() + "'" +
+            ", fileObjectKey='" + getFileObjectKey() + "'" +
+            ", updatedAt='" + getUpdatedAt() + "'" +
             ", studyClass=" + getStudyClass() +
             "}";
     }

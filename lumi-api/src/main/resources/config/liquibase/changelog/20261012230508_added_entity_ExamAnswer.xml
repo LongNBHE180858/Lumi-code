@@ -10,11 +10,11 @@
         Added the entity ExamAnswer.
     -->
     <changeSet id="20261012230508-1" author="jhipster">
-        <createTable tableName="exam_answer">
+        <createTable tableName="exam_answers" remarks="Lưu câu trả lời và điểm của học sinh cho từng câu trong một lượt làm.">
             <column name="id" type="bigint">
                 <constraints primaryKey="true" nullable="false"/>
             </column>
-            <column name="text_answer" type="varchar(5000)">
+            <column name="text_answer" type="${clobType}">
                 <constraints nullable="true" />
             </column>
             <column name="is_correct" type="boolean">
@@ -22,6 +22,12 @@
             </column>
             <column name="score" type="decimal(21,2)">
                 <constraints nullable="true" />
+            </column>
+            <column name="updated_at" type="${datetimeType}">
+                <constraints nullable="false" />
+            </column>
+            <column name="row_version" type="bigint">
+                <constraints nullable="false" />
             </column>
             <column name="attempt_id" type="bigint">
                 <constraints nullable="false" />
@@ -34,6 +40,7 @@
             </column>
             <!-- jhipster-needle-liquibase-add-column - JHipster will add columns here -->
         </createTable>
+        <dropDefaultValue tableName="exam_answers" columnName="updated_at" columnDataType="${datetimeType}"/>
     </changeSet>
 
     <!-- jhipster-needle-liquibase-add-changeset - JHipster will add changesets here -->
@@ -48,15 +55,17 @@
     -->
     <changeSet id="20261012230508-1-data" author="jhipster" context="faker">
         <loadData
-                  file="../fake-data/exam_answer.csv"
+                  file="../fake-data/exam_answers.csv"
                   relativeToChangelogFile="true"
                   separator=";"
-                  tableName="exam_answer"
+                  tableName="exam_answers"
                   usePreparedStatements="true">
             <column name="id" type="numeric"/>
-            <column name="text_answer" type="string"/>
+            <column name="text_answer" type="clob"/>
             <column name="is_correct" type="boolean"/>
             <column name="score" type="numeric"/>
+            <column name="updated_at" type="date"/>
+            <column name="row_version" type="numeric"/>
             <column name="attempt_id" type="numeric"/>
             <column name="question_id" type="numeric"/>
             <!-- jhipster-needle-liquibase-add-loadcolumn - JHipster (and/or extensions) can add load columns here -->

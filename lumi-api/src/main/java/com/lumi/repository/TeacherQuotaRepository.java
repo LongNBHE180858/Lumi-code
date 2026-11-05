@@ -27,16 +27,14 @@ public interface TeacherQuotaRepository extends JpaRepository<TeacherQuota, Long
     }
 
     @Query(
-        value = "select teacherQuota from TeacherQuota teacherQuota left join fetch teacherQuota.user left join fetch teacherQuota.currentPlan",
+        value = "select teacherQuota from TeacherQuota teacherQuota left join fetch teacherQuota.instructor",
         countQuery = "select count(teacherQuota) from TeacherQuota teacherQuota"
     )
     Page<TeacherQuota> findAllWithToOneRelationships(Pageable pageable);
 
-    @Query("select teacherQuota from TeacherQuota teacherQuota left join fetch teacherQuota.user left join fetch teacherQuota.currentPlan")
+    @Query("select teacherQuota from TeacherQuota teacherQuota left join fetch teacherQuota.instructor")
     List<TeacherQuota> findAllWithToOneRelationships();
 
-    @Query(
-        "select teacherQuota from TeacherQuota teacherQuota left join fetch teacherQuota.user left join fetch teacherQuota.currentPlan where teacherQuota.id =:id"
-    )
+    @Query("select teacherQuota from TeacherQuota teacherQuota left join fetch teacherQuota.instructor where teacherQuota.id =:id")
     Optional<TeacherQuota> findOneWithToOneRelationships(@Param("id") Long id);
 }

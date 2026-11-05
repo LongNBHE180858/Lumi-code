@@ -51,9 +51,9 @@ export const InstructorWalletDetail = () => {
           </dt>
           <dd>{instructorWalletEntity.rowVersion}</dd>
           <dt>
-            <Translate contentKey="lumiApp.instructorWallet.user">User</Translate>
+            <Translate contentKey="lumiApp.instructorWallet.instructor">Instructor</Translate>
           </dt>
-          <dd>{instructorWalletEntity.user ? instructorWalletEntity.user.login : ''}</dd>
+          <dd>{instructorWalletEntity.instructor ? instructorWalletEntity.instructor.login : ''}</dd>
         </dl>
         <Button as={Link as any} to="/instructor-wallet" replace variant="info" data-cy="entityDetailsBackButton">
           <FontAwesomeIcon icon="arrow-left" />{' '}

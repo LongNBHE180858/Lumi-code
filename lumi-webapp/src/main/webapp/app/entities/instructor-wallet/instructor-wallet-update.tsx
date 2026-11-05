@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { Button, Col, FormText, Row } from 'react-bootstrap';
-import { Translate, ValidatedField, ValidatedForm, isNumber, translate } from 'react-jhipster';
+import { Translate, ValidatedField, ValidatedForm, translate } from 'react-jhipster';
 import { Link, useNavigate, useParams } from 'react-router';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -25,7 +25,7 @@ export const InstructorWalletUpdate = () => {
   const updateSuccess = useAppSelector(state => state.instructorWallet.updateSuccess);
 
   const handleClose = () => {
-    navigate('/instructor-wallet');
+    navigate(`/instructor-wallet${location.search}`);
   };
 
   useEffect(() => {
@@ -61,7 +61,7 @@ export const InstructorWalletUpdate = () => {
     const entity = {
       ...instructorWalletEntity,
       ...values,
-      user: users.find(it => it.id.toString() === values.user?.toString()),
+      instructor: users.find(it => it.id.toString() === values.instructor?.toString()),
     };
 
     if (isNew) {
@@ -76,7 +76,7 @@ export const InstructorWalletUpdate = () => {
       ? {}
       : {
           ...instructorWalletEntity,
-          user: instructorWalletEntity?.user?.id,
+          instructor: instructorWalletEntity?.instructor?.id,
         };
 
   return (
@@ -110,10 +110,6 @@ export const InstructorWalletUpdate = () => {
                 name="pendingAmount"
                 data-cy="pendingAmount"
                 type="text"
-                validate={{
-                  min: { value: 0, message: translate('entity.validation.min', { min: 0 }) },
-                  validate: v => isNumber(v) || translate('entity.validation.number'),
-                }}
               />
               <ValidatedField
                 label={translate('lumiApp.instructorWallet.availableAmount')}
@@ -121,10 +117,6 @@ export const InstructorWalletUpdate = () => {
                 name="availableAmount"
                 data-cy="availableAmount"
                 type="text"
-                validate={{
-                  min: { value: 0, message: translate('entity.validation.min', { min: 0 }) },
-                  validate: v => isNumber(v) || translate('entity.validation.number'),
-                }}
               />
               <ValidatedField
                 label={translate('lumiApp.instructorWallet.rowVersion')}
@@ -132,16 +124,12 @@ export const InstructorWalletUpdate = () => {
                 name="rowVersion"
                 data-cy="rowVersion"
                 type="text"
-                validate={{
-                  min: { value: 0, message: translate('entity.validation.min', { min: 0 }) },
-                  validate: v => isNumber(v) || translate('entity.validation.number'),
-                }}
               />
               <ValidatedField
-                id="instructor-wallet-user"
-                name="user"
-                data-cy="user"
-                label={translate('lumiApp.instructorWallet.user')}
+                id="instructor-wallet-instructor"
+                name="instructor"
+                data-cy="instructor"
+                label={translate('lumiApp.instructorWallet.instructor')}
                 type="select"
                 required
               >

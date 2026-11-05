@@ -11,8 +11,22 @@
     <changeSet id="20261012230525-2" author="jhipster">
 
         <addForeignKeyConstraint baseColumnNames="reporter_id"
-                                 baseTableName="content_report"
-                                 constraintName="fk_content_report__reporter_id"
+                                 baseTableName="content_reports"
+                                 constraintName="fk_content_reports__reporter_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="jhi_user"
+                                 />
+
+        <addForeignKeyConstraint baseColumnNames="assigned_to_id"
+                                 baseTableName="content_reports"
+                                 constraintName="fk_content_reports__assigned_to_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="jhi_user"
+                                 />
+
+        <addForeignKeyConstraint baseColumnNames="resolved_by_id"
+                                 baseTableName="content_reports"
+                                 constraintName="fk_content_reports__resolved_by_id"
                                  referencedColumnNames="id"
                                  referencedTableName="jhi_user"
                                  />

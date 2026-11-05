@@ -55,7 +55,9 @@ public class StudyClassAsserts {
             .satisfies(a -> assertThat(a.getCurrentStudents()).as("check currentStudents").isEqualTo(expected.getCurrentStudents()))
             .satisfies(a -> assertThat(a.getStatus()).as("check status").isEqualTo(expected.getStatus()))
             .satisfies(a -> assertThat(a.getIsDeleted()).as("check isDeleted").isEqualTo(expected.getIsDeleted()))
-            .satisfies(a -> assertThat(a.getCreatedAt()).as("check createdAt").isEqualTo(expected.getCreatedAt()));
+            .satisfies(a -> assertThat(a.getCreatedAt()).as("check createdAt").isEqualTo(expected.getCreatedAt()))
+            .satisfies(a -> assertThat(a.getJoinCodeExpiresAt()).as("check joinCodeExpiresAt").isEqualTo(expected.getJoinCodeExpiresAt()))
+            .satisfies(a -> assertThat(a.getUpdatedAt()).as("check updatedAt").isEqualTo(expected.getUpdatedAt()));
     }
 
     /**

@@ -8,10 +8,10 @@ import java.io.Serializable;
 import java.time.Instant;
 
 /**
- * A ClassMember.
+ * Lưu thành viên lớp, yêu cầu tham gia và trạng thái duyệt.
  */
 @Entity
-@Table(name = "class_member")
+@Table(name = "class_members")
 @SuppressWarnings("common-java:DuplicatedBlocks")
 public class ClassMember implements Serializable {
 
@@ -31,14 +31,25 @@ public class ClassMember implements Serializable {
     @Column(name = "joined_at")
     private Instant joinedAt;
 
-    @ManyToOne(optional = false)
     @NotNull
-    private User student;
+    @Column(name = "requested_at", nullable = false)
+    private Instant requestedAt;
+
+    @Column(name = "left_at")
+    private Instant leftAt;
+
+    @NotNull
+    @Column(name = "updated_at", nullable = false)
+    private Instant updatedAt;
 
     @ManyToOne(optional = false)
     @NotNull
     @JsonIgnoreProperties(value = { "instructor", "subject", "grade" }, allowSetters = true)
     private StudyClass studyClass;
+
+    @ManyToOne(optional = false)
+    @NotNull
+    private User student;
 
     // jhipster-needle-entity-add-field - JHipster will add fields here
 
@@ -81,17 +92,43 @@ public class ClassMember implements Serializable {
         this.joinedAt = joinedAt;
     }
 
-    public User getStudent() {
-        return this.student;
+    public Instant getRequestedAt() {
+        return this.requestedAt;
     }
 
-    public void setStudent(User user) {
-        this.student = user;
-    }
-
-    public ClassMember student(User user) {
-        this.setStudent(user);
+    public ClassMember requestedAt(Instant requestedAt) {
+        this.setRequestedAt(requestedAt);
         return this;
+    }
+
+    public void setRequestedAt(Instant requestedAt) {
+        this.requestedAt = requestedAt;
+    }
+
+    public Instant getLeftAt() {
+        return this.leftAt;
+    }
+
+    public ClassMember leftAt(Instant leftAt) {
+        this.setLeftAt(leftAt);
+        return this;
+    }
+
+    public void setLeftAt(Instant leftAt) {
+        this.leftAt = leftAt;
+    }
+
+    public Instant getUpdatedAt() {
+        return this.updatedAt;
+    }
+
+    public ClassMember updatedAt(Instant updatedAt) {
+        this.setUpdatedAt(updatedAt);
+        return this;
+    }
+
+    public void setUpdatedAt(Instant updatedAt) {
+        this.updatedAt = updatedAt;
     }
 
     public StudyClass getStudyClass() {
@@ -104,6 +141,19 @@ public class ClassMember implements Serializable {
 
     public ClassMember studyClass(StudyClass studyClass) {
         this.setStudyClass(studyClass);
+        return this;
+    }
+
+    public User getStudent() {
+        return this.student;
+    }
+
+    public void setStudent(User user) {
+        this.student = user;
+    }
+
+    public ClassMember student(User user) {
+        this.setStudent(user);
         return this;
     }
 
@@ -133,6 +183,9 @@ public class ClassMember implements Serializable {
             "id=" + getId() +
             ", status='" + getStatus() + "'" +
             ", joinedAt='" + getJoinedAt() + "'" +
+            ", requestedAt='" + getRequestedAt() + "'" +
+            ", leftAt='" + getLeftAt() + "'" +
+            ", updatedAt='" + getUpdatedAt() + "'" +
             "}";
     }
 }

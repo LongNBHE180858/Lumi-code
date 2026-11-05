@@ -49,7 +49,8 @@ public class CourseReviewAsserts {
             .as("Verify CourseReview relevant properties")
             .satisfies(a -> assertThat(a.getRating()).as("check rating").isEqualTo(expected.getRating()))
             .satisfies(a -> assertThat(a.getContent()).as("check content").isEqualTo(expected.getContent()))
-            .satisfies(a -> assertThat(a.getCreatedAt()).as("check createdAt").isEqualTo(expected.getCreatedAt()));
+            .satisfies(a -> assertThat(a.getCreatedAt()).as("check createdAt").isEqualTo(expected.getCreatedAt()))
+            .satisfies(a -> assertThat(a.getUpdatedAt()).as("check updatedAt").isEqualTo(expected.getUpdatedAt()));
     }
 
     /**

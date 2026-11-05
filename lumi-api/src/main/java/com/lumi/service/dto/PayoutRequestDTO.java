@@ -1,5 +1,7 @@
 package com.lumi.service.dto;
 
+import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.persistence.Lob;
 import jakarta.validation.constraints.*;
 import java.io.Serializable;
 import java.math.BigDecimal;
@@ -9,13 +11,13 @@ import java.util.Objects;
 /**
  * A DTO for the {@link com.lumi.domain.PayoutRequest} entity.
  */
+@Schema(description = "Lưu yêu cầu rút tiền và thông tin xử lý chuyển khoản cho giáo viên.")
 @SuppressWarnings("common-java:DuplicatedBlocks")
 public class PayoutRequestDTO implements Serializable {
 
     private Long id;
 
     @NotNull
-    @DecimalMin(value = "0.01")
     private BigDecimal amount;
 
     @NotNull
@@ -32,7 +34,24 @@ public class PayoutRequestDTO implements Serializable {
     private Instant createdAt;
 
     @NotNull
+    @Size(max = 255)
+    private String accountHolderName;
+
+    private Instant processedAt;
+
+    @Lob
+    private String rejectionReason;
+
+    @Size(max = 255)
+    private String transferReference;
+
+    @NotNull
+    private Instant updatedAt;
+
+    @NotNull
     private InstructorWalletDTO wallet;
+
+    private UserDTO processedBy;
 
     public Long getId() {
         return id;
@@ -82,12 +101,60 @@ public class PayoutRequestDTO implements Serializable {
         this.createdAt = createdAt;
     }
 
+    public String getAccountHolderName() {
+        return accountHolderName;
+    }
+
+    public void setAccountHolderName(String accountHolderName) {
+        this.accountHolderName = accountHolderName;
+    }
+
+    public Instant getProcessedAt() {
+        return processedAt;
+    }
+
+    public void setProcessedAt(Instant processedAt) {
+        this.processedAt = processedAt;
+    }
+
+    public String getRejectionReason() {
+        return rejectionReason;
+    }
+
+    public void setRejectionReason(String rejectionReason) {
+        this.rejectionReason = rejectionReason;
+    }
+
+    public String getTransferReference() {
+        return transferReference;
+    }
+
+    public void setTransferReference(String transferReference) {
+        this.transferReference = transferReference;
+    }
+
+    public Instant getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public void setUpdatedAt(Instant updatedAt) {
+        this.updatedAt = updatedAt;
+    }
+
     public InstructorWalletDTO getWallet() {
         return wallet;
     }
 
     public void setWallet(InstructorWalletDTO wallet) {
         this.wallet = wallet;
+    }
+
+    public UserDTO getProcessedBy() {
+        return processedBy;
+    }
+
+    public void setProcessedBy(UserDTO processedBy) {
+        this.processedBy = processedBy;
     }
 
     @Override
@@ -121,7 +188,13 @@ public class PayoutRequestDTO implements Serializable {
             ", bankAccount='" + getBankAccount() + "'" +
             ", status='" + getStatus() + "'" +
             ", createdAt='" + getCreatedAt() + "'" +
+            ", accountHolderName='" + getAccountHolderName() + "'" +
+            ", processedAt='" + getProcessedAt() + "'" +
+            ", rejectionReason='" + getRejectionReason() + "'" +
+            ", transferReference='" + getTransferReference() + "'" +
+            ", updatedAt='" + getUpdatedAt() + "'" +
             ", wallet=" + getWallet() +
+            ", processedBy=" + getProcessedBy() +
             "}";
     }
 }

@@ -23,7 +23,8 @@ public class ApplicationProperties {
 
     public static class Liquibase {
 
-        private Boolean asyncStart = true;
+        // Finish migrations before Hibernate and REST endpoints start.
+        private Boolean asyncStart = false;
 
         public Boolean getAsyncStart() {
             return asyncStart;

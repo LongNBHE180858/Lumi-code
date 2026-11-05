@@ -23,7 +23,10 @@
       "fileUrl": "File Url",
       "fileSizeBytes": "File Size Bytes",
       "uploadedAt": "Uploaded At",
-      "studyClass": "Study Class"
+      "fileObjectKey": "File Object Key",
+      "updatedAt": "Updated At",
+      "studyClass": "Study Class",
+      "learningDocument": "Learning Document"
     }
   }
 }

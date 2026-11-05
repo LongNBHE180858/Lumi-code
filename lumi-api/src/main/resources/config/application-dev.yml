@@ -35,13 +35,15 @@ spring:
       indent-output: true
   datasource:
     type: com.zaxxer.hikari.HikariDataSource
-    url: jdbc:postgresql://localhost:5436/lumig46
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5436/lumig46}
     username: lumig46
     password: lumig46
     hikari:
       poolName: Hikari
       auto-commit: false
   liquibase:
+    enabled: true
+    change-log: classpath:config/liquibase/master.xml
     # Remove 'faker' if you do not want the sample data to be loaded automatically
     contexts: dev
   mail:

@@ -1,10 +1,10 @@
 package com.lumi.web.rest;
 
 import com.lumi.repository.RefundRepository;
-import com.lumi.service.RefundQueryService;
 import com.lumi.service.RefundService;
 import com.lumi.service.criteria.RefundCriteria;
 import com.lumi.service.dto.RefundDTO;
+import com.lumi.service.query.RefundQueryService;
 import com.lumi.web.rest.errors.BadRequestAlertException;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;

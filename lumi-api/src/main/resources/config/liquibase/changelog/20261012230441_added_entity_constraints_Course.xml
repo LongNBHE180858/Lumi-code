@@ -11,31 +11,24 @@
     <changeSet id="20261012230441-2" author="jhipster">
 
         <addForeignKeyConstraint baseColumnNames="author_id"
-                                 baseTableName="course"
-                                 constraintName="fk_course__author_id"
+                                 baseTableName="courses"
+                                 constraintName="fk_courses__author_id"
                                  referencedColumnNames="id"
                                  referencedTableName="jhi_user"
                                  />
 
-        <addForeignKeyConstraint baseColumnNames="category_id"
-                                 baseTableName="course"
-                                 constraintName="fk_course__category_id"
-                                 referencedColumnNames="id"
-                                 referencedTableName="category"
-                                 />
-
         <addForeignKeyConstraint baseColumnNames="subject_id"
-                                 baseTableName="course"
-                                 constraintName="fk_course__subject_id"
+                                 baseTableName="courses"
+                                 constraintName="fk_courses__subject_id"
                                  referencedColumnNames="id"
-                                 referencedTableName="subject"
+                                 referencedTableName="subjects"
                                  />
 
         <addForeignKeyConstraint baseColumnNames="grade_id"
-                                 baseTableName="course"
-                                 constraintName="fk_course__grade_id"
+                                 baseTableName="courses"
+                                 constraintName="fk_courses__grade_id"
                                  referencedColumnNames="id"
-                                 referencedTableName="grade"
+                                 referencedTableName="grades"
                                  />
     </changeSet>
 </databaseChangeLog>

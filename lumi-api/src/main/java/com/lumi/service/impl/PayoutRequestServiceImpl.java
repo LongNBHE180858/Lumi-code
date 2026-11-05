@@ -8,6 +8,8 @@ import com.lumi.service.mapper.PayoutRequestMapper;
 import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -60,11 +62,15 @@ public class PayoutRequestServiceImpl implements PayoutRequestService {
             .map(payoutRequestMapper::toDto);
     }
 
+    public Page<PayoutRequestDTO> findAllWithEagerRelationships(Pageable pageable) {
+        return payoutRequestRepository.findAllWithEagerRelationships(pageable).map(payoutRequestMapper::toDto);
+    }
+
     @Override
     @Transactional(readOnly = true)
     public Optional<PayoutRequestDTO> findOne(Long id) {
         LOG.debug("Request to get PayoutRequest : {}", id);
-        return payoutRequestRepository.findById(id).map(payoutRequestMapper::toDto);
+        return payoutRequestRepository.findOneWithEagerRelationships(id).map(payoutRequestMapper::toDto);
     }
 
     @Override

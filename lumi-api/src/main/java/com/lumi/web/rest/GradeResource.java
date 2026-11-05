@@ -1,10 +1,10 @@
 package com.lumi.web.rest;
 
 import com.lumi.repository.GradeRepository;
-import com.lumi.service.GradeQueryService;
 import com.lumi.service.GradeService;
 import com.lumi.service.criteria.GradeCriteria;
 import com.lumi.service.dto.GradeDTO;
+import com.lumi.service.query.GradeQueryService;
 import com.lumi.web.rest.errors.BadRequestAlertException;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;

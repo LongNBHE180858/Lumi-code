@@ -23,7 +23,12 @@
       "reason": "Reason",
       "status": "Status",
       "createdAt": "Created At",
-      "reporter": "Reporter"
+      "resolvedAt": "Resolved At",
+      "resolutionNote": "Resolution Note",
+      "targetVersion": "Target Version",
+      "reporter": "Reporter",
+      "assignedTo": "Assigned To",
+      "resolvedBy": "Resolved By"
     }
   }
 }

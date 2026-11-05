@@ -3,7 +3,9 @@
     "changelogDate": "20261012231642"
   },
   "applications": ["*"],
+  "documentation": "Quản lý phiên đăng nhập, thiết bị và việc thu hồi refresh token.",
   "dto": "mapstruct",
+  "entityTableName": "auth_sessions",
   "fields": [
     {
       "fieldName": "deviceInfo",
@@ -29,6 +31,12 @@
     {
       "fieldName": "createdAt",
       "fieldType": "Instant"
+    },
+    {
+      "fieldName": "refreshTokenHash",
+      "fieldType": "String",
+      "fieldValidateRules": ["unique", "maxlength"],
+      "fieldValidateRulesMaxlength": "255"
     }
   ],
   "jpaMetamodelFiltering": true,

@@ -74,10 +74,11 @@ class TeacherVerificationCriteriaTest {
         teacherVerificationCriteria.id();
         teacherVerificationCriteria.identityDocumentUrl();
         teacherVerificationCriteria.verificationStatus();
-        teacherVerificationCriteria.notes();
         teacherVerificationCriteria.submittedAt();
         teacherVerificationCriteria.approvedAt();
+        teacherVerificationCriteria.reviewedAt();
         teacherVerificationCriteria.userId();
+        teacherVerificationCriteria.reviewedById();
         teacherVerificationCriteria.distinct();
     }
 
@@ -87,10 +88,11 @@ class TeacherVerificationCriteriaTest {
                 condition.apply(criteria.getId()) &&
                 condition.apply(criteria.getIdentityDocumentUrl()) &&
                 condition.apply(criteria.getVerificationStatus()) &&
-                condition.apply(criteria.getNotes()) &&
                 condition.apply(criteria.getSubmittedAt()) &&
                 condition.apply(criteria.getApprovedAt()) &&
+                condition.apply(criteria.getReviewedAt()) &&
                 condition.apply(criteria.getUserId()) &&
+                condition.apply(criteria.getReviewedById()) &&
                 condition.apply(criteria.getDistinct()),
             "every filter matches"
         );
@@ -105,10 +107,11 @@ class TeacherVerificationCriteriaTest {
                 condition.apply(criteria.getId(), copy.getId()) &&
                 condition.apply(criteria.getIdentityDocumentUrl(), copy.getIdentityDocumentUrl()) &&
                 condition.apply(criteria.getVerificationStatus(), copy.getVerificationStatus()) &&
-                condition.apply(criteria.getNotes(), copy.getNotes()) &&
                 condition.apply(criteria.getSubmittedAt(), copy.getSubmittedAt()) &&
                 condition.apply(criteria.getApprovedAt(), copy.getApprovedAt()) &&
+                condition.apply(criteria.getReviewedAt(), copy.getReviewedAt()) &&
                 condition.apply(criteria.getUserId(), copy.getUserId()) &&
+                condition.apply(criteria.getReviewedById(), copy.getReviewedById()) &&
                 condition.apply(criteria.getDistinct(), copy.getDistinct()),
             "every filter matches"
         );

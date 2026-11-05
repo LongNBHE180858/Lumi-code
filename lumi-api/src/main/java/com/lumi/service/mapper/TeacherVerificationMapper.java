@@ -12,6 +12,7 @@ import org.mapstruct.*;
 @Mapper(componentModel = "spring")
 public interface TeacherVerificationMapper extends EntityMapper<TeacherVerificationDTO, TeacherVerification> {
     @Mapping(target = "user", source = "user", qualifiedByName = "userLogin")
+    @Mapping(target = "reviewedBy", source = "reviewedBy", qualifiedByName = "userLogin")
     TeacherVerificationDTO toDto(TeacherVerification s);
 
     @Named("userLogin")

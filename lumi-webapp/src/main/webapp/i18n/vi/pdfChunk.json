@@ -21,6 +21,8 @@
       "pageNumber": "Page Number",
       "chunkText": "Chunk Text",
       "embedding": "Embedding",
+      "chunkIndex": "Chunk Index",
+      "indexVersion": "Index Version",
       "material": "Material"
     }
   }

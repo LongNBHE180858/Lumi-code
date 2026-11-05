@@ -3,25 +3,21 @@
     "changelogDate": "20261012231717"
   },
   "applications": ["*"],
+  "documentation": "Lưu chuỗi ngày học và số dư điểm thưởng tổng hợp của học sinh.",
   "dto": "mapstruct",
+  "entityTableName": "student_streaks",
   "fields": [
     {
       "fieldName": "currentStreak",
-      "fieldType": "Integer",
-      "fieldValidateRules": ["min"],
-      "fieldValidateRulesMin": "0"
+      "fieldType": "Integer"
     },
     {
       "fieldName": "longestStreak",
-      "fieldType": "Integer",
-      "fieldValidateRules": ["min"],
-      "fieldValidateRulesMin": "0"
+      "fieldType": "Integer"
     },
     {
       "fieldName": "gemsBalance",
-      "fieldType": "Integer",
-      "fieldValidateRules": ["min"],
-      "fieldValidateRulesMin": "0"
+      "fieldType": "Integer"
     },
     {
       "fieldName": "lastActiveDate",
@@ -30,11 +26,12 @@
   ],
   "jpaMetamodelFiltering": true,
   "name": "StudentStreak",
+  "pagination": "pagination",
   "relationships": [
     {
       "otherEntityField": "login",
       "otherEntityName": "user",
-      "relationshipName": "user",
+      "relationshipName": "student",
       "relationshipSide": "left",
       "relationshipType": "one-to-one",
       "relationshipValidateRules": "required",

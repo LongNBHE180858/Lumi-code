@@ -10,18 +10,30 @@
         Added the entity Subject.
     -->
     <changeSet id="20261012230439-1" author="jhipster">
-        <createTable tableName="subject">
+        <createTable tableName="subjects" remarks="Lưu danh mục môn học của hệ thống.">
             <column name="id" type="bigint">
                 <constraints primaryKey="true" nullable="false"/>
             </column>
             <column name="name" type="varchar(100)">
-                <constraints nullable="false" unique="true" uniqueConstraintName="ux_subject__name" />
+                <constraints nullable="false" unique="true" uniqueConstraintName="ux_subjects__name" />
             </column>
-            <column name="description" type="varchar(5000)">
+            <column name="description" type="${clobType}">
                 <constraints nullable="true" />
             </column>
             <!-- jhipster-needle-liquibase-add-column - JHipster will add columns here -->
         </createTable>
+    </changeSet>
+
+    <!-- Dữ liệu danh mục dùng khi khởi tạo DB mới, không dùng dữ liệu Faker. -->
+    <changeSet id="20261012230439-seed" author="lumi" context="!faker">
+        <insert tableName="subjects">
+            <column name="id" valueSequenceNext="sequence_generator"/>
+            <column name="name" value="Toán"/>
+        </insert>
+        <insert tableName="subjects">
+            <column name="id" valueSequenceNext="sequence_generator"/>
+            <column name="name" value="Lịch sử"/>
+        </insert>
     </changeSet>
 
     <!-- jhipster-needle-liquibase-add-changeset - JHipster will add changesets here -->
@@ -36,14 +48,14 @@
     -->
     <changeSet id="20261012230439-1-data" author="jhipster" context="faker">
         <loadData
-                  file="../fake-data/subject.csv"
+                  file="../fake-data/subjects.csv"
                   relativeToChangelogFile="true"
                   separator=";"
-                  tableName="subject"
+                  tableName="subjects"
                   usePreparedStatements="true">
             <column name="id" type="numeric"/>
             <column name="name" type="string"/>
-            <column name="description" type="string"/>
+            <column name="description" type="clob"/>
             <!-- jhipster-needle-liquibase-add-loadcolumn - JHipster (and/or extensions) can add load columns here -->
         </loadData>
     </changeSet>

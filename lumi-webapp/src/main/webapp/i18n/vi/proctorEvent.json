@@ -19,9 +19,12 @@
       },
       "id": "ID",
       "violationType": "Violation Type",
-      "photoUrl": "Photo Url",
       "occurredAt": "Occurred At",
-      "session": "Session"
+      "reviewStatus": "Review Status",
+      "reviewedAt": "Reviewed At",
+      "reviewNote": "Review Note",
+      "attempt": "Attempt",
+      "reviewedBy": "Reviewed By"
     }
   }
 }

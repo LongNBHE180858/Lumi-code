@@ -10,17 +10,41 @@
         Added the entity ParentStudentLink.
     -->
     <changeSet id="20261012230436-1" author="jhipster">
-        <createTable tableName="parent_student_link">
+        <createTable tableName="parent_student_links" remarks="Lưu liên kết phụ huynh - học sinh và trạng thái xác minh quan hệ giám hộ.">
             <column name="id" type="bigint">
                 <constraints primaryKey="true" nullable="false"/>
             </column>
             <column name="link_code" type="varchar(10)">
-                <constraints nullable="false" unique="true" uniqueConstraintName="ux_parent_student_link__link_code" />
+                <constraints nullable="false" unique="true" uniqueConstraintName="ux_parent_student_links__link_code" />
             </column>
             <column name="status" type="varchar(20)">
                 <constraints nullable="true" />
             </column>
             <column name="linked_at" type="${datetimeType}">
+                <constraints nullable="true" />
+            </column>
+            <column name="created_at" type="${datetimeType}">
+                <constraints nullable="false" />
+            </column>
+            <column name="code_expires_at" type="${datetimeType}">
+                <constraints nullable="false" />
+            </column>
+            <column name="confirmed_at" type="${datetimeType}">
+                <constraints nullable="true" />
+            </column>
+            <column name="revoked_at" type="${datetimeType}">
+                <constraints nullable="true" />
+            </column>
+            <column name="relationship_type" type="varchar(30)">
+                <constraints nullable="true" />
+            </column>
+            <column name="guardian_verification_status" type="varchar(20)">
+                <constraints nullable="false" />
+            </column>
+            <column name="guardian_verified_at" type="${datetimeType}">
+                <constraints nullable="true" />
+            </column>
+            <column name="guardian_verification_note" type="${clobType}">
                 <constraints nullable="true" />
             </column>
             <column name="parent_id" type="bigint">
@@ -29,9 +53,20 @@
             <column name="student_id" type="bigint">
                 <constraints nullable="false" />
             </column>
+            <column name="confirmed_by_id" type="bigint">
+                <constraints nullable="true" />
+            </column>
+            <column name="guardian_verified_by_id" type="bigint">
+                <constraints nullable="true" />
+            </column>
             <!-- jhipster-needle-liquibase-add-column - JHipster will add columns here -->
         </createTable>
-        <dropDefaultValue tableName="parent_student_link" columnName="linked_at" columnDataType="${datetimeType}"/>
+        <dropDefaultValue tableName="parent_student_links" columnName="linked_at" columnDataType="${datetimeType}"/>
+        <dropDefaultValue tableName="parent_student_links" columnName="created_at" columnDataType="${datetimeType}"/>
+        <dropDefaultValue tableName="parent_student_links" columnName="code_expires_at" columnDataType="${datetimeType}"/>
+        <dropDefaultValue tableName="parent_student_links" columnName="confirmed_at" columnDataType="${datetimeType}"/>
+        <dropDefaultValue tableName="parent_student_links" columnName="revoked_at" columnDataType="${datetimeType}"/>
+        <dropDefaultValue tableName="parent_student_links" columnName="guardian_verified_at" columnDataType="${datetimeType}"/>
     </changeSet>
 
     <!-- jhipster-needle-liquibase-add-changeset - JHipster will add changesets here -->
@@ -46,15 +81,23 @@
     -->
     <changeSet id="20261012230436-1-data" author="jhipster" context="faker">
         <loadData
-                  file="../fake-data/parent_student_link.csv"
+                  file="../fake-data/parent_student_links.csv"
                   relativeToChangelogFile="true"
                   separator=";"
-                  tableName="parent_student_link"
+                  tableName="parent_student_links"
                   usePreparedStatements="true">
             <column name="id" type="numeric"/>
             <column name="link_code" type="string"/>
             <column name="status" type="string"/>
             <column name="linked_at" type="date"/>
+            <column name="created_at" type="date"/>
+            <column name="code_expires_at" type="date"/>
+            <column name="confirmed_at" type="date"/>
+            <column name="revoked_at" type="date"/>
+            <column name="relationship_type" type="string"/>
+            <column name="guardian_verification_status" type="string"/>
+            <column name="guardian_verified_at" type="date"/>
+            <column name="guardian_verification_note" type="clob"/>
             <column name="parent_id" type="numeric"/>
             <column name="student_id" type="numeric"/>
             <!-- jhipster-needle-liquibase-add-loadcolumn - JHipster (and/or extensions) can add load columns here -->

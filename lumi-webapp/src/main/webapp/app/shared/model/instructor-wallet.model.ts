@@ -5,7 +5,7 @@ export interface IInstructorWallet {
   pendingAmount?: number | null;
   availableAmount?: number | null;
   rowVersion?: number | null;
-  user?: IUser;
+  instructor?: IUser;
 }
 
 export const defaultValue: Readonly<IInstructorWallet> = {};

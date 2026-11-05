@@ -10,7 +10,7 @@
         Added the entity PayoutRequest.
     -->
     <changeSet id="20261012230459-1" author="jhipster">
-        <createTable tableName="payout_request">
+        <createTable tableName="payout_requests" remarks="Lưu yêu cầu rút tiền và thông tin xử lý chuyển khoản cho giáo viên.">
             <column name="id" type="bigint">
                 <constraints primaryKey="true" nullable="false"/>
             </column>
@@ -29,12 +29,32 @@
             <column name="created_at" type="${datetimeType}">
                 <constraints nullable="true" />
             </column>
+            <column name="account_holder_name" type="varchar(255)">
+                <constraints nullable="false" />
+            </column>
+            <column name="processed_at" type="${datetimeType}">
+                <constraints nullable="true" />
+            </column>
+            <column name="rejection_reason" type="${clobType}">
+                <constraints nullable="true" />
+            </column>
+            <column name="transfer_reference" type="varchar(255)">
+                <constraints nullable="true" />
+            </column>
+            <column name="updated_at" type="${datetimeType}">
+                <constraints nullable="false" />
+            </column>
             <column name="wallet_id" type="bigint">
                 <constraints nullable="false" />
             </column>
+            <column name="processed_by_id" type="bigint">
+                <constraints nullable="true" />
+            </column>
             <!-- jhipster-needle-liquibase-add-column - JHipster will add columns here -->
         </createTable>
-        <dropDefaultValue tableName="payout_request" columnName="created_at" columnDataType="${datetimeType}"/>
+        <dropDefaultValue tableName="payout_requests" columnName="created_at" columnDataType="${datetimeType}"/>
+        <dropDefaultValue tableName="payout_requests" columnName="processed_at" columnDataType="${datetimeType}"/>
+        <dropDefaultValue tableName="payout_requests" columnName="updated_at" columnDataType="${datetimeType}"/>
     </changeSet>
 
     <!-- jhipster-needle-liquibase-add-changeset - JHipster will add changesets here -->
@@ -49,10 +69,10 @@
     -->
     <changeSet id="20261012230459-1-data" author="jhipster" context="faker">
         <loadData
-                  file="../fake-data/payout_request.csv"
+                  file="../fake-data/payout_requests.csv"
                   relativeToChangelogFile="true"
                   separator=";"
-                  tableName="payout_request"
+                  tableName="payout_requests"
                   usePreparedStatements="true">
             <column name="id" type="numeric"/>
             <column name="amount" type="numeric"/>
@@ -60,6 +80,11 @@
             <column name="bank_account" type="string"/>
             <column name="status" type="string"/>
             <column name="created_at" type="date"/>
+            <column name="account_holder_name" type="string"/>
+            <column name="processed_at" type="date"/>
+            <column name="rejection_reason" type="clob"/>
+            <column name="transfer_reference" type="string"/>
+            <column name="updated_at" type="date"/>
             <column name="wallet_id" type="numeric"/>
             <!-- jhipster-needle-liquibase-add-loadcolumn - JHipster (and/or extensions) can add load columns here -->
         </loadData>

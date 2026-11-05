@@ -20,8 +20,10 @@
       "id": "ID",
       "type": "Type",
       "createdAt": "Created At",
+      "updatedAt": "Updated At",
       "user": "User",
-      "lesson": "Lesson"
+      "lesson": "Lesson",
+      "document": "Document"
     }
   }
 }

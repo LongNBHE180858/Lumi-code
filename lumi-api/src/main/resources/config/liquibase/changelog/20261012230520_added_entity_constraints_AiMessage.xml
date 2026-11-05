@@ -11,10 +11,10 @@
     <changeSet id="20261012230520-2" author="jhipster">
 
         <addForeignKeyConstraint baseColumnNames="conversation_id"
-                                 baseTableName="ai_message"
-                                 constraintName="fk_ai_message__conversation_id"
+                                 baseTableName="ai_messages"
+                                 constraintName="fk_ai_messages__conversation_id"
                                  referencedColumnNames="id"
-                                 referencedTableName="ai_conversation"
+                                 referencedTableName="ai_conversations"
                                  />
     </changeSet>
 </databaseChangeLog>

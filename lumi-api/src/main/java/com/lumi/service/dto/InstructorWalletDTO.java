@@ -1,5 +1,6 @@
 package com.lumi.service.dto;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.*;
 import java.io.Serializable;
 import java.math.BigDecimal;
@@ -8,22 +9,20 @@ import java.util.Objects;
 /**
  * A DTO for the {@link com.lumi.domain.InstructorWallet} entity.
  */
+@Schema(description = "Lưu số dư tiền chờ giải phóng và tiền khả dụng của giáo viên.")
 @SuppressWarnings("common-java:DuplicatedBlocks")
 public class InstructorWalletDTO implements Serializable {
 
     private Long id;
 
-    @DecimalMin(value = "0")
     private BigDecimal pendingAmount;
 
-    @DecimalMin(value = "0")
     private BigDecimal availableAmount;
 
-    @Min(value = 0L)
     private Long rowVersion;
 
     @NotNull
-    private UserDTO user;
+    private UserDTO instructor;
 
     public Long getId() {
         return id;
@@ -57,12 +56,12 @@ public class InstructorWalletDTO implements Serializable {
         this.rowVersion = rowVersion;
     }
 
-    public UserDTO getUser() {
-        return user;
+    public UserDTO getInstructor() {
+        return instructor;
     }
 
-    public void setUser(UserDTO user) {
-        this.user = user;
+    public void setInstructor(UserDTO instructor) {
+        this.instructor = instructor;
     }
 
     @Override
@@ -94,7 +93,7 @@ public class InstructorWalletDTO implements Serializable {
             ", pendingAmount=" + getPendingAmount() +
             ", availableAmount=" + getAvailableAmount() +
             ", rowVersion=" + getRowVersion() +
-            ", user=" + getUser() +
+            ", instructor=" + getInstructor() +
             "}";
     }
 }

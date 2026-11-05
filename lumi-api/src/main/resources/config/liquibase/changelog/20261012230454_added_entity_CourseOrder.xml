@@ -10,7 +10,7 @@
         Added the entity CourseOrder.
     -->
     <changeSet id="20261012230454-1" author="jhipster">
-        <createTable tableName="course_order">
+        <createTable tableName="orders" remarks="Lưu đơn mua khóa học hoặc gói dịch vụ cùng quyền lợi và chính sách giá tại lúc mua.">
             <column name="id" type="bigint">
                 <constraints primaryKey="true" nullable="false"/>
             </column>
@@ -30,12 +30,54 @@
                 <constraints nullable="true" />
             </column>
             <column name="idempotency_key" type="varchar(200)">
-                <constraints nullable="true" unique="true" uniqueConstraintName="ux_course_order__idempotency_key" />
+                <constraints nullable="true" unique="true" uniqueConstraintName="ux_orders__idempotency_key" />
             </column>
             <column name="row_version" type="bigint">
                 <constraints nullable="true" />
             </column>
             <column name="created_at" type="${datetimeType}">
+                <constraints nullable="true" />
+            </column>
+            <column name="instructor_share_percent" type="decimal(21,2)">
+                <constraints nullable="true" />
+            </column>
+            <column name="instructor_amount" type="decimal(21,2)">
+                <constraints nullable="true" />
+            </column>
+            <column name="platform_amount" type="decimal(21,2)">
+                <constraints nullable="true" />
+            </column>
+            <column name="order_type" type="varchar(20)">
+                <constraints nullable="false" />
+            </column>
+            <column name="expires_at" type="${datetimeType}">
+                <constraints nullable="false" />
+            </column>
+            <column name="paid_at" type="${datetimeType}">
+                <constraints nullable="true" />
+            </column>
+            <column name="access_duration_value" type="integer">
+                <constraints nullable="true" />
+            </column>
+            <column name="access_duration_unit" type="varchar(10)">
+                <constraints nullable="true" />
+            </column>
+            <column name="entitlement_starts_at" type="${datetimeType}">
+                <constraints nullable="true" />
+            </column>
+            <column name="entitlement_expires_at" type="${datetimeType}">
+                <constraints nullable="true" />
+            </column>
+            <column name="entitlement_status" type="varchar(20)">
+                <constraints nullable="true" />
+            </column>
+            <column name="plan_snapshot" type="${clobType}">
+                <constraints nullable="true" />
+            </column>
+            <column name="updated_at" type="${datetimeType}">
+                <constraints nullable="false" />
+            </column>
+            <column name="pricing_snapshot" type="${clobType}">
                 <constraints nullable="true" />
             </column>
             <column name="student_id" type="bigint">
@@ -52,7 +94,12 @@
             </column>
             <!-- jhipster-needle-liquibase-add-column - JHipster will add columns here -->
         </createTable>
-        <dropDefaultValue tableName="course_order" columnName="created_at" columnDataType="${datetimeType}"/>
+        <dropDefaultValue tableName="orders" columnName="created_at" columnDataType="${datetimeType}"/>
+        <dropDefaultValue tableName="orders" columnName="expires_at" columnDataType="${datetimeType}"/>
+        <dropDefaultValue tableName="orders" columnName="paid_at" columnDataType="${datetimeType}"/>
+        <dropDefaultValue tableName="orders" columnName="entitlement_starts_at" columnDataType="${datetimeType}"/>
+        <dropDefaultValue tableName="orders" columnName="entitlement_expires_at" columnDataType="${datetimeType}"/>
+        <dropDefaultValue tableName="orders" columnName="updated_at" columnDataType="${datetimeType}"/>
     </changeSet>
 
     <!-- jhipster-needle-liquibase-add-changeset - JHipster will add changesets here -->
@@ -67,10 +114,10 @@
     -->
     <changeSet id="20261012230454-1-data" author="jhipster" context="faker">
         <loadData
-                  file="../fake-data/course_order.csv"
+                  file="../fake-data/orders.csv"
                   relativeToChangelogFile="true"
                   separator=";"
-                  tableName="course_order"
+                  tableName="orders"
                   usePreparedStatements="true">
             <column name="id" type="numeric"/>
             <column name="original_price" type="numeric"/>
@@ -81,6 +128,20 @@
             <column name="idempotency_key" type="string"/>
             <column name="row_version" type="numeric"/>
             <column name="created_at" type="date"/>
+            <column name="instructor_share_percent" type="numeric"/>
+            <column name="instructor_amount" type="numeric"/>
+            <column name="platform_amount" type="numeric"/>
+            <column name="order_type" type="string"/>
+            <column name="expires_at" type="date"/>
+            <column name="paid_at" type="date"/>
+            <column name="access_duration_value" type="numeric"/>
+            <column name="access_duration_unit" type="string"/>
+            <column name="entitlement_starts_at" type="date"/>
+            <column name="entitlement_expires_at" type="date"/>
+            <column name="entitlement_status" type="string"/>
+            <column name="plan_snapshot" type="clob"/>
+            <column name="updated_at" type="date"/>
+            <column name="pricing_snapshot" type="clob"/>
             <column name="student_id" type="numeric"/>
             <!-- jhipster-needle-liquibase-add-loadcolumn - JHipster (and/or extensions) can add load columns here -->
         </loadData>

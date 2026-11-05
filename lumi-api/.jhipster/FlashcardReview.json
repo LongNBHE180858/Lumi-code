@@ -3,7 +3,9 @@
     "changelogDate": "20261012230515"
   },
   "applications": ["*"],
+  "documentation": "Lưu trạng thái ôn gần nhất và lịch ôn tiếp theo của học sinh theo flashcard.",
   "dto": "mapstruct",
+  "entityTableName": "flashcard_reviews",
   "fields": [
     {
       "fieldName": "nextReviewAt",
@@ -11,13 +13,28 @@
     },
     {
       "fieldName": "intervalDays",
-      "fieldType": "BigDecimal",
-      "fieldValidateRules": ["min"],
-      "fieldValidateRulesMin": "0"
+      "fieldType": "BigDecimal"
+    },
+    {
+      "fieldName": "lastReviewedAt",
+      "fieldType": "Instant"
+    },
+    {
+      "fieldName": "lastRating",
+      "fieldType": "Integer",
+      "fieldValidateRules": ["min", "max"],
+      "fieldValidateRulesMax": "5",
+      "fieldValidateRulesMin": "1"
+    },
+    {
+      "fieldName": "reviewCount",
+      "fieldType": "Integer",
+      "fieldValidateRules": ["required"]
     }
   ],
   "jpaMetamodelFiltering": true,
   "name": "FlashcardReview",
+  "pagination": "pagination",
   "relationships": [
     {
       "otherEntityField": "login",

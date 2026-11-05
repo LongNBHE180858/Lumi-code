@@ -48,6 +48,10 @@ export const AiMessageUpdate = () => {
       values.id = Number(values.id);
     }
     values.createdAt = convertDateTimeToServer(values.createdAt);
+    if (values.feedbackRating !== undefined && typeof values.feedbackRating !== 'number') {
+      values.feedbackRating = Number(values.feedbackRating);
+    }
+    values.feedbackAt = convertDateTimeToServer(values.feedbackAt);
 
     const entity = {
       ...aiMessageEntity,
@@ -66,10 +70,12 @@ export const AiMessageUpdate = () => {
     isNew
       ? {
           createdAt: displayDefaultDateTime(),
+          feedbackAt: displayDefaultDateTime(),
         }
       : {
           ...aiMessageEntity,
           createdAt: convertDateTimeFromServer(aiMessageEntity.createdAt),
+          feedbackAt: convertDateTimeFromServer(aiMessageEntity.feedbackAt),
           conversation: aiMessageEntity?.conversation?.id,
         };
 
@@ -114,10 +120,9 @@ export const AiMessageUpdate = () => {
                 id="ai-message-content"
                 name="content"
                 data-cy="content"
-                type="text"
+                type="textarea"
                 validate={{
                   required: { value: true, message: translate('entity.validation.required') },
-                  maxLength: { value: 5000, message: translate('entity.validation.maxlength', { max: 5000 }) },
                 }}
               />
               <ValidatedField
@@ -125,6 +130,59 @@ export const AiMessageUpdate = () => {
                 id="ai-message-createdAt"
                 name="createdAt"
                 data-cy="createdAt"
+                type="datetime-local"
+                placeholder="YYYY-MM-DD HH:mm"
+              />
+              <ValidatedField
+                label={translate('lumiApp.aiMessage.citations')}
+                id="ai-message-citations"
+                name="citations"
+                data-cy="citations"
+                type="textarea"
+                validate={{
+                  required: { value: true, message: translate('entity.validation.required') },
+                }}
+              />
+              <ValidatedField
+                label={translate('lumiApp.aiMessage.generationStatus')}
+                id="ai-message-generationStatus"
+                name="generationStatus"
+                data-cy="generationStatus"
+                type="text"
+                validate={{
+                  required: { value: true, message: translate('entity.validation.required') },
+                  maxLength: { value: 20, message: translate('entity.validation.maxlength', { max: 20 }) },
+                }}
+              />
+              <ValidatedField
+                label={translate('lumiApp.aiMessage.modelName')}
+                id="ai-message-modelName"
+                name="modelName"
+                data-cy="modelName"
+                type="text"
+                validate={{
+                  maxLength: { value: 100, message: translate('entity.validation.maxlength', { max: 100 }) },
+                }}
+              />
+              <ValidatedField
+                label={translate('lumiApp.aiMessage.feedbackRating')}
+                id="ai-message-feedbackRating"
+                name="feedbackRating"
+                data-cy="feedbackRating"
+                type="text"
+              />
+              <ValidatedField
+                label={translate('lumiApp.aiMessage.feedbackNote')}
+                id="ai-message-feedbackNote"
+                name="feedbackNote"
+                data-cy="feedbackNote"
+                type="textarea"
+              />
+              <ValidatedField
+                label={translate('lumiApp.aiMessage.feedbackAt')}
+                id="ai-message-feedbackAt"
+                name="feedbackAt"
+                data-cy="feedbackAt"
                 type="datetime-local"
                 placeholder="YYYY-MM-DD HH:mm"
               />

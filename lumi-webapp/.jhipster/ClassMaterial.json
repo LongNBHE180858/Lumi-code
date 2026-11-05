@@ -3,7 +3,9 @@
     "changelogDate": "20261012231655"
   },
   "applications": ["*"],
+  "documentation": "Lưu tài liệu được giáo viên chia sẻ trong lớp riêng.",
   "dto": "mapstruct",
+  "entityTableName": "class_materials",
   "fields": [
     {
       "fieldName": "title",
@@ -26,12 +28,22 @@
     {
       "fieldName": "fileSizeBytes",
       "fieldType": "Long",
-      "fieldValidateRules": ["required", "min"],
-      "fieldValidateRulesMin": "0"
+      "fieldValidateRules": ["required"]
     },
     {
       "fieldName": "uploadedAt",
       "fieldType": "Instant"
+    },
+    {
+      "fieldName": "fileObjectKey",
+      "fieldType": "String",
+      "fieldValidateRules": ["maxlength"],
+      "fieldValidateRulesMaxlength": "1000"
+    },
+    {
+      "fieldName": "updatedAt",
+      "fieldType": "Instant",
+      "fieldValidateRules": ["required"]
     }
   ],
   "jpaMetamodelFiltering": true,
@@ -39,7 +51,6 @@
   "pagination": "pagination",
   "relationships": [
     {
-      "otherEntityField": "name",
       "otherEntityName": "studyClass",
       "relationshipName": "studyClass",
       "relationshipSide": "left",

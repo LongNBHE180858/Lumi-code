@@ -12,11 +12,31 @@ public class SystemPlanTestSamples {
     private static final AtomicInteger intCount = new AtomicInteger(random.nextInt() + 2 * Short.MAX_VALUE);
 
     public static SystemPlan getSystemPlanSample1() {
-        return new SystemPlan().id(1L).name("name1").durationDays(1).storageQuotaMb(1L).aiGenerationLimit(1).maxClasses(1);
+        return new SystemPlan()
+            .id(1L)
+            .name("name1")
+            .durationDays(1)
+            .storageQuotaMb(1L)
+            .aiGenerationLimit(1)
+            .maxClasses(1)
+            .planType("planType1")
+            .targetRole("targetRole1")
+            .status("status1")
+            .aiLimitPeriod("aiLimitPeriod1");
     }
 
     public static SystemPlan getSystemPlanSample2() {
-        return new SystemPlan().id(2L).name("name2").durationDays(2).storageQuotaMb(2L).aiGenerationLimit(2).maxClasses(2);
+        return new SystemPlan()
+            .id(2L)
+            .name("name2")
+            .durationDays(2)
+            .storageQuotaMb(2L)
+            .aiGenerationLimit(2)
+            .maxClasses(2)
+            .planType("planType2")
+            .targetRole("targetRole2")
+            .status("status2")
+            .aiLimitPeriod("aiLimitPeriod2");
     }
 
     public static SystemPlan getSystemPlanRandomSampleGenerator() {
@@ -26,6 +46,10 @@ public class SystemPlanTestSamples {
             .durationDays(intCount.incrementAndGet())
             .storageQuotaMb(longCount.incrementAndGet())
             .aiGenerationLimit(intCount.incrementAndGet())
-            .maxClasses(intCount.incrementAndGet());
+            .maxClasses(intCount.incrementAndGet())
+            .planType(UUID.randomUUID().toString())
+            .targetRole(UUID.randomUUID().toString())
+            .status(UUID.randomUUID().toString())
+            .aiLimitPeriod(UUID.randomUUID().toString());
     }
 }

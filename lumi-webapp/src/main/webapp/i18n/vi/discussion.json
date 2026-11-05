@@ -21,8 +21,11 @@
       "title": "Title",
       "content": "Content",
       "createdAt": "Created At",
+      "updatedAt": "Updated At",
+      "postType": "Post Type",
+      "lesson": "Lesson",
       "student": "Student",
-      "lesson": "Lesson"
+      "studyClass": "Study Class"
     }
   }
 }

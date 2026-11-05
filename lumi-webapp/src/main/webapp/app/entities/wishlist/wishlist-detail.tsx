@@ -46,7 +46,7 @@ export const WishlistDetail = () => {
           <dt>
             <Translate contentKey="lumiApp.wishlist.course">Course</Translate>
           </dt>
-          <dd>{wishlistEntity.course ? wishlistEntity.course.title : ''}</dd>
+          <dd>{wishlistEntity.course ? wishlistEntity.course.id : ''}</dd>
         </dl>
         <Button as={Link as any} to="/wishlist" replace variant="info" data-cy="entityDetailsBackButton">
           <FontAwesomeIcon icon="arrow-left" />{' '}

@@ -8,8 +8,9 @@ export interface ICourseReview {
   rating?: number | null;
   content?: string | null;
   createdAt?: dayjs.Dayjs | null;
-  student?: IUser;
+  updatedAt?: dayjs.Dayjs;
   course?: ICourse;
+  student?: IUser;
 }
 
 export const defaultValue: Readonly<ICourseReview> = {};

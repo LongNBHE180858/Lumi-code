@@ -3,7 +3,9 @@
     "changelogDate": "20261012230510"
   },
   "applications": ["*"],
+  "documentation": "Lưu cảnh báo trình duyệt theo lượt thi và kết quả xem xét; không lưu ảnh hoặc nhận diện khuôn mặt.",
   "dto": "mapstruct",
+  "entityTableName": "proctor_events",
   "fields": [
     {
       "fieldName": "violationType",
@@ -12,14 +14,22 @@
       "fieldValidateRulesMaxlength": "50"
     },
     {
-      "fieldName": "photoUrl",
-      "fieldType": "String",
-      "fieldValidateRules": ["maxlength"],
-      "fieldValidateRulesMaxlength": "1000"
-    },
-    {
       "fieldName": "occurredAt",
       "fieldType": "Instant"
+    },
+    {
+      "fieldName": "reviewStatus",
+      "fieldType": "String",
+      "fieldValidateRules": ["required", "maxlength"],
+      "fieldValidateRulesMaxlength": "20"
+    },
+    {
+      "fieldName": "reviewedAt",
+      "fieldType": "Instant"
+    },
+    {
+      "fieldName": "reviewNote",
+      "fieldType": "TextBlob"
     }
   ],
   "jpaMetamodelFiltering": true,
@@ -27,11 +37,19 @@
   "pagination": "infinite-scroll",
   "relationships": [
     {
-      "otherEntityName": "proctorSession",
-      "relationshipName": "session",
+      "otherEntityName": "examAttempt",
+      "relationshipName": "attempt",
       "relationshipSide": "left",
       "relationshipType": "many-to-one",
       "relationshipValidateRules": "required"
+    },
+    {
+      "otherEntityField": "login",
+      "otherEntityName": "user",
+      "relationshipName": "reviewedBy",
+      "relationshipSide": "left",
+      "relationshipType": "many-to-one",
+      "relationshipWithBuiltInEntity": true
     }
   ],
   "searchEngine": "no",

@@ -9,10 +9,10 @@ import java.math.BigDecimal;
 import java.time.Instant;
 
 /**
- * A AssignmentSubmission.
+ * Lưu bài nộp, tệp đính kèm, điểm và phản hồi chấm bài tập.
  */
 @Entity
-@Table(name = "assignment_submission")
+@Table(name = "assignment_submissions")
 @SuppressWarnings("common-java:DuplicatedBlocks")
 public class AssignmentSubmission implements Serializable {
 
@@ -25,16 +25,13 @@ public class AssignmentSubmission implements Serializable {
     @Column(name = "id")
     private Long id;
 
-    @Size(max = 5000)
-    @Column(name = "content", length = 5000)
+    @Column(name = "content", columnDefinition = "text")
     private String content;
 
-    @DecimalMin(value = "0")
     @Column(name = "score", precision = 21, scale = 2)
     private BigDecimal score;
 
-    @Size(max = 5000)
-    @Column(name = "teacher_feedback", length = 5000)
+    @Column(name = "teacher_feedback", columnDefinition = "text")
     private String teacherFeedback;
 
     @Size(max = 20)
@@ -44,14 +41,31 @@ public class AssignmentSubmission implements Serializable {
     @Column(name = "submitted_at")
     private Instant submittedAt;
 
+    @Column(name = "attachments", nullable = false, columnDefinition = "text")
+    private String attachments;
+
+    @Column(name = "graded_at")
+    private Instant gradedAt;
+
+    @NotNull
+    @Column(name = "updated_at", nullable = false)
+    private Instant updatedAt;
+
+    @NotNull
+    @Column(name = "row_version", nullable = false)
+    private Long rowVersion;
+
+    @ManyToOne(optional = false)
+    @NotNull
+    @JsonIgnoreProperties(value = { "studyClass", "assignedBy", "exam" }, allowSetters = true)
+    private Assignment assignment;
+
     @ManyToOne(optional = false)
     @NotNull
     private User student;
 
-    @ManyToOne(optional = false)
-    @NotNull
-    @JsonIgnoreProperties(value = { "studyClass" }, allowSetters = true)
-    private Assignment assignment;
+    @ManyToOne(fetch = FetchType.LAZY)
+    private User gradedBy;
 
     // jhipster-needle-entity-add-field - JHipster will add fields here
 
@@ -133,6 +147,71 @@ public class AssignmentSubmission implements Serializable {
         this.submittedAt = submittedAt;
     }
 
+    public String getAttachments() {
+        return this.attachments;
+    }
+
+    public AssignmentSubmission attachments(String attachments) {
+        this.setAttachments(attachments);
+        return this;
+    }
+
+    public void setAttachments(String attachments) {
+        this.attachments = attachments;
+    }
+
+    public Instant getGradedAt() {
+        return this.gradedAt;
+    }
+
+    public AssignmentSubmission gradedAt(Instant gradedAt) {
+        this.setGradedAt(gradedAt);
+        return this;
+    }
+
+    public void setGradedAt(Instant gradedAt) {
+        this.gradedAt = gradedAt;
+    }
+
+    public Instant getUpdatedAt() {
+        return this.updatedAt;
+    }
+
+    public AssignmentSubmission updatedAt(Instant updatedAt) {
+        this.setUpdatedAt(updatedAt);
+        return this;
+    }
+
+    public void setUpdatedAt(Instant updatedAt) {
+        this.updatedAt = updatedAt;
+    }
+
+    public Long getRowVersion() {
+        return this.rowVersion;
+    }
+
+    public AssignmentSubmission rowVersion(Long rowVersion) {
+        this.setRowVersion(rowVersion);
+        return this;
+    }
+
+    public void setRowVersion(Long rowVersion) {
+        this.rowVersion = rowVersion;
+    }
+
+    public Assignment getAssignment() {
+        return this.assignment;
+    }
+
+    public void setAssignment(Assignment assignment) {
+        this.assignment = assignment;
+    }
+
+    public AssignmentSubmission assignment(Assignment assignment) {
+        this.setAssignment(assignment);
+        return this;
+    }
+
     public User getStudent() {
         return this.student;
     }
@@ -146,16 +225,16 @@ public class AssignmentSubmission implements Serializable {
         return this;
     }
 
-    public Assignment getAssignment() {
-        return this.assignment;
+    public User getGradedBy() {
+        return this.gradedBy;
     }
 
-    public void setAssignment(Assignment assignment) {
-        this.assignment = assignment;
+    public void setGradedBy(User user) {
+        this.gradedBy = user;
     }
 
-    public AssignmentSubmission assignment(Assignment assignment) {
-        this.setAssignment(assignment);
+    public AssignmentSubmission gradedBy(User user) {
+        this.setGradedBy(user);
         return this;
     }
 
@@ -188,6 +267,10 @@ public class AssignmentSubmission implements Serializable {
             ", teacherFeedback='" + getTeacherFeedback() + "'" +
             ", status='" + getStatus() + "'" +
             ", submittedAt='" + getSubmittedAt() + "'" +
+            ", attachments='" + getAttachments() + "'" +
+            ", gradedAt='" + getGradedAt() + "'" +
+            ", updatedAt='" + getUpdatedAt() + "'" +
+            ", rowVersion=" + getRowVersion() +
             "}";
     }
 }

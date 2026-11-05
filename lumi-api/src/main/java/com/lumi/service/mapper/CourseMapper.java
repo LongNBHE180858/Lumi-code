@@ -1,11 +1,9 @@
 package com.lumi.service.mapper;
 
-import com.lumi.domain.Category;
 import com.lumi.domain.Course;
 import com.lumi.domain.Grade;
 import com.lumi.domain.Subject;
 import com.lumi.domain.User;
-import com.lumi.service.dto.CategoryDTO;
 import com.lumi.service.dto.CourseDTO;
 import com.lumi.service.dto.GradeDTO;
 import com.lumi.service.dto.SubjectDTO;
@@ -19,7 +17,6 @@ import org.mapstruct.*;
 public interface CourseMapper extends EntityMapper<CourseDTO, Course> {
     @Mapping(target = "author", source = "author", qualifiedByName = "userLogin")
     @Mapping(target = "authorDisplayName", source = "author", qualifiedByName = "userDisplayName")
-    @Mapping(target = "category", source = "category", qualifiedByName = "categoryName")
     @Mapping(target = "subject", source = "subject", qualifiedByName = "subjectName")
     @Mapping(target = "grade", source = "grade", qualifiedByName = "gradeName")
     CourseDTO toDto(Course s);
@@ -46,11 +43,9 @@ public interface CourseMapper extends EntityMapper<CourseDTO, Course> {
         return name.isEmpty() ? user.getLogin() : name;
     }
 
-    @Named("categoryName")
-    @BeanMapping(ignoreByDefault = true)
-    @Mapping(target = "id", source = "id")
-    @Mapping(target = "name", source = "name")
-    CategoryDTO toDtoCategoryName(Category category);
+    //    @BeanMapping(ignoreByDefault = true)
+    //    @Mapping(target = "id", source = "id")
+    //    @Mapping(target = "name", source = "name")
 
     @Named("subjectName")
     @BeanMapping(ignoreByDefault = true)

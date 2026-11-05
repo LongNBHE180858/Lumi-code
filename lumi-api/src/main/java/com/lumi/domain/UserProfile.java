@@ -6,12 +6,13 @@ import jakarta.validation.constraints.*;
 import java.io.Serial;
 import java.io.Serializable;
 import java.time.Instant;
+import java.time.LocalDate;
 
 /**
- * A UserProfile.
+ * Lưu hồ sơ mở rộng, thông tin trường học và trạng thái giáo viên của người dùng.
  */
 @Entity
-@Table(name = "user_profile")
+@Table(name = "user_profiles")
 @SuppressWarnings("common-java:DuplicatedBlocks")
 public class UserProfile implements Serializable {
 
@@ -28,8 +29,7 @@ public class UserProfile implements Serializable {
     @Column(name = "phone_number", length = 20, unique = true)
     private String phoneNumber;
 
-    @Size(max = 5000)
-    @Column(name = "bio", length = 5000)
+    @Column(name = "bio", columnDefinition = "text")
     private String bio;
 
     @Size(max = 255)
@@ -40,6 +40,9 @@ public class UserProfile implements Serializable {
     @Max(value = 12)
     @Column(name = "grade_level")
     private Integer gradeLevel;
+
+    @Column(name = "birth_date")
+    private LocalDate birthDate;
 
     @Column(name = "is_2_fa_enabled")
     private Boolean is2faEnabled;
@@ -130,6 +133,10 @@ public class UserProfile implements Serializable {
         this.gradeLevel = gradeLevel;
     }
 
+    public void setBirthDate(LocalDate birthDate) {
+        this.birthDate = birthDate;
+    }
+
     public Boolean getIs2faEnabled() {
         return this.is2faEnabled;
     }
@@ -185,6 +192,15 @@ public class UserProfile implements Serializable {
         this.updatedAt = updatedAt;
     }
 
+    public LocalDate getBirthDate() {
+        return this.birthDate;
+    }
+
+    public UserProfile birthDate(LocalDate birthDate) {
+        this.setBirthDate(birthDate);
+        return this;
+    }
+
     public User getUser() {
         return this.user;
     }
@@ -229,6 +245,7 @@ public class UserProfile implements Serializable {
             ", is2faEnabled='" + getIs2faEnabled() + "'" +
             ", instructorStatus='" + getInstructorStatus() + "'" +
             ", updatedAt='" + getUpdatedAt() + "'" +
+            ", birthDate='" + getBirthDate() + "'" +
             "}";
     }
 }

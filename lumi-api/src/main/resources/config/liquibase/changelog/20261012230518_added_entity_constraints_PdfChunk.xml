@@ -11,10 +11,10 @@
     <changeSet id="20261012230518-2" author="jhipster">
 
         <addForeignKeyConstraint baseColumnNames="material_id"
-                                 baseTableName="pdf_chunk"
-                                 constraintName="fk_pdf_chunk__material_id"
+                                 baseTableName="pdf_chunks"
+                                 constraintName="fk_pdf_chunks__material_id"
                                  referencedColumnNames="id"
-                                 referencedTableName="course_material"
+                                 referencedTableName="learning_documents"
                                  />
     </changeSet>
 </databaseChangeLog>

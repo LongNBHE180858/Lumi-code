@@ -21,6 +21,12 @@
       "senderRole": "Sender Role",
       "content": "Content",
       "createdAt": "Created At",
+      "citations": "Citations",
+      "generationStatus": "Generation Status",
+      "modelName": "Model Name",
+      "feedbackRating": "Feedback Rating",
+      "feedbackNote": "Feedback Note",
+      "feedbackAt": "Feedback At",
       "conversation": "Conversation"
     }
   }

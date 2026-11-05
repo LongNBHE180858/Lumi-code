@@ -3,13 +3,13 @@
     "changelogDate": "20261012231713"
   },
   "applications": ["*"],
+  "documentation": "Lưu câu trả lời và điểm của học sinh cho từng câu trong một lượt làm.",
   "dto": "mapstruct",
+  "entityTableName": "exam_answers",
   "fields": [
     {
       "fieldName": "textAnswer",
-      "fieldType": "String",
-      "fieldValidateRules": ["maxlength"],
-      "fieldValidateRulesMaxlength": "5000"
+      "fieldType": "TextBlob"
     },
     {
       "fieldName": "isCorrect",
@@ -17,9 +17,17 @@
     },
     {
       "fieldName": "score",
-      "fieldType": "BigDecimal",
-      "fieldValidateRules": ["min"],
-      "fieldValidateRulesMin": "0"
+      "fieldType": "BigDecimal"
+    },
+    {
+      "fieldName": "updatedAt",
+      "fieldType": "Instant",
+      "fieldValidateRules": ["required"]
+    },
+    {
+      "fieldName": "rowVersion",
+      "fieldType": "Long",
+      "fieldValidateRules": ["required"]
     }
   ],
   "jpaMetamodelFiltering": true,

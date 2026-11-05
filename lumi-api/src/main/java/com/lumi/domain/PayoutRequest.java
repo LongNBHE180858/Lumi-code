@@ -9,10 +9,10 @@ import java.math.BigDecimal;
 import java.time.Instant;
 
 /**
- * A PayoutRequest.
+ * Lưu yêu cầu rút tiền và thông tin xử lý chuyển khoản cho giáo viên.
  */
 @Entity
-@Table(name = "payout_request")
+@Table(name = "payout_requests")
 @SuppressWarnings("common-java:DuplicatedBlocks")
 public class PayoutRequest implements Serializable {
 
@@ -26,7 +26,6 @@ public class PayoutRequest implements Serializable {
     private Long id;
 
     @NotNull
-    @DecimalMin(value = "0.01")
     @Column(name = "amount", precision = 21, scale = 2, nullable = false)
     private BigDecimal amount;
 
@@ -47,10 +46,32 @@ public class PayoutRequest implements Serializable {
     @Column(name = "created_at")
     private Instant createdAt;
 
+    @NotNull
+    @Size(max = 255)
+    @Column(name = "account_holder_name", length = 255, nullable = false)
+    private String accountHolderName;
+
+    @Column(name = "processed_at")
+    private Instant processedAt;
+
+    @Column(name = "rejection_reason", columnDefinition = "text")
+    private String rejectionReason;
+
+    @Size(max = 255)
+    @Column(name = "transfer_reference", length = 255)
+    private String transferReference;
+
+    @NotNull
+    @Column(name = "updated_at", nullable = false)
+    private Instant updatedAt;
+
     @ManyToOne(optional = false)
     @NotNull
-    @JsonIgnoreProperties(value = { "user" }, allowSetters = true)
+    @JsonIgnoreProperties(value = { "instructor" }, allowSetters = true)
     private InstructorWallet wallet;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    private User processedBy;
 
     // jhipster-needle-entity-add-field - JHipster will add fields here
 
@@ -132,6 +153,71 @@ public class PayoutRequest implements Serializable {
         this.createdAt = createdAt;
     }
 
+    public String getAccountHolderName() {
+        return this.accountHolderName;
+    }
+
+    public PayoutRequest accountHolderName(String accountHolderName) {
+        this.setAccountHolderName(accountHolderName);
+        return this;
+    }
+
+    public void setAccountHolderName(String accountHolderName) {
+        this.accountHolderName = accountHolderName;
+    }
+
+    public Instant getProcessedAt() {
+        return this.processedAt;
+    }
+
+    public PayoutRequest processedAt(Instant processedAt) {
+        this.setProcessedAt(processedAt);
+        return this;
+    }
+
+    public void setProcessedAt(Instant processedAt) {
+        this.processedAt = processedAt;
+    }
+
+    public String getRejectionReason() {
+        return this.rejectionReason;
+    }
+
+    public PayoutRequest rejectionReason(String rejectionReason) {
+        this.setRejectionReason(rejectionReason);
+        return this;
+    }
+
+    public void setRejectionReason(String rejectionReason) {
+        this.rejectionReason = rejectionReason;
+    }
+
+    public String getTransferReference() {
+        return this.transferReference;
+    }
+
+    public PayoutRequest transferReference(String transferReference) {
+        this.setTransferReference(transferReference);
+        return this;
+    }
+
+    public void setTransferReference(String transferReference) {
+        this.transferReference = transferReference;
+    }
+
+    public Instant getUpdatedAt() {
+        return this.updatedAt;
+    }
+
+    public PayoutRequest updatedAt(Instant updatedAt) {
+        this.setUpdatedAt(updatedAt);
+        return this;
+    }
+
+    public void setUpdatedAt(Instant updatedAt) {
+        this.updatedAt = updatedAt;
+    }
+
     public InstructorWallet getWallet() {
         return this.wallet;
     }
@@ -142,6 +228,19 @@ public class PayoutRequest implements Serializable {
 
     public PayoutRequest wallet(InstructorWallet instructorWallet) {
         this.setWallet(instructorWallet);
+        return this;
+    }
+
+    public User getProcessedBy() {
+        return this.processedBy;
+    }
+
+    public void setProcessedBy(User user) {
+        this.processedBy = user;
+    }
+
+    public PayoutRequest processedBy(User user) {
+        this.setProcessedBy(user);
         return this;
     }
 
@@ -174,6 +273,11 @@ public class PayoutRequest implements Serializable {
             ", bankAccount='" + getBankAccount() + "'" +
             ", status='" + getStatus() + "'" +
             ", createdAt='" + getCreatedAt() + "'" +
+            ", accountHolderName='" + getAccountHolderName() + "'" +
+            ", processedAt='" + getProcessedAt() + "'" +
+            ", rejectionReason='" + getRejectionReason() + "'" +
+            ", transferReference='" + getTransferReference() + "'" +
+            ", updatedAt='" + getUpdatedAt() + "'" +
             "}";
     }
 }

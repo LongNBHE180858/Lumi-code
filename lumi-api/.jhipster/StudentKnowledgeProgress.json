@@ -1,0 +1,58 @@
+{
+  "annotations": {
+    "changelogDate": "20261101222543"
+  },
+  "applications": ["*"],
+  "documentation": "Lưu mức thành thạo tổng hợp của học sinh theo đơn vị kiến thức.",
+  "dto": "mapstruct",
+  "entityTableName": "student_knowledge_progress",
+  "fields": [
+    {
+      "fieldName": "masteryScore",
+      "fieldType": "BigDecimal",
+      "fieldValidateRules": ["min", "max"],
+      "fieldValidateRulesMax": "100",
+      "fieldValidateRulesMin": "0"
+    },
+    {
+      "fieldName": "evidenceCount",
+      "fieldType": "Integer",
+      "fieldValidateRules": ["required", "min"],
+      "fieldValidateRulesMin": "0"
+    },
+    {
+      "fieldName": "calculationVersion",
+      "fieldType": "String",
+      "fieldValidateRules": ["maxlength"],
+      "fieldValidateRulesMaxlength": "50"
+    },
+    {
+      "fieldName": "updatedAt",
+      "fieldType": "Instant",
+      "fieldValidateRules": ["required"]
+    }
+  ],
+  "jpaMetamodelFiltering": true,
+  "name": "StudentKnowledgeProgress",
+  "pagination": "pagination",
+  "relationships": [
+    {
+      "otherEntityField": "login",
+      "otherEntityName": "user",
+      "relationshipName": "student",
+      "relationshipSide": "left",
+      "relationshipType": "many-to-one",
+      "relationshipValidateRules": "required",
+      "relationshipWithBuiltInEntity": true
+    },
+    {
+      "otherEntityName": "knowledgeNode",
+      "relationshipName": "knowledgeNode",
+      "relationshipSide": "left",
+      "relationshipType": "many-to-one",
+      "relationshipValidateRules": "required"
+    }
+  ],
+  "searchEngine": "no",
+  "service": "serviceImpl"
+}

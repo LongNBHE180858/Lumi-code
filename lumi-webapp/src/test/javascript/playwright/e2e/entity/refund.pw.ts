@@ -12,7 +12,7 @@ import {
 import { expect, test } from '../../support/fixtures';
 
 const refundPageUrl = '/refund';
-// const refundSample = {"amount":19009.23};
+// const refundSample = {"amount":22278.13};
 
 const refundApiUrl = '/api/refunds';
 
@@ -36,7 +36,7 @@ test.describe('Refund e2e test', () => {
       await jhi.authenticatedRequest({
         method: 'POST',
         url: '/api/course-orders',
-        body: {"originalPrice":15733.94,"discountAmount":17354.33,"finalPrice":13600.47,"revenueSplitRate":"courageous","status":"PAID","idempotencyKey":"calmly","rowVersion":23064,"createdAt":"2026-10-12T13:42:24.995Z"},
+        body: {"originalPrice":15733.94,"discountAmount":17354.33,"finalPrice":13600.47,"revenueSplitRate":"courageous","status":"PAID","idempotencyKey":"calmly","rowVersion":23064,"createdAt":"2026-10-12T13:42:24.995Z","instructorSharePercent":8.4,"instructorAmount":13883.7,"platformAmount":23307.39,"orderType":"supposing where","expiresAt":"2026-10-12T22:05:57.933Z","paidAt":"2026-10-12T00:12:54.896Z","accessDurationValue":19310,"accessDurationUnit":"which wasa","entitlementStartsAt":"2026-10-11T23:25:58.841Z","entitlementExpiresAt":"2026-10-12T20:21:48.389Z","entitlementStatus":"ha out if","planSnapshot":"Li4vZmFrZS1kYXRhL2Jsb2IvaGlwc3Rlci50eHQ=","updatedAt":"2026-10-12T12:03:56.135Z","pricingSnapshot":"Li4vZmFrZS1kYXRhL2Jsb2IvaGlwc3Rlci50eHQ="},
       })
     ).json();
     // create an instance at the required relationship entity:
@@ -44,7 +44,7 @@ test.describe('Refund e2e test', () => {
       await jhi.authenticatedRequest({
         method: 'POST',
         url: '/api/payments',
-        body: {"gateway":"furthermore yum","transactionNo":"marimba whose","amount":28397.66,"status":"confirm","paidAt":"2026-10-12T19:16:13.853Z"},
+        body: {"gateway":"furthermore yum","transactionNo":"marimba whose","amount":28397.66,"status":"confirm","paidAt":"2026-10-12T19:16:13.853Z","paymentReference":"hearten replacement","providerEventId":"behest vice officially","receivedAt":"2026-10-12T08:15:48.954Z"},
       })
     ).json();
   });
@@ -62,6 +62,12 @@ test.describe('Refund e2e test', () => {
     await page.route(
       url => url.pathname === '/api/payments',
       route => route.fulfill({ status: 200, json: [payment].filter(Boolean) }),
+    );
+    // A url predicate rather than a glob: a glob's wildcards would close the "Disabled due to
+    // incompatibility" block comment that wraps this section when the create test is skipped.
+    await page.route(
+      url => url.pathname === '/api/users',
+      route => route.fulfill({ status: 200, json: [].filter(Boolean) }),
     );
   });
    */
@@ -240,15 +246,29 @@ test.describe('Refund e2e test', () => {
       await page.locator(`[data-cy="amount"]`).fill('15505.96');
       await expect(page.locator(`[data-cy="amount"]`)).toHaveValue('15505.96');
 
-      await page.locator(`[data-cy="reason"]`).fill('juicy even geez');
-      await expect(page.locator(`[data-cy="reason"]`)).toHaveValue('juicy even geez');
+      await page.locator(`[data-cy="reason"]`).fill('../fake-data/blob/hipster.txt');
+      await expect(page.locator(`[data-cy="reason"]`)).toHaveValue(new RegExp('../fake-data/blob/hipster.txt'));
 
-      await page.locator(`[data-cy="status"]`).fill('heartache unlawful');
-      await expect(page.locator(`[data-cy="status"]`)).toHaveValue('heartache unlawful');
+      await page.locator(`[data-cy="status"]`).fill('juicy even geez');
+      await expect(page.locator(`[data-cy="status"]`)).toHaveValue('juicy even geez');
 
-      await page.locator(`[data-cy="createdAt"]`).fill('2026-10-12T15:30');
+      await page.locator(`[data-cy="createdAt"]`).fill('2026-10-12T12:10');
       await page.locator(`[data-cy="createdAt"]`).blur();
-      await expect(page.locator(`[data-cy="createdAt"]`)).toHaveValue('2026-10-12T15:30');
+      await expect(page.locator(`[data-cy="createdAt"]`)).toHaveValue('2026-10-12T12:10');
+
+      await page.locator(`[data-cy="processedAt"]`).fill('2026-10-12T08:03');
+      await page.locator(`[data-cy="processedAt"]`).blur();
+      await expect(page.locator(`[data-cy="processedAt"]`)).toHaveValue('2026-10-12T08:03');
+
+      await page.locator(`[data-cy="reviewNote"]`).fill('../fake-data/blob/hipster.txt');
+      await expect(page.locator(`[data-cy="reviewNote"]`)).toHaveValue(new RegExp('../fake-data/blob/hipster.txt'));
+
+      await page.locator(`[data-cy="refundReference"]`).fill('er');
+      await expect(page.locator(`[data-cy="refundReference"]`)).toHaveValue('er');
+
+      await page.locator(`[data-cy="accessRevokedAt"]`).fill('2026-10-12T22:17');
+      await page.locator(`[data-cy="accessRevokedAt"]`).blur();
+      await expect(page.locator(`[data-cy="accessRevokedAt"]`)).toHaveValue('2026-10-12T22:17');
 
       await page.locator(`[data-cy="order"]`).selectOption({ index: 1 });
       await page.locator(`[data-cy="payment"]`).selectOption({ index: 1 });

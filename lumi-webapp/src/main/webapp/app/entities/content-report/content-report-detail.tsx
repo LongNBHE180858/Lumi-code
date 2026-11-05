@@ -68,9 +68,39 @@ export const ContentReportDetail = () => {
             ) : null}
           </dd>
           <dt>
+            <span id="resolvedAt">
+              <Translate contentKey="lumiApp.contentReport.resolvedAt">Resolved At</Translate>
+            </span>
+          </dt>
+          <dd>
+            {contentReportEntity.resolvedAt ? (
+              <TextFormat value={contentReportEntity.resolvedAt} type="date" format={APP_DATE_FORMAT} />
+            ) : null}
+          </dd>
+          <dt>
+            <span id="resolutionNote">
+              <Translate contentKey="lumiApp.contentReport.resolutionNote">Resolution Note</Translate>
+            </span>
+          </dt>
+          <dd>{contentReportEntity.resolutionNote}</dd>
+          <dt>
+            <span id="targetVersion">
+              <Translate contentKey="lumiApp.contentReport.targetVersion">Target Version</Translate>
+            </span>
+          </dt>
+          <dd>{contentReportEntity.targetVersion}</dd>
+          <dt>
             <Translate contentKey="lumiApp.contentReport.reporter">Reporter</Translate>
           </dt>
           <dd>{contentReportEntity.reporter ? contentReportEntity.reporter.login : ''}</dd>
+          <dt>
+            <Translate contentKey="lumiApp.contentReport.assignedTo">Assigned To</Translate>
+          </dt>
+          <dd>{contentReportEntity.assignedTo ? contentReportEntity.assignedTo.login : ''}</dd>
+          <dt>
+            <Translate contentKey="lumiApp.contentReport.resolvedBy">Resolved By</Translate>
+          </dt>
+          <dd>{contentReportEntity.resolvedBy ? contentReportEntity.resolvedBy.login : ''}</dd>
         </dl>
         <Button as={Link as any} to="/content-report" replace variant="info" data-cy="entityDetailsBackButton">
           <FontAwesomeIcon icon="arrow-left" />{' '}

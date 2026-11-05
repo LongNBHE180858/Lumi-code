@@ -1,7 +1,28 @@
 package com.lumi.domain.enumeration;
 
 /**
- * The RecordStatus enumeration.
+ * LUMI: 59 entities theo LUMI_DB_V1.4_59_tables_keep_coupons_subjects_grades.sql.
+ * Bổ sung UserProfile.birthDate (SQL birth_date date) theo yêu cầu đăng ký học sinh.
+ * Giữ Coupon/Subject/Grade; bỏ Tag/ProctorSession và mọi field webcam.
+ * File này mô tả domain để import JDL; không tự migrate database hoặc regenerate source hiện tại.
+ *
+ * CÁC GIỚI HẠN CẦN GIỮ KHI GENERATE JAVA/LIQUIBASE:
+ * - TextBlob cho JSONB/vector chỉ là placeholder JDL; cần mapping PostgreSQL JSONB/vector(768) thực tế.
+ * - Instant biểu diễn timestamp trong JDL; SQL gốc có cả timestamp và timestamptz, không tự đổi kiểu.
+ * - JDL không biểu diễn đầy đủ DEFAULT, precision/scale, CHECK, unique ghép, composite PK hoặc ON DELETE.
+ * SQL là nguồn chuẩn cho các ràng buộc đó; không áp schema generator mặc định thay SQL trực tiếp.
+ * - UserProfile(user_id), TeacherQuota(instructor_id), StudentStreak(student_id) dùng shared PK ở SQL.
+ * Cần mapping @MapsId/@JoinColumn tương ứng; JDL OneToOne không tự bảo đảm tên PK khớp SQL.
+ * - Composite PK: Wishlist(student_id,course_id), AssignmentStudent(assignment_id,student_id),
+ * KnowledgeEdge(from_node,to_node), StudentKnowledgeProgress(student_id,knowledge_node_id),
+ * ExamQuestion(exam_id,question_id), QuestionKnowledgeLink(question_id,knowledge_node_id).
+ * JDL mặc định tạo surrogate id: cần @EmbeddedId/@IdClass và migration đúng nếu giữ SQL hiện tại.
+ * - studyClass relationship phải @JoinColumn(name=\"class_id\"); JDL mặc định có thể tạo study_class_id.
+ * - KnowledgeEdge.fromNode/toNode phải map from_node/to_node, không phải from_node_id/to_node_id.
+ * - UserProfile.is2faEnabled phải map is_2fa_enabled, không phải is_2_fa_enabled.
+ * - Các field version/rowVersion cần cấu hình optimistic locking thực tế, không chỉ field Long.
+ * - Các giá trị CHECK trên varchar, FK chéo và quy tắc duyệt/quyền vẫn cần validation BE/SQL.
+ * - Không có webcam: securityConfig/securityConfigSnapshot chỉ cấu hình giám sát trình duyệt.
  */
 public enum RecordStatus {
     DRAFT,

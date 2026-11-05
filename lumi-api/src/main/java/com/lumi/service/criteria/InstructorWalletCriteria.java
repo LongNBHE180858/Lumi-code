@@ -32,7 +32,7 @@ public class InstructorWalletCriteria implements Serializable, Criteria {
 
     private LongFilter rowVersion;
 
-    private LongFilter userId;
+    private LongFilter instructorId;
 
     private Boolean distinct;
 
@@ -43,7 +43,7 @@ public class InstructorWalletCriteria implements Serializable, Criteria {
         this.pendingAmount = other.optionalPendingAmount().map(BigDecimalFilter::copy).orElse(null);
         this.availableAmount = other.optionalAvailableAmount().map(BigDecimalFilter::copy).orElse(null);
         this.rowVersion = other.optionalRowVersion().map(LongFilter::copy).orElse(null);
-        this.userId = other.optionalUserId().map(LongFilter::copy).orElse(null);
+        this.instructorId = other.optionalInstructorId().map(LongFilter::copy).orElse(null);
         this.distinct = other.distinct;
     }
 
@@ -128,23 +128,23 @@ public class InstructorWalletCriteria implements Serializable, Criteria {
         this.rowVersion = rowVersion;
     }
 
-    public LongFilter getUserId() {
-        return userId;
+    public LongFilter getInstructorId() {
+        return instructorId;
     }
 
-    public Optional<LongFilter> optionalUserId() {
-        return Optional.ofNullable(userId);
+    public Optional<LongFilter> optionalInstructorId() {
+        return Optional.ofNullable(instructorId);
     }
 
-    public LongFilter userId() {
-        if (userId == null) {
-            setUserId(new LongFilter());
+    public LongFilter instructorId() {
+        if (instructorId == null) {
+            setInstructorId(new LongFilter());
         }
-        return userId;
+        return instructorId;
     }
 
-    public void setUserId(LongFilter userId) {
-        this.userId = userId;
+    public void setInstructorId(LongFilter instructorId) {
+        this.instructorId = instructorId;
     }
 
     public Boolean getDistinct() {
@@ -180,14 +180,14 @@ public class InstructorWalletCriteria implements Serializable, Criteria {
             Objects.equals(pendingAmount, that.pendingAmount) &&
             Objects.equals(availableAmount, that.availableAmount) &&
             Objects.equals(rowVersion, that.rowVersion) &&
-            Objects.equals(userId, that.userId) &&
+            Objects.equals(instructorId, that.instructorId) &&
             Objects.equals(distinct, that.distinct)
         );
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, pendingAmount, availableAmount, rowVersion, userId, distinct);
+        return Objects.hash(id, pendingAmount, availableAmount, rowVersion, instructorId, distinct);
     }
 
     // prettier-ignore
@@ -198,7 +198,7 @@ public class InstructorWalletCriteria implements Serializable, Criteria {
             optionalPendingAmount().map(f -> "pendingAmount=" + f + ", ").orElse("") +
             optionalAvailableAmount().map(f -> "availableAmount=" + f + ", ").orElse("") +
             optionalRowVersion().map(f -> "rowVersion=" + f + ", ").orElse("") +
-            optionalUserId().map(f -> "userId=" + f + ", ").orElse("") +
+            optionalInstructorId().map(f -> "instructorId=" + f + ", ").orElse("") +
             optionalDistinct().map(f -> "distinct=" + f + ", ").orElse("") +
         "}";
     }

@@ -2,6 +2,8 @@ package com.lumi.service;
 
 import com.lumi.service.dto.PayoutRequestDTO;
 import java.util.Optional;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 /**
  * Service Interface for managing {@link com.lumi.domain.PayoutRequest}.
@@ -30,6 +32,14 @@ public interface PayoutRequestService {
      * @return the persisted entity.
      */
     Optional<PayoutRequestDTO> partialUpdate(PayoutRequestDTO payoutRequestDTO);
+
+    /**
+     * Get all the payoutRequests with eager load of many-to-many relationships.
+     *
+     * @param pageable the pagination information.
+     * @return the list of entities.
+     */
+    Page<PayoutRequestDTO> findAllWithEagerRelationships(Pageable pageable);
 
     /**
      * Get the "id" payoutRequest.

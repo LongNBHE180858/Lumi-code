@@ -2,6 +2,7 @@ package com.lumi.domain;
 
 import static com.lumi.domain.DiscussionTestSamples.*;
 import static com.lumi.domain.LessonTestSamples.*;
+import static com.lumi.domain.StudyClassTestSamples.*;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.lumi.web.rest.TestUtil;
@@ -33,5 +34,17 @@ class DiscussionTest {
 
         discussion.lesson(null);
         assertThat(discussion.getLesson()).isNull();
+    }
+
+    @Test
+    void studyClassTest() {
+        Discussion discussion = getDiscussionRandomSampleGenerator();
+        StudyClass studyClassBack = getStudyClassRandomSampleGenerator();
+
+        discussion.setStudyClass(studyClassBack);
+        assertThat(discussion.getStudyClass()).isEqualTo(studyClassBack);
+
+        discussion.studyClass(null);
+        assertThat(discussion.getStudyClass()).isNull();
     }
 }

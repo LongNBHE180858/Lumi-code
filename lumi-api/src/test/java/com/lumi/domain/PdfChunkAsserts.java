@@ -49,7 +49,9 @@ public class PdfChunkAsserts {
             .as("Verify PdfChunk relevant properties")
             .satisfies(a -> assertThat(a.getPageNumber()).as("check pageNumber").isEqualTo(expected.getPageNumber()))
             .satisfies(a -> assertThat(a.getChunkText()).as("check chunkText").isEqualTo(expected.getChunkText()))
-            .satisfies(a -> assertThat(a.getEmbedding()).as("check embedding").isEqualTo(expected.getEmbedding()));
+            .satisfies(a -> assertThat(a.getEmbedding()).as("check embedding").isEqualTo(expected.getEmbedding()))
+            .satisfies(a -> assertThat(a.getChunkIndex()).as("check chunkIndex").isEqualTo(expected.getChunkIndex()))
+            .satisfies(a -> assertThat(a.getIndexVersion()).as("check indexVersion").isEqualTo(expected.getIndexVersion()));
     }
 
     /**

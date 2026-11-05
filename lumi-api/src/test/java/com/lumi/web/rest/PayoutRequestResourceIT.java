@@ -5,25 +5,35 @@ import static com.lumi.web.rest.TestUtil.createUpdateProxyForBean;
 import static com.lumi.web.rest.TestUtil.sameNumber;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.hasItem;
+import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 import com.lumi.IntegrationTest;
 import com.lumi.domain.InstructorWallet;
 import com.lumi.domain.PayoutRequest;
+import com.lumi.domain.User;
 import com.lumi.repository.PayoutRequestRepository;
+import com.lumi.repository.UserRepository;
+import com.lumi.service.PayoutRequestService;
 import com.lumi.service.dto.PayoutRequestDTO;
 import com.lumi.service.mapper.PayoutRequestMapper;
 import jakarta.persistence.EntityManager;
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicLong;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
@@ -34,13 +44,14 @@ import tools.jackson.databind.ObjectMapper;
  * Integration tests for the {@link PayoutRequestResource} REST controller.
  */
 @IntegrationTest
+@ExtendWith(MockitoExtension.class)
 @AutoConfigureMockMvc
 @WithMockUser
 class PayoutRequestResourceIT {
 
-    private static final BigDecimal DEFAULT_AMOUNT = new BigDecimal(0);
-    private static final BigDecimal UPDATED_AMOUNT = new BigDecimal(1);
-    private static final BigDecimal SMALLER_AMOUNT = new BigDecimal(0 - 1);
+    private static final BigDecimal DEFAULT_AMOUNT = new BigDecimal(1);
+    private static final BigDecimal UPDATED_AMOUNT = new BigDecimal(2);
+    private static final BigDecimal SMALLER_AMOUNT = new BigDecimal(1 - 1);
 
     private static final String DEFAULT_BANK_CODE = "AAAAAAAAAA";
     private static final String UPDATED_BANK_CODE = "BBBBBBBBBB";
@@ -53,6 +64,21 @@ class PayoutRequestResourceIT {
 
     private static final Instant DEFAULT_CREATED_AT = Instant.ofEpochMilli(0L);
     private static final Instant UPDATED_CREATED_AT = Instant.ofEpochMilli(1791835009362L);
+
+    private static final String DEFAULT_ACCOUNT_HOLDER_NAME = "AAAAAAAAAA";
+    private static final String UPDATED_ACCOUNT_HOLDER_NAME = "BBBBBBBBBB";
+
+    private static final Instant DEFAULT_PROCESSED_AT = Instant.ofEpochMilli(0L);
+    private static final Instant UPDATED_PROCESSED_AT = Instant.ofEpochMilli(1791835009362L);
+
+    private static final String DEFAULT_REJECTION_REASON = "AAAAAAAAAA";
+    private static final String UPDATED_REJECTION_REASON = "BBBBBBBBBB";
+
+    private static final String DEFAULT_TRANSFER_REFERENCE = "AAAAAAAAAA";
+    private static final String UPDATED_TRANSFER_REFERENCE = "BBBBBBBBBB";
+
+    private static final Instant DEFAULT_UPDATED_AT = Instant.ofEpochMilli(0L);
+    private static final Instant UPDATED_UPDATED_AT = Instant.ofEpochMilli(1791835009362L);
 
     private static final String ENTITY_API_URL = "/api/payout-requests";
     private static final String ENTITY_API_URL_ID = ENTITY_API_URL + "/{id}";
@@ -67,7 +93,16 @@ class PayoutRequestResourceIT {
     private PayoutRequestRepository payoutRequestRepository;
 
     @Autowired
+    private UserRepository userRepository;
+
+    @Mock
+    private PayoutRequestRepository payoutRequestRepositoryMock;
+
+    @Autowired
     private PayoutRequestMapper payoutRequestMapper;
+
+    @Mock
+    private PayoutRequestService payoutRequestServiceMock;
 
     @Autowired
     private EntityManager em;
@@ -91,7 +126,12 @@ class PayoutRequestResourceIT {
             .bankCode(DEFAULT_BANK_CODE)
             .bankAccount(DEFAULT_BANK_ACCOUNT)
             .status(DEFAULT_STATUS)
-            .createdAt(DEFAULT_CREATED_AT);
+            .createdAt(DEFAULT_CREATED_AT)
+            .accountHolderName(DEFAULT_ACCOUNT_HOLDER_NAME)
+            .processedAt(DEFAULT_PROCESSED_AT)
+            .rejectionReason(DEFAULT_REJECTION_REASON)
+            .transferReference(DEFAULT_TRANSFER_REFERENCE)
+            .updatedAt(DEFAULT_UPDATED_AT);
         // Add required entity
         InstructorWallet instructorWallet;
         if (TestUtil.findAll(em, InstructorWallet.class).isEmpty()) {
@@ -117,7 +157,12 @@ class PayoutRequestResourceIT {
             .bankCode(UPDATED_BANK_CODE)
             .bankAccount(UPDATED_BANK_ACCOUNT)
             .status(UPDATED_STATUS)
-            .createdAt(UPDATED_CREATED_AT);
+            .createdAt(UPDATED_CREATED_AT)
+            .accountHolderName(UPDATED_ACCOUNT_HOLDER_NAME)
+            .processedAt(UPDATED_PROCESSED_AT)
+            .rejectionReason(UPDATED_REJECTION_REASON)
+            .transferReference(UPDATED_TRANSFER_REFERENCE)
+            .updatedAt(UPDATED_UPDATED_AT);
         // Add required entity
         InstructorWallet instructorWallet;
         if (TestUtil.findAll(em, InstructorWallet.class).isEmpty()) {
@@ -239,6 +284,40 @@ class PayoutRequestResourceIT {
 
     @Test
     @Transactional
+    void checkAccountHolderNameIsRequired() throws Exception {
+        long databaseSizeBeforeTest = getRepositoryCount();
+        // set the field null
+        payoutRequest.setAccountHolderName(null);
+
+        // Create the PayoutRequest, which fails.
+        PayoutRequestDTO payoutRequestDTO = payoutRequestMapper.toDto(payoutRequest);
+
+        restPayoutRequestMockMvc
+            .perform(post(ENTITY_API_URL).contentType(MediaType.APPLICATION_JSON).content(om.writeValueAsBytes(payoutRequestDTO)))
+            .andExpect(status().isBadRequest());
+
+        assertSameRepositoryCount(databaseSizeBeforeTest);
+    }
+
+    @Test
+    @Transactional
+    void checkUpdatedAtIsRequired() throws Exception {
+        long databaseSizeBeforeTest = getRepositoryCount();
+        // set the field null
+        payoutRequest.setUpdatedAt(null);
+
+        // Create the PayoutRequest, which fails.
+        PayoutRequestDTO payoutRequestDTO = payoutRequestMapper.toDto(payoutRequest);
+
+        restPayoutRequestMockMvc
+            .perform(post(ENTITY_API_URL).contentType(MediaType.APPLICATION_JSON).content(om.writeValueAsBytes(payoutRequestDTO)))
+            .andExpect(status().isBadRequest());
+
+        assertSameRepositoryCount(databaseSizeBeforeTest);
+    }
+
+    @Test
+    @Transactional
     void getAllPayoutRequests() throws Exception {
         // Initialize the database
         insertedPayoutRequest = payoutRequestRepository.saveAndFlush(payoutRequest);
@@ -253,7 +332,29 @@ class PayoutRequestResourceIT {
             .andExpect(jsonPath("$.[*].bankCode").value(hasItem(DEFAULT_BANK_CODE)))
             .andExpect(jsonPath("$.[*].bankAccount").value(hasItem(DEFAULT_BANK_ACCOUNT)))
             .andExpect(jsonPath("$.[*].status").value(hasItem(DEFAULT_STATUS)))
-            .andExpect(jsonPath("$.[*].createdAt").value(hasItem(DEFAULT_CREATED_AT.toString())));
+            .andExpect(jsonPath("$.[*].createdAt").value(hasItem(DEFAULT_CREATED_AT.toString())))
+            .andExpect(jsonPath("$.[*].accountHolderName").value(hasItem(DEFAULT_ACCOUNT_HOLDER_NAME)))
+            .andExpect(jsonPath("$.[*].processedAt").value(hasItem(DEFAULT_PROCESSED_AT.toString())))
+            .andExpect(jsonPath("$.[*].rejectionReason").value(hasItem(DEFAULT_REJECTION_REASON)))
+            .andExpect(jsonPath("$.[*].transferReference").value(hasItem(DEFAULT_TRANSFER_REFERENCE)))
+            .andExpect(jsonPath("$.[*].updatedAt").value(hasItem(DEFAULT_UPDATED_AT.toString())));
+    }
+
+    @SuppressWarnings({ "unchecked" })
+    void getAllPayoutRequestsWithEagerRelationshipsIsEnabled() throws Exception {
+        when(payoutRequestServiceMock.findAllWithEagerRelationships(any())).thenReturn(new PageImpl(new ArrayList<>()));
+
+        restPayoutRequestMockMvc.perform(get(ENTITY_API_URL + "?eagerload=true")).andExpect(status().isOk());
+
+        verify(payoutRequestServiceMock, times(1)).findAllWithEagerRelationships(any());
+    }
+
+    @SuppressWarnings({ "unchecked" })
+    void getAllPayoutRequestsWithEagerRelationshipsIsNotEnabled() throws Exception {
+        when(payoutRequestServiceMock.findAllWithEagerRelationships(any())).thenReturn(new PageImpl(new ArrayList<>()));
+
+        restPayoutRequestMockMvc.perform(get(ENTITY_API_URL + "?eagerload=false")).andExpect(status().isOk());
+        verify(payoutRequestRepositoryMock, times(1)).findAll(any(Pageable.class));
     }
 
     @Test
@@ -272,7 +373,12 @@ class PayoutRequestResourceIT {
             .andExpect(jsonPath("$.bankCode").value(DEFAULT_BANK_CODE))
             .andExpect(jsonPath("$.bankAccount").value(DEFAULT_BANK_ACCOUNT))
             .andExpect(jsonPath("$.status").value(DEFAULT_STATUS))
-            .andExpect(jsonPath("$.createdAt").value(DEFAULT_CREATED_AT.toString()));
+            .andExpect(jsonPath("$.createdAt").value(DEFAULT_CREATED_AT.toString()))
+            .andExpect(jsonPath("$.accountHolderName").value(DEFAULT_ACCOUNT_HOLDER_NAME))
+            .andExpect(jsonPath("$.processedAt").value(DEFAULT_PROCESSED_AT.toString()))
+            .andExpect(jsonPath("$.rejectionReason").value(DEFAULT_REJECTION_REASON))
+            .andExpect(jsonPath("$.transferReference").value(DEFAULT_TRANSFER_REFERENCE))
+            .andExpect(jsonPath("$.updatedAt").value(DEFAULT_UPDATED_AT.toString()));
     }
 
     @Test
@@ -551,6 +657,196 @@ class PayoutRequestResourceIT {
 
     @Test
     @Transactional
+    void getAllPayoutRequestsByAccountHolderNameIsEqualToSomething() throws Exception {
+        // Initialize the database
+        insertedPayoutRequest = payoutRequestRepository.saveAndFlush(payoutRequest);
+
+        // Get all the payoutRequestList where accountHolderName equals to
+        defaultPayoutRequestFiltering(
+            "accountHolderName.equals=" + DEFAULT_ACCOUNT_HOLDER_NAME,
+            "accountHolderName.equals=" + UPDATED_ACCOUNT_HOLDER_NAME
+        );
+    }
+
+    @Test
+    @Transactional
+    void getAllPayoutRequestsByAccountHolderNameIsInShouldWork() throws Exception {
+        // Initialize the database
+        insertedPayoutRequest = payoutRequestRepository.saveAndFlush(payoutRequest);
+
+        // Get all the payoutRequestList where accountHolderName in
+        defaultPayoutRequestFiltering(
+            "accountHolderName.in=" + DEFAULT_ACCOUNT_HOLDER_NAME + "," + UPDATED_ACCOUNT_HOLDER_NAME,
+            "accountHolderName.in=" + UPDATED_ACCOUNT_HOLDER_NAME
+        );
+    }
+
+    @Test
+    @Transactional
+    void getAllPayoutRequestsByAccountHolderNameIsNullOrNotNull() throws Exception {
+        // Initialize the database
+        insertedPayoutRequest = payoutRequestRepository.saveAndFlush(payoutRequest);
+
+        // Get all the payoutRequestList where accountHolderName is not null
+        defaultPayoutRequestFiltering("accountHolderName.specified=true", "accountHolderName.specified=false");
+    }
+
+    @Test
+    @Transactional
+    void getAllPayoutRequestsByAccountHolderNameContainsSomething() throws Exception {
+        // Initialize the database
+        insertedPayoutRequest = payoutRequestRepository.saveAndFlush(payoutRequest);
+
+        // Get all the payoutRequestList where accountHolderName contains
+        defaultPayoutRequestFiltering(
+            "accountHolderName.contains=" + DEFAULT_ACCOUNT_HOLDER_NAME,
+            "accountHolderName.contains=" + UPDATED_ACCOUNT_HOLDER_NAME
+        );
+    }
+
+    @Test
+    @Transactional
+    void getAllPayoutRequestsByAccountHolderNameNotContainsSomething() throws Exception {
+        // Initialize the database
+        insertedPayoutRequest = payoutRequestRepository.saveAndFlush(payoutRequest);
+
+        // Get all the payoutRequestList where accountHolderName does not contain
+        defaultPayoutRequestFiltering(
+            "accountHolderName.doesNotContain=" + UPDATED_ACCOUNT_HOLDER_NAME,
+            "accountHolderName.doesNotContain=" + DEFAULT_ACCOUNT_HOLDER_NAME
+        );
+    }
+
+    @Test
+    @Transactional
+    void getAllPayoutRequestsByProcessedAtIsEqualToSomething() throws Exception {
+        // Initialize the database
+        insertedPayoutRequest = payoutRequestRepository.saveAndFlush(payoutRequest);
+
+        // Get all the payoutRequestList where processedAt equals to
+        defaultPayoutRequestFiltering("processedAt.equals=" + DEFAULT_PROCESSED_AT, "processedAt.equals=" + UPDATED_PROCESSED_AT);
+    }
+
+    @Test
+    @Transactional
+    void getAllPayoutRequestsByProcessedAtIsInShouldWork() throws Exception {
+        // Initialize the database
+        insertedPayoutRequest = payoutRequestRepository.saveAndFlush(payoutRequest);
+
+        // Get all the payoutRequestList where processedAt in
+        defaultPayoutRequestFiltering(
+            "processedAt.in=" + DEFAULT_PROCESSED_AT + "," + UPDATED_PROCESSED_AT,
+            "processedAt.in=" + UPDATED_PROCESSED_AT
+        );
+    }
+
+    @Test
+    @Transactional
+    void getAllPayoutRequestsByProcessedAtIsNullOrNotNull() throws Exception {
+        // Initialize the database
+        insertedPayoutRequest = payoutRequestRepository.saveAndFlush(payoutRequest);
+
+        // Get all the payoutRequestList where processedAt is not null
+        defaultPayoutRequestFiltering("processedAt.specified=true", "processedAt.specified=false");
+    }
+
+    @Test
+    @Transactional
+    void getAllPayoutRequestsByTransferReferenceIsEqualToSomething() throws Exception {
+        // Initialize the database
+        insertedPayoutRequest = payoutRequestRepository.saveAndFlush(payoutRequest);
+
+        // Get all the payoutRequestList where transferReference equals to
+        defaultPayoutRequestFiltering(
+            "transferReference.equals=" + DEFAULT_TRANSFER_REFERENCE,
+            "transferReference.equals=" + UPDATED_TRANSFER_REFERENCE
+        );
+    }
+
+    @Test
+    @Transactional
+    void getAllPayoutRequestsByTransferReferenceIsInShouldWork() throws Exception {
+        // Initialize the database
+        insertedPayoutRequest = payoutRequestRepository.saveAndFlush(payoutRequest);
+
+        // Get all the payoutRequestList where transferReference in
+        defaultPayoutRequestFiltering(
+            "transferReference.in=" + DEFAULT_TRANSFER_REFERENCE + "," + UPDATED_TRANSFER_REFERENCE,
+            "transferReference.in=" + UPDATED_TRANSFER_REFERENCE
+        );
+    }
+
+    @Test
+    @Transactional
+    void getAllPayoutRequestsByTransferReferenceIsNullOrNotNull() throws Exception {
+        // Initialize the database
+        insertedPayoutRequest = payoutRequestRepository.saveAndFlush(payoutRequest);
+
+        // Get all the payoutRequestList where transferReference is not null
+        defaultPayoutRequestFiltering("transferReference.specified=true", "transferReference.specified=false");
+    }
+
+    @Test
+    @Transactional
+    void getAllPayoutRequestsByTransferReferenceContainsSomething() throws Exception {
+        // Initialize the database
+        insertedPayoutRequest = payoutRequestRepository.saveAndFlush(payoutRequest);
+
+        // Get all the payoutRequestList where transferReference contains
+        defaultPayoutRequestFiltering(
+            "transferReference.contains=" + DEFAULT_TRANSFER_REFERENCE,
+            "transferReference.contains=" + UPDATED_TRANSFER_REFERENCE
+        );
+    }
+
+    @Test
+    @Transactional
+    void getAllPayoutRequestsByTransferReferenceNotContainsSomething() throws Exception {
+        // Initialize the database
+        insertedPayoutRequest = payoutRequestRepository.saveAndFlush(payoutRequest);
+
+        // Get all the payoutRequestList where transferReference does not contain
+        defaultPayoutRequestFiltering(
+            "transferReference.doesNotContain=" + UPDATED_TRANSFER_REFERENCE,
+            "transferReference.doesNotContain=" + DEFAULT_TRANSFER_REFERENCE
+        );
+    }
+
+    @Test
+    @Transactional
+    void getAllPayoutRequestsByUpdatedAtIsEqualToSomething() throws Exception {
+        // Initialize the database
+        insertedPayoutRequest = payoutRequestRepository.saveAndFlush(payoutRequest);
+
+        // Get all the payoutRequestList where updatedAt equals to
+        defaultPayoutRequestFiltering("updatedAt.equals=" + DEFAULT_UPDATED_AT, "updatedAt.equals=" + UPDATED_UPDATED_AT);
+    }
+
+    @Test
+    @Transactional
+    void getAllPayoutRequestsByUpdatedAtIsInShouldWork() throws Exception {
+        // Initialize the database
+        insertedPayoutRequest = payoutRequestRepository.saveAndFlush(payoutRequest);
+
+        // Get all the payoutRequestList where updatedAt in
+        defaultPayoutRequestFiltering(
+            "updatedAt.in=" + DEFAULT_UPDATED_AT + "," + UPDATED_UPDATED_AT,
+            "updatedAt.in=" + UPDATED_UPDATED_AT
+        );
+    }
+
+    @Test
+    @Transactional
+    void getAllPayoutRequestsByUpdatedAtIsNullOrNotNull() throws Exception {
+        // Initialize the database
+        insertedPayoutRequest = payoutRequestRepository.saveAndFlush(payoutRequest);
+
+        // Get all the payoutRequestList where updatedAt is not null
+        defaultPayoutRequestFiltering("updatedAt.specified=true", "updatedAt.specified=false");
+    }
+
+    @Test
+    @Transactional
     void getAllPayoutRequestsByWalletIsEqualToSomething() throws Exception {
         InstructorWallet wallet;
         if (TestUtil.findAll(em, InstructorWallet.class).isEmpty()) {
@@ -571,6 +867,28 @@ class PayoutRequestResourceIT {
         defaultPayoutRequestShouldNotBeFound("walletId.equals=" + (walletId + 1));
     }
 
+    @Test
+    @Transactional
+    void getAllPayoutRequestsByProcessedByIsEqualToSomething() throws Exception {
+        User processedBy;
+        if (TestUtil.findAll(em, User.class).isEmpty()) {
+            payoutRequestRepository.saveAndFlush(payoutRequest);
+            processedBy = UserResourceIT.createEntity();
+        } else {
+            processedBy = TestUtil.findAll(em, User.class).getFirst();
+        }
+        em.persist(processedBy);
+        em.flush();
+        payoutRequest.setProcessedBy(processedBy);
+        payoutRequestRepository.saveAndFlush(payoutRequest);
+        Long processedById = processedBy.getId();
+        // Get all the payoutRequestList where processedBy equals to processedById
+        defaultPayoutRequestShouldBeFound("processedById.equals=" + processedById);
+
+        // Get all the payoutRequestList where processedBy equals to (processedById + 1)
+        defaultPayoutRequestShouldNotBeFound("processedById.equals=" + (processedById + 1));
+    }
+
     private void defaultPayoutRequestFiltering(String shouldBeFound, String shouldNotBeFound) throws Exception {
         defaultPayoutRequestShouldBeFound(shouldBeFound);
         defaultPayoutRequestShouldNotBeFound(shouldNotBeFound);
@@ -589,7 +907,12 @@ class PayoutRequestResourceIT {
             .andExpect(jsonPath("$.[*].bankCode").value(hasItem(DEFAULT_BANK_CODE)))
             .andExpect(jsonPath("$.[*].bankAccount").value(hasItem(DEFAULT_BANK_ACCOUNT)))
             .andExpect(jsonPath("$.[*].status").value(hasItem(DEFAULT_STATUS)))
-            .andExpect(jsonPath("$.[*].createdAt").value(hasItem(DEFAULT_CREATED_AT.toString())));
+            .andExpect(jsonPath("$.[*].createdAt").value(hasItem(DEFAULT_CREATED_AT.toString())))
+            .andExpect(jsonPath("$.[*].accountHolderName").value(hasItem(DEFAULT_ACCOUNT_HOLDER_NAME)))
+            .andExpect(jsonPath("$.[*].processedAt").value(hasItem(DEFAULT_PROCESSED_AT.toString())))
+            .andExpect(jsonPath("$.[*].rejectionReason").value(hasItem(DEFAULT_REJECTION_REASON)))
+            .andExpect(jsonPath("$.[*].transferReference").value(hasItem(DEFAULT_TRANSFER_REFERENCE)))
+            .andExpect(jsonPath("$.[*].updatedAt").value(hasItem(DEFAULT_UPDATED_AT.toString())));
 
         // Check, that the count call also returns 1
         restPayoutRequestMockMvc
@@ -642,7 +965,12 @@ class PayoutRequestResourceIT {
             .bankCode(UPDATED_BANK_CODE)
             .bankAccount(UPDATED_BANK_ACCOUNT)
             .status(UPDATED_STATUS)
-            .createdAt(UPDATED_CREATED_AT);
+            .createdAt(UPDATED_CREATED_AT)
+            .accountHolderName(UPDATED_ACCOUNT_HOLDER_NAME)
+            .processedAt(UPDATED_PROCESSED_AT)
+            .rejectionReason(UPDATED_REJECTION_REASON)
+            .transferReference(UPDATED_TRANSFER_REFERENCE)
+            .updatedAt(UPDATED_UPDATED_AT);
         PayoutRequestDTO payoutRequestDTO = payoutRequestMapper.toDto(updatedPayoutRequest);
 
         restPayoutRequestMockMvc
@@ -737,7 +1065,8 @@ class PayoutRequestResourceIT {
             .bankCode(UPDATED_BANK_CODE)
             .bankAccount(UPDATED_BANK_ACCOUNT)
             .status(UPDATED_STATUS)
-            .createdAt(UPDATED_CREATED_AT);
+            .createdAt(UPDATED_CREATED_AT)
+            .accountHolderName(UPDATED_ACCOUNT_HOLDER_NAME);
 
         restPayoutRequestMockMvc
             .perform(
@@ -773,7 +1102,12 @@ class PayoutRequestResourceIT {
             .bankCode(UPDATED_BANK_CODE)
             .bankAccount(UPDATED_BANK_ACCOUNT)
             .status(UPDATED_STATUS)
-            .createdAt(UPDATED_CREATED_AT);
+            .createdAt(UPDATED_CREATED_AT)
+            .accountHolderName(UPDATED_ACCOUNT_HOLDER_NAME)
+            .processedAt(UPDATED_PROCESSED_AT)
+            .rejectionReason(UPDATED_REJECTION_REASON)
+            .transferReference(UPDATED_TRANSFER_REFERENCE)
+            .updatedAt(UPDATED_UPDATED_AT);
 
         restPayoutRequestMockMvc
             .perform(

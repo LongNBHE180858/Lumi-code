@@ -1,5 +1,7 @@
 package com.lumi.service.dto;
 
+import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.persistence.Lob;
 import jakarta.validation.constraints.*;
 import java.io.Serializable;
 import java.time.Instant;
@@ -8,6 +10,7 @@ import java.util.Objects;
 /**
  * A DTO for the {@link com.lumi.domain.CourseReview} entity.
  */
+@Schema(description = "Lưu đánh giá sao và nhận xét của học sinh về khóa học.")
 @SuppressWarnings("common-java:DuplicatedBlocks")
 public class CourseReviewDTO implements Serializable {
 
@@ -17,16 +20,19 @@ public class CourseReviewDTO implements Serializable {
     @Max(value = 5)
     private Integer rating;
 
-    @Size(max = 5000)
+    @Lob
     private String content;
 
     private Instant createdAt;
 
     @NotNull
-    private UserDTO student;
+    private Instant updatedAt;
 
     @NotNull
     private CourseDTO course;
+
+    @NotNull
+    private UserDTO student;
 
     public Long getId() {
         return id;
@@ -60,12 +66,12 @@ public class CourseReviewDTO implements Serializable {
         this.createdAt = createdAt;
     }
 
-    public UserDTO getStudent() {
-        return student;
+    public Instant getUpdatedAt() {
+        return updatedAt;
     }
 
-    public void setStudent(UserDTO student) {
-        this.student = student;
+    public void setUpdatedAt(Instant updatedAt) {
+        this.updatedAt = updatedAt;
     }
 
     public CourseDTO getCourse() {
@@ -74,6 +80,14 @@ public class CourseReviewDTO implements Serializable {
 
     public void setCourse(CourseDTO course) {
         this.course = course;
+    }
+
+    public UserDTO getStudent() {
+        return student;
+    }
+
+    public void setStudent(UserDTO student) {
+        this.student = student;
     }
 
     @Override
@@ -105,8 +119,9 @@ public class CourseReviewDTO implements Serializable {
             ", rating=" + getRating() +
             ", content='" + getContent() + "'" +
             ", createdAt='" + getCreatedAt() + "'" +
-            ", student=" + getStudent() +
+            ", updatedAt='" + getUpdatedAt() + "'" +
             ", course=" + getCourse() +
+            ", student=" + getStudent() +
             "}";
     }
 }

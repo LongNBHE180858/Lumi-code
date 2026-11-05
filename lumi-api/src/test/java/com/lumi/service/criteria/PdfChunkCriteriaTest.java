@@ -73,8 +73,8 @@ class PdfChunkCriteriaTest {
     private static void setAllFilters(PdfChunkCriteria pdfChunkCriteria) {
         pdfChunkCriteria.id();
         pdfChunkCriteria.pageNumber();
-        pdfChunkCriteria.chunkText();
-        pdfChunkCriteria.embedding();
+        pdfChunkCriteria.chunkIndex();
+        pdfChunkCriteria.indexVersion();
         pdfChunkCriteria.materialId();
         pdfChunkCriteria.distinct();
     }
@@ -84,8 +84,8 @@ class PdfChunkCriteriaTest {
             criteria ->
                 condition.apply(criteria.getId()) &&
                 condition.apply(criteria.getPageNumber()) &&
-                condition.apply(criteria.getChunkText()) &&
-                condition.apply(criteria.getEmbedding()) &&
+                condition.apply(criteria.getChunkIndex()) &&
+                condition.apply(criteria.getIndexVersion()) &&
                 condition.apply(criteria.getMaterialId()) &&
                 condition.apply(criteria.getDistinct()),
             "every filter matches"
@@ -97,8 +97,8 @@ class PdfChunkCriteriaTest {
             criteria ->
                 condition.apply(criteria.getId(), copy.getId()) &&
                 condition.apply(criteria.getPageNumber(), copy.getPageNumber()) &&
-                condition.apply(criteria.getChunkText(), copy.getChunkText()) &&
-                condition.apply(criteria.getEmbedding(), copy.getEmbedding()) &&
+                condition.apply(criteria.getChunkIndex(), copy.getChunkIndex()) &&
+                condition.apply(criteria.getIndexVersion(), copy.getIndexVersion()) &&
                 condition.apply(criteria.getMaterialId(), copy.getMaterialId()) &&
                 condition.apply(criteria.getDistinct(), copy.getDistinct()),
             "every filter matches"

@@ -5,7 +5,6 @@ import type { CatalogInput, CatalogItem, CatalogKind } from '../catalog-api';
 interface CatalogFormDialogProps {
   kind: CatalogKind;
   singular: string;
-  items: CatalogItem[];
   editing: CatalogItem | null;
   form: CatalogInput;
   setForm: React.Dispatch<React.SetStateAction<CatalogInput>>;
@@ -15,18 +14,7 @@ interface CatalogFormDialogProps {
   save: (event: React.FormEvent) => void;
 }
 
-const CatalogFormDialog = ({
-  kind,
-  singular,
-  items,
-  editing,
-  form,
-  setForm,
-  formError,
-  saving,
-  closeForm,
-  save,
-}: CatalogFormDialogProps) => (
+const CatalogFormDialog = ({ kind, singular, editing, form, setForm, formError, saving, closeForm, save }: CatalogFormDialogProps) => (
   <div
     className="admin-catalog-overlay"
     role="presentation"
@@ -69,25 +57,7 @@ const CatalogFormDialog = ({
             />
           </label>
         )}
-        {kind === 'categories' && (
-          <label>
-            Danh mục cha
-            <select
-              value={form.parentId ?? ''}
-              onChange={event => setForm(current => ({ ...current, parentId: event.target.value ? Number(event.target.value) : null }))}
-            >
-              <option value="">Không có</option>
-              {items
-                .filter(item => item.active && item.id !== editing?.id)
-                .map(item => (
-                  <option key={item.id} value={item.id}>
-                    {item.name}
-                  </option>
-                ))}
-            </select>
-          </label>
-        )}
-        {(kind === 'subjects' || kind === 'categories') && (
+        {kind === 'subjects' && (
           <label>
             Mô tả
             <textarea

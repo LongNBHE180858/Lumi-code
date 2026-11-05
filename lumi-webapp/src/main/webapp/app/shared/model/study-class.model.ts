@@ -17,6 +17,8 @@ export interface IStudyClass {
   status?: keyof typeof RecordStatus | null;
   isDeleted?: boolean | null;
   createdAt?: dayjs.Dayjs | null;
+  joinCodeExpiresAt?: dayjs.Dayjs | null;
+  updatedAt?: dayjs.Dayjs;
   instructor?: IUser;
   subject?: ISubject | null;
   grade?: IGrade | null;

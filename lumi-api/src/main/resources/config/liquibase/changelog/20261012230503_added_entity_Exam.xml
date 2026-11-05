@@ -10,7 +10,7 @@
         Added the entity Exam.
     -->
     <changeSet id="20261012230503-1" author="jhipster">
-        <createTable tableName="exam">
+        <createTable tableName="exams" remarks="Lưu đề đánh giá, bài luyện, checkpoint video và cấu hình tổ chức làm bài.">
             <column name="id" type="bigint">
                 <constraints primaryKey="true" nullable="false"/>
             </column>
@@ -35,11 +35,53 @@
             <column name="is_deleted" type="boolean">
                 <constraints nullable="true" />
             </column>
+            <column name="opens_at" type="${datetimeType}">
+                <constraints nullable="true" />
+            </column>
+            <column name="closes_at" type="${datetimeType}">
+                <constraints nullable="true" />
+            </column>
+            <column name="result_release_mode" type="varchar(20)">
+                <constraints nullable="false" />
+            </column>
+            <column name="answer_release_mode" type="varchar(20)">
+                <constraints nullable="false" />
+            </column>
+            <column name="version" type="bigint">
+                <constraints nullable="false" />
+            </column>
+            <column name="created_at" type="${datetimeType}">
+                <constraints nullable="false" />
+            </column>
+            <column name="assessment_type" type="varchar(30)">
+                <constraints nullable="false" />
+            </column>
+            <column name="video_trigger_seconds" type="decimal(21,2)">
+                <constraints nullable="true" />
+            </column>
+            <column name="assessment_config" type="${clobType}">
+                <constraints nullable="false" />
+            </column>
+            <column name="security_config" type="${clobType}">
+                <constraints nullable="false" />
+            </column>
             <column name="study_class_id" type="bigint">
+                <constraints nullable="true" />
+            </column>
+            <column name="created_by_id" type="bigint">
+                <constraints nullable="false" />
+            </column>
+            <column name="lesson_id" type="bigint">
+                <constraints nullable="true" />
+            </column>
+            <column name="assigned_student_id" type="bigint">
                 <constraints nullable="true" />
             </column>
             <!-- jhipster-needle-liquibase-add-column - JHipster will add columns here -->
         </createTable>
+        <dropDefaultValue tableName="exams" columnName="opens_at" columnDataType="${datetimeType}"/>
+        <dropDefaultValue tableName="exams" columnName="closes_at" columnDataType="${datetimeType}"/>
+        <dropDefaultValue tableName="exams" columnName="created_at" columnDataType="${datetimeType}"/>
     </changeSet>
 
     <!-- jhipster-needle-liquibase-add-changeset - JHipster will add changesets here -->
@@ -54,10 +96,10 @@
     -->
     <changeSet id="20261012230503-1-data" author="jhipster" context="faker">
         <loadData
-                  file="../fake-data/exam.csv"
+                  file="../fake-data/exams.csv"
                   relativeToChangelogFile="true"
                   separator=";"
-                  tableName="exam"
+                  tableName="exams"
                   usePreparedStatements="true">
             <column name="id" type="numeric"/>
             <column name="title" type="string"/>
@@ -67,6 +109,17 @@
             <column name="shuffle_questions" type="boolean"/>
             <column name="status" type="string"/>
             <column name="is_deleted" type="boolean"/>
+            <column name="opens_at" type="date"/>
+            <column name="closes_at" type="date"/>
+            <column name="result_release_mode" type="string"/>
+            <column name="answer_release_mode" type="string"/>
+            <column name="version" type="numeric"/>
+            <column name="created_at" type="date"/>
+            <column name="assessment_type" type="string"/>
+            <column name="video_trigger_seconds" type="numeric"/>
+            <column name="assessment_config" type="clob"/>
+            <column name="security_config" type="clob"/>
+            <column name="created_by_id" type="numeric"/>
             <!-- jhipster-needle-liquibase-add-loadcolumn - JHipster (and/or extensions) can add load columns here -->
         </loadData>
     </changeSet>

@@ -2,6 +2,8 @@ package com.lumi.domain;
 
 import static com.lumi.domain.CourseOrderTestSamples.*;
 import static com.lumi.domain.InstructorWalletTestSamples.*;
+import static com.lumi.domain.PayoutRequestTestSamples.*;
+import static com.lumi.domain.RefundTestSamples.*;
 import static com.lumi.domain.WalletTransactionTestSamples.*;
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -46,5 +48,29 @@ class WalletTransactionTest {
 
         walletTransaction.order(null);
         assertThat(walletTransaction.getOrder()).isNull();
+    }
+
+    @Test
+    void payoutRequestTest() {
+        WalletTransaction walletTransaction = getWalletTransactionRandomSampleGenerator();
+        PayoutRequest payoutRequestBack = getPayoutRequestRandomSampleGenerator();
+
+        walletTransaction.setPayoutRequest(payoutRequestBack);
+        assertThat(walletTransaction.getPayoutRequest()).isEqualTo(payoutRequestBack);
+
+        walletTransaction.payoutRequest(null);
+        assertThat(walletTransaction.getPayoutRequest()).isNull();
+    }
+
+    @Test
+    void refundTest() {
+        WalletTransaction walletTransaction = getWalletTransactionRandomSampleGenerator();
+        Refund refundBack = getRefundRandomSampleGenerator();
+
+        walletTransaction.setRefund(refundBack);
+        assertThat(walletTransaction.getRefund()).isEqualTo(refundBack);
+
+        walletTransaction.refund(null);
+        assertThat(walletTransaction.getRefund()).isNull();
     }
 }

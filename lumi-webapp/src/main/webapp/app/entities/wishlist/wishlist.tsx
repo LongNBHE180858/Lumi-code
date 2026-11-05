@@ -51,7 +51,7 @@ const savedAt = (wishlist: IWishlist) => (wishlist.createdAt ? dayjs(wishlist.cr
 
 export const Wishlist = () => {
   const dispatch = useAppDispatch();
-  const wishlistList = useAppSelector(state => state.wishlist.entities);
+  const wishlistList = useAppSelector<IWishlist[]>(state => state.wishlist.entities);
   const loading = useAppSelector(state => state.wishlist.loading);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedGrade, setSelectedGrade] = useState('');
@@ -264,7 +264,7 @@ export const Wishlist = () => {
           <div className="wishlist-results" aria-live="polite">
             <p>
               <Translate contentKey="lumiApp.wishlist.screen.resultCount" interpolate={{ count: filteredWishlists.length }}>
-                {filteredWishlists.length} khóa học đã lưu
+                {String(filteredWishlists.length)} khóa học đã lưu
               </Translate>
             </p>
             <div className="wishlist-results__meta">
@@ -398,7 +398,7 @@ export const Wishlist = () => {
                                 contentKey="lumiApp.wishlist.screen.accessDuration"
                                 interpolate={{ days: course.validDurationDays }}
                               >
-                                Truy cập {course.validDurationDays} ngày
+                                Truy cập {String(course.validDurationDays)} ngày
                               </Translate>
                             </span>
                           )}
@@ -414,7 +414,7 @@ export const Wishlist = () => {
                         {wishlist.createdAt && (
                           <span className="wishlist-course-card__saved-date">
                             <Translate contentKey="lumiApp.wishlist.screen.savedAt">Đã lưu</Translate>{' '}
-                            <TextFormat type="date" value={wishlist.createdAt} format="DD/MM/YYYY" />
+                            <TextFormat type="date" value={dayjs(wishlist.createdAt).toDate()} format="DD/MM/YYYY" />
                           </span>
                         )}
                       </div>

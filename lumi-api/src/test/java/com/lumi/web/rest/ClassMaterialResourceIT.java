@@ -4,7 +4,6 @@ import static com.lumi.domain.ClassMaterialAsserts.*;
 import static com.lumi.web.rest.TestUtil.createUpdateProxyForBean;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.hasItem;
-import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -12,24 +11,17 @@ import com.lumi.IntegrationTest;
 import com.lumi.domain.ClassMaterial;
 import com.lumi.domain.StudyClass;
 import com.lumi.repository.ClassMaterialRepository;
-import com.lumi.service.ClassMaterialService;
 import com.lumi.service.dto.ClassMaterialDTO;
 import com.lumi.service.mapper.ClassMaterialMapper;
 import jakarta.persistence.EntityManager;
 import java.time.Instant;
-import java.util.ArrayList;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicLong;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
@@ -40,7 +32,6 @@ import tools.jackson.databind.ObjectMapper;
  * Integration tests for the {@link ClassMaterialResource} REST controller.
  */
 @IntegrationTest
-@ExtendWith(MockitoExtension.class)
 @AutoConfigureMockMvc
 @WithMockUser
 class ClassMaterialResourceIT {
@@ -54,12 +45,18 @@ class ClassMaterialResourceIT {
     private static final String DEFAULT_FILE_URL = "AAAAAAAAAA";
     private static final String UPDATED_FILE_URL = "BBBBBBBBBB";
 
-    private static final Long DEFAULT_FILE_SIZE_BYTES = 0L;
-    private static final Long UPDATED_FILE_SIZE_BYTES = 1L;
-    private static final Long SMALLER_FILE_SIZE_BYTES = 0L - 1L;
+    private static final Long DEFAULT_FILE_SIZE_BYTES = 1L;
+    private static final Long UPDATED_FILE_SIZE_BYTES = 2L;
+    private static final Long SMALLER_FILE_SIZE_BYTES = 1L - 1L;
 
     private static final Instant DEFAULT_UPLOADED_AT = Instant.ofEpochMilli(0L);
     private static final Instant UPDATED_UPLOADED_AT = Instant.ofEpochMilli(1791835009362L);
+
+    private static final String DEFAULT_FILE_OBJECT_KEY = "AAAAAAAAAA";
+    private static final String UPDATED_FILE_OBJECT_KEY = "BBBBBBBBBB";
+
+    private static final Instant DEFAULT_UPDATED_AT = Instant.ofEpochMilli(0L);
+    private static final Instant UPDATED_UPDATED_AT = Instant.ofEpochMilli(1791835009362L);
 
     private static final String ENTITY_API_URL = "/api/class-materials";
     private static final String ENTITY_API_URL_ID = ENTITY_API_URL + "/{id}";
@@ -73,14 +70,8 @@ class ClassMaterialResourceIT {
     @Autowired
     private ClassMaterialRepository classMaterialRepository;
 
-    @Mock
-    private ClassMaterialRepository classMaterialRepositoryMock;
-
     @Autowired
     private ClassMaterialMapper classMaterialMapper;
-
-    @Mock
-    private ClassMaterialService classMaterialServiceMock;
 
     @Autowired
     private EntityManager em;
@@ -104,7 +95,9 @@ class ClassMaterialResourceIT {
             .fileType(DEFAULT_FILE_TYPE)
             .fileUrl(DEFAULT_FILE_URL)
             .fileSizeBytes(DEFAULT_FILE_SIZE_BYTES)
-            .uploadedAt(DEFAULT_UPLOADED_AT);
+            .uploadedAt(DEFAULT_UPLOADED_AT)
+            .fileObjectKey(DEFAULT_FILE_OBJECT_KEY)
+            .updatedAt(DEFAULT_UPDATED_AT);
         // Add required entity
         StudyClass studyClass;
         if (TestUtil.findAll(em, StudyClass.class).isEmpty()) {
@@ -130,7 +123,9 @@ class ClassMaterialResourceIT {
             .fileType(UPDATED_FILE_TYPE)
             .fileUrl(UPDATED_FILE_URL)
             .fileSizeBytes(UPDATED_FILE_SIZE_BYTES)
-            .uploadedAt(UPDATED_UPLOADED_AT);
+            .uploadedAt(UPDATED_UPLOADED_AT)
+            .fileObjectKey(UPDATED_FILE_OBJECT_KEY)
+            .updatedAt(UPDATED_UPDATED_AT);
         // Add required entity
         StudyClass studyClass;
         if (TestUtil.findAll(em, StudyClass.class).isEmpty()) {
@@ -269,6 +264,23 @@ class ClassMaterialResourceIT {
 
     @Test
     @Transactional
+    void checkUpdatedAtIsRequired() throws Exception {
+        long databaseSizeBeforeTest = getRepositoryCount();
+        // set the field null
+        classMaterial.setUpdatedAt(null);
+
+        // Create the ClassMaterial, which fails.
+        ClassMaterialDTO classMaterialDTO = classMaterialMapper.toDto(classMaterial);
+
+        restClassMaterialMockMvc
+            .perform(post(ENTITY_API_URL).contentType(MediaType.APPLICATION_JSON).content(om.writeValueAsBytes(classMaterialDTO)))
+            .andExpect(status().isBadRequest());
+
+        assertSameRepositoryCount(databaseSizeBeforeTest);
+    }
+
+    @Test
+    @Transactional
     void getAllClassMaterials() throws Exception {
         // Initialize the database
         insertedClassMaterial = classMaterialRepository.saveAndFlush(classMaterial);
@@ -283,24 +295,9 @@ class ClassMaterialResourceIT {
             .andExpect(jsonPath("$.[*].fileType").value(hasItem(DEFAULT_FILE_TYPE)))
             .andExpect(jsonPath("$.[*].fileUrl").value(hasItem(DEFAULT_FILE_URL)))
             .andExpect(jsonPath("$.[*].fileSizeBytes").value(hasItem(DEFAULT_FILE_SIZE_BYTES.intValue())))
-            .andExpect(jsonPath("$.[*].uploadedAt").value(hasItem(DEFAULT_UPLOADED_AT.toString())));
-    }
-
-    @SuppressWarnings({ "unchecked" })
-    void getAllClassMaterialsWithEagerRelationshipsIsEnabled() throws Exception {
-        when(classMaterialServiceMock.findAllWithEagerRelationships(any())).thenReturn(new PageImpl(new ArrayList<>()));
-
-        restClassMaterialMockMvc.perform(get(ENTITY_API_URL + "?eagerload=true")).andExpect(status().isOk());
-
-        verify(classMaterialServiceMock, times(1)).findAllWithEagerRelationships(any());
-    }
-
-    @SuppressWarnings({ "unchecked" })
-    void getAllClassMaterialsWithEagerRelationshipsIsNotEnabled() throws Exception {
-        when(classMaterialServiceMock.findAllWithEagerRelationships(any())).thenReturn(new PageImpl(new ArrayList<>()));
-
-        restClassMaterialMockMvc.perform(get(ENTITY_API_URL + "?eagerload=false")).andExpect(status().isOk());
-        verify(classMaterialRepositoryMock, times(1)).findAll(any(Pageable.class));
+            .andExpect(jsonPath("$.[*].uploadedAt").value(hasItem(DEFAULT_UPLOADED_AT.toString())))
+            .andExpect(jsonPath("$.[*].fileObjectKey").value(hasItem(DEFAULT_FILE_OBJECT_KEY)))
+            .andExpect(jsonPath("$.[*].updatedAt").value(hasItem(DEFAULT_UPDATED_AT.toString())));
     }
 
     @Test
@@ -319,7 +316,9 @@ class ClassMaterialResourceIT {
             .andExpect(jsonPath("$.fileType").value(DEFAULT_FILE_TYPE))
             .andExpect(jsonPath("$.fileUrl").value(DEFAULT_FILE_URL))
             .andExpect(jsonPath("$.fileSizeBytes").value(DEFAULT_FILE_SIZE_BYTES.intValue()))
-            .andExpect(jsonPath("$.uploadedAt").value(DEFAULT_UPLOADED_AT.toString()));
+            .andExpect(jsonPath("$.uploadedAt").value(DEFAULT_UPLOADED_AT.toString()))
+            .andExpect(jsonPath("$.fileObjectKey").value(DEFAULT_FILE_OBJECT_KEY))
+            .andExpect(jsonPath("$.updatedAt").value(DEFAULT_UPDATED_AT.toString()));
     }
 
     @Test
@@ -607,6 +606,98 @@ class ClassMaterialResourceIT {
 
     @Test
     @Transactional
+    void getAllClassMaterialsByFileObjectKeyIsEqualToSomething() throws Exception {
+        // Initialize the database
+        insertedClassMaterial = classMaterialRepository.saveAndFlush(classMaterial);
+
+        // Get all the classMaterialList where fileObjectKey equals to
+        defaultClassMaterialFiltering("fileObjectKey.equals=" + DEFAULT_FILE_OBJECT_KEY, "fileObjectKey.equals=" + UPDATED_FILE_OBJECT_KEY);
+    }
+
+    @Test
+    @Transactional
+    void getAllClassMaterialsByFileObjectKeyIsInShouldWork() throws Exception {
+        // Initialize the database
+        insertedClassMaterial = classMaterialRepository.saveAndFlush(classMaterial);
+
+        // Get all the classMaterialList where fileObjectKey in
+        defaultClassMaterialFiltering(
+            "fileObjectKey.in=" + DEFAULT_FILE_OBJECT_KEY + "," + UPDATED_FILE_OBJECT_KEY,
+            "fileObjectKey.in=" + UPDATED_FILE_OBJECT_KEY
+        );
+    }
+
+    @Test
+    @Transactional
+    void getAllClassMaterialsByFileObjectKeyIsNullOrNotNull() throws Exception {
+        // Initialize the database
+        insertedClassMaterial = classMaterialRepository.saveAndFlush(classMaterial);
+
+        // Get all the classMaterialList where fileObjectKey is not null
+        defaultClassMaterialFiltering("fileObjectKey.specified=true", "fileObjectKey.specified=false");
+    }
+
+    @Test
+    @Transactional
+    void getAllClassMaterialsByFileObjectKeyContainsSomething() throws Exception {
+        // Initialize the database
+        insertedClassMaterial = classMaterialRepository.saveAndFlush(classMaterial);
+
+        // Get all the classMaterialList where fileObjectKey contains
+        defaultClassMaterialFiltering(
+            "fileObjectKey.contains=" + DEFAULT_FILE_OBJECT_KEY,
+            "fileObjectKey.contains=" + UPDATED_FILE_OBJECT_KEY
+        );
+    }
+
+    @Test
+    @Transactional
+    void getAllClassMaterialsByFileObjectKeyNotContainsSomething() throws Exception {
+        // Initialize the database
+        insertedClassMaterial = classMaterialRepository.saveAndFlush(classMaterial);
+
+        // Get all the classMaterialList where fileObjectKey does not contain
+        defaultClassMaterialFiltering(
+            "fileObjectKey.doesNotContain=" + UPDATED_FILE_OBJECT_KEY,
+            "fileObjectKey.doesNotContain=" + DEFAULT_FILE_OBJECT_KEY
+        );
+    }
+
+    @Test
+    @Transactional
+    void getAllClassMaterialsByUpdatedAtIsEqualToSomething() throws Exception {
+        // Initialize the database
+        insertedClassMaterial = classMaterialRepository.saveAndFlush(classMaterial);
+
+        // Get all the classMaterialList where updatedAt equals to
+        defaultClassMaterialFiltering("updatedAt.equals=" + DEFAULT_UPDATED_AT, "updatedAt.equals=" + UPDATED_UPDATED_AT);
+    }
+
+    @Test
+    @Transactional
+    void getAllClassMaterialsByUpdatedAtIsInShouldWork() throws Exception {
+        // Initialize the database
+        insertedClassMaterial = classMaterialRepository.saveAndFlush(classMaterial);
+
+        // Get all the classMaterialList where updatedAt in
+        defaultClassMaterialFiltering(
+            "updatedAt.in=" + DEFAULT_UPDATED_AT + "," + UPDATED_UPDATED_AT,
+            "updatedAt.in=" + UPDATED_UPDATED_AT
+        );
+    }
+
+    @Test
+    @Transactional
+    void getAllClassMaterialsByUpdatedAtIsNullOrNotNull() throws Exception {
+        // Initialize the database
+        insertedClassMaterial = classMaterialRepository.saveAndFlush(classMaterial);
+
+        // Get all the classMaterialList where updatedAt is not null
+        defaultClassMaterialFiltering("updatedAt.specified=true", "updatedAt.specified=false");
+    }
+
+    @Test
+    @Transactional
     void getAllClassMaterialsByStudyClassIsEqualToSomething() throws Exception {
         StudyClass studyClass;
         if (TestUtil.findAll(em, StudyClass.class).isEmpty()) {
@@ -645,7 +736,9 @@ class ClassMaterialResourceIT {
             .andExpect(jsonPath("$.[*].fileType").value(hasItem(DEFAULT_FILE_TYPE)))
             .andExpect(jsonPath("$.[*].fileUrl").value(hasItem(DEFAULT_FILE_URL)))
             .andExpect(jsonPath("$.[*].fileSizeBytes").value(hasItem(DEFAULT_FILE_SIZE_BYTES.intValue())))
-            .andExpect(jsonPath("$.[*].uploadedAt").value(hasItem(DEFAULT_UPLOADED_AT.toString())));
+            .andExpect(jsonPath("$.[*].uploadedAt").value(hasItem(DEFAULT_UPLOADED_AT.toString())))
+            .andExpect(jsonPath("$.[*].fileObjectKey").value(hasItem(DEFAULT_FILE_OBJECT_KEY)))
+            .andExpect(jsonPath("$.[*].updatedAt").value(hasItem(DEFAULT_UPDATED_AT.toString())));
 
         // Check, that the count call also returns 1
         restClassMaterialMockMvc
@@ -698,7 +791,9 @@ class ClassMaterialResourceIT {
             .fileType(UPDATED_FILE_TYPE)
             .fileUrl(UPDATED_FILE_URL)
             .fileSizeBytes(UPDATED_FILE_SIZE_BYTES)
-            .uploadedAt(UPDATED_UPLOADED_AT);
+            .uploadedAt(UPDATED_UPLOADED_AT)
+            .fileObjectKey(UPDATED_FILE_OBJECT_KEY)
+            .updatedAt(UPDATED_UPDATED_AT);
         ClassMaterialDTO classMaterialDTO = classMaterialMapper.toDto(updatedClassMaterial);
 
         restClassMaterialMockMvc
@@ -788,7 +883,7 @@ class ClassMaterialResourceIT {
         ClassMaterial partialUpdatedClassMaterial = new ClassMaterial();
         partialUpdatedClassMaterial.setId(classMaterial.getId());
 
-        partialUpdatedClassMaterial.title(UPDATED_TITLE).fileSizeBytes(UPDATED_FILE_SIZE_BYTES);
+        partialUpdatedClassMaterial.title(UPDATED_TITLE).fileSizeBytes(UPDATED_FILE_SIZE_BYTES).fileObjectKey(UPDATED_FILE_OBJECT_KEY);
 
         restClassMaterialMockMvc
             .perform(
@@ -824,7 +919,9 @@ class ClassMaterialResourceIT {
             .fileType(UPDATED_FILE_TYPE)
             .fileUrl(UPDATED_FILE_URL)
             .fileSizeBytes(UPDATED_FILE_SIZE_BYTES)
-            .uploadedAt(UPDATED_UPLOADED_AT);
+            .uploadedAt(UPDATED_UPLOADED_AT)
+            .fileObjectKey(UPDATED_FILE_OBJECT_KEY)
+            .updatedAt(UPDATED_UPDATED_AT);
 
         restClassMaterialMockMvc
             .perform(

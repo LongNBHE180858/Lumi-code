@@ -28,8 +28,6 @@ public class SubjectCriteria implements Serializable, Criteria {
 
     private StringFilter name;
 
-    private StringFilter description;
-
     private Boolean distinct;
 
     public SubjectCriteria() {}
@@ -37,7 +35,6 @@ public class SubjectCriteria implements Serializable, Criteria {
     public SubjectCriteria(SubjectCriteria other) {
         this.id = other.optionalId().map(LongFilter::copy).orElse(null);
         this.name = other.optionalName().map(StringFilter::copy).orElse(null);
-        this.description = other.optionalDescription().map(StringFilter::copy).orElse(null);
         this.distinct = other.distinct;
     }
 
@@ -84,25 +81,6 @@ public class SubjectCriteria implements Serializable, Criteria {
         this.name = name;
     }
 
-    public StringFilter getDescription() {
-        return description;
-    }
-
-    public Optional<StringFilter> optionalDescription() {
-        return Optional.ofNullable(description);
-    }
-
-    public StringFilter description() {
-        if (description == null) {
-            setDescription(new StringFilter());
-        }
-        return description;
-    }
-
-    public void setDescription(StringFilter description) {
-        this.description = description;
-    }
-
     public Boolean getDistinct() {
         return distinct;
     }
@@ -131,17 +109,12 @@ public class SubjectCriteria implements Serializable, Criteria {
             return false;
         }
         final SubjectCriteria that = (SubjectCriteria) o;
-        return (
-            Objects.equals(id, that.id) &&
-            Objects.equals(name, that.name) &&
-            Objects.equals(description, that.description) &&
-            Objects.equals(distinct, that.distinct)
-        );
+        return Objects.equals(id, that.id) && Objects.equals(name, that.name) && Objects.equals(distinct, that.distinct);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, name, description, distinct);
+        return Objects.hash(id, name, distinct);
     }
 
     // prettier-ignore
@@ -150,7 +123,6 @@ public class SubjectCriteria implements Serializable, Criteria {
         return "SubjectCriteria{" +
             optionalId().map(f -> "id=" + f + ", ").orElse("") +
             optionalName().map(f -> "name=" + f + ", ").orElse("") +
-            optionalDescription().map(f -> "description=" + f + ", ").orElse("") +
             optionalDistinct().map(f -> "distinct=" + f + ", ").orElse("") +
         "}";
     }

@@ -6,12 +6,13 @@ import jakarta.validation.constraints.*;
 import java.io.Serial;
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.time.Instant;
 
 /**
- * A ExamAnswer.
+ * Lưu câu trả lời và điểm của học sinh cho từng câu trong một lượt làm.
  */
 @Entity
-@Table(name = "exam_answer")
+@Table(name = "exam_answers")
 @SuppressWarnings("common-java:DuplicatedBlocks")
 public class ExamAnswer implements Serializable {
 
@@ -24,25 +25,31 @@ public class ExamAnswer implements Serializable {
     @Column(name = "id")
     private Long id;
 
-    @Size(max = 5000)
-    @Column(name = "text_answer", length = 5000)
+    @Column(name = "text_answer", columnDefinition = "text")
     private String textAnswer;
 
     @Column(name = "is_correct")
     private Boolean isCorrect;
 
-    @DecimalMin(value = "0")
     @Column(name = "score", precision = 21, scale = 2)
     private BigDecimal score;
 
+    @NotNull
+    @Column(name = "updated_at", nullable = false)
+    private Instant updatedAt;
+
+    @NotNull
+    @Column(name = "row_version", nullable = false)
+    private Long rowVersion;
+
     @ManyToOne(optional = false)
     @NotNull
-    @JsonIgnoreProperties(value = { "student", "exam", "proctorSession" }, allowSetters = true)
+    @JsonIgnoreProperties(value = { "exam", "student", "assignment" }, allowSetters = true)
     private ExamAttempt attempt;
 
     @ManyToOne(optional = false)
     @NotNull
-    @JsonIgnoreProperties(value = { "bank" }, allowSetters = true)
+    @JsonIgnoreProperties(value = { "bank", "createdBy", "aiContent", "subject", "grade", "previousQuestion" }, allowSetters = true)
     private Question question;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -101,6 +108,32 @@ public class ExamAnswer implements Serializable {
 
     public void setScore(BigDecimal score) {
         this.score = score;
+    }
+
+    public Instant getUpdatedAt() {
+        return this.updatedAt;
+    }
+
+    public ExamAnswer updatedAt(Instant updatedAt) {
+        this.setUpdatedAt(updatedAt);
+        return this;
+    }
+
+    public void setUpdatedAt(Instant updatedAt) {
+        this.updatedAt = updatedAt;
+    }
+
+    public Long getRowVersion() {
+        return this.rowVersion;
+    }
+
+    public ExamAnswer rowVersion(Long rowVersion) {
+        this.setRowVersion(rowVersion);
+        return this;
+    }
+
+    public void setRowVersion(Long rowVersion) {
+        this.rowVersion = rowVersion;
     }
 
     public ExamAttempt getAttempt() {
@@ -169,6 +202,8 @@ public class ExamAnswer implements Serializable {
             ", textAnswer='" + getTextAnswer() + "'" +
             ", isCorrect='" + getIsCorrect() + "'" +
             ", score=" + getScore() +
+            ", updatedAt='" + getUpdatedAt() + "'" +
+            ", rowVersion=" + getRowVersion() +
             "}";
     }
 }

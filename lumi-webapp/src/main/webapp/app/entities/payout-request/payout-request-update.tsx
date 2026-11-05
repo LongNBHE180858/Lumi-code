@@ -7,6 +7,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import { useAppDispatch, useAppSelector } from 'app/config/store';
 import { getEntities as getInstructorWallets } from 'app/entities/instructor-wallet/instructor-wallet.reducer';
+import { getUsers } from 'app/modules/administration/user-management/user-management.reducer';
 import { convertDateTimeFromServer, convertDateTimeToServer, displayDefaultDateTime } from 'app/shared/util/date-utils';
 
 import { createEntity, getEntity, reset, updateEntity } from './payout-request.reducer';
@@ -20,6 +21,7 @@ export const PayoutRequestUpdate = () => {
   const isNew = id === undefined;
 
   const instructorWallets = useAppSelector(state => state.instructorWallet.entities);
+  const users = useAppSelector(state => state.userManagement.users);
   const payoutRequestEntity = useAppSelector(state => state.payoutRequest.entity);
   const loading = useAppSelector(state => state.payoutRequest.loading);
   const updating = useAppSelector(state => state.payoutRequest.updating);
@@ -37,6 +39,7 @@ export const PayoutRequestUpdate = () => {
     }
 
     dispatch(getInstructorWallets({}));
+    dispatch(getUsers({}));
   }, []);
 
   useEffect(() => {
@@ -53,11 +56,14 @@ export const PayoutRequestUpdate = () => {
       values.amount = Number(values.amount);
     }
     values.createdAt = convertDateTimeToServer(values.createdAt);
+    values.processedAt = convertDateTimeToServer(values.processedAt);
+    values.updatedAt = convertDateTimeToServer(values.updatedAt);
 
     const entity = {
       ...payoutRequestEntity,
       ...values,
       wallet: instructorWallets.find(it => it.id.toString() === values.wallet?.toString()),
+      processedBy: users.find(it => it.id.toString() === values.processedBy?.toString()),
     };
 
     if (isNew) {
@@ -71,11 +77,16 @@ export const PayoutRequestUpdate = () => {
     isNew
       ? {
           createdAt: displayDefaultDateTime(),
+          processedAt: displayDefaultDateTime(),
+          updatedAt: displayDefaultDateTime(),
         }
       : {
           ...payoutRequestEntity,
           createdAt: convertDateTimeFromServer(payoutRequestEntity.createdAt),
+          processedAt: convertDateTimeFromServer(payoutRequestEntity.processedAt),
+          updatedAt: convertDateTimeFromServer(payoutRequestEntity.updatedAt),
           wallet: payoutRequestEntity?.wallet?.id,
+          processedBy: payoutRequestEntity?.processedBy?.id,
         };
 
   return (
@@ -111,7 +122,6 @@ export const PayoutRequestUpdate = () => {
                 type="text"
                 validate={{
                   required: { value: true, message: translate('entity.validation.required') },
-                  min: { value: 0, message: translate('entity.validation.min', { min: 0 }) },
                   validate: v => isNumber(v) || translate('entity.validation.number'),
                 }}
               />
@@ -156,6 +166,53 @@ export const PayoutRequestUpdate = () => {
                 placeholder="YYYY-MM-DD HH:mm"
               />
               <ValidatedField
+                label={translate('lumiApp.payoutRequest.accountHolderName')}
+                id="payout-request-accountHolderName"
+                name="accountHolderName"
+                data-cy="accountHolderName"
+                type="text"
+                validate={{
+                  required: { value: true, message: translate('entity.validation.required') },
+                  maxLength: { value: 255, message: translate('entity.validation.maxlength', { max: 255 }) },
+                }}
+              />
+              <ValidatedField
+                label={translate('lumiApp.payoutRequest.processedAt')}
+                id="payout-request-processedAt"
+                name="processedAt"
+                data-cy="processedAt"
+                type="datetime-local"
+                placeholder="YYYY-MM-DD HH:mm"
+              />
+              <ValidatedField
+                label={translate('lumiApp.payoutRequest.rejectionReason')}
+                id="payout-request-rejectionReason"
+                name="rejectionReason"
+                data-cy="rejectionReason"
+                type="textarea"
+              />
+              <ValidatedField
+                label={translate('lumiApp.payoutRequest.transferReference')}
+                id="payout-request-transferReference"
+                name="transferReference"
+                data-cy="transferReference"
+                type="text"
+                validate={{
+                  maxLength: { value: 255, message: translate('entity.validation.maxlength', { max: 255 }) },
+                }}
+              />
+              <ValidatedField
+                label={translate('lumiApp.payoutRequest.updatedAt')}
+                id="payout-request-updatedAt"
+                name="updatedAt"
+                data-cy="updatedAt"
+                type="datetime-local"
+                placeholder="YYYY-MM-DD HH:mm"
+                validate={{
+                  required: { value: true, message: translate('entity.validation.required') },
+                }}
+              />
+              <ValidatedField
                 id="payout-request-wallet"
                 name="wallet"
                 data-cy="wallet"
@@ -175,6 +232,22 @@ export const PayoutRequestUpdate = () => {
               <FormText>
                 <Translate contentKey="entity.validation.required">This field is required.</Translate>
               </FormText>
+              <ValidatedField
+                id="payout-request-processedBy"
+                name="processedBy"
+                data-cy="processedBy"
+                label={translate('lumiApp.payoutRequest.processedBy')}
+                type="select"
+              >
+                <option value="" key="0" />
+                {users
+                  ? users.map(otherEntity => (
+                      <option value={otherEntity.id} key={otherEntity.id}>
+                        {otherEntity.login}
+                      </option>
+                    ))
+                  : null}
+              </ValidatedField>
               <Button as={Link as any} id="cancel-save" data-cy="entityCreateCancelButton" to="/payout-request" replace variant="info">
                 <FontAwesomeIcon icon="arrow-left" />
                 &nbsp;

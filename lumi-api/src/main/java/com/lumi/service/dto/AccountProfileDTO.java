@@ -1,10 +1,9 @@
-
 package com.lumi.service.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import lombok.*;
-
+import java.time.LocalDate;
 import java.util.Set;
+import lombok.*;
 
 @Getter
 @Setter
@@ -13,12 +12,14 @@ import java.util.Set;
 @Builder //để dùng đc builder
 @JsonInclude(JsonInclude.Include.ALWAYS) //để có field nào thiếu thì nó hiện null chứ ko mất
 public class AccountProfileDTO {
+
     private Long id;
     private String login;
     private String firstName;
     private String lastName;
     private String fullName;
     private String email;
+    private LocalDate birthDate;
     private String imageUrl;
     private Set<String> authorities;
     private String bio;

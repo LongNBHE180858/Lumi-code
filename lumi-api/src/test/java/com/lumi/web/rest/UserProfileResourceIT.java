@@ -19,6 +19,7 @@ import com.lumi.service.dto.UserProfileDTO;
 import com.lumi.service.mapper.UserProfileMapper;
 import jakarta.persistence.EntityManager;
 import java.time.Instant;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicLong;
@@ -44,7 +45,7 @@ import tools.jackson.databind.ObjectMapper;
 @IntegrationTest
 @ExtendWith(MockitoExtension.class)
 @AutoConfigureMockMvc
-@WithMockUser(authorities = "ROLE_ADMIN")
+@WithMockUser
 class UserProfileResourceIT {
 
     private static final String DEFAULT_PHONE_NUMBER = "AAAAAAAAAA";
@@ -68,6 +69,10 @@ class UserProfileResourceIT {
 
     private static final Instant DEFAULT_UPDATED_AT = Instant.ofEpochMilli(0L);
     private static final Instant UPDATED_UPDATED_AT = Instant.ofEpochMilli(1791835009362L);
+
+    private static final LocalDate DEFAULT_BIRTH_DATE = LocalDate.ofEpochDay(0L);
+    private static final LocalDate UPDATED_BIRTH_DATE = LocalDate.parse("2026-10-12");
+    private static final LocalDate SMALLER_BIRTH_DATE = LocalDate.ofEpochDay(-1L);
 
     private static final String ENTITY_API_URL = "/api/user-profiles";
     private static final String ENTITY_API_URL_ID = ENTITY_API_URL + "/{id}";
@@ -117,7 +122,8 @@ class UserProfileResourceIT {
             .gradeLevel(DEFAULT_GRADE_LEVEL)
             .is2faEnabled(DEFAULT_IS_2_FA_ENABLED)
             .instructorStatus(DEFAULT_INSTRUCTOR_STATUS)
-            .updatedAt(DEFAULT_UPDATED_AT);
+            .updatedAt(DEFAULT_UPDATED_AT)
+            .birthDate(DEFAULT_BIRTH_DATE);
         // Add required entity
         User user = UserResourceIT.createEntity();
         em.persist(user);
@@ -140,7 +146,8 @@ class UserProfileResourceIT {
             .gradeLevel(UPDATED_GRADE_LEVEL)
             .is2faEnabled(UPDATED_IS_2_FA_ENABLED)
             .instructorStatus(UPDATED_INSTRUCTOR_STATUS)
-            .updatedAt(UPDATED_UPDATED_AT);
+            .updatedAt(UPDATED_UPDATED_AT)
+            .birthDate(UPDATED_BIRTH_DATE);
         // Add required entity
         User user = UserResourceIT.createEntity();
         em.persist(user);
@@ -222,7 +229,8 @@ class UserProfileResourceIT {
             .andExpect(jsonPath("$.[*].gradeLevel").value(hasItem(DEFAULT_GRADE_LEVEL)))
             .andExpect(jsonPath("$.[*].is2faEnabled").value(hasItem(DEFAULT_IS_2_FA_ENABLED)))
             .andExpect(jsonPath("$.[*].instructorStatus").value(hasItem(DEFAULT_INSTRUCTOR_STATUS.toString())))
-            .andExpect(jsonPath("$.[*].updatedAt").value(hasItem(DEFAULT_UPDATED_AT.toString())));
+            .andExpect(jsonPath("$.[*].updatedAt").value(hasItem(DEFAULT_UPDATED_AT.toString())))
+            .andExpect(jsonPath("$.[*].birthDate").value(hasItem(DEFAULT_BIRTH_DATE.toString())));
     }
 
     @SuppressWarnings({ "unchecked" })
@@ -260,7 +268,8 @@ class UserProfileResourceIT {
             .andExpect(jsonPath("$.gradeLevel").value(DEFAULT_GRADE_LEVEL))
             .andExpect(jsonPath("$.is2faEnabled").value(DEFAULT_IS_2_FA_ENABLED))
             .andExpect(jsonPath("$.instructorStatus").value(DEFAULT_INSTRUCTOR_STATUS.toString()))
-            .andExpect(jsonPath("$.updatedAt").value(DEFAULT_UPDATED_AT.toString()));
+            .andExpect(jsonPath("$.updatedAt").value(DEFAULT_UPDATED_AT.toString()))
+            .andExpect(jsonPath("$.birthDate").value(DEFAULT_BIRTH_DATE.toString()));
     }
 
     @Test
@@ -332,56 +341,6 @@ class UserProfileResourceIT {
             "phoneNumber.doesNotContain=" + UPDATED_PHONE_NUMBER,
             "phoneNumber.doesNotContain=" + DEFAULT_PHONE_NUMBER
         );
-    }
-
-    @Test
-    @Transactional
-    void getAllUserProfilesByBioIsEqualToSomething() throws Exception {
-        // Initialize the database
-        insertedUserProfile = userProfileRepository.saveAndFlush(userProfile);
-
-        // Get all the userProfileList where bio equals to
-        defaultUserProfileFiltering("bio.equals=" + DEFAULT_BIO, "bio.equals=" + UPDATED_BIO);
-    }
-
-    @Test
-    @Transactional
-    void getAllUserProfilesByBioIsInShouldWork() throws Exception {
-        // Initialize the database
-        insertedUserProfile = userProfileRepository.saveAndFlush(userProfile);
-
-        // Get all the userProfileList where bio in
-        defaultUserProfileFiltering("bio.in=" + DEFAULT_BIO + "," + UPDATED_BIO, "bio.in=" + UPDATED_BIO);
-    }
-
-    @Test
-    @Transactional
-    void getAllUserProfilesByBioIsNullOrNotNull() throws Exception {
-        // Initialize the database
-        insertedUserProfile = userProfileRepository.saveAndFlush(userProfile);
-
-        // Get all the userProfileList where bio is not null
-        defaultUserProfileFiltering("bio.specified=true", "bio.specified=false");
-    }
-
-    @Test
-    @Transactional
-    void getAllUserProfilesByBioContainsSomething() throws Exception {
-        // Initialize the database
-        insertedUserProfile = userProfileRepository.saveAndFlush(userProfile);
-
-        // Get all the userProfileList where bio contains
-        defaultUserProfileFiltering("bio.contains=" + DEFAULT_BIO, "bio.contains=" + UPDATED_BIO);
-    }
-
-    @Test
-    @Transactional
-    void getAllUserProfilesByBioNotContainsSomething() throws Exception {
-        // Initialize the database
-        insertedUserProfile = userProfileRepository.saveAndFlush(userProfile);
-
-        // Get all the userProfileList where bio does not contain
-        defaultUserProfileFiltering("bio.doesNotContain=" + UPDATED_BIO, "bio.doesNotContain=" + DEFAULT_BIO);
     }
 
     @Test
@@ -617,6 +576,79 @@ class UserProfileResourceIT {
 
     @Test
     @Transactional
+    void getAllUserProfilesByBirthDateIsEqualToSomething() throws Exception {
+        // Initialize the database
+        insertedUserProfile = userProfileRepository.saveAndFlush(userProfile);
+
+        // Get all the userProfileList where birthDate equals to
+        defaultUserProfileFiltering("birthDate.equals=" + DEFAULT_BIRTH_DATE, "birthDate.equals=" + UPDATED_BIRTH_DATE);
+    }
+
+    @Test
+    @Transactional
+    void getAllUserProfilesByBirthDateIsInShouldWork() throws Exception {
+        // Initialize the database
+        insertedUserProfile = userProfileRepository.saveAndFlush(userProfile);
+
+        // Get all the userProfileList where birthDate in
+        defaultUserProfileFiltering("birthDate.in=" + DEFAULT_BIRTH_DATE + "," + UPDATED_BIRTH_DATE, "birthDate.in=" + UPDATED_BIRTH_DATE);
+    }
+
+    @Test
+    @Transactional
+    void getAllUserProfilesByBirthDateIsNullOrNotNull() throws Exception {
+        // Initialize the database
+        insertedUserProfile = userProfileRepository.saveAndFlush(userProfile);
+
+        // Get all the userProfileList where birthDate is not null
+        defaultUserProfileFiltering("birthDate.specified=true", "birthDate.specified=false");
+    }
+
+    @Test
+    @Transactional
+    void getAllUserProfilesByBirthDateIsGreaterThanOrEqualToSomething() throws Exception {
+        // Initialize the database
+        insertedUserProfile = userProfileRepository.saveAndFlush(userProfile);
+
+        // Get all the userProfileList where birthDate is greater than or equal to
+        defaultUserProfileFiltering(
+            "birthDate.greaterThanOrEqual=" + DEFAULT_BIRTH_DATE,
+            "birthDate.greaterThanOrEqual=" + UPDATED_BIRTH_DATE
+        );
+    }
+
+    @Test
+    @Transactional
+    void getAllUserProfilesByBirthDateIsLessThanOrEqualToSomething() throws Exception {
+        // Initialize the database
+        insertedUserProfile = userProfileRepository.saveAndFlush(userProfile);
+
+        // Get all the userProfileList where birthDate is less than or equal to
+        defaultUserProfileFiltering("birthDate.lessThanOrEqual=" + DEFAULT_BIRTH_DATE, "birthDate.lessThanOrEqual=" + SMALLER_BIRTH_DATE);
+    }
+
+    @Test
+    @Transactional
+    void getAllUserProfilesByBirthDateIsLessThanSomething() throws Exception {
+        // Initialize the database
+        insertedUserProfile = userProfileRepository.saveAndFlush(userProfile);
+
+        // Get all the userProfileList where birthDate is less than
+        defaultUserProfileFiltering("birthDate.lessThan=" + UPDATED_BIRTH_DATE, "birthDate.lessThan=" + DEFAULT_BIRTH_DATE);
+    }
+
+    @Test
+    @Transactional
+    void getAllUserProfilesByBirthDateIsGreaterThanSomething() throws Exception {
+        // Initialize the database
+        insertedUserProfile = userProfileRepository.saveAndFlush(userProfile);
+
+        // Get all the userProfileList where birthDate is greater than
+        defaultUserProfileFiltering("birthDate.greaterThan=" + SMALLER_BIRTH_DATE, "birthDate.greaterThan=" + DEFAULT_BIRTH_DATE);
+    }
+
+    @Test
+    @Transactional
     void getAllUserProfilesByUserIsEqualToSomething() throws Exception {
         // Get already existing entity
         User user = userProfile.getUser();
@@ -649,7 +681,8 @@ class UserProfileResourceIT {
             .andExpect(jsonPath("$.[*].gradeLevel").value(hasItem(DEFAULT_GRADE_LEVEL)))
             .andExpect(jsonPath("$.[*].is2faEnabled").value(hasItem(DEFAULT_IS_2_FA_ENABLED)))
             .andExpect(jsonPath("$.[*].instructorStatus").value(hasItem(DEFAULT_INSTRUCTOR_STATUS.toString())))
-            .andExpect(jsonPath("$.[*].updatedAt").value(hasItem(DEFAULT_UPDATED_AT.toString())));
+            .andExpect(jsonPath("$.[*].updatedAt").value(hasItem(DEFAULT_UPDATED_AT.toString())))
+            .andExpect(jsonPath("$.[*].birthDate").value(hasItem(DEFAULT_BIRTH_DATE.toString())));
 
         // Check, that the count call also returns 1
         restUserProfileMockMvc
@@ -704,7 +737,8 @@ class UserProfileResourceIT {
             .gradeLevel(UPDATED_GRADE_LEVEL)
             .is2faEnabled(UPDATED_IS_2_FA_ENABLED)
             .instructorStatus(UPDATED_INSTRUCTOR_STATUS)
-            .updatedAt(UPDATED_UPDATED_AT);
+            .updatedAt(UPDATED_UPDATED_AT)
+            .birthDate(UPDATED_BIRTH_DATE);
         UserProfileDTO userProfileDTO = userProfileMapper.toDto(updatedUserProfile);
 
         restUserProfileMockMvc
@@ -832,7 +866,8 @@ class UserProfileResourceIT {
             .gradeLevel(UPDATED_GRADE_LEVEL)
             .is2faEnabled(UPDATED_IS_2_FA_ENABLED)
             .instructorStatus(UPDATED_INSTRUCTOR_STATUS)
-            .updatedAt(UPDATED_UPDATED_AT);
+            .updatedAt(UPDATED_UPDATED_AT)
+            .birthDate(UPDATED_BIRTH_DATE);
 
         restUserProfileMockMvc
             .perform(

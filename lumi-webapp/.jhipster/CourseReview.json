@@ -3,7 +3,9 @@
     "changelogDate": "20261012231652"
   },
   "applications": ["*"],
+  "documentation": "Lưu đánh giá sao và nhận xét của học sinh về khóa học.",
   "dto": "mapstruct",
+  "entityTableName": "course_reviews",
   "fields": [
     {
       "fieldName": "rating",
@@ -14,19 +16,29 @@
     },
     {
       "fieldName": "content",
-      "fieldType": "String",
-      "fieldValidateRules": ["maxlength"],
-      "fieldValidateRulesMaxlength": "5000"
+      "fieldType": "TextBlob"
     },
     {
       "fieldName": "createdAt",
       "fieldType": "Instant"
+    },
+    {
+      "fieldName": "updatedAt",
+      "fieldType": "Instant",
+      "fieldValidateRules": ["required"]
     }
   ],
   "jpaMetamodelFiltering": true,
   "name": "CourseReview",
   "pagination": "pagination",
   "relationships": [
+    {
+      "otherEntityName": "course",
+      "relationshipName": "course",
+      "relationshipSide": "left",
+      "relationshipType": "many-to-one",
+      "relationshipValidateRules": "required"
+    },
     {
       "otherEntityField": "login",
       "otherEntityName": "user",
@@ -35,14 +47,6 @@
       "relationshipType": "many-to-one",
       "relationshipValidateRules": "required",
       "relationshipWithBuiltInEntity": true
-    },
-    {
-      "otherEntityField": "title",
-      "otherEntityName": "course",
-      "relationshipName": "course",
-      "relationshipSide": "left",
-      "relationshipType": "many-to-one",
-      "relationshipValidateRules": "required"
     }
   ],
   "service": "serviceImpl"

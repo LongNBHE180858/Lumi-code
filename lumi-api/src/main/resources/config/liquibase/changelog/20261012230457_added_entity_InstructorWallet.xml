@@ -10,7 +10,7 @@
         Added the entity InstructorWallet.
     -->
     <changeSet id="20261012230457-1" author="jhipster">
-        <createTable tableName="instructor_wallet">
+        <createTable tableName="instructor_wallets" remarks="Lưu số dư tiền chờ giải phóng và tiền khả dụng của giáo viên.">
             <column name="id" type="bigint">
                 <constraints primaryKey="true" nullable="false"/>
             </column>
@@ -23,8 +23,8 @@
             <column name="row_version" type="bigint">
                 <constraints nullable="true" />
             </column>
-            <column name="user_id" type="bigint">
-                <constraints nullable="false" unique="true" uniqueConstraintName="ux_instructor_wallet__user_id" />
+            <column name="instructor_id" type="bigint">
+                <constraints nullable="false" unique="true" uniqueConstraintName="ux_instructor_wallets__instructor_id" />
             </column>
             <!-- jhipster-needle-liquibase-add-column - JHipster will add columns here -->
         </createTable>
@@ -42,16 +42,16 @@
     -->
     <changeSet id="20261012230457-1-data" author="jhipster" context="faker">
         <loadData
-                  file="../fake-data/instructor_wallet.csv"
+                  file="../fake-data/instructor_wallets.csv"
                   relativeToChangelogFile="true"
                   separator=";"
-                  tableName="instructor_wallet"
+                  tableName="instructor_wallets"
                   usePreparedStatements="true">
             <column name="id" type="numeric"/>
             <column name="pending_amount" type="numeric"/>
             <column name="available_amount" type="numeric"/>
             <column name="row_version" type="numeric"/>
-            <column name="user_id" type="numeric"/>
+            <column name="instructor_id" type="numeric"/>
             <!-- jhipster-needle-liquibase-add-loadcolumn - JHipster (and/or extensions) can add load columns here -->
         </loadData>
     </changeSet>

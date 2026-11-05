@@ -1,8 +1,9 @@
 package com.lumi.service;
 
 import com.lumi.service.dto.WishlistDTO;
-import java.util.List;
 import java.util.Optional;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 /**
  * Service Interface for managing {@link com.lumi.domain.Wishlist}.
@@ -35,9 +36,10 @@ public interface WishlistService {
     /**
      * Get all the wishlists with eager load of many-to-many relationships.
      *
+     * @param pageable the pagination information.
      * @return the list of entities.
      */
-    List<WishlistDTO> findAllWithEagerRelationships();
+    Page<WishlistDTO> findAllWithEagerRelationships(Pageable pageable);
 
     /**
      * Get the "id" wishlist.

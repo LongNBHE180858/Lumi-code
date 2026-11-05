@@ -26,13 +26,27 @@ public class CourseMaterialCriteria implements Serializable, Criteria {
 
     private LongFilter id;
 
+    private StringFilter fileName;
+
+    private StringFilter displayName;
+
+    private StringFilter mimeType;
+
+    private IntegerFilter orderIndex;
+
     private StringFilter fileType;
 
     private StringFilter fileUrl;
 
     private LongFilter fileSizeBytes;
 
+    private StringFilter fileObjectKey;
+
+    private InstantFilter updatedAt;
+
     private LongFilter lessonId;
+
+    private LongFilter learningDocumentId;
 
     private Boolean distinct;
 
@@ -40,10 +54,17 @@ public class CourseMaterialCriteria implements Serializable, Criteria {
 
     public CourseMaterialCriteria(CourseMaterialCriteria other) {
         this.id = other.optionalId().map(LongFilter::copy).orElse(null);
+        this.fileName = other.optionalFileName().map(StringFilter::copy).orElse(null);
+        this.displayName = other.optionalDisplayName().map(StringFilter::copy).orElse(null);
+        this.mimeType = other.optionalMimeType().map(StringFilter::copy).orElse(null);
+        this.orderIndex = other.optionalOrderIndex().map(IntegerFilter::copy).orElse(null);
         this.fileType = other.optionalFileType().map(StringFilter::copy).orElse(null);
         this.fileUrl = other.optionalFileUrl().map(StringFilter::copy).orElse(null);
         this.fileSizeBytes = other.optionalFileSizeBytes().map(LongFilter::copy).orElse(null);
+        this.fileObjectKey = other.optionalFileObjectKey().map(StringFilter::copy).orElse(null);
+        this.updatedAt = other.optionalUpdatedAt().map(InstantFilter::copy).orElse(null);
         this.lessonId = other.optionalLessonId().map(LongFilter::copy).orElse(null);
+        this.learningDocumentId = other.optionalLearningDocumentId().map(LongFilter::copy).orElse(null);
         this.distinct = other.distinct;
     }
 
@@ -69,6 +90,82 @@ public class CourseMaterialCriteria implements Serializable, Criteria {
 
     public void setId(LongFilter id) {
         this.id = id;
+    }
+
+    public StringFilter getFileName() {
+        return fileName;
+    }
+
+    public Optional<StringFilter> optionalFileName() {
+        return Optional.ofNullable(fileName);
+    }
+
+    public StringFilter fileName() {
+        if (fileName == null) {
+            setFileName(new StringFilter());
+        }
+        return fileName;
+    }
+
+    public void setFileName(StringFilter fileName) {
+        this.fileName = fileName;
+    }
+
+    public StringFilter getDisplayName() {
+        return displayName;
+    }
+
+    public Optional<StringFilter> optionalDisplayName() {
+        return Optional.ofNullable(displayName);
+    }
+
+    public StringFilter displayName() {
+        if (displayName == null) {
+            setDisplayName(new StringFilter());
+        }
+        return displayName;
+    }
+
+    public void setDisplayName(StringFilter displayName) {
+        this.displayName = displayName;
+    }
+
+    public StringFilter getMimeType() {
+        return mimeType;
+    }
+
+    public Optional<StringFilter> optionalMimeType() {
+        return Optional.ofNullable(mimeType);
+    }
+
+    public StringFilter mimeType() {
+        if (mimeType == null) {
+            setMimeType(new StringFilter());
+        }
+        return mimeType;
+    }
+
+    public void setMimeType(StringFilter mimeType) {
+        this.mimeType = mimeType;
+    }
+
+    public IntegerFilter getOrderIndex() {
+        return orderIndex;
+    }
+
+    public Optional<IntegerFilter> optionalOrderIndex() {
+        return Optional.ofNullable(orderIndex);
+    }
+
+    public IntegerFilter orderIndex() {
+        if (orderIndex == null) {
+            setOrderIndex(new IntegerFilter());
+        }
+        return orderIndex;
+    }
+
+    public void setOrderIndex(IntegerFilter orderIndex) {
+        this.orderIndex = orderIndex;
     }
 
     public StringFilter getFileType() {
@@ -128,6 +225,44 @@ public class CourseMaterialCriteria implements Serializable, Criteria {
         this.fileSizeBytes = fileSizeBytes;
     }
 
+    public StringFilter getFileObjectKey() {
+        return fileObjectKey;
+    }
+
+    public Optional<StringFilter> optionalFileObjectKey() {
+        return Optional.ofNullable(fileObjectKey);
+    }
+
+    public StringFilter fileObjectKey() {
+        if (fileObjectKey == null) {
+            setFileObjectKey(new StringFilter());
+        }
+        return fileObjectKey;
+    }
+
+    public void setFileObjectKey(StringFilter fileObjectKey) {
+        this.fileObjectKey = fileObjectKey;
+    }
+
+    public InstantFilter getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public Optional<InstantFilter> optionalUpdatedAt() {
+        return Optional.ofNullable(updatedAt);
+    }
+
+    public InstantFilter updatedAt() {
+        if (updatedAt == null) {
+            setUpdatedAt(new InstantFilter());
+        }
+        return updatedAt;
+    }
+
+    public void setUpdatedAt(InstantFilter updatedAt) {
+        this.updatedAt = updatedAt;
+    }
+
     public LongFilter getLessonId() {
         return lessonId;
     }
@@ -145,6 +280,25 @@ public class CourseMaterialCriteria implements Serializable, Criteria {
 
     public void setLessonId(LongFilter lessonId) {
         this.lessonId = lessonId;
+    }
+
+    public LongFilter getLearningDocumentId() {
+        return learningDocumentId;
+    }
+
+    public Optional<LongFilter> optionalLearningDocumentId() {
+        return Optional.ofNullable(learningDocumentId);
+    }
+
+    public LongFilter learningDocumentId() {
+        if (learningDocumentId == null) {
+            setLearningDocumentId(new LongFilter());
+        }
+        return learningDocumentId;
+    }
+
+    public void setLearningDocumentId(LongFilter learningDocumentId) {
+        this.learningDocumentId = learningDocumentId;
     }
 
     public Boolean getDistinct() {
@@ -177,17 +331,38 @@ public class CourseMaterialCriteria implements Serializable, Criteria {
         final CourseMaterialCriteria that = (CourseMaterialCriteria) o;
         return (
             Objects.equals(id, that.id) &&
+            Objects.equals(fileName, that.fileName) &&
+            Objects.equals(displayName, that.displayName) &&
+            Objects.equals(mimeType, that.mimeType) &&
+            Objects.equals(orderIndex, that.orderIndex) &&
             Objects.equals(fileType, that.fileType) &&
             Objects.equals(fileUrl, that.fileUrl) &&
             Objects.equals(fileSizeBytes, that.fileSizeBytes) &&
+            Objects.equals(fileObjectKey, that.fileObjectKey) &&
+            Objects.equals(updatedAt, that.updatedAt) &&
             Objects.equals(lessonId, that.lessonId) &&
+            Objects.equals(learningDocumentId, that.learningDocumentId) &&
             Objects.equals(distinct, that.distinct)
         );
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, fileType, fileUrl, fileSizeBytes, lessonId, distinct);
+        return Objects.hash(
+            id,
+            fileName,
+            displayName,
+            mimeType,
+            orderIndex,
+            fileType,
+            fileUrl,
+            fileSizeBytes,
+            fileObjectKey,
+            updatedAt,
+            lessonId,
+            learningDocumentId,
+            distinct
+        );
     }
 
     // prettier-ignore
@@ -195,10 +370,17 @@ public class CourseMaterialCriteria implements Serializable, Criteria {
     public String toString() {
         return "CourseMaterialCriteria{" +
             optionalId().map(f -> "id=" + f + ", ").orElse("") +
+            optionalFileName().map(f -> "fileName=" + f + ", ").orElse("") +
+            optionalDisplayName().map(f -> "displayName=" + f + ", ").orElse("") +
+            optionalMimeType().map(f -> "mimeType=" + f + ", ").orElse("") +
+            optionalOrderIndex().map(f -> "orderIndex=" + f + ", ").orElse("") +
             optionalFileType().map(f -> "fileType=" + f + ", ").orElse("") +
             optionalFileUrl().map(f -> "fileUrl=" + f + ", ").orElse("") +
             optionalFileSizeBytes().map(f -> "fileSizeBytes=" + f + ", ").orElse("") +
+            optionalFileObjectKey().map(f -> "fileObjectKey=" + f + ", ").orElse("") +
+            optionalUpdatedAt().map(f -> "updatedAt=" + f + ", ").orElse("") +
             optionalLessonId().map(f -> "lessonId=" + f + ", ").orElse("") +
+            optionalLearningDocumentId().map(f -> "learningDocumentId=" + f + ", ").orElse("") +
             optionalDistinct().map(f -> "distinct=" + f + ", ").orElse("") +
         "}";
     }

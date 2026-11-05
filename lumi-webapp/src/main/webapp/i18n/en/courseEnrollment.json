@@ -22,8 +22,10 @@
       "status": "Status",
       "enrolledAt": "Enrolled At",
       "expiresAt": "Expires At",
+      "updatedAt": "Updated At",
+      "course": "Course",
       "student": "Student",
-      "course": "Course"
+      "lastAccessedLesson": "Last Accessed Lesson"
     }
   }
 }

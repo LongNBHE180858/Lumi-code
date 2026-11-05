@@ -1,5 +1,6 @@
 package com.lumi.service.dto;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.*;
 import java.io.Serializable;
 import java.math.BigDecimal;
@@ -9,6 +10,7 @@ import java.util.Objects;
 /**
  * A DTO for the {@link com.lumi.domain.Payment} entity.
  */
+@Schema(description = "Lưu giao dịch thanh toán và thông tin đối chiếu từ cổng thanh toán.")
 @SuppressWarnings("common-java:DuplicatedBlocks")
 public class PaymentDTO implements Serializable {
 
@@ -22,13 +24,20 @@ public class PaymentDTO implements Serializable {
     private String transactionNo;
 
     @NotNull
-    @DecimalMin(value = "0")
     private BigDecimal amount;
 
     @Size(max = 20)
     private String status;
 
     private Instant paidAt;
+
+    @Size(max = 255)
+    private String paymentReference;
+
+    @Size(max = 255)
+    private String providerEventId;
+
+    private Instant receivedAt;
 
     @NotNull
     private CourseOrderDTO order;
@@ -81,6 +90,30 @@ public class PaymentDTO implements Serializable {
         this.paidAt = paidAt;
     }
 
+    public String getPaymentReference() {
+        return paymentReference;
+    }
+
+    public void setPaymentReference(String paymentReference) {
+        this.paymentReference = paymentReference;
+    }
+
+    public String getProviderEventId() {
+        return providerEventId;
+    }
+
+    public void setProviderEventId(String providerEventId) {
+        this.providerEventId = providerEventId;
+    }
+
+    public Instant getReceivedAt() {
+        return receivedAt;
+    }
+
+    public void setReceivedAt(Instant receivedAt) {
+        this.receivedAt = receivedAt;
+    }
+
     public CourseOrderDTO getOrder() {
         return order;
     }
@@ -120,6 +153,9 @@ public class PaymentDTO implements Serializable {
             ", amount=" + getAmount() +
             ", status='" + getStatus() + "'" +
             ", paidAt='" + getPaidAt() + "'" +
+            ", paymentReference='" + getPaymentReference() + "'" +
+            ", providerEventId='" + getProviderEventId() + "'" +
+            ", receivedAt='" + getReceivedAt() + "'" +
             ", order=" + getOrder() +
             "}";
     }

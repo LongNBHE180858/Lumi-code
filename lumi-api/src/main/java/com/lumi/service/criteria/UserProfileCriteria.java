@@ -46,8 +46,6 @@ public class UserProfileCriteria implements Serializable, Criteria {
 
     private StringFilter phoneNumber;
 
-    private StringFilter bio;
-
     private StringFilter schoolName;
 
     private IntegerFilter gradeLevel;
@@ -58,6 +56,8 @@ public class UserProfileCriteria implements Serializable, Criteria {
 
     private InstantFilter updatedAt;
 
+    private LocalDateFilter birthDate;
+
     private LongFilter userId;
 
     private Boolean distinct;
@@ -67,12 +67,12 @@ public class UserProfileCriteria implements Serializable, Criteria {
     public UserProfileCriteria(UserProfileCriteria other) {
         this.id = other.optionalId().map(LongFilter::copy).orElse(null);
         this.phoneNumber = other.optionalPhoneNumber().map(StringFilter::copy).orElse(null);
-        this.bio = other.optionalBio().map(StringFilter::copy).orElse(null);
         this.schoolName = other.optionalSchoolName().map(StringFilter::copy).orElse(null);
         this.gradeLevel = other.optionalGradeLevel().map(IntegerFilter::copy).orElse(null);
         this.is2faEnabled = other.optionalIs2faEnabled().map(BooleanFilter::copy).orElse(null);
         this.instructorStatus = other.optionalInstructorStatus().map(InstructorApplicationStatusFilter::copy).orElse(null);
         this.updatedAt = other.optionalUpdatedAt().map(InstantFilter::copy).orElse(null);
+        this.birthDate = other.optionalBirthDate().map(LocalDateFilter::copy).orElse(null);
         this.userId = other.optionalUserId().map(LongFilter::copy).orElse(null);
         this.distinct = other.distinct;
     }
@@ -118,25 +118,6 @@ public class UserProfileCriteria implements Serializable, Criteria {
 
     public void setPhoneNumber(StringFilter phoneNumber) {
         this.phoneNumber = phoneNumber;
-    }
-
-    public StringFilter getBio() {
-        return bio;
-    }
-
-    public Optional<StringFilter> optionalBio() {
-        return Optional.ofNullable(bio);
-    }
-
-    public StringFilter bio() {
-        if (bio == null) {
-            setBio(new StringFilter());
-        }
-        return bio;
-    }
-
-    public void setBio(StringFilter bio) {
-        this.bio = bio;
     }
 
     public StringFilter getSchoolName() {
@@ -234,6 +215,25 @@ public class UserProfileCriteria implements Serializable, Criteria {
         this.updatedAt = updatedAt;
     }
 
+    public LocalDateFilter getBirthDate() {
+        return birthDate;
+    }
+
+    public Optional<LocalDateFilter> optionalBirthDate() {
+        return Optional.ofNullable(birthDate);
+    }
+
+    public LocalDateFilter birthDate() {
+        if (birthDate == null) {
+            setBirthDate(new LocalDateFilter());
+        }
+        return birthDate;
+    }
+
+    public void setBirthDate(LocalDateFilter birthDate) {
+        this.birthDate = birthDate;
+    }
+
     public LongFilter getUserId() {
         return userId;
     }
@@ -284,12 +284,12 @@ public class UserProfileCriteria implements Serializable, Criteria {
         return (
             Objects.equals(id, that.id) &&
             Objects.equals(phoneNumber, that.phoneNumber) &&
-            Objects.equals(bio, that.bio) &&
             Objects.equals(schoolName, that.schoolName) &&
             Objects.equals(gradeLevel, that.gradeLevel) &&
             Objects.equals(is2faEnabled, that.is2faEnabled) &&
             Objects.equals(instructorStatus, that.instructorStatus) &&
             Objects.equals(updatedAt, that.updatedAt) &&
+            Objects.equals(birthDate, that.birthDate) &&
             Objects.equals(userId, that.userId) &&
             Objects.equals(distinct, that.distinct)
         );
@@ -297,7 +297,18 @@ public class UserProfileCriteria implements Serializable, Criteria {
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, phoneNumber, bio, schoolName, gradeLevel, is2faEnabled, instructorStatus, updatedAt, userId, distinct);
+        return Objects.hash(
+            id,
+            phoneNumber,
+            schoolName,
+            gradeLevel,
+            is2faEnabled,
+            instructorStatus,
+            updatedAt,
+            birthDate,
+            userId,
+            distinct
+        );
     }
 
     // prettier-ignore
@@ -306,12 +317,12 @@ public class UserProfileCriteria implements Serializable, Criteria {
         return "UserProfileCriteria{" +
             optionalId().map(f -> "id=" + f + ", ").orElse("") +
             optionalPhoneNumber().map(f -> "phoneNumber=" + f + ", ").orElse("") +
-            optionalBio().map(f -> "bio=" + f + ", ").orElse("") +
             optionalSchoolName().map(f -> "schoolName=" + f + ", ").orElse("") +
             optionalGradeLevel().map(f -> "gradeLevel=" + f + ", ").orElse("") +
             optionalIs2faEnabled().map(f -> "is2faEnabled=" + f + ", ").orElse("") +
             optionalInstructorStatus().map(f -> "instructorStatus=" + f + ", ").orElse("") +
             optionalUpdatedAt().map(f -> "updatedAt=" + f + ", ").orElse("") +
+            optionalBirthDate().map(f -> "birthDate=" + f + ", ").orElse("") +
             optionalUserId().map(f -> "userId=" + f + ", ").orElse("") +
             optionalDistinct().map(f -> "distinct=" + f + ", ").orElse("") +
         "}";

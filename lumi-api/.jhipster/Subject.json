@@ -3,7 +3,9 @@
     "changelogDate": "20261012230439"
   },
   "applications": ["*"],
+  "documentation": "Lưu danh mục môn học của hệ thống.",
   "dto": "mapstruct",
+  "entityTableName": "subjects",
   "fields": [
     {
       "fieldName": "name",
@@ -13,9 +15,7 @@
     },
     {
       "fieldName": "description",
-      "fieldType": "String",
-      "fieldValidateRules": ["maxlength"],
-      "fieldValidateRulesMaxlength": "5000"
+      "fieldType": "TextBlob"
     }
   ],
   "jpaMetamodelFiltering": true,

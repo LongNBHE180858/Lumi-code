@@ -8,7 +8,7 @@ lumi-api/src/main/java/com/lumi/
 │  ├─ SupportTicketResource.java                 [CHÍNH] API tạo, xem, nhắn tin, mở lại ticket
 │  └─ AdminSupportTicketResource.java            [CHÍNH] API admin xem, lọc và đổi trạng thái ticket
 ├─ service/
-│  ├─ SupportTicketManagementService.java        [CHÍNH] Quyền truy cập và nghiệp vụ ticket
+│  ├─ SupportTicketManagementService.java        [CHÍNH] Quyền truy cập, tin nhắn, trạng thái và updated_at
 │  └─ dto/
 │     ├─ SupportTicketCreateRequest.java         Dữ liệu tạo ticket
 │     ├─ TicketMessageCreateRequest.java         Nội dung tin nhắn gửi lên
@@ -16,7 +16,7 @@ lumi-api/src/main/java/com/lumi/
 │     ├─ SupportTicketViewDTO.java               Dữ liệu ticket trả về FE
 │     └─ TicketMessageViewDTO.java               Dữ liệu tin nhắn trả về FE
 ├─ domain/
-│  ├─ SupportTicket.java                         [JH có sẵn] Ticket, người tạo, ngày tạo, trạng thái
+│  ├─ SupportTicket.java                         [JH mở rộng] Ticket, người tạo, trạng thái, created_at và updated_at
 │  ├─ TicketMessage.java                         [JH có sẵn] Tin nhắn, người gửi, ticket liên quan
 │  └─ enumeration/
 │     └─ SupportTicketStatus.java                OPEN, IN_PROGRESS, RESOLVED
@@ -26,9 +26,9 @@ lumi-api/src/main/java/com/lumi/
 
 lumi-api/src/test/java/com/lumi/
 ├─ service/
-│  └─ SupportTicketManagementServiceTest.java    Kiểm tra quyền và quy tắc nghiệp vụ
+│  └─ SupportTicketManagementServiceTest.java    Kiểm tra quyền, trạng thái và thời điểm hoạt động
 └─ web/rest/
-   └─ SupportTicketResourceIT.java               Kiểm tra API và chuyển trạng thái
+   └─ SupportTicketResourceIT.java               Kiểm tra API, chuyển trạng thái và dữ liệu thời gian
 ```
 
 ## Frontend
@@ -58,12 +58,14 @@ lumi-webapp/src/test/javascript/playwright/e2e/
 
 ## Ghi chú về mã cũ
 
+Các đường dẫn dưới đây là mã JHipster cũ đã gỡ; chúng không còn là file hoặc thư mục trong cây hiện tại.
+
 ```text
 lumi-api/src/main/java/com/lumi/service/
-├─ SupportTicketService.java                    [JH cũ] CRUD sinh sẵn, không dùng cho API ticket mới
-├─ TicketMessageService.java                    [JH cũ] CRUD sinh sẵn, không dùng cho API ticket mới
-├─ SupportTicketQueryService.java               [JH cũ] Bộ lọc CRUD sinh sẵn
-└─ TicketMessageQueryService.java               [JH cũ] Bộ lọc CRUD sinh sẵn
+├─ SupportTicketService.java                    [ĐÃ GỠ] CRUD JHipster cũ
+├─ TicketMessageService.java                    [ĐÃ GỠ] CRUD JHipster cũ
+├─ SupportTicketQueryService.java               [ĐÃ GỠ] Bộ lọc CRUD JHipster cũ
+└─ TicketMessageQueryService.java               [ĐÃ GỠ] Bộ lọc CRUD JHipster cũ
 
 lumi-webapp/src/main/webapp/app/entities/
 ├─ support-ticket/                             [ĐÃ GỠ] Màn hình CRUD JHipster cũ
@@ -71,3 +73,5 @@ lumi-webapp/src/main/webapp/app/entities/
 ```
 
 Luồng hiện dùng: `ticket-list.tsx` / `ticket-detail.tsx` → `ticket-api.ts` → hai `Resource` → `SupportTicketManagementService` → `Repository` → `Entity`.
+
+`updated_at` bằng `created_at` khi tạo ticket; sau đó ghi nhận lần có tin nhắn mới hoặc lần trạng thái thực sự thay đổi gần nhất, kể cả tin nhắn mở lại ticket từ `RESOLVED`.

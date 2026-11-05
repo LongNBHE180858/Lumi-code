@@ -3,7 +3,9 @@
     "changelogDate": "20261012230436"
   },
   "applications": ["*"],
+  "documentation": "Lưu liên kết phụ huynh - học sinh và trạng thái xác minh quan hệ giám hộ.",
   "dto": "mapstruct",
+  "entityTableName": "parent_student_links",
   "fields": [
     {
       "fieldName": "linkCode",
@@ -20,10 +22,49 @@
     {
       "fieldName": "linkedAt",
       "fieldType": "Instant"
+    },
+    {
+      "fieldName": "createdAt",
+      "fieldType": "Instant",
+      "fieldValidateRules": ["required"]
+    },
+    {
+      "fieldName": "codeExpiresAt",
+      "fieldType": "Instant",
+      "fieldValidateRules": ["required"]
+    },
+    {
+      "fieldName": "confirmedAt",
+      "fieldType": "Instant"
+    },
+    {
+      "fieldName": "revokedAt",
+      "fieldType": "Instant"
+    },
+    {
+      "fieldName": "relationshipType",
+      "fieldType": "String",
+      "fieldValidateRules": ["maxlength"],
+      "fieldValidateRulesMaxlength": "30"
+    },
+    {
+      "fieldName": "guardianVerificationStatus",
+      "fieldType": "String",
+      "fieldValidateRules": ["required", "maxlength"],
+      "fieldValidateRulesMaxlength": "20"
+    },
+    {
+      "fieldName": "guardianVerifiedAt",
+      "fieldType": "Instant"
+    },
+    {
+      "fieldName": "guardianVerificationNote",
+      "fieldType": "TextBlob"
     }
   ],
   "jpaMetamodelFiltering": true,
   "name": "ParentStudentLink",
+  "pagination": "pagination",
   "relationships": [
     {
       "otherEntityField": "login",
@@ -41,6 +82,22 @@
       "relationshipSide": "left",
       "relationshipType": "many-to-one",
       "relationshipValidateRules": "required",
+      "relationshipWithBuiltInEntity": true
+    },
+    {
+      "otherEntityField": "login",
+      "otherEntityName": "user",
+      "relationshipName": "confirmedBy",
+      "relationshipSide": "left",
+      "relationshipType": "many-to-one",
+      "relationshipWithBuiltInEntity": true
+    },
+    {
+      "otherEntityField": "login",
+      "otherEntityName": "user",
+      "relationshipName": "guardianVerifiedBy",
+      "relationshipSide": "left",
+      "relationshipType": "many-to-one",
       "relationshipWithBuiltInEntity": true
     }
   ],

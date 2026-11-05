@@ -9,6 +9,9 @@ export interface INotification {
   isRead?: boolean | null;
   type?: string;
   createdAt?: dayjs.Dayjs | null;
+  targetType?: string | null;
+  targetId?: number | null;
+  readAt?: dayjs.Dayjs | null;
   user?: IUser;
 }
 

@@ -1,5 +1,6 @@
 package com.lumi.service.dto;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.*;
 import java.io.Serializable;
 import java.time.Instant;
@@ -8,6 +9,7 @@ import java.util.Objects;
 /**
  * A DTO for the {@link com.lumi.domain.Wishlist} entity.
  */
+@Schema(description = "Lưu danh sách khóa học yêu thích của học sinh.")
 @SuppressWarnings("common-java:DuplicatedBlocks")
 public class WishlistDTO implements Serializable {
 

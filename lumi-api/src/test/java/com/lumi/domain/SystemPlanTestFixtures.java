@@ -13,6 +13,12 @@ public final class SystemPlanTestFixtures {
             .durationDays(30)
             .storageQuotaMb(0L)
             .aiGenerationLimit(0)
-            .maxClasses(1);
+            .maxClasses(0)
+            .planType("PERSONAL")
+            .targetRole("PARENT")
+            .status("UNAVAILABLE")
+            .aiLimitPeriod("PACKAGE_TERM")
+            .features("[]")
+            .updatedAt(java.time.Instant.now());
     }
 }

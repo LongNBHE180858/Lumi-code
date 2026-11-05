@@ -51,7 +51,13 @@ public class QuestionAsserts {
             .satisfies(a -> assertThat(a.getType()).as("check type").isEqualTo(expected.getType()))
             .satisfies(a -> assertThat(a.getDifficulty()).as("check difficulty").isEqualTo(expected.getDifficulty()))
             .satisfies(a -> assertThat(a.getExplanation()).as("check explanation").isEqualTo(expected.getExplanation()))
-            .satisfies(a -> assertThat(a.getIsDeleted()).as("check isDeleted").isEqualTo(expected.getIsDeleted()));
+            .satisfies(a -> assertThat(a.getIsDeleted()).as("check isDeleted").isEqualTo(expected.getIsDeleted()))
+            .satisfies(a -> assertThat(a.getSourceType()).as("check sourceType").isEqualTo(expected.getSourceType()))
+            .satisfies(a -> assertThat(a.getContentHash()).as("check contentHash").isEqualTo(expected.getContentHash()))
+            .satisfies(a -> assertThat(a.getVisibility()).as("check visibility").isEqualTo(expected.getVisibility()))
+            .satisfies(a -> assertThat(a.getVersion()).as("check version").isEqualTo(expected.getVersion()))
+            .satisfies(a -> assertThat(a.getCreatedAt()).as("check createdAt").isEqualTo(expected.getCreatedAt()))
+            .satisfies(a -> assertThat(a.getUpdatedAt()).as("check updatedAt").isEqualTo(expected.getUpdatedAt()));
     }
 
     /**
@@ -63,6 +69,10 @@ public class QuestionAsserts {
     public static void assertQuestionUpdatableRelationshipsEquals(Question expected, Question actual) {
         assertThat(actual)
             .as("Verify Question relationships")
-            .satisfies(a -> assertThat(a.getBank()).as("check bank").isEqualTo(expected.getBank()));
+            .satisfies(a -> assertThat(a.getBank()).as("check bank").isEqualTo(expected.getBank()))
+            .satisfies(a -> assertThat(a.getAiContent()).as("check aiContent").isEqualTo(expected.getAiContent()))
+            .satisfies(a -> assertThat(a.getSubject()).as("check subject").isEqualTo(expected.getSubject()))
+            .satisfies(a -> assertThat(a.getGrade()).as("check grade").isEqualTo(expected.getGrade()))
+            .satisfies(a -> assertThat(a.getPreviousQuestion()).as("check previousQuestion").isEqualTo(expected.getPreviousQuestion()));
     }
 }

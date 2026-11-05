@@ -64,8 +64,6 @@ public class StudyClassCriteria implements Serializable, Criteria {
 
     private StringFilter name;
 
-    private StringFilter description;
-
     private StringFilter joinCode;
 
     private ClassJoinModeFilter joinMode;
@@ -80,6 +78,10 @@ public class StudyClassCriteria implements Serializable, Criteria {
 
     private InstantFilter createdAt;
 
+    private InstantFilter joinCodeExpiresAt;
+
+    private InstantFilter updatedAt;
+
     private LongFilter instructorId;
 
     private LongFilter subjectId;
@@ -93,7 +95,6 @@ public class StudyClassCriteria implements Serializable, Criteria {
     public StudyClassCriteria(StudyClassCriteria other) {
         this.id = other.optionalId().map(LongFilter::copy).orElse(null);
         this.name = other.optionalName().map(StringFilter::copy).orElse(null);
-        this.description = other.optionalDescription().map(StringFilter::copy).orElse(null);
         this.joinCode = other.optionalJoinCode().map(StringFilter::copy).orElse(null);
         this.joinMode = other.optionalJoinMode().map(ClassJoinModeFilter::copy).orElse(null);
         this.maxStudents = other.optionalMaxStudents().map(IntegerFilter::copy).orElse(null);
@@ -101,6 +102,8 @@ public class StudyClassCriteria implements Serializable, Criteria {
         this.status = other.optionalStatus().map(RecordStatusFilter::copy).orElse(null);
         this.isDeleted = other.optionalIsDeleted().map(BooleanFilter::copy).orElse(null);
         this.createdAt = other.optionalCreatedAt().map(InstantFilter::copy).orElse(null);
+        this.joinCodeExpiresAt = other.optionalJoinCodeExpiresAt().map(InstantFilter::copy).orElse(null);
+        this.updatedAt = other.optionalUpdatedAt().map(InstantFilter::copy).orElse(null);
         this.instructorId = other.optionalInstructorId().map(LongFilter::copy).orElse(null);
         this.subjectId = other.optionalSubjectId().map(LongFilter::copy).orElse(null);
         this.gradeId = other.optionalGradeId().map(LongFilter::copy).orElse(null);
@@ -148,25 +151,6 @@ public class StudyClassCriteria implements Serializable, Criteria {
 
     public void setName(StringFilter name) {
         this.name = name;
-    }
-
-    public StringFilter getDescription() {
-        return description;
-    }
-
-    public Optional<StringFilter> optionalDescription() {
-        return Optional.ofNullable(description);
-    }
-
-    public StringFilter description() {
-        if (description == null) {
-            setDescription(new StringFilter());
-        }
-        return description;
-    }
-
-    public void setDescription(StringFilter description) {
-        this.description = description;
     }
 
     public StringFilter getJoinCode() {
@@ -302,6 +286,44 @@ public class StudyClassCriteria implements Serializable, Criteria {
         this.createdAt = createdAt;
     }
 
+    public InstantFilter getJoinCodeExpiresAt() {
+        return joinCodeExpiresAt;
+    }
+
+    public Optional<InstantFilter> optionalJoinCodeExpiresAt() {
+        return Optional.ofNullable(joinCodeExpiresAt);
+    }
+
+    public InstantFilter joinCodeExpiresAt() {
+        if (joinCodeExpiresAt == null) {
+            setJoinCodeExpiresAt(new InstantFilter());
+        }
+        return joinCodeExpiresAt;
+    }
+
+    public void setJoinCodeExpiresAt(InstantFilter joinCodeExpiresAt) {
+        this.joinCodeExpiresAt = joinCodeExpiresAt;
+    }
+
+    public InstantFilter getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public Optional<InstantFilter> optionalUpdatedAt() {
+        return Optional.ofNullable(updatedAt);
+    }
+
+    public InstantFilter updatedAt() {
+        if (updatedAt == null) {
+            setUpdatedAt(new InstantFilter());
+        }
+        return updatedAt;
+    }
+
+    public void setUpdatedAt(InstantFilter updatedAt) {
+        this.updatedAt = updatedAt;
+    }
+
     public LongFilter getInstructorId() {
         return instructorId;
     }
@@ -390,7 +412,6 @@ public class StudyClassCriteria implements Serializable, Criteria {
         return (
             Objects.equals(id, that.id) &&
             Objects.equals(name, that.name) &&
-            Objects.equals(description, that.description) &&
             Objects.equals(joinCode, that.joinCode) &&
             Objects.equals(joinMode, that.joinMode) &&
             Objects.equals(maxStudents, that.maxStudents) &&
@@ -398,6 +419,8 @@ public class StudyClassCriteria implements Serializable, Criteria {
             Objects.equals(status, that.status) &&
             Objects.equals(isDeleted, that.isDeleted) &&
             Objects.equals(createdAt, that.createdAt) &&
+            Objects.equals(joinCodeExpiresAt, that.joinCodeExpiresAt) &&
+            Objects.equals(updatedAt, that.updatedAt) &&
             Objects.equals(instructorId, that.instructorId) &&
             Objects.equals(subjectId, that.subjectId) &&
             Objects.equals(gradeId, that.gradeId) &&
@@ -410,7 +433,6 @@ public class StudyClassCriteria implements Serializable, Criteria {
         return Objects.hash(
             id,
             name,
-            description,
             joinCode,
             joinMode,
             maxStudents,
@@ -418,6 +440,8 @@ public class StudyClassCriteria implements Serializable, Criteria {
             status,
             isDeleted,
             createdAt,
+            joinCodeExpiresAt,
+            updatedAt,
             instructorId,
             subjectId,
             gradeId,
@@ -431,7 +455,6 @@ public class StudyClassCriteria implements Serializable, Criteria {
         return "StudyClassCriteria{" +
             optionalId().map(f -> "id=" + f + ", ").orElse("") +
             optionalName().map(f -> "name=" + f + ", ").orElse("") +
-            optionalDescription().map(f -> "description=" + f + ", ").orElse("") +
             optionalJoinCode().map(f -> "joinCode=" + f + ", ").orElse("") +
             optionalJoinMode().map(f -> "joinMode=" + f + ", ").orElse("") +
             optionalMaxStudents().map(f -> "maxStudents=" + f + ", ").orElse("") +
@@ -439,6 +462,8 @@ public class StudyClassCriteria implements Serializable, Criteria {
             optionalStatus().map(f -> "status=" + f + ", ").orElse("") +
             optionalIsDeleted().map(f -> "isDeleted=" + f + ", ").orElse("") +
             optionalCreatedAt().map(f -> "createdAt=" + f + ", ").orElse("") +
+            optionalJoinCodeExpiresAt().map(f -> "joinCodeExpiresAt=" + f + ", ").orElse("") +
+            optionalUpdatedAt().map(f -> "updatedAt=" + f + ", ").orElse("") +
             optionalInstructorId().map(f -> "instructorId=" + f + ", ").orElse("") +
             optionalSubjectId().map(f -> "subjectId=" + f + ", ").orElse("") +
             optionalGradeId().map(f -> "gradeId=" + f + ", ").orElse("") +

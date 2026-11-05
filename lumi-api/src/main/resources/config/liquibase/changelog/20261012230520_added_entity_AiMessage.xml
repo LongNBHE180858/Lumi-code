@@ -10,17 +10,35 @@
         Added the entity AiMessage.
     -->
     <changeSet id="20261012230520-1" author="jhipster">
-        <createTable tableName="ai_message">
+        <createTable tableName="ai_messages" remarks="Lưu tin nhắn AI, nguồn trích dẫn và đánh giá phản hồi của chủ hội thoại.">
             <column name="id" type="bigint">
                 <constraints primaryKey="true" nullable="false"/>
             </column>
             <column name="sender_role" type="varchar(20)">
                 <constraints nullable="false" />
             </column>
-            <column name="content" type="varchar(5000)">
+            <column name="content" type="${clobType}">
                 <constraints nullable="false" />
             </column>
             <column name="created_at" type="${datetimeType}">
+                <constraints nullable="true" />
+            </column>
+            <column name="citations" type="${clobType}">
+                <constraints nullable="false" />
+            </column>
+            <column name="generation_status" type="varchar(20)">
+                <constraints nullable="false" />
+            </column>
+            <column name="model_name" type="varchar(100)">
+                <constraints nullable="true" />
+            </column>
+            <column name="feedback_rating" type="integer">
+                <constraints nullable="true" />
+            </column>
+            <column name="feedback_note" type="${clobType}">
+                <constraints nullable="true" />
+            </column>
+            <column name="feedback_at" type="${datetimeType}">
                 <constraints nullable="true" />
             </column>
             <column name="conversation_id" type="bigint">
@@ -28,7 +46,8 @@
             </column>
             <!-- jhipster-needle-liquibase-add-column - JHipster will add columns here -->
         </createTable>
-        <dropDefaultValue tableName="ai_message" columnName="created_at" columnDataType="${datetimeType}"/>
+        <dropDefaultValue tableName="ai_messages" columnName="created_at" columnDataType="${datetimeType}"/>
+        <dropDefaultValue tableName="ai_messages" columnName="feedback_at" columnDataType="${datetimeType}"/>
     </changeSet>
 
     <!-- jhipster-needle-liquibase-add-changeset - JHipster will add changesets here -->
@@ -43,15 +62,21 @@
     -->
     <changeSet id="20261012230520-1-data" author="jhipster" context="faker">
         <loadData
-                  file="../fake-data/ai_message.csv"
+                  file="../fake-data/ai_messages.csv"
                   relativeToChangelogFile="true"
                   separator=";"
-                  tableName="ai_message"
+                  tableName="ai_messages"
                   usePreparedStatements="true">
             <column name="id" type="numeric"/>
             <column name="sender_role" type="string"/>
-            <column name="content" type="string"/>
+            <column name="content" type="clob"/>
             <column name="created_at" type="date"/>
+            <column name="citations" type="clob"/>
+            <column name="generation_status" type="string"/>
+            <column name="model_name" type="string"/>
+            <column name="feedback_rating" type="numeric"/>
+            <column name="feedback_note" type="clob"/>
+            <column name="feedback_at" type="date"/>
             <column name="conversation_id" type="numeric"/>
             <!-- jhipster-needle-liquibase-add-loadcolumn - JHipster (and/or extensions) can add load columns here -->
         </loadData>

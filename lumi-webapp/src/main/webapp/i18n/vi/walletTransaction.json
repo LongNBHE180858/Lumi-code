@@ -23,8 +23,11 @@
       "status": "Status",
       "idempotencyKey": "Idempotency Key",
       "occurredAt": "Occurred At",
+      "balanceBucket": "Balance Bucket",
       "wallet": "Wallet",
-      "order": "Order"
+      "order": "Order",
+      "payoutRequest": "Payout Request",
+      "refund": "Refund"
     }
   }
 }

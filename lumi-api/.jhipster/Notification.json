@@ -3,7 +3,9 @@
     "changelogDate": "20261012230526"
   },
   "applications": ["*"],
+  "documentation": "Lưu thông báo, trạng thái đã đọc và đối tượng điều hướng.",
   "dto": "mapstruct",
+  "entityTableName": "notifications",
   "fields": [
     {
       "fieldName": "title",
@@ -13,9 +15,8 @@
     },
     {
       "fieldName": "content",
-      "fieldType": "String",
-      "fieldValidateRules": ["required", "maxlength"],
-      "fieldValidateRulesMaxlength": "5000"
+      "fieldType": "TextBlob",
+      "fieldValidateRules": ["required"]
     },
     {
       "fieldName": "isRead",
@@ -29,6 +30,20 @@
     },
     {
       "fieldName": "createdAt",
+      "fieldType": "Instant"
+    },
+    {
+      "fieldName": "targetType",
+      "fieldType": "String",
+      "fieldValidateRules": ["maxlength"],
+      "fieldValidateRulesMaxlength": "50"
+    },
+    {
+      "fieldName": "targetId",
+      "fieldType": "Long"
+    },
+    {
+      "fieldName": "readAt",
       "fieldType": "Instant"
     }
   ],

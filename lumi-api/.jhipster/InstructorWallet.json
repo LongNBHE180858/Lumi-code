@@ -3,34 +3,31 @@
     "changelogDate": "20261012230457"
   },
   "applications": ["*"],
+  "documentation": "Lưu số dư tiền chờ giải phóng và tiền khả dụng của giáo viên.",
   "dto": "mapstruct",
+  "entityTableName": "instructor_wallets",
   "fields": [
     {
       "fieldName": "pendingAmount",
-      "fieldType": "BigDecimal",
-      "fieldValidateRules": ["min"],
-      "fieldValidateRulesMin": "0"
+      "fieldType": "BigDecimal"
     },
     {
       "fieldName": "availableAmount",
-      "fieldType": "BigDecimal",
-      "fieldValidateRules": ["min"],
-      "fieldValidateRulesMin": "0"
+      "fieldType": "BigDecimal"
     },
     {
       "fieldName": "rowVersion",
-      "fieldType": "Long",
-      "fieldValidateRules": ["min"],
-      "fieldValidateRulesMin": "0"
+      "fieldType": "Long"
     }
   ],
   "jpaMetamodelFiltering": true,
   "name": "InstructorWallet",
+  "pagination": "pagination",
   "relationships": [
     {
       "otherEntityField": "login",
       "otherEntityName": "user",
-      "relationshipName": "user",
+      "relationshipName": "instructor",
       "relationshipSide": "left",
       "relationshipType": "one-to-one",
       "relationshipValidateRules": "required",

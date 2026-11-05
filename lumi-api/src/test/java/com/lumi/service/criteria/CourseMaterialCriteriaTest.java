@@ -72,10 +72,17 @@ class CourseMaterialCriteriaTest {
 
     private static void setAllFilters(CourseMaterialCriteria courseMaterialCriteria) {
         courseMaterialCriteria.id();
+        courseMaterialCriteria.fileName();
+        courseMaterialCriteria.displayName();
+        courseMaterialCriteria.mimeType();
+        courseMaterialCriteria.orderIndex();
         courseMaterialCriteria.fileType();
         courseMaterialCriteria.fileUrl();
         courseMaterialCriteria.fileSizeBytes();
+        courseMaterialCriteria.fileObjectKey();
+        courseMaterialCriteria.updatedAt();
         courseMaterialCriteria.lessonId();
+        courseMaterialCriteria.learningDocumentId();
         courseMaterialCriteria.distinct();
     }
 
@@ -83,10 +90,17 @@ class CourseMaterialCriteriaTest {
         return new Condition<>(
             criteria ->
                 condition.apply(criteria.getId()) &&
+                condition.apply(criteria.getFileName()) &&
+                condition.apply(criteria.getDisplayName()) &&
+                condition.apply(criteria.getMimeType()) &&
+                condition.apply(criteria.getOrderIndex()) &&
                 condition.apply(criteria.getFileType()) &&
                 condition.apply(criteria.getFileUrl()) &&
                 condition.apply(criteria.getFileSizeBytes()) &&
+                condition.apply(criteria.getFileObjectKey()) &&
+                condition.apply(criteria.getUpdatedAt()) &&
                 condition.apply(criteria.getLessonId()) &&
+                condition.apply(criteria.getLearningDocumentId()) &&
                 condition.apply(criteria.getDistinct()),
             "every filter matches"
         );
@@ -99,10 +113,17 @@ class CourseMaterialCriteriaTest {
         return new Condition<>(
             criteria ->
                 condition.apply(criteria.getId(), copy.getId()) &&
+                condition.apply(criteria.getFileName(), copy.getFileName()) &&
+                condition.apply(criteria.getDisplayName(), copy.getDisplayName()) &&
+                condition.apply(criteria.getMimeType(), copy.getMimeType()) &&
+                condition.apply(criteria.getOrderIndex(), copy.getOrderIndex()) &&
                 condition.apply(criteria.getFileType(), copy.getFileType()) &&
                 condition.apply(criteria.getFileUrl(), copy.getFileUrl()) &&
                 condition.apply(criteria.getFileSizeBytes(), copy.getFileSizeBytes()) &&
+                condition.apply(criteria.getFileObjectKey(), copy.getFileObjectKey()) &&
+                condition.apply(criteria.getUpdatedAt(), copy.getUpdatedAt()) &&
                 condition.apply(criteria.getLessonId(), copy.getLessonId()) &&
+                condition.apply(criteria.getLearningDocumentId(), copy.getLearningDocumentId()) &&
                 condition.apply(criteria.getDistinct(), copy.getDistinct()),
             "every filter matches"
         );

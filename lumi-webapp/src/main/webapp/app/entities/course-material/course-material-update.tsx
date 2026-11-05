@@ -1,13 +1,13 @@
-import { optionalNumber } from 'app/shared/util/course-builder-fields';
 import React, { useEffect } from 'react';
 import { Button, Col, FormText, Row } from 'react-bootstrap';
-import { Translate, ValidatedField, ValidatedForm, isNumber, translate } from 'react-jhipster';
+import { Translate, ValidatedField, ValidatedForm, translate } from 'react-jhipster';
 import { Link, useNavigate, useParams } from 'react-router';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import { useAppDispatch, useAppSelector } from 'app/config/store';
 import { getEntities as getLessons } from 'app/entities/lesson/lesson.reducer';
+import { convertDateTimeFromServer, convertDateTimeToServer, displayDefaultDateTime } from 'app/shared/util/date-utils';
 
 import { createEntity, getEntity, reset, updateEntity } from './course-material.reducer';
 
@@ -46,11 +46,16 @@ export const CourseMaterialUpdate = () => {
   }, [updateSuccess]);
 
   const saveEntity = values => {
-    values.orderIndex = optionalNumber(values.orderIndex);
     if (values.id !== undefined && typeof values.id !== 'number') {
       values.id = Number(values.id);
     }
-    values.fileSizeBytes = optionalNumber(values.fileSizeBytes);
+    if (values.orderIndex !== undefined && typeof values.orderIndex !== 'number') {
+      values.orderIndex = Number(values.orderIndex);
+    }
+    if (values.fileSizeBytes !== undefined && typeof values.fileSizeBytes !== 'number') {
+      values.fileSizeBytes = Number(values.fileSizeBytes);
+    }
+    values.updatedAt = convertDateTimeToServer(values.updatedAt);
 
     const entity = {
       ...courseMaterialEntity,
@@ -67,9 +72,12 @@ export const CourseMaterialUpdate = () => {
 
   const defaultValues = () =>
     isNew
-      ? {}
+      ? {
+          updatedAt: displayDefaultDateTime(),
+        }
       : {
           ...courseMaterialEntity,
+          updatedAt: convertDateTimeFromServer(courseMaterialEntity.updatedAt),
           lesson: courseMaterialEntity?.lesson?.id,
         };
 
@@ -88,40 +96,6 @@ export const CourseMaterialUpdate = () => {
             <p>Loading...</p>
           ) : (
             <ValidatedForm mode="all" defaultValues={defaultValues()} onSubmit={saveEntity}>
-              <ValidatedField
-                label={translate('lumiApp.courseMaterial.fileName')}
-                id="course-material-fileName"
-                name="fileName"
-                type="text"
-                validate={{ maxLength: { value: 255, message: translate('entity.validation.maxlength', { max: 255 }) } }}
-              />
-              <ValidatedField
-                label={translate('lumiApp.courseMaterial.displayName')}
-                id="course-material-displayName"
-                name="displayName"
-                type="text"
-                validate={{ maxLength: { value: 255, message: translate('entity.validation.maxlength', { max: 255 }) } }}
-              />
-              <ValidatedField
-                label={translate('lumiApp.courseMaterial.mimeType')}
-                id="course-material-mimeType"
-                name="mimeType"
-                type="text"
-                validate={{ maxLength: { value: 100, message: translate('entity.validation.maxlength', { max: 100 }) } }}
-              />
-              <ValidatedField
-                label={translate('lumiApp.courseMaterial.orderIndex')}
-                id="course-material-orderIndex"
-                name="orderIndex"
-                type="number"
-                validate={{
-                  validate: value =>
-                    value === '' ||
-                    value == null ||
-                    (Number.isSafeInteger(Number(value)) && Number(value) >= 0) ||
-                    translate('entity.validation.number'),
-                }}
-              />
               {!isNew && (
                 <ValidatedField
                   name="id"
@@ -132,6 +106,43 @@ export const CourseMaterialUpdate = () => {
                   validate={{ required: true }}
                 />
               )}
+              <ValidatedField
+                label={translate('lumiApp.courseMaterial.fileName')}
+                id="course-material-fileName"
+                name="fileName"
+                data-cy="fileName"
+                type="text"
+                validate={{
+                  maxLength: { value: 255, message: translate('entity.validation.maxlength', { max: 255 }) },
+                }}
+              />
+              <ValidatedField
+                label={translate('lumiApp.courseMaterial.displayName')}
+                id="course-material-displayName"
+                name="displayName"
+                data-cy="displayName"
+                type="text"
+                validate={{
+                  maxLength: { value: 255, message: translate('entity.validation.maxlength', { max: 255 }) },
+                }}
+              />
+              <ValidatedField
+                label={translate('lumiApp.courseMaterial.mimeType')}
+                id="course-material-mimeType"
+                name="mimeType"
+                data-cy="mimeType"
+                type="text"
+                validate={{
+                  maxLength: { value: 100, message: translate('entity.validation.maxlength', { max: 100 }) },
+                }}
+              />
+              <ValidatedField
+                label={translate('lumiApp.courseMaterial.orderIndex')}
+                id="course-material-orderIndex"
+                name="orderIndex"
+                data-cy="orderIndex"
+                type="text"
+              />
               <ValidatedField
                 label={translate('lumiApp.courseMaterial.fileType')}
                 id="course-material-fileType"
@@ -160,9 +171,26 @@ export const CourseMaterialUpdate = () => {
                 name="fileSizeBytes"
                 data-cy="fileSizeBytes"
                 type="text"
+              />
+              <ValidatedField
+                label={translate('lumiApp.courseMaterial.fileObjectKey')}
+                id="course-material-fileObjectKey"
+                name="fileObjectKey"
+                data-cy="fileObjectKey"
+                type="text"
                 validate={{
-                  min: { value: 0, message: translate('entity.validation.min', { min: 0 }) },
-                  validate: v => isNumber(v) || translate('entity.validation.number'),
+                  maxLength: { value: 1000, message: translate('entity.validation.maxlength', { max: 1000 }) },
+                }}
+              />
+              <ValidatedField
+                label={translate('lumiApp.courseMaterial.updatedAt')}
+                id="course-material-updatedAt"
+                name="updatedAt"
+                data-cy="updatedAt"
+                type="datetime-local"
+                placeholder="YYYY-MM-DD HH:mm"
+                validate={{
+                  required: { value: true, message: translate('entity.validation.required') },
                 }}
               />
               <ValidatedField
@@ -177,7 +205,7 @@ export const CourseMaterialUpdate = () => {
                 {lessons
                   ? lessons.map(otherEntity => (
                       <option value={otherEntity.id} key={otherEntity.id}>
-                        {otherEntity.title}
+                        {otherEntity.id}
                       </option>
                     ))
                   : null}

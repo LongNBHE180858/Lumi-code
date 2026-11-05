@@ -12,7 +12,7 @@ import {
 import { expect, test } from '../../support/fixtures';
 
 const classMaterialPageUrl = '/class-material';
-// const classMaterialSample = {"title":"readily task untried","fileType":"illiterate reckless","fileUrl":"standard aside towards","fileSizeBytes":5372};
+// const classMaterialSample = {"title":"tut responsible standard","fileType":"yahoo","fileUrl":"wholly","fileSizeBytes":22815,"updatedAt":"2026-10-12T21:33:53.981Z"};
 
 const classMaterialApiUrl = '/api/class-materials';
 
@@ -35,7 +35,7 @@ test.describe('ClassMaterial e2e test', () => {
       await jhi.authenticatedRequest({
         method: 'POST',
         url: '/api/study-classes',
-        body: {"name":"save","description":"amid hence","joinCode":"substantia","joinMode":"INVITE_ONLY","maxStudents":1225,"currentStudents":28819,"status":"ACTIVE","isDeleted":false,"createdAt":"2026-10-12T03:47:15.251Z"},
+        body: {"name":"save","description":"Li4vZmFrZS1kYXRhL2Jsb2IvaGlwc3Rlci50eHQ=","joinCode":"amid hence","joinMode":"CODE_APPROVAL","maxStudents":28970,"currentStudents":12222,"status":"ARCHIVED","isDeleted":false,"createdAt":"2026-10-12T20:18:30.941Z","joinCodeExpiresAt":"2026-10-12T12:52:47.757Z","updatedAt":"2026-10-12T18:53:17.452Z"},
       })
     ).json();
   });
@@ -47,6 +47,12 @@ test.describe('ClassMaterial e2e test', () => {
     await page.route(
       url => url.pathname === '/api/study-classes',
       route => route.fulfill({ status: 200, json: [studyClass].filter(Boolean) }),
+    );
+    // A url predicate rather than a glob: a glob's wildcards would close the "Disabled due to
+    // incompatibility" block comment that wraps this section when the create test is skipped.
+    await page.route(
+      url => url.pathname === '/api/learning-documents',
+      route => route.fulfill({ status: 200, json: [].filter(Boolean) }),
     );
   });
    */
@@ -229,6 +235,13 @@ test.describe('ClassMaterial e2e test', () => {
       await page.locator(`[data-cy="uploadedAt"]`).fill('2026-10-12T05:02');
       await page.locator(`[data-cy="uploadedAt"]`).blur();
       await expect(page.locator(`[data-cy="uploadedAt"]`)).toHaveValue('2026-10-12T05:02');
+
+      await page.locator(`[data-cy="fileObjectKey"]`).fill('readily task untried');
+      await expect(page.locator(`[data-cy="fileObjectKey"]`)).toHaveValue('readily task untried');
+
+      await page.locator(`[data-cy="updatedAt"]`).fill('2026-10-12T10:41');
+      await page.locator(`[data-cy="updatedAt"]`).blur();
+      await expect(page.locator(`[data-cy="updatedAt"]`)).toHaveValue('2026-10-12T10:41');
 
       await page.locator(`[data-cy="studyClass"]`).selectOption({ index: 1 });
 

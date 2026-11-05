@@ -10,7 +10,7 @@
         Added the entity TeacherQuota.
     -->
     <changeSet id="20261012230452-1" author="jhipster">
-        <createTable tableName="teacher_quota">
+        <createTable tableName="teacher_quotas" remarks="Lưu hạn mức và mức sử dụng tài nguyên của giáo viên.">
             <column name="id" type="bigint">
                 <constraints primaryKey="true" nullable="false"/>
             </column>
@@ -26,15 +26,30 @@
             <column name="row_version" type="bigint">
                 <constraints nullable="true" />
             </column>
-            <column name="user_id" type="bigint">
-                <constraints nullable="false" unique="true" uniqueConstraintName="ux_teacher_quota__user_id" />
+            <column name="effective_storage_limit_bytes" type="bigint">
+                <constraints nullable="false" />
+            </column>
+            <column name="ai_period_started_at" type="${datetimeType}">
+                <constraints nullable="true" />
+            </column>
+            <column name="ai_period_ends_at" type="${datetimeType}">
+                <constraints nullable="true" />
+            </column>
+            <column name="updated_at" type="${datetimeType}">
+                <constraints nullable="false" />
+            </column>
+            <column name="instructor_id" type="bigint">
+                <constraints nullable="false" unique="true" uniqueConstraintName="ux_teacher_quotas__instructor_id" />
             </column>
             <column name="current_plan_id" type="bigint">
                 <constraints nullable="true" />
             </column>
             <!-- jhipster-needle-liquibase-add-column - JHipster will add columns here -->
         </createTable>
-        <dropDefaultValue tableName="teacher_quota" columnName="plan_expires_at" columnDataType="${datetimeType}"/>
+        <dropDefaultValue tableName="teacher_quotas" columnName="plan_expires_at" columnDataType="${datetimeType}"/>
+        <dropDefaultValue tableName="teacher_quotas" columnName="ai_period_started_at" columnDataType="${datetimeType}"/>
+        <dropDefaultValue tableName="teacher_quotas" columnName="ai_period_ends_at" columnDataType="${datetimeType}"/>
+        <dropDefaultValue tableName="teacher_quotas" columnName="updated_at" columnDataType="${datetimeType}"/>
     </changeSet>
 
     <!-- jhipster-needle-liquibase-add-changeset - JHipster will add changesets here -->
@@ -49,17 +64,21 @@
     -->
     <changeSet id="20261012230452-1-data" author="jhipster" context="faker">
         <loadData
-                  file="../fake-data/teacher_quota.csv"
+                  file="../fake-data/teacher_quotas.csv"
                   relativeToChangelogFile="true"
                   separator=";"
-                  tableName="teacher_quota"
+                  tableName="teacher_quotas"
                   usePreparedStatements="true">
             <column name="id" type="numeric"/>
             <column name="plan_expires_at" type="date"/>
             <column name="used_storage_bytes" type="numeric"/>
             <column name="ai_used_count" type="numeric"/>
             <column name="row_version" type="numeric"/>
-            <column name="user_id" type="numeric"/>
+            <column name="effective_storage_limit_bytes" type="numeric"/>
+            <column name="ai_period_started_at" type="date"/>
+            <column name="ai_period_ends_at" type="date"/>
+            <column name="updated_at" type="date"/>
+            <column name="instructor_id" type="numeric"/>
             <!-- jhipster-needle-liquibase-add-loadcolumn - JHipster (and/or extensions) can add load columns here -->
         </loadData>
     </changeSet>

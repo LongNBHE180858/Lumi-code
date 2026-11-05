@@ -1,6 +1,6 @@
 package com.lumi.domain;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.lumi.domain.enumeration.AccessDurationUnit;
 import com.lumi.domain.enumeration.RecordStatus;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
@@ -8,12 +8,13 @@ import java.io.Serial;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.util.List;
 
 /**
- * A Course.
+ * Lưu thông tin khóa học, giá, thời hạn truy cập và trạng thái xuất bản.
  */
 @Entity
-@Table(name = "course")
+@Table(name = "courses")
 @SuppressWarnings("common-java:DuplicatedBlocks")
 public class Course implements Serializable {
 
@@ -31,48 +32,15 @@ public class Course implements Serializable {
     @Column(name = "title", length = 255, nullable = false)
     private String title;
 
-    @Size(max = 5000)
-    @Column(name = "description", length = 5000)
+    @Column(name = "description", columnDefinition = "text")
     private String description;
 
     @Size(max = 1000)
     @Column(name = "thumbnail_url", length = 1000)
     private String thumbnailUrl;
 
-    @DecimalMin(value = "0")
     @Column(name = "price", precision = 21, scale = 2)
     private BigDecimal price;
-
-    @Min(value = 1)
-    @Column(name = "valid_duration_days")
-    private Integer validDurationDays;
-
-    @Enumerated(EnumType.STRING)
-    @Column(name = "status")
-    private RecordStatus status;
-
-    @Column(name = "is_deleted")
-    private Boolean isDeleted;
-
-    @Column(name = "created_at")
-    private Instant createdAt;
-
-    @Column(name = "updated_at")
-    private Instant updatedAt;
-
-    @ManyToOne(optional = false)
-    @NotNull
-    private User author;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JsonIgnoreProperties(value = { "parent" }, allowSetters = true)
-    private Category category;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    private Subject subject;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    private Grade grade;
 
     @Size(max = 1000)
     @Column(name = "short_description", length = 1000)
@@ -92,24 +60,52 @@ public class Course implements Serializable {
 
     @org.hibernate.annotations.JdbcTypeCode(org.hibernate.type.SqlTypes.JSON)
     @Column(name = "learning_objectives", columnDefinition = "jsonb")
-    private java.util.List<String> learningObjectives;
+    private List<String> learningObjectives;
 
     @Size(max = 1000)
     @Column(name = "intro_video_url", length = 1000)
     private String introVideoUrl;
 
-    @Min(1)
+    @Column(name = "valid_duration_days")
+    private Integer validDurationDays;
+
     @Column(name = "access_duration_value")
     private Integer accessDurationValue;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "access_duration_unit")
-    private com.lumi.domain.enumeration.AccessDurationUnit accessDurationUnit;
+    @Column(name = "access_duration_unit", length = 10)
+    private AccessDurationUnit accessDurationUnit;
 
-    @Min(0)
     @Version
-    @Column(name = "version")
+    @Column(name = "version", nullable = false)
     private Long version;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status")
+    private RecordStatus status;
+
+    @Column(name = "is_deleted")
+    private Boolean isDeleted;
+
+    @Column(name = "created_at")
+    private Instant createdAt;
+
+    @Column(name = "updated_at")
+    private Instant updatedAt;
+
+    @Min(value = 0L)
+    @Column(name = "storage_limit_bytes")
+    private Long storageLimitBytes;
+
+    @ManyToOne(optional = false)
+    @NotNull
+    private User author;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    private Subject subject;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    private Grade grade;
 
     // jhipster-needle-entity-add-field - JHipster will add fields here
 
@@ -178,6 +174,84 @@ public class Course implements Serializable {
         this.price = price;
     }
 
+    public String getShortDescription() {
+        return this.shortDescription;
+    }
+
+    public Course shortDescription(String shortDescription) {
+        this.setShortDescription(shortDescription);
+        return this;
+    }
+
+    public void setShortDescription(String shortDescription) {
+        this.shortDescription = shortDescription;
+    }
+
+    public String getBookSeries() {
+        return this.bookSeries;
+    }
+
+    public Course bookSeries(String bookSeries) {
+        this.setBookSeries(bookSeries);
+        return this;
+    }
+
+    public void setBookSeries(String bookSeries) {
+        this.bookSeries = bookSeries;
+    }
+
+    public String getTargetAudience() {
+        return this.targetAudience;
+    }
+
+    public Course targetAudience(String targetAudience) {
+        this.setTargetAudience(targetAudience);
+        return this;
+    }
+
+    public void setTargetAudience(String targetAudience) {
+        this.targetAudience = targetAudience;
+    }
+
+    public String getPrerequisites() {
+        return this.prerequisites;
+    }
+
+    public Course prerequisites(String prerequisites) {
+        this.setPrerequisites(prerequisites);
+        return this;
+    }
+
+    public void setPrerequisites(String prerequisites) {
+        this.prerequisites = prerequisites;
+    }
+
+    public List<String> getLearningObjectives() {
+        return this.learningObjectives;
+    }
+
+    public Course learningObjectives(List<String> learningObjectives) {
+        this.setLearningObjectives(learningObjectives);
+        return this;
+    }
+
+    public void setLearningObjectives(List<String> learningObjectives) {
+        this.learningObjectives = learningObjectives;
+    }
+
+    public String getIntroVideoUrl() {
+        return this.introVideoUrl;
+    }
+
+    public Course introVideoUrl(String introVideoUrl) {
+        this.setIntroVideoUrl(introVideoUrl);
+        return this;
+    }
+
+    public void setIntroVideoUrl(String introVideoUrl) {
+        this.introVideoUrl = introVideoUrl;
+    }
+
     public Integer getValidDurationDays() {
         return this.validDurationDays;
     }
@@ -189,6 +263,45 @@ public class Course implements Serializable {
 
     public void setValidDurationDays(Integer validDurationDays) {
         this.validDurationDays = validDurationDays;
+    }
+
+    public Integer getAccessDurationValue() {
+        return this.accessDurationValue;
+    }
+
+    public Course accessDurationValue(Integer accessDurationValue) {
+        this.setAccessDurationValue(accessDurationValue);
+        return this;
+    }
+
+    public void setAccessDurationValue(Integer accessDurationValue) {
+        this.accessDurationValue = accessDurationValue;
+    }
+
+    public AccessDurationUnit getAccessDurationUnit() {
+        return this.accessDurationUnit;
+    }
+
+    public Course accessDurationUnit(AccessDurationUnit accessDurationUnit) {
+        this.setAccessDurationUnit(accessDurationUnit);
+        return this;
+    }
+
+    public void setAccessDurationUnit(AccessDurationUnit accessDurationUnit) {
+        this.accessDurationUnit = accessDurationUnit;
+    }
+
+    public Long getVersion() {
+        return this.version;
+    }
+
+    public Course version(Long version) {
+        this.setVersion(version);
+        return this;
+    }
+
+    public void setVersion(Long version) {
+        this.version = version;
     }
 
     public RecordStatus getStatus() {
@@ -243,6 +356,19 @@ public class Course implements Serializable {
         this.updatedAt = updatedAt;
     }
 
+    public Long getStorageLimitBytes() {
+        return this.storageLimitBytes;
+    }
+
+    public Course storageLimitBytes(Long storageLimitBytes) {
+        this.setStorageLimitBytes(storageLimitBytes);
+        return this;
+    }
+
+    public void setStorageLimitBytes(Long storageLimitBytes) {
+        this.storageLimitBytes = storageLimitBytes;
+    }
+
     public User getAuthor() {
         return this.author;
     }
@@ -253,19 +379,6 @@ public class Course implements Serializable {
 
     public Course author(User user) {
         this.setAuthor(user);
-        return this;
-    }
-
-    public Category getCategory() {
-        return this.category;
-    }
-
-    public void setCategory(Category category) {
-        this.category = category;
-    }
-
-    public Course category(Category category) {
-        this.setCategory(category);
         return this;
     }
 
@@ -297,123 +410,6 @@ public class Course implements Serializable {
 
     // jhipster-needle-entity-add-getters-setters - JHipster will add getters and setters here
 
-    public String getShortDescription() {
-        return this.shortDescription;
-    }
-
-    public void setShortDescription(String shortDescription) {
-        this.shortDescription = shortDescription;
-    }
-
-    public Course shortDescription(String shortDescription) {
-        this.shortDescription = shortDescription;
-        return this;
-    }
-
-    public String getBookSeries() {
-        return this.bookSeries;
-    }
-
-    public void setBookSeries(String bookSeries) {
-        this.bookSeries = bookSeries;
-    }
-
-    public Course bookSeries(String bookSeries) {
-        this.bookSeries = bookSeries;
-        return this;
-    }
-
-    public String getTargetAudience() {
-        return this.targetAudience;
-    }
-
-    public void setTargetAudience(String targetAudience) {
-        this.targetAudience = targetAudience;
-    }
-
-    public Course targetAudience(String targetAudience) {
-        this.targetAudience = targetAudience;
-        return this;
-    }
-
-    public String getPrerequisites() {
-        return this.prerequisites;
-    }
-
-    public void setPrerequisites(String prerequisites) {
-        this.prerequisites = prerequisites;
-    }
-
-    public Course prerequisites(String prerequisites) {
-        this.prerequisites = prerequisites;
-        return this;
-    }
-
-    public java.util.List<String> getLearningObjectives() {
-        return this.learningObjectives;
-    }
-
-    public void setLearningObjectives(java.util.List<String> learningObjectives) {
-        this.learningObjectives = learningObjectives;
-    }
-
-    public Course learningObjectives(java.util.List<String> learningObjectives) {
-        this.learningObjectives = learningObjectives;
-        return this;
-    }
-
-    public String getIntroVideoUrl() {
-        return this.introVideoUrl;
-    }
-
-    public void setIntroVideoUrl(String introVideoUrl) {
-        this.introVideoUrl = introVideoUrl;
-    }
-
-    public Course introVideoUrl(String introVideoUrl) {
-        this.introVideoUrl = introVideoUrl;
-        return this;
-    }
-
-    public Integer getAccessDurationValue() {
-        return this.accessDurationValue;
-    }
-
-    public void setAccessDurationValue(Integer accessDurationValue) {
-        this.accessDurationValue = accessDurationValue;
-    }
-
-    public Course accessDurationValue(Integer accessDurationValue) {
-        this.accessDurationValue = accessDurationValue;
-        return this;
-    }
-
-    public com.lumi.domain.enumeration.AccessDurationUnit getAccessDurationUnit() {
-        return this.accessDurationUnit;
-    }
-
-    public void setAccessDurationUnit(com.lumi.domain.enumeration.AccessDurationUnit accessDurationUnit) {
-        this.accessDurationUnit = accessDurationUnit;
-    }
-
-    public Course accessDurationUnit(com.lumi.domain.enumeration.AccessDurationUnit accessDurationUnit) {
-        this.accessDurationUnit = accessDurationUnit;
-        return this;
-    }
-
-    public Long getVersion() {
-        return this.version;
-    }
-
-    public void setVersion(Long version) {
-        this.version = version;
-    }
-
-    public Course version(Long version) {
-        this.version = version;
-        return this;
-    }
-
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -440,11 +436,21 @@ public class Course implements Serializable {
             ", description='" + getDescription() + "'" +
             ", thumbnailUrl='" + getThumbnailUrl() + "'" +
             ", price=" + getPrice() +
+            ", shortDescription='" + getShortDescription() + "'" +
+            ", bookSeries='" + getBookSeries() + "'" +
+            ", targetAudience='" + getTargetAudience() + "'" +
+            ", prerequisites='" + getPrerequisites() + "'" +
+            ", learningObjectives='" + getLearningObjectives() + "'" +
+            ", introVideoUrl='" + getIntroVideoUrl() + "'" +
             ", validDurationDays=" + getValidDurationDays() +
+            ", accessDurationValue=" + getAccessDurationValue() +
+            ", accessDurationUnit='" + getAccessDurationUnit() + "'" +
+            ", version=" + getVersion() +
             ", status='" + getStatus() + "'" +
             ", isDeleted='" + getIsDeleted() + "'" +
             ", createdAt='" + getCreatedAt() + "'" +
             ", updatedAt='" + getUpdatedAt() + "'" +
+            ", storageLimitBytes=" + getStorageLimitBytes() +
             "}";
     }
 }

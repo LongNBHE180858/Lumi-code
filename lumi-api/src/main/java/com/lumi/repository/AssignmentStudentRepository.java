@@ -32,18 +32,16 @@ public interface AssignmentStudentRepository extends JpaRepository<AssignmentStu
     }
 
     @Query(
-        value = "select assignmentStudent from AssignmentStudent assignmentStudent left join fetch assignmentStudent.student left join fetch assignmentStudent.assignment",
+        value = "select assignmentStudent from AssignmentStudent assignmentStudent left join fetch assignmentStudent.student",
         countQuery = "select count(assignmentStudent) from AssignmentStudent assignmentStudent"
     )
     Page<AssignmentStudent> findAllWithToOneRelationships(Pageable pageable);
 
-    @Query(
-        "select assignmentStudent from AssignmentStudent assignmentStudent left join fetch assignmentStudent.student left join fetch assignmentStudent.assignment"
-    )
+    @Query("select assignmentStudent from AssignmentStudent assignmentStudent left join fetch assignmentStudent.student")
     List<AssignmentStudent> findAllWithToOneRelationships();
 
     @Query(
-        "select assignmentStudent from AssignmentStudent assignmentStudent left join fetch assignmentStudent.student left join fetch assignmentStudent.assignment where assignmentStudent.id =:id"
+        "select assignmentStudent from AssignmentStudent assignmentStudent left join fetch assignmentStudent.student where assignmentStudent.id =:id"
     )
     Optional<AssignmentStudent> findOneWithToOneRelationships(@Param("id") Long id);
 }

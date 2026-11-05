@@ -1,0 +1,42 @@
+{
+  "lumiApp": {
+    "learningDocument": {
+      "home": {
+        "title": "Learning Documents",
+        "refreshListLabel": "Refresh list",
+        "createLabel": "Thêm mới một Learning Document",
+        "createOrEditLabel": "Thêm mới hoặc cập nhật Learning Document",
+        "notFound": "No Learning Documents found"
+      },
+      "created": "Một Learning Document mới được tạo với định danh {{ param }}",
+      "updated": "Một Learning Document cập nhật với định danh {{ param }}",
+      "deleted": "Một Learning Document đã xóa với định danh {{ param }}",
+      "delete": {
+        "question": "Bạn có chắc là muốn xóa Learning Document {{ id }}?"
+      },
+      "detail": {
+        "title": "Learning Document"
+      },
+      "id": "ID",
+      "sourceType": "Source Type",
+      "title": "Title",
+      "fileObjectKey": "File Object Key",
+      "contentHash": "Content Hash",
+      "sourceVersion": "Source Version",
+      "processingStatus": "Processing Status",
+      "indexStatus": "Index Status",
+      "extractedTextObjectKey": "Extracted Text Object Key",
+      "embeddingModel": "Embedding Model",
+      "errorMessage": "Error Message",
+      "createdAt": "Created At",
+      "updatedAt": "Updated At",
+      "bookSeries": "Book Series",
+      "sourceMetadata": "Source Metadata",
+      "courseMaterial": "Course Material",
+      "classMaterial": "Class Material",
+      "uploadedBy": "Uploaded By",
+      "subject": "Subject",
+      "grade": "Grade"
+    }
+  }
+}

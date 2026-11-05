@@ -254,59 +254,6 @@ class SubjectResourceIT {
         defaultSubjectFiltering("name.doesNotContain=" + UPDATED_NAME, "name.doesNotContain=" + DEFAULT_NAME);
     }
 
-    @Test
-    @Transactional
-    void getAllSubjectsByDescriptionIsEqualToSomething() throws Exception {
-        // Initialize the database
-        insertedSubject = subjectRepository.saveAndFlush(subject);
-
-        // Get all the subjectList where description equals to
-        defaultSubjectFiltering("description.equals=" + DEFAULT_DESCRIPTION, "description.equals=" + UPDATED_DESCRIPTION);
-    }
-
-    @Test
-    @Transactional
-    void getAllSubjectsByDescriptionIsInShouldWork() throws Exception {
-        // Initialize the database
-        insertedSubject = subjectRepository.saveAndFlush(subject);
-
-        // Get all the subjectList where description in
-        defaultSubjectFiltering(
-            "description.in=" + DEFAULT_DESCRIPTION + "," + UPDATED_DESCRIPTION,
-            "description.in=" + UPDATED_DESCRIPTION
-        );
-    }
-
-    @Test
-    @Transactional
-    void getAllSubjectsByDescriptionIsNullOrNotNull() throws Exception {
-        // Initialize the database
-        insertedSubject = subjectRepository.saveAndFlush(subject);
-
-        // Get all the subjectList where description is not null
-        defaultSubjectFiltering("description.specified=true", "description.specified=false");
-    }
-
-    @Test
-    @Transactional
-    void getAllSubjectsByDescriptionContainsSomething() throws Exception {
-        // Initialize the database
-        insertedSubject = subjectRepository.saveAndFlush(subject);
-
-        // Get all the subjectList where description contains
-        defaultSubjectFiltering("description.contains=" + DEFAULT_DESCRIPTION, "description.contains=" + UPDATED_DESCRIPTION);
-    }
-
-    @Test
-    @Transactional
-    void getAllSubjectsByDescriptionNotContainsSomething() throws Exception {
-        // Initialize the database
-        insertedSubject = subjectRepository.saveAndFlush(subject);
-
-        // Get all the subjectList where description does not contain
-        defaultSubjectFiltering("description.doesNotContain=" + UPDATED_DESCRIPTION, "description.doesNotContain=" + DEFAULT_DESCRIPTION);
-    }
-
     private void defaultSubjectFiltering(String shouldBeFound, String shouldNotBeFound) throws Exception {
         defaultSubjectShouldBeFound(shouldBeFound);
         defaultSubjectShouldNotBeFound(shouldNotBeFound);

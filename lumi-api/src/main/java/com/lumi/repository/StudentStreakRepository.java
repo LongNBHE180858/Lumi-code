@@ -13,8 +13,7 @@ import org.springframework.stereotype.Repository;
  * Spring Data JPA repository for the StudentStreak entity.
  */
 @Repository
-public interface StudentStreakRepository
-        extends JpaRepository<StudentStreak, Long>, JpaSpecificationExecutor<StudentStreak> {
+public interface StudentStreakRepository extends JpaRepository<StudentStreak, Long>, JpaSpecificationExecutor<StudentStreak> {
     default Optional<StudentStreak> findOneWithEagerRelationships(Long id) {
         return this.findOneWithToOneRelationships(id);
     }
@@ -27,14 +26,17 @@ public interface StudentStreakRepository
         return this.findAllWithToOneRelationships(pageable);
     }
 
-    @Query(value = "select studentStreak from StudentStreak studentStreak left join fetch studentStreak.user", countQuery = "select count(studentStreak) from StudentStreak studentStreak")
+    @Query(
+        value = "select studentStreak from StudentStreak studentStreak left join fetch studentStreak.student",
+        countQuery = "select count(studentStreak) from StudentStreak studentStreak"
+    )
     Page<StudentStreak> findAllWithToOneRelationships(Pageable pageable);
 
-    @Query("select studentStreak from StudentStreak studentStreak left join fetch studentStreak.user")
+    @Query("select studentStreak from StudentStreak studentStreak left join fetch studentStreak.student")
     List<StudentStreak> findAllWithToOneRelationships();
 
-    @Query("select studentStreak from StudentStreak studentStreak left join fetch studentStreak.user where studentStreak.id =:id")
+    @Query("select studentStreak from StudentStreak studentStreak left join fetch studentStreak.student where studentStreak.id =:id")
     Optional<StudentStreak> findOneWithToOneRelationships(@Param("id") Long id);
 
-    Optional<StudentStreak> findByUserId(Long userId);
+    Optional<StudentStreak> findByStudent_Id(Long studentId);
 }

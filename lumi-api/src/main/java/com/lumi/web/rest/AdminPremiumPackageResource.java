@@ -36,13 +36,15 @@ public class AdminPremiumPackageResource {
     private static final Set<String> ALLOWED_SORTS = Set.of(
         "id",
         "name",
-        "packageType",
+        "planType",
+        "targetRole",
+        "status",
         "price",
         "durationDays",
         "storageQuotaMb",
         "aiGenerationLimit",
         "maxClasses",
-        "available"
+        "aiLimitPeriod"
     );
 
     private final AdminPremiumPackageService service;

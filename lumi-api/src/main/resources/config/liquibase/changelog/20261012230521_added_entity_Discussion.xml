@@ -10,28 +10,38 @@
         Added the entity Discussion.
     -->
     <changeSet id="20261012230521-1" author="jhipster">
-        <createTable tableName="discussion">
+        <createTable tableName="discussions" remarks="Lưu hỏi đáp theo bài học và thông tin lớp liên quan nếu có.">
             <column name="id" type="bigint">
                 <constraints primaryKey="true" nullable="false"/>
             </column>
             <column name="title" type="varchar(255)">
                 <constraints nullable="false" />
             </column>
-            <column name="content" type="varchar(5000)">
+            <column name="content" type="${clobType}">
                 <constraints nullable="false" />
             </column>
             <column name="created_at" type="${datetimeType}">
                 <constraints nullable="true" />
             </column>
-            <column name="student_id" type="bigint">
+            <column name="updated_at" type="${datetimeType}">
+                <constraints nullable="false" />
+            </column>
+            <column name="post_type" type="varchar(20)">
                 <constraints nullable="false" />
             </column>
             <column name="lesson_id" type="bigint">
                 <constraints nullable="false" />
             </column>
+            <column name="student_id" type="bigint">
+                <constraints nullable="false" />
+            </column>
+            <column name="study_class_id" type="bigint">
+                <constraints nullable="true" />
+            </column>
             <!-- jhipster-needle-liquibase-add-column - JHipster will add columns here -->
         </createTable>
-        <dropDefaultValue tableName="discussion" columnName="created_at" columnDataType="${datetimeType}"/>
+        <dropDefaultValue tableName="discussions" columnName="created_at" columnDataType="${datetimeType}"/>
+        <dropDefaultValue tableName="discussions" columnName="updated_at" columnDataType="${datetimeType}"/>
     </changeSet>
 
     <!-- jhipster-needle-liquibase-add-changeset - JHipster will add changesets here -->
@@ -46,17 +56,19 @@
     -->
     <changeSet id="20261012230521-1-data" author="jhipster" context="faker">
         <loadData
-                  file="../fake-data/discussion.csv"
+                  file="../fake-data/discussions.csv"
                   relativeToChangelogFile="true"
                   separator=";"
-                  tableName="discussion"
+                  tableName="discussions"
                   usePreparedStatements="true">
             <column name="id" type="numeric"/>
             <column name="title" type="string"/>
-            <column name="content" type="string"/>
+            <column name="content" type="clob"/>
             <column name="created_at" type="date"/>
-            <column name="student_id" type="numeric"/>
+            <column name="updated_at" type="date"/>
+            <column name="post_type" type="string"/>
             <column name="lesson_id" type="numeric"/>
+            <column name="student_id" type="numeric"/>
             <!-- jhipster-needle-liquibase-add-loadcolumn - JHipster (and/or extensions) can add load columns here -->
         </loadData>
     </changeSet>

@@ -50,7 +50,9 @@ public class SupportTicketAsserts {
             .satisfies(a -> assertThat(a.getType()).as("check type").isEqualTo(expected.getType()))
             .satisfies(a -> assertThat(a.getSubject()).as("check subject").isEqualTo(expected.getSubject()))
             .satisfies(a -> assertThat(a.getStatus()).as("check status").isEqualTo(expected.getStatus()))
-            .satisfies(a -> assertThat(a.getCreatedAt()).as("check createdAt").isEqualTo(expected.getCreatedAt()));
+            .satisfies(a -> assertThat(a.getCreatedAt()).as("check createdAt").isEqualTo(expected.getCreatedAt()))
+            .satisfies(a -> assertThat(a.getUpdatedAt()).as("check updatedAt").isEqualTo(expected.getUpdatedAt()))
+            .satisfies(a -> assertThat(a.getClosedAt()).as("check closedAt").isEqualTo(expected.getClosedAt()));
     }
 
     /**

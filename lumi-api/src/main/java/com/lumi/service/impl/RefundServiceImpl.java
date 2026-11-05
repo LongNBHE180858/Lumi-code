@@ -8,6 +8,8 @@ import com.lumi.service.mapper.RefundMapper;
 import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -60,11 +62,15 @@ public class RefundServiceImpl implements RefundService {
             .map(refundMapper::toDto);
     }
 
+    public Page<RefundDTO> findAllWithEagerRelationships(Pageable pageable) {
+        return refundRepository.findAllWithEagerRelationships(pageable).map(refundMapper::toDto);
+    }
+
     @Override
     @Transactional(readOnly = true)
     public Optional<RefundDTO> findOne(Long id) {
         LOG.debug("Request to get Refund : {}", id);
-        return refundRepository.findById(id).map(refundMapper::toDto);
+        return refundRepository.findOneWithEagerRelationships(id).map(refundMapper::toDto);
     }
 
     @Override

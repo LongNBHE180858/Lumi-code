@@ -5,7 +5,7 @@
     xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
     <property name="now" value="current_timestamp" dbms="postgresql"/>
     <property name="floatType" value="float4" dbms="postgresql"/>
-    <property name="clobType" value="clob" dbms="postgresql"/>
+    <property name="clobType" value="text" dbms="postgresql"/>
     <property name="blobType" value="blob" dbms="postgresql"/>
     <property name="uuidType" value="uuid" dbms="postgresql"/>
     <property name="datetimeType" value="datetime" dbms="postgresql"/>
@@ -16,7 +16,6 @@
     <include file="config/liquibase/changelog/20261012230435_added_entity_TeacherVerification.xml" relativeToChangelogFile="false"/>
     <include file="config/liquibase/changelog/20261012230436_added_entity_ParentStudentLink.xml" relativeToChangelogFile="false"/>
     <include file="config/liquibase/changelog/20261012230437_added_entity_AuthSession.xml" relativeToChangelogFile="false"/>
-    <include file="config/liquibase/changelog/20261012230438_added_entity_Category.xml" relativeToChangelogFile="false"/>
     <include file="config/liquibase/changelog/20261012230439_added_entity_Subject.xml" relativeToChangelogFile="false"/>
     <include file="config/liquibase/changelog/20261012230440_added_entity_Grade.xml" relativeToChangelogFile="false"/>
     <include file="config/liquibase/changelog/20261012230441_added_entity_Course.xml" relativeToChangelogFile="false"/>
@@ -47,7 +46,6 @@
     <include file="config/liquibase/changelog/20261012230506_added_entity_AssignmentSubmission.xml" relativeToChangelogFile="false"/>
     <include file="config/liquibase/changelog/20261012230507_added_entity_ExamAttempt.xml" relativeToChangelogFile="false"/>
     <include file="config/liquibase/changelog/20261012230508_added_entity_ExamAnswer.xml" relativeToChangelogFile="false"/>
-    <include file="config/liquibase/changelog/20261012230509_added_entity_ProctorSession.xml" relativeToChangelogFile="false"/>
     <include file="config/liquibase/changelog/20261012230510_added_entity_ProctorEvent.xml" relativeToChangelogFile="false"/>
     <include file="config/liquibase/changelog/20261012230511_added_entity_StudentNote.xml" relativeToChangelogFile="false"/>
     <include file="config/liquibase/changelog/20261012230512_added_entity_StudentStreak.xml" relativeToChangelogFile="false"/>
@@ -67,12 +65,17 @@
     <include file="config/liquibase/changelog/20261012230526_added_entity_Notification.xml" relativeToChangelogFile="false"/>
     <include file="config/liquibase/changelog/20261012230527_added_entity_AuditLog.xml" relativeToChangelogFile="false"/>
     <include file="config/liquibase/changelog/20261014190853_added_entity_AssignmentStudent.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20261019000000_added_entity_CourseReviewRequest.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20261101222542_added_entity_LessonProgress.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20261101222543_added_entity_StudentKnowledgeProgress.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20261101222544_added_entity_LearningDocument.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20261101222545_added_entity_AiGeneratedContent.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20261101222546_added_entity_QuestionKnowledgeLink.xml" relativeToChangelogFile="false"/>
     <!-- jhipster-needle-liquibase-add-changelog - JHipster will add liquibase changelogs here -->
     <include file="config/liquibase/changelog/20261012230434_added_entity_constraints_UserProfile.xml" relativeToChangelogFile="false"/>
     <include file="config/liquibase/changelog/20261012230435_added_entity_constraints_TeacherVerification.xml" relativeToChangelogFile="false"/>
     <include file="config/liquibase/changelog/20261012230436_added_entity_constraints_ParentStudentLink.xml" relativeToChangelogFile="false"/>
     <include file="config/liquibase/changelog/20261012230437_added_entity_constraints_AuthSession.xml" relativeToChangelogFile="false"/>
-    <include file="config/liquibase/changelog/20261012230438_added_entity_constraints_Category.xml" relativeToChangelogFile="false"/>
     <include file="config/liquibase/changelog/20261012230441_added_entity_constraints_Course.xml" relativeToChangelogFile="false"/>
     <include file="config/liquibase/changelog/20261012230442_added_entity_constraints_Chapter.xml" relativeToChangelogFile="false"/>
     <include file="config/liquibase/changelog/20261012230443_added_entity_constraints_Lesson.xml" relativeToChangelogFile="false"/>
@@ -100,7 +103,6 @@
     <include file="config/liquibase/changelog/20261012230506_added_entity_constraints_AssignmentSubmission.xml" relativeToChangelogFile="false"/>
     <include file="config/liquibase/changelog/20261012230507_added_entity_constraints_ExamAttempt.xml" relativeToChangelogFile="false"/>
     <include file="config/liquibase/changelog/20261012230508_added_entity_constraints_ExamAnswer.xml" relativeToChangelogFile="false"/>
-    <include file="config/liquibase/changelog/20261012230509_added_entity_constraints_ProctorSession.xml" relativeToChangelogFile="false"/>
     <include file="config/liquibase/changelog/20261012230510_added_entity_constraints_ProctorEvent.xml" relativeToChangelogFile="false"/>
     <include file="config/liquibase/changelog/20261012230511_added_entity_constraints_StudentNote.xml" relativeToChangelogFile="false"/>
     <include file="config/liquibase/changelog/20261012230512_added_entity_constraints_StudentStreak.xml" relativeToChangelogFile="false"/>
@@ -120,15 +122,19 @@
     <include file="config/liquibase/changelog/20261012230527_added_entity_constraints_AuditLog.xml" relativeToChangelogFile="false"/>
     <include file="config/liquibase/changelog/20261012230518_added_entity_constraints_PdfChunk.xml" relativeToChangelogFile="false"/>
     <include file="config/liquibase/changelog/20261014190853_added_entity_constraints_AssignmentStudent.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20261019000000_added_entity_constraints_CourseReviewRequest.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20261101222542_added_entity_constraints_LessonProgress.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20261101222543_added_entity_constraints_StudentKnowledgeProgress.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20261101222544_added_entity_constraints_LearningDocument.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20261101222545_added_entity_constraints_AiGeneratedContent.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20261101222546_added_entity_constraints_QuestionKnowledgeLink.xml" relativeToChangelogFile="false"/>
     <!-- jhipster-needle-liquibase-add-constraints-changelog - JHipster will add liquibase constraints changelogs here -->
-    <include file="config/liquibase/changelog/20261015230000_add_roles_teacher_student.xml" relativeToChangelogFile="false"/>
     <include file="config/liquibase/changelog/20261018174000_added_entity_EmailOtp.xml" relativeToChangelogFile="false"/>
     <!-- jhipster-needle-liquibase-add-incremental-changelog - JHipster will add incremental liquibase changelogs here -->
-    <include file="config/liquibase/changelog/20261019000000_course_builder_schema.xml" relativeToChangelogFile="false"/>
-    <include file="config/liquibase/changelog/20261021000000_lesson_duration_seconds.xml" relativeToChangelogFile="false"/>
     <include file="config/liquibase/changelog/20261021000000_unique_pending_course_review.xml" relativeToChangelogFile="false"/>
+
     <include file="config/liquibase/changelog/20261022120000_instructor_review_metadata.xml" relativeToChangelogFile="false"/>
     <include file="config/liquibase/changelog/20261022180000_remove_instructor_reviewer.xml" relativeToChangelogFile="false"/>
-    <include file="config/liquibase/changelog/20261026100000_catalog_active_columns.xml" relativeToChangelogFile="false"/>
-    <include file="config/liquibase/changelog/20261103000000_premium_package_management.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20261026110000_seed_knowledge_graph_subjects.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20261103000000_enable_vector_extensions.xml" relativeToChangelogFile="false"/>
 </databaseChangeLog>

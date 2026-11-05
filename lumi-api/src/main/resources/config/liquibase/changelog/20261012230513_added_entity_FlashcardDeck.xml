@@ -10,7 +10,7 @@
         Added the entity FlashcardDeck.
     -->
     <changeSet id="20261012230513-1" author="jhipster">
-        <createTable tableName="flashcard_deck">
+        <createTable tableName="flashcard_decks" remarks="Lưu bộ flashcard, chủ sở hữu và phạm vi chia sẻ.">
             <column name="id" type="bigint">
                 <constraints primaryKey="true" nullable="false"/>
             </column>
@@ -42,10 +42,10 @@
     -->
     <changeSet id="20261012230513-1-data" author="jhipster" context="faker">
         <loadData
-                  file="../fake-data/flashcard_deck.csv"
+                  file="../fake-data/flashcard_decks.csv"
                   relativeToChangelogFile="true"
                   separator=";"
-                  tableName="flashcard_deck"
+                  tableName="flashcard_decks"
                   usePreparedStatements="true">
             <column name="id" type="numeric"/>
             <column name="title" type="string"/>

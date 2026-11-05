@@ -148,6 +148,23 @@ describe('Notification Middleware', () => {
     },
   };
 
+  const NOT_NULL_PROBLEM_ERROR = {
+    type: ERROR_TYPE,
+    error: {
+      isAxiosError: true,
+      response: {
+        data: {
+          type: ProblemWithMessageType,
+          title: 'Method argument not valid',
+          status: 400,
+          message: 'error.validation',
+          fieldErrors: [{ objectName: 'wishlist', field: 'student', message: 'must not be null' }],
+        },
+        status: 400,
+      },
+    },
+  };
+
   const UNKNOWN_400_ERROR = {
     type: ERROR_TYPE,
     error: {
@@ -241,6 +258,11 @@ describe('Notification Middleware', () => {
   it('should trigger an error toast message and return error for string in data', () => {
     expect(store.dispatch(STRING_DATA_ERROR).error.response.status).toEqual(400);
     expect(toast.error).toHaveBeenCalledWith('Incorrect password string');
+  });
+
+  it('normalizes must-not-be-null field errors to the NotNull translation key', () => {
+    store.dispatch(NOT_NULL_PROBLEM_ERROR);
+    expect(toast.error).toHaveBeenCalledWith(expect.stringContaining('error.NotNull'));
   });
 
   it('should trigger an error toast message and return error for unknown 400 error', () => {

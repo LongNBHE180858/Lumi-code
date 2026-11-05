@@ -3,13 +3,14 @@
     "changelogDate": "20261012230501"
   },
   "applications": ["*"],
+  "documentation": "Lưu câu hỏi, nguồn tạo, phân loại và liên kết phiên bản trước.",
   "dto": "mapstruct",
+  "entityTableName": "questions",
   "fields": [
     {
       "fieldName": "content",
-      "fieldType": "String",
-      "fieldValidateRules": ["required", "maxlength"],
-      "fieldValidateRulesMaxlength": "5000"
+      "fieldType": "TextBlob",
+      "fieldValidateRules": ["required"]
     },
     {
       "fieldName": "type",
@@ -26,13 +27,44 @@
     },
     {
       "fieldName": "explanation",
-      "fieldType": "String",
-      "fieldValidateRules": ["maxlength"],
-      "fieldValidateRulesMaxlength": "5000"
+      "fieldType": "TextBlob"
     },
     {
       "fieldName": "isDeleted",
       "fieldType": "Boolean"
+    },
+    {
+      "fieldName": "sourceType",
+      "fieldType": "String",
+      "fieldValidateRules": ["required", "maxlength"],
+      "fieldValidateRulesMaxlength": "20"
+    },
+    {
+      "fieldName": "contentHash",
+      "fieldType": "String",
+      "fieldValidateRules": ["maxlength"],
+      "fieldValidateRulesMaxlength": "64"
+    },
+    {
+      "fieldName": "visibility",
+      "fieldType": "String",
+      "fieldValidateRules": ["required", "maxlength"],
+      "fieldValidateRulesMaxlength": "20"
+    },
+    {
+      "fieldName": "version",
+      "fieldType": "Long",
+      "fieldValidateRules": ["required"]
+    },
+    {
+      "fieldName": "createdAt",
+      "fieldType": "Instant",
+      "fieldValidateRules": ["required"]
+    },
+    {
+      "fieldName": "updatedAt",
+      "fieldType": "Instant",
+      "fieldValidateRules": ["required"]
     }
   ],
   "jpaMetamodelFiltering": true,
@@ -40,9 +72,41 @@
   "pagination": "pagination",
   "relationships": [
     {
-      "otherEntityField": "name",
       "otherEntityName": "questionBank",
       "relationshipName": "bank",
+      "relationshipSide": "left",
+      "relationshipType": "many-to-one"
+    },
+    {
+      "otherEntityField": "login",
+      "otherEntityName": "user",
+      "relationshipName": "createdBy",
+      "relationshipSide": "left",
+      "relationshipType": "many-to-one",
+      "relationshipValidateRules": "required",
+      "relationshipWithBuiltInEntity": true
+    },
+    {
+      "otherEntityName": "aiGeneratedContent",
+      "relationshipName": "aiContent",
+      "relationshipSide": "left",
+      "relationshipType": "many-to-one"
+    },
+    {
+      "otherEntityName": "subject",
+      "relationshipName": "subject",
+      "relationshipSide": "left",
+      "relationshipType": "many-to-one"
+    },
+    {
+      "otherEntityName": "grade",
+      "relationshipName": "grade",
+      "relationshipSide": "left",
+      "relationshipType": "many-to-one"
+    },
+    {
+      "otherEntityName": "question",
+      "relationshipName": "previousQuestion",
       "relationshipSide": "left",
       "relationshipType": "many-to-one"
     }

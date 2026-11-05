@@ -6,6 +6,7 @@ import static org.mockito.Mockito.*;
 import com.lumi.domain.*;
 import com.lumi.repository.LessonRepository;
 import com.lumi.service.dto.InstructorCourseDTOs.*;
+import com.lumi.service.impl.InstructorCourseService;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

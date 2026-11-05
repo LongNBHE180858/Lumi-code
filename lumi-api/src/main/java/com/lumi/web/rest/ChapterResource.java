@@ -1,10 +1,10 @@
 package com.lumi.web.rest;
 
 import com.lumi.repository.ChapterRepository;
-import com.lumi.service.ChapterQueryService;
 import com.lumi.service.ChapterService;
 import com.lumi.service.criteria.ChapterCriteria;
 import com.lumi.service.dto.ChapterDTO;
+import com.lumi.service.query.ChapterQueryService;
 import com.lumi.web.rest.errors.BadRequestAlertException;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;

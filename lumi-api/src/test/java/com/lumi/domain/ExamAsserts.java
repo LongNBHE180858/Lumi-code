@@ -56,7 +56,22 @@ public class ExamAsserts {
             .satisfies(a -> assertThat(a.getMaxAttempts()).as("check maxAttempts").isEqualTo(expected.getMaxAttempts()))
             .satisfies(a -> assertThat(a.getShuffleQuestions()).as("check shuffleQuestions").isEqualTo(expected.getShuffleQuestions()))
             .satisfies(a -> assertThat(a.getStatus()).as("check status").isEqualTo(expected.getStatus()))
-            .satisfies(a -> assertThat(a.getIsDeleted()).as("check isDeleted").isEqualTo(expected.getIsDeleted()));
+            .satisfies(a -> assertThat(a.getIsDeleted()).as("check isDeleted").isEqualTo(expected.getIsDeleted()))
+            .satisfies(a -> assertThat(a.getOpensAt()).as("check opensAt").isEqualTo(expected.getOpensAt()))
+            .satisfies(a -> assertThat(a.getClosesAt()).as("check closesAt").isEqualTo(expected.getClosesAt()))
+            .satisfies(a -> assertThat(a.getResultReleaseMode()).as("check resultReleaseMode").isEqualTo(expected.getResultReleaseMode()))
+            .satisfies(a -> assertThat(a.getAnswerReleaseMode()).as("check answerReleaseMode").isEqualTo(expected.getAnswerReleaseMode()))
+            .satisfies(a -> assertThat(a.getVersion()).as("check version").isEqualTo(expected.getVersion()))
+            .satisfies(a -> assertThat(a.getCreatedAt()).as("check createdAt").isEqualTo(expected.getCreatedAt()))
+            .satisfies(a -> assertThat(a.getAssessmentType()).as("check assessmentType").isEqualTo(expected.getAssessmentType()))
+            .satisfies(a ->
+                assertThat(a.getVideoTriggerSeconds())
+                    .as("check videoTriggerSeconds")
+                    .usingComparator(bigDecimalCompareTo)
+                    .isEqualTo(expected.getVideoTriggerSeconds())
+            )
+            .satisfies(a -> assertThat(a.getAssessmentConfig()).as("check assessmentConfig").isEqualTo(expected.getAssessmentConfig()))
+            .satisfies(a -> assertThat(a.getSecurityConfig()).as("check securityConfig").isEqualTo(expected.getSecurityConfig()));
     }
 
     /**
@@ -68,6 +83,7 @@ public class ExamAsserts {
     public static void assertExamUpdatableRelationshipsEquals(Exam expected, Exam actual) {
         assertThat(actual)
             .as("Verify Exam relationships")
-            .satisfies(a -> assertThat(a.getStudyClass()).as("check studyClass").isEqualTo(expected.getStudyClass()));
+            .satisfies(a -> assertThat(a.getStudyClass()).as("check studyClass").isEqualTo(expected.getStudyClass()))
+            .satisfies(a -> assertThat(a.getLesson()).as("check lesson").isEqualTo(expected.getLesson()));
     }
 }

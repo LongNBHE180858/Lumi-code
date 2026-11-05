@@ -9,6 +9,7 @@ export interface IAuthSession {
   expiresAt?: dayjs.Dayjs;
   isRevoked?: boolean | null;
   createdAt?: dayjs.Dayjs | null;
+  refreshTokenHash?: string | null;
   user?: IUser;
 }
 

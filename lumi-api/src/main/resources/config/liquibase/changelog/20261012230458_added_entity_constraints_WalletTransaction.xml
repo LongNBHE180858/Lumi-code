@@ -11,17 +11,31 @@
     <changeSet id="20261012230458-2" author="jhipster">
 
         <addForeignKeyConstraint baseColumnNames="wallet_id"
-                                 baseTableName="wallet_transaction"
-                                 constraintName="fk_wallet_transaction__wallet_id"
+                                 baseTableName="wallet_transactions"
+                                 constraintName="fk_wallet_transactions__wallet_id"
                                  referencedColumnNames="id"
-                                 referencedTableName="instructor_wallet"
+                                 referencedTableName="instructor_wallets"
                                  />
 
         <addForeignKeyConstraint baseColumnNames="order_id"
-                                 baseTableName="wallet_transaction"
-                                 constraintName="fk_wallet_transaction__order_id"
+                                 baseTableName="wallet_transactions"
+                                 constraintName="fk_wallet_transactions__order_id"
                                  referencedColumnNames="id"
-                                 referencedTableName="course_order"
+                                 referencedTableName="orders"
+                                 />
+
+        <addForeignKeyConstraint baseColumnNames="payout_request_id"
+                                 baseTableName="wallet_transactions"
+                                 constraintName="fk_wallet_transactions__payout_request_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="payout_requests"
+                                 />
+
+        <addForeignKeyConstraint baseColumnNames="refund_id"
+                                 baseTableName="wallet_transactions"
+                                 constraintName="fk_wallet_transactions__refund_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="refunds"
                                  />
     </changeSet>
 </databaseChangeLog>

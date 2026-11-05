@@ -127,11 +127,15 @@ export const CourseReview = () => {
                   <Translate contentKey="lumiApp.courseReview.createdAt">Created At</Translate>{' '}
                   <FontAwesomeIcon icon={getSortIconByFieldName('createdAt')} />
                 </th>
-                <th>
-                  <Translate contentKey="lumiApp.courseReview.student">Student</Translate> <FontAwesomeIcon icon="sort" />
+                <th className="hand" onClick={sort('updatedAt')}>
+                  <Translate contentKey="lumiApp.courseReview.updatedAt">Updated At</Translate>{' '}
+                  <FontAwesomeIcon icon={getSortIconByFieldName('updatedAt')} />
                 </th>
                 <th>
                   <Translate contentKey="lumiApp.courseReview.course">Course</Translate> <FontAwesomeIcon icon="sort" />
+                </th>
+                <th>
+                  <Translate contentKey="lumiApp.courseReview.student">Student</Translate> <FontAwesomeIcon icon="sort" />
                 </th>
                 <th />
               </tr>
@@ -149,8 +153,11 @@ export const CourseReview = () => {
                   <td>
                     {courseReview.createdAt ? <TextFormat type="date" value={courseReview.createdAt} format={APP_DATE_FORMAT} /> : null}
                   </td>
+                  <td>
+                    {courseReview.updatedAt ? <TextFormat type="date" value={courseReview.updatedAt} format={APP_DATE_FORMAT} /> : null}
+                  </td>
+                  <td>{courseReview.course ? <Link to={`/course/${courseReview.course.id}`}>{courseReview.course.id}</Link> : ''}</td>
                   <td>{courseReview.student ? courseReview.student.login : ''}</td>
-                  <td>{courseReview.course ? <Link to={`/course/${courseReview.course.id}`}>{courseReview.course.title}</Link> : ''}</td>
                   <td className="text-end">
                     <div className="btn-group flex-btn-group-container">
                       <Button

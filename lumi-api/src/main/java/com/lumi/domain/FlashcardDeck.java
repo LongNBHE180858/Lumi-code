@@ -6,10 +6,10 @@ import java.io.Serial;
 import java.io.Serializable;
 
 /**
- * A FlashcardDeck.
+ * Lưu bộ flashcard, chủ sở hữu và phạm vi chia sẻ.
  */
 @Entity
-@Table(name = "flashcard_deck")
+@Table(name = "flashcard_decks")
 @SuppressWarnings("common-java:DuplicatedBlocks")
 public class FlashcardDeck implements Serializable {
 

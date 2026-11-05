@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { Button, Table } from 'react-bootstrap';
-import { JhiItemCount, JhiPagination, Translate, getPaginationState } from 'react-jhipster';
+import { JhiItemCount, JhiPagination, TextFormat, Translate, getPaginationState } from 'react-jhipster';
 import { Link, useLocation, useNavigate } from 'react-router';
 
 import { faSort, faSortDown, faSortUp } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
+import { APP_DATE_FORMAT } from 'app/config/constants';
 import { useAppDispatch, useAppSelector } from 'app/config/store';
 import { overridePaginationStateWithQueryParams } from 'app/shared/util/entity-utils';
 import { ASC, DESC, ITEMS_PER_PAGE, SORT } from 'app/shared/util/pagination.constants';
@@ -114,6 +115,22 @@ export const CourseMaterial = () => {
                 <th className="hand" onClick={sort('id')}>
                   <Translate contentKey="lumiApp.courseMaterial.id">ID</Translate> <FontAwesomeIcon icon={getSortIconByFieldName('id')} />
                 </th>
+                <th className="hand" onClick={sort('fileName')}>
+                  <Translate contentKey="lumiApp.courseMaterial.fileName">File Name</Translate>{' '}
+                  <FontAwesomeIcon icon={getSortIconByFieldName('fileName')} />
+                </th>
+                <th className="hand" onClick={sort('displayName')}>
+                  <Translate contentKey="lumiApp.courseMaterial.displayName">Display Name</Translate>{' '}
+                  <FontAwesomeIcon icon={getSortIconByFieldName('displayName')} />
+                </th>
+                <th className="hand" onClick={sort('mimeType')}>
+                  <Translate contentKey="lumiApp.courseMaterial.mimeType">Mime Type</Translate>{' '}
+                  <FontAwesomeIcon icon={getSortIconByFieldName('mimeType')} />
+                </th>
+                <th className="hand" onClick={sort('orderIndex')}>
+                  <Translate contentKey="lumiApp.courseMaterial.orderIndex">Order Index</Translate>{' '}
+                  <FontAwesomeIcon icon={getSortIconByFieldName('orderIndex')} />
+                </th>
                 <th className="hand" onClick={sort('fileType')}>
                   <Translate contentKey="lumiApp.courseMaterial.fileType">File Type</Translate>{' '}
                   <FontAwesomeIcon icon={getSortIconByFieldName('fileType')} />
@@ -126,20 +143,16 @@ export const CourseMaterial = () => {
                   <Translate contentKey="lumiApp.courseMaterial.fileSizeBytes">File Size Bytes</Translate>{' '}
                   <FontAwesomeIcon icon={getSortIconByFieldName('fileSizeBytes')} />
                 </th>
+                <th className="hand" onClick={sort('fileObjectKey')}>
+                  <Translate contentKey="lumiApp.courseMaterial.fileObjectKey">File Object Key</Translate>{' '}
+                  <FontAwesomeIcon icon={getSortIconByFieldName('fileObjectKey')} />
+                </th>
+                <th className="hand" onClick={sort('updatedAt')}>
+                  <Translate contentKey="lumiApp.courseMaterial.updatedAt">Updated At</Translate>{' '}
+                  <FontAwesomeIcon icon={getSortIconByFieldName('updatedAt')} />
+                </th>
                 <th>
                   <Translate contentKey="lumiApp.courseMaterial.lesson">Lesson</Translate> <FontAwesomeIcon icon="sort" />
-                </th>
-                <th>
-                  <Translate contentKey="lumiApp.courseMaterial.fileName" />
-                </th>
-                <th>
-                  <Translate contentKey="lumiApp.courseMaterial.displayName" />
-                </th>
-                <th>
-                  <Translate contentKey="lumiApp.courseMaterial.mimeType" />
-                </th>
-                <th>
-                  <Translate contentKey="lumiApp.courseMaterial.orderIndex" />
                 </th>
                 <th />
               </tr>
@@ -152,16 +165,18 @@ export const CourseMaterial = () => {
                       {courseMaterial.id}
                     </Button>
                   </td>
-                  <td>{courseMaterial.fileType}</td>
-                  <td>{courseMaterial.fileUrl}</td>
-                  <td>{courseMaterial.fileSizeBytes}</td>
-                  <td>
-                    {courseMaterial.lesson ? <Link to={`/lesson/${courseMaterial.lesson.id}`}>{courseMaterial.lesson.title}</Link> : ''}
-                  </td>
                   <td>{courseMaterial.fileName}</td>
                   <td>{courseMaterial.displayName}</td>
                   <td>{courseMaterial.mimeType}</td>
                   <td>{courseMaterial.orderIndex}</td>
+                  <td>{courseMaterial.fileType}</td>
+                  <td>{courseMaterial.fileUrl}</td>
+                  <td>{courseMaterial.fileSizeBytes}</td>
+                  <td>{courseMaterial.fileObjectKey}</td>
+                  <td>
+                    {courseMaterial.updatedAt ? <TextFormat type="date" value={courseMaterial.updatedAt} format={APP_DATE_FORMAT} /> : null}
+                  </td>
+                  <td>{courseMaterial.lesson ? <Link to={`/lesson/${courseMaterial.lesson.id}`}>{courseMaterial.lesson.id}</Link> : ''}</td>
                   <td className="text-end">
                     <div className="btn-group flex-btn-group-container">
                       <Button

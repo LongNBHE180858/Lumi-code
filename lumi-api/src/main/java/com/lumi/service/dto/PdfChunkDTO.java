@@ -1,5 +1,7 @@
 package com.lumi.service.dto;
 
+import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.persistence.Lob;
 import jakarta.validation.constraints.*;
 import java.io.Serializable;
 import java.util.Objects;
@@ -7,23 +9,30 @@ import java.util.Objects;
 /**
  * A DTO for the {@link com.lumi.domain.PdfChunk} entity.
  */
+@Schema(description = "Lưu đoạn văn bản và embedding được tách từ nguồn tài liệu.")
 @SuppressWarnings("common-java:DuplicatedBlocks")
 public class PdfChunkDTO implements Serializable {
 
     private Long id;
 
-    @Min(value = 1)
     private Integer pageNumber;
 
-    @NotNull
-    @Size(max = 5000)
+    @Lob
     private String chunkText;
 
-    @Size(max = 5000)
+    @Lob
     private String embedding;
 
     @NotNull
-    private CourseMaterialDTO material;
+    @Min(value = 0)
+    private Integer chunkIndex;
+
+    @NotNull
+    @Min(value = 1)
+    private Integer indexVersion;
+
+    @NotNull
+    private LearningDocumentDTO material;
 
     public Long getId() {
         return id;
@@ -57,11 +66,27 @@ public class PdfChunkDTO implements Serializable {
         this.embedding = embedding;
     }
 
-    public CourseMaterialDTO getMaterial() {
+    public Integer getChunkIndex() {
+        return chunkIndex;
+    }
+
+    public void setChunkIndex(Integer chunkIndex) {
+        this.chunkIndex = chunkIndex;
+    }
+
+    public Integer getIndexVersion() {
+        return indexVersion;
+    }
+
+    public void setIndexVersion(Integer indexVersion) {
+        this.indexVersion = indexVersion;
+    }
+
+    public LearningDocumentDTO getMaterial() {
         return material;
     }
 
-    public void setMaterial(CourseMaterialDTO material) {
+    public void setMaterial(LearningDocumentDTO material) {
         this.material = material;
     }
 
@@ -94,6 +119,8 @@ public class PdfChunkDTO implements Serializable {
             ", pageNumber=" + getPageNumber() +
             ", chunkText='" + getChunkText() + "'" +
             ", embedding='" + getEmbedding() + "'" +
+            ", chunkIndex=" + getChunkIndex() +
+            ", indexVersion=" + getIndexVersion() +
             ", material=" + getMaterial() +
             "}";
     }

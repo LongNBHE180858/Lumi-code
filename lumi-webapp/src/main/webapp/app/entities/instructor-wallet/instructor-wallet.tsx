@@ -1,14 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import { Button, Table } from 'react-bootstrap';
-import { Translate, getSortState } from 'react-jhipster';
+import { JhiItemCount, JhiPagination, Translate, getPaginationState } from 'react-jhipster';
 import { Link, useLocation, useNavigate } from 'react-router';
 
 import { faSort, faSortDown, faSortUp } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import { useAppDispatch, useAppSelector } from 'app/config/store';
-import { overrideSortStateWithQueryParams } from 'app/shared/util/entity-utils';
-import { ASC, DESC } from 'app/shared/util/pagination.constants';
+import { overridePaginationStateWithQueryParams } from 'app/shared/util/entity-utils';
+import { ASC, DESC, ITEMS_PER_PAGE, SORT } from 'app/shared/util/pagination.constants';
 
 import { getEntities } from './instructor-wallet.reducer';
 
@@ -18,22 +18,27 @@ export const InstructorWallet = () => {
   const pageLocation = useLocation();
   const navigate = useNavigate();
 
-  const [sortState, setSortState] = useState(overrideSortStateWithQueryParams(getSortState(pageLocation, 'id'), pageLocation.search));
+  const [paginationState, setPaginationState] = useState(
+    overridePaginationStateWithQueryParams(getPaginationState(pageLocation, ITEMS_PER_PAGE, 'id'), pageLocation.search),
+  );
 
   const instructorWalletList = useAppSelector(state => state.instructorWallet.entities);
   const loading = useAppSelector(state => state.instructorWallet.loading);
+  const totalItems = useAppSelector(state => state.instructorWallet.totalItems);
 
   const getAllEntities = () => {
     dispatch(
       getEntities({
-        sort: `${sortState.sort},${sortState.order}`,
+        page: paginationState.activePage - 1,
+        size: paginationState.itemsPerPage,
+        sort: `${paginationState.sort},${paginationState.order}`,
       }),
     );
   };
 
   const sortEntities = () => {
     getAllEntities();
-    const endURL = `?sort=${sortState.sort},${sortState.order}`;
+    const endURL = `?page=${paginationState.activePage}&sort=${paginationState.sort},${paginationState.order}`;
     if (pageLocation.search !== endURL) {
       navigate(`${pageLocation.pathname}${endURL}`);
     }
@@ -41,23 +46,44 @@ export const InstructorWallet = () => {
 
   useEffect(() => {
     sortEntities();
-  }, [sortState.order, sortState.sort]);
+  }, [paginationState.activePage, paginationState.order, paginationState.sort]);
+
+  useEffect(() => {
+    const params = new URLSearchParams(pageLocation.search);
+    const page = params.get('page');
+    const sort = params.get(SORT);
+    if (page && sort) {
+      const sortSplit = sort.split(',');
+      setPaginationState({
+        ...paginationState,
+        activePage: +page,
+        sort: sortSplit[0],
+        order: sortSplit[1],
+      });
+    }
+  }, [pageLocation.search]);
 
   const sort = p => () => {
-    setSortState({
-      ...sortState,
-      order: sortState.order === ASC ? DESC : ASC,
+    setPaginationState({
+      ...paginationState,
+      order: paginationState.order === ASC ? DESC : ASC,
       sort: p,
     });
   };
+
+  const handlePagination = currentPage =>
+    setPaginationState({
+      ...paginationState,
+      activePage: currentPage,
+    });
 
   const handleSyncList = () => {
     sortEntities();
   };
 
   const getSortIconByFieldName = (fieldName: string) => {
-    const sortFieldName = sortState.sort;
-    const { order } = sortState;
+    const sortFieldName = paginationState.sort;
+    const { order } = paginationState;
     if (sortFieldName !== fieldName) {
       return faSort;
     }
@@ -101,7 +127,7 @@ export const InstructorWallet = () => {
                   <FontAwesomeIcon icon={getSortIconByFieldName('rowVersion')} />
                 </th>
                 <th>
-                  <Translate contentKey="lumiApp.instructorWallet.user">User</Translate> <FontAwesomeIcon icon="sort" />
+                  <Translate contentKey="lumiApp.instructorWallet.instructor">Instructor</Translate> <FontAwesomeIcon icon="sort" />
                 </th>
                 <th />
               </tr>
@@ -117,7 +143,7 @@ export const InstructorWallet = () => {
                   <td>{instructorWallet.pendingAmount}</td>
                   <td>{instructorWallet.availableAmount}</td>
                   <td>{instructorWallet.rowVersion}</td>
-                  <td>{instructorWallet.user ? instructorWallet.user.login : ''}</td>
+                  <td>{instructorWallet.instructor ? instructorWallet.instructor.login : ''}</td>
                   <td className="text-end">
                     <div className="btn-group flex-btn-group-container">
                       <Button
@@ -134,7 +160,7 @@ export const InstructorWallet = () => {
                       </Button>
                       <Button
                         as={Link as any}
-                        to={`/instructor-wallet/${instructorWallet.id}/edit`}
+                        to={`/instructor-wallet/${instructorWallet.id}/edit?page=${paginationState.activePage}&sort=${paginationState.sort},${paginationState.order}`}
                         variant="primary"
                         size="sm"
                         data-cy="entityEditButton"
@@ -145,7 +171,9 @@ export const InstructorWallet = () => {
                         </span>
                       </Button>
                       <Button
-                        onClick={() => (globalThis.location.href = `/instructor-wallet/${instructorWallet.id}/delete`)}
+                        onClick={() =>
+                          (globalThis.location.href = `/instructor-wallet/${instructorWallet.id}/delete?page=${paginationState.activePage}&sort=${paginationState.sort},${paginationState.order}`)
+                        }
                         variant="danger"
                         size="sm"
                         data-cy="entityDeleteButton"
@@ -169,6 +197,24 @@ export const InstructorWallet = () => {
           )
         )}
       </div>
+      {totalItems ? (
+        <div className={instructorWalletList && instructorWalletList.length > 0 ? '' : 'd-none'}>
+          <div className="justify-content-center d-flex">
+            <JhiItemCount page={paginationState.activePage} total={totalItems} itemsPerPage={paginationState.itemsPerPage} i18nEnabled />
+          </div>
+          <div className="justify-content-center d-flex">
+            <JhiPagination
+              activePage={paginationState.activePage}
+              onSelect={handlePagination}
+              maxButtons={5}
+              itemsPerPage={paginationState.itemsPerPage}
+              totalItems={totalItems}
+            />
+          </div>
+        </div>
+      ) : (
+        ''
+      )}
     </div>
   );
 };

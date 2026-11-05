@@ -19,7 +19,12 @@
       },
       "id": "ID",
       "name": "Name",
-      "instructor": "Instructor"
+      "visibility": "Visibility",
+      "createdAt": "Created At",
+      "updatedAt": "Updated At",
+      "instructor": "Instructor",
+      "subject": "Subject",
+      "grade": "Grade"
     }
   }
 }

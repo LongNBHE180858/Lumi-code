@@ -10,11 +10,11 @@ public class ContentReportTestSamples {
     private static final AtomicLong longCount = new AtomicLong(random.nextInt() + 2L * Integer.MAX_VALUE);
 
     public static ContentReport getContentReportSample1() {
-        return new ContentReport().id(1L).targetType("targetType1").targetId(1L).reason("reason1").status("status1");
+        return new ContentReport().id(1L).targetType("targetType1").targetId(1L).status("status1").targetVersion("targetVersion1");
     }
 
     public static ContentReport getContentReportSample2() {
-        return new ContentReport().id(2L).targetType("targetType2").targetId(2L).reason("reason2").status("status2");
+        return new ContentReport().id(2L).targetType("targetType2").targetId(2L).status("status2").targetVersion("targetVersion2");
     }
 
     public static ContentReport getContentReportRandomSampleGenerator() {
@@ -22,7 +22,7 @@ public class ContentReportTestSamples {
             .id(longCount.incrementAndGet())
             .targetType(UUID.randomUUID().toString())
             .targetId(longCount.incrementAndGet())
-            .reason(UUID.randomUUID().toString())
-            .status(UUID.randomUUID().toString());
+            .status(UUID.randomUUID().toString())
+            .targetVersion(UUID.randomUUID().toString());
     }
 }

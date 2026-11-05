@@ -152,8 +152,26 @@ export const ContentReport = () => {
                     <Translate contentKey="lumiApp.contentReport.createdAt">Created At</Translate>{' '}
                     <FontAwesomeIcon icon={getSortIconByFieldName('createdAt')} />
                   </th>
+                  <th className="hand" onClick={sort('resolvedAt')}>
+                    <Translate contentKey="lumiApp.contentReport.resolvedAt">Resolved At</Translate>{' '}
+                    <FontAwesomeIcon icon={getSortIconByFieldName('resolvedAt')} />
+                  </th>
+                  <th className="hand" onClick={sort('resolutionNote')}>
+                    <Translate contentKey="lumiApp.contentReport.resolutionNote">Resolution Note</Translate>{' '}
+                    <FontAwesomeIcon icon={getSortIconByFieldName('resolutionNote')} />
+                  </th>
+                  <th className="hand" onClick={sort('targetVersion')}>
+                    <Translate contentKey="lumiApp.contentReport.targetVersion">Target Version</Translate>{' '}
+                    <FontAwesomeIcon icon={getSortIconByFieldName('targetVersion')} />
+                  </th>
                   <th>
                     <Translate contentKey="lumiApp.contentReport.reporter">Reporter</Translate> <FontAwesomeIcon icon="sort" />
+                  </th>
+                  <th>
+                    <Translate contentKey="lumiApp.contentReport.assignedTo">Assigned To</Translate> <FontAwesomeIcon icon="sort" />
+                  </th>
+                  <th>
+                    <Translate contentKey="lumiApp.contentReport.resolvedBy">Resolved By</Translate> <FontAwesomeIcon icon="sort" />
                   </th>
                   <th />
                 </tr>
@@ -173,7 +191,16 @@ export const ContentReport = () => {
                     <td>
                       {contentReport.createdAt ? <TextFormat type="date" value={contentReport.createdAt} format={APP_DATE_FORMAT} /> : null}
                     </td>
+                    <td>
+                      {contentReport.resolvedAt ? (
+                        <TextFormat type="date" value={contentReport.resolvedAt} format={APP_DATE_FORMAT} />
+                      ) : null}
+                    </td>
+                    <td>{contentReport.resolutionNote}</td>
+                    <td>{contentReport.targetVersion}</td>
                     <td>{contentReport.reporter ? contentReport.reporter.login : ''}</td>
+                    <td>{contentReport.assignedTo ? contentReport.assignedTo.login : ''}</td>
+                    <td>{contentReport.resolvedBy ? contentReport.resolvedBy.login : ''}</td>
                     <td className="text-end">
                       <div className="btn-group flex-btn-group-container">
                         <Button

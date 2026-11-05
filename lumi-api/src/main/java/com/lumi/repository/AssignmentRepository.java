@@ -14,6 +14,9 @@ import org.springframework.stereotype.Repository;
  */
 @Repository
 public interface AssignmentRepository extends JpaRepository<Assignment, Long>, JpaSpecificationExecutor<Assignment> {
+    @Query("select assignment from Assignment assignment where assignment.assignedBy.login = ?#{authentication.name}")
+    List<Assignment> findByAssignedByIsCurrentUser();
+
     default Optional<Assignment> findOneWithEagerRelationships(Long id) {
         return this.findOneWithToOneRelationships(id);
     }
@@ -27,14 +30,14 @@ public interface AssignmentRepository extends JpaRepository<Assignment, Long>, J
     }
 
     @Query(
-        value = "select assignment from Assignment assignment left join fetch assignment.studyClass",
+        value = "select assignment from Assignment assignment left join fetch assignment.assignedBy",
         countQuery = "select count(assignment) from Assignment assignment"
     )
     Page<Assignment> findAllWithToOneRelationships(Pageable pageable);
 
-    @Query("select assignment from Assignment assignment left join fetch assignment.studyClass")
+    @Query("select assignment from Assignment assignment left join fetch assignment.assignedBy")
     List<Assignment> findAllWithToOneRelationships();
 
-    @Query("select assignment from Assignment assignment left join fetch assignment.studyClass where assignment.id =:id")
+    @Query("select assignment from Assignment assignment left join fetch assignment.assignedBy where assignment.id =:id")
     Optional<Assignment> findOneWithToOneRelationships(@Param("id") Long id);
 }

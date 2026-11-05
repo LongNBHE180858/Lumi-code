@@ -52,7 +52,11 @@ public class AssignmentSubmissionAsserts {
             .satisfies(a -> assertThat(a.getScore()).as("check score").usingComparator(bigDecimalCompareTo).isEqualTo(expected.getScore()))
             .satisfies(a -> assertThat(a.getTeacherFeedback()).as("check teacherFeedback").isEqualTo(expected.getTeacherFeedback()))
             .satisfies(a -> assertThat(a.getStatus()).as("check status").isEqualTo(expected.getStatus()))
-            .satisfies(a -> assertThat(a.getSubmittedAt()).as("check submittedAt").isEqualTo(expected.getSubmittedAt()));
+            .satisfies(a -> assertThat(a.getSubmittedAt()).as("check submittedAt").isEqualTo(expected.getSubmittedAt()))
+            .satisfies(a -> assertThat(a.getAttachments()).as("check attachments").isEqualTo(expected.getAttachments()))
+            .satisfies(a -> assertThat(a.getGradedAt()).as("check gradedAt").isEqualTo(expected.getGradedAt()))
+            .satisfies(a -> assertThat(a.getUpdatedAt()).as("check updatedAt").isEqualTo(expected.getUpdatedAt()))
+            .satisfies(a -> assertThat(a.getRowVersion()).as("check rowVersion").isEqualTo(expected.getRowVersion()));
     }
 
     /**

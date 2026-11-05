@@ -10,7 +10,7 @@
         Added the entity StudentStreak.
     -->
     <changeSet id="20261012230512-1" author="jhipster">
-        <createTable tableName="student_streak">
+        <createTable tableName="student_streaks" remarks="Lưu chuỗi ngày học và số dư điểm thưởng tổng hợp của học sinh.">
             <column name="id" type="bigint">
                 <constraints primaryKey="true" nullable="false"/>
             </column>
@@ -26,8 +26,8 @@
             <column name="last_active_date" type="date">
                 <constraints nullable="true" />
             </column>
-            <column name="user_id" type="bigint">
-                <constraints nullable="false" unique="true" uniqueConstraintName="ux_student_streak__user_id" />
+            <column name="student_id" type="bigint">
+                <constraints nullable="false" unique="true" uniqueConstraintName="ux_student_streaks__student_id" />
             </column>
             <!-- jhipster-needle-liquibase-add-column - JHipster will add columns here -->
         </createTable>
@@ -45,17 +45,17 @@
     -->
     <changeSet id="20261012230512-1-data" author="jhipster" context="faker">
         <loadData
-                  file="../fake-data/student_streak.csv"
+                  file="../fake-data/student_streaks.csv"
                   relativeToChangelogFile="true"
                   separator=";"
-                  tableName="student_streak"
+                  tableName="student_streaks"
                   usePreparedStatements="true">
             <column name="id" type="numeric"/>
             <column name="current_streak" type="numeric"/>
             <column name="longest_streak" type="numeric"/>
             <column name="gems_balance" type="numeric"/>
             <column name="last_active_date" type="date"/>
-            <column name="user_id" type="numeric"/>
+            <column name="student_id" type="numeric"/>
             <!-- jhipster-needle-liquibase-add-loadcolumn - JHipster (and/or extensions) can add load columns here -->
         </loadData>
     </changeSet>

@@ -30,18 +30,16 @@ public interface StudyClassRepository extends JpaRepository<StudyClass, Long>, J
     }
 
     @Query(
-        value = "select studyClass from StudyClass studyClass left join fetch studyClass.instructor left join fetch studyClass.subject left join fetch studyClass.grade",
+        value = "select studyClass from StudyClass studyClass left join fetch studyClass.instructor",
         countQuery = "select count(studyClass) from StudyClass studyClass"
     )
     Page<StudyClass> findAllWithToOneRelationships(Pageable pageable);
 
-    @Query(
-        "select studyClass from StudyClass studyClass left join fetch studyClass.instructor left join fetch studyClass.subject left join fetch studyClass.grade"
-    )
+    @Query("select studyClass from StudyClass studyClass left join fetch studyClass.instructor")
     List<StudyClass> findAllWithToOneRelationships();
 
-    @Query(
-        "select studyClass from StudyClass studyClass left join fetch studyClass.instructor left join fetch studyClass.subject left join fetch studyClass.grade where studyClass.id =:id"
-    )
+    @Query("select studyClass from StudyClass studyClass left join fetch studyClass.instructor where studyClass.id =:id")
     Optional<StudyClass> findOneWithToOneRelationships(@Param("id") Long id);
+
+    List<StudyClass> findAllByInstructor_IdOrderByCreatedAtAsc(Long instructorId);
 }

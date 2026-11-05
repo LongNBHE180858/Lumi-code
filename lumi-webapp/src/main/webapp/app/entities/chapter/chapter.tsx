@@ -137,7 +137,7 @@ export const Chapter = () => {
                   </td>
                   <td>{chapter.title}</td>
                   <td>{chapter.orderIndex}</td>
-                  <td>{chapter.course ? <Link to={`/course/${chapter.course.id}`}>{chapter.course.title}</Link> : ''}</td>
+                  <td>{chapter.course ? <Link to={`/course/${chapter.course.id}`}>{chapter.course.id}</Link> : ''}</td>
                   <td className="text-end">
                     <div className="btn-group flex-btn-group-container">
                       <Button as={Link as any} to={`/chapter/${chapter.id}`} variant="info" size="sm" data-cy="entityDetailsButton">

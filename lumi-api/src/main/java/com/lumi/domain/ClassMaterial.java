@@ -8,10 +8,10 @@ import java.io.Serializable;
 import java.time.Instant;
 
 /**
- * A ClassMaterial.
+ * Lưu tài liệu được giáo viên chia sẻ trong lớp riêng.
  */
 @Entity
-@Table(name = "class_material")
+@Table(name = "class_materials")
 @SuppressWarnings("common-java:DuplicatedBlocks")
 public class ClassMaterial implements Serializable {
 
@@ -40,17 +40,28 @@ public class ClassMaterial implements Serializable {
     private String fileUrl;
 
     @NotNull
-    @Min(value = 0L)
     @Column(name = "file_size_bytes", nullable = false)
     private Long fileSizeBytes;
 
     @Column(name = "uploaded_at")
     private Instant uploadedAt;
 
+    @Size(max = 1000)
+    @Column(name = "file_object_key", length = 1000)
+    private String fileObjectKey;
+
+    @NotNull
+    @Column(name = "updated_at", nullable = false)
+    private Instant updatedAt;
+
     @ManyToOne(optional = false)
     @NotNull
     @JsonIgnoreProperties(value = { "instructor", "subject", "grade" }, allowSetters = true)
     private StudyClass studyClass;
+
+    @JsonIgnoreProperties(value = { "courseMaterial", "classMaterial", "uploadedBy", "subject", "grade" }, allowSetters = true)
+    @OneToOne(fetch = FetchType.LAZY, mappedBy = "classMaterial")
+    private LearningDocument learningDocument;
 
     // jhipster-needle-entity-add-field - JHipster will add fields here
 
@@ -132,6 +143,32 @@ public class ClassMaterial implements Serializable {
         this.uploadedAt = uploadedAt;
     }
 
+    public String getFileObjectKey() {
+        return this.fileObjectKey;
+    }
+
+    public ClassMaterial fileObjectKey(String fileObjectKey) {
+        this.setFileObjectKey(fileObjectKey);
+        return this;
+    }
+
+    public void setFileObjectKey(String fileObjectKey) {
+        this.fileObjectKey = fileObjectKey;
+    }
+
+    public Instant getUpdatedAt() {
+        return this.updatedAt;
+    }
+
+    public ClassMaterial updatedAt(Instant updatedAt) {
+        this.setUpdatedAt(updatedAt);
+        return this;
+    }
+
+    public void setUpdatedAt(Instant updatedAt) {
+        this.updatedAt = updatedAt;
+    }
+
     public StudyClass getStudyClass() {
         return this.studyClass;
     }
@@ -142,6 +179,25 @@ public class ClassMaterial implements Serializable {
 
     public ClassMaterial studyClass(StudyClass studyClass) {
         this.setStudyClass(studyClass);
+        return this;
+    }
+
+    public LearningDocument getLearningDocument() {
+        return this.learningDocument;
+    }
+
+    public void setLearningDocument(LearningDocument learningDocument) {
+        if (this.learningDocument != null) {
+            this.learningDocument.setClassMaterial(null);
+        }
+        if (learningDocument != null) {
+            learningDocument.setClassMaterial(this);
+        }
+        this.learningDocument = learningDocument;
+    }
+
+    public ClassMaterial learningDocument(LearningDocument learningDocument) {
+        this.setLearningDocument(learningDocument);
         return this;
     }
 
@@ -174,6 +230,8 @@ public class ClassMaterial implements Serializable {
             ", fileUrl='" + getFileUrl() + "'" +
             ", fileSizeBytes=" + getFileSizeBytes() +
             ", uploadedAt='" + getUploadedAt() + "'" +
+            ", fileObjectKey='" + getFileObjectKey() + "'" +
+            ", updatedAt='" + getUpdatedAt() + "'" +
             "}";
     }
 }

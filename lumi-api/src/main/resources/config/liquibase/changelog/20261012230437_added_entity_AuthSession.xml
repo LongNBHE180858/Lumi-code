@@ -10,7 +10,7 @@
         Added the entity AuthSession.
     -->
     <changeSet id="20261012230437-1" author="jhipster">
-        <createTable tableName="auth_session">
+        <createTable tableName="auth_sessions" remarks="Quản lý phiên đăng nhập, thiết bị và việc thu hồi refresh token.">
             <column name="id" type="bigint">
                 <constraints primaryKey="true" nullable="false"/>
             </column>
@@ -18,7 +18,7 @@
                 <constraints nullable="true" />
             </column>
             <column name="refresh_token" type="varchar(255)">
-                <constraints nullable="true" unique="true" uniqueConstraintName="ux_auth_session__refresh_token" />
+                <constraints nullable="true" unique="true" uniqueConstraintName="ux_auth_sessions__refresh_token" />
             </column>
             <column name="expires_at" type="${datetimeType}">
                 <constraints nullable="false" />
@@ -29,13 +29,16 @@
             <column name="created_at" type="${datetimeType}">
                 <constraints nullable="true" />
             </column>
+            <column name="refresh_token_hash" type="varchar(255)">
+                <constraints nullable="true" unique="true" uniqueConstraintName="ux_auth_sessions__refresh_token_hash" />
+            </column>
             <column name="user_id" type="bigint">
                 <constraints nullable="false" />
             </column>
             <!-- jhipster-needle-liquibase-add-column - JHipster will add columns here -->
         </createTable>
-        <dropDefaultValue tableName="auth_session" columnName="expires_at" columnDataType="${datetimeType}"/>
-        <dropDefaultValue tableName="auth_session" columnName="created_at" columnDataType="${datetimeType}"/>
+        <dropDefaultValue tableName="auth_sessions" columnName="expires_at" columnDataType="${datetimeType}"/>
+        <dropDefaultValue tableName="auth_sessions" columnName="created_at" columnDataType="${datetimeType}"/>
     </changeSet>
 
     <!-- jhipster-needle-liquibase-add-changeset - JHipster will add changesets here -->
@@ -50,10 +53,10 @@
     -->
     <changeSet id="20261012230437-1-data" author="jhipster" context="faker">
         <loadData
-                  file="../fake-data/auth_session.csv"
+                  file="../fake-data/auth_sessions.csv"
                   relativeToChangelogFile="true"
                   separator=";"
-                  tableName="auth_session"
+                  tableName="auth_sessions"
                   usePreparedStatements="true">
             <column name="id" type="numeric"/>
             <column name="device_info" type="string"/>
@@ -61,6 +64,7 @@
             <column name="expires_at" type="date"/>
             <column name="is_revoked" type="boolean"/>
             <column name="created_at" type="date"/>
+            <column name="refresh_token_hash" type="string"/>
             <column name="user_id" type="numeric"/>
             <!-- jhipster-needle-liquibase-add-loadcolumn - JHipster (and/or extensions) can add load columns here -->
         </loadData>

@@ -1,5 +1,6 @@
 package com.lumi.domain;
 
+import static com.lumi.domain.AssertUtils.bigDecimalCompareTo;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class CouponAsserts {
@@ -51,7 +52,22 @@ public class CouponAsserts {
             .satisfies(a -> assertThat(a.getDiscountPercent()).as("check discountPercent").isEqualTo(expected.getDiscountPercent()))
             .satisfies(a -> assertThat(a.getMaxUses()).as("check maxUses").isEqualTo(expected.getMaxUses()))
             .satisfies(a -> assertThat(a.getUsedCount()).as("check usedCount").isEqualTo(expected.getUsedCount()))
-            .satisfies(a -> assertThat(a.getValidTo()).as("check validTo").isEqualTo(expected.getValidTo()));
+            .satisfies(a -> assertThat(a.getValidTo()).as("check validTo").isEqualTo(expected.getValidTo()))
+            .satisfies(a -> assertThat(a.getValidFrom()).as("check validFrom").isEqualTo(expected.getValidFrom()))
+            .satisfies(a -> assertThat(a.getIsActive()).as("check isActive").isEqualTo(expected.getIsActive()))
+            .satisfies(a ->
+                assertThat(a.getMinOrderAmount())
+                    .as("check minOrderAmount")
+                    .usingComparator(bigDecimalCompareTo)
+                    .isEqualTo(expected.getMinOrderAmount())
+            )
+            .satisfies(a -> assertThat(a.getMaxUsesPerUser()).as("check maxUsesPerUser").isEqualTo(expected.getMaxUsesPerUser()))
+            .satisfies(a ->
+                assertThat(a.getInstructorDiscountSharePercent())
+                    .as("check instructorDiscountSharePercent")
+                    .usingComparator(bigDecimalCompareTo)
+                    .isEqualTo(expected.getInstructorDiscountSharePercent())
+            );
     }
 
     /**
@@ -61,6 +77,8 @@ public class CouponAsserts {
      * @param actual the actual entity
      */
     public static void assertCouponUpdatableRelationshipsEquals(Coupon expected, Coupon actual) {
-        // empty method
+        assertThat(actual)
+            .as("Verify Coupon relationships")
+            .satisfies(a -> assertThat(a.getCourse()).as("check course").isEqualTo(expected.getCourse()));
     }
 }

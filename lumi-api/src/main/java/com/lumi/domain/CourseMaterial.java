@@ -5,12 +5,13 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import java.io.Serial;
 import java.io.Serializable;
+import java.time.Instant;
 
 /**
- * A CourseMaterial.
+ * Lưu tài nguyên và đường dẫn tài liệu đính kèm bài học.
  */
 @Entity
-@Table(name = "course_material")
+@Table(name = "course_materials")
 @SuppressWarnings("common-java:DuplicatedBlocks")
 public class CourseMaterial implements Serializable {
 
@@ -22,25 +23,6 @@ public class CourseMaterial implements Serializable {
     @SequenceGenerator(name = "sequenceGenerator")
     @Column(name = "id")
     private Long id;
-
-    @NotNull
-    @Size(max = 20)
-    @Column(name = "file_type", length = 20, nullable = false)
-    private String fileType;
-
-    @NotNull
-    @Size(max = 1000)
-    @Column(name = "file_url", length = 1000, nullable = false)
-    private String fileUrl;
-
-    @Min(value = 0L)
-    @Column(name = "file_size_bytes")
-    private Long fileSizeBytes;
-
-    @ManyToOne(optional = false)
-    @NotNull
-    @JsonIgnoreProperties(value = { "chapter" }, allowSetters = true)
-    private Lesson lesson;
 
     @Size(max = 255)
     @Column(name = "file_name", length = 255)
@@ -54,9 +36,38 @@ public class CourseMaterial implements Serializable {
     @Column(name = "mime_type", length = 100)
     private String mimeType;
 
-    @Min(0)
     @Column(name = "order_index")
     private Integer orderIndex;
+
+    @NotNull
+    @Size(max = 20)
+    @Column(name = "file_type", length = 20, nullable = false)
+    private String fileType;
+
+    @NotNull
+    @Size(max = 1000)
+    @Column(name = "file_url", length = 1000, nullable = false)
+    private String fileUrl;
+
+    @Column(name = "file_size_bytes")
+    private Long fileSizeBytes;
+
+    @Size(max = 1000)
+    @Column(name = "file_object_key", length = 1000)
+    private String fileObjectKey;
+
+    @NotNull
+    @Column(name = "updated_at", nullable = false)
+    private Instant updatedAt;
+
+    @ManyToOne(optional = false)
+    @NotNull
+    @JsonIgnoreProperties(value = { "chapter" }, allowSetters = true)
+    private Lesson lesson;
+
+    @JsonIgnoreProperties(value = { "courseMaterial", "classMaterial", "uploadedBy", "subject", "grade" }, allowSetters = true)
+    @OneToOne(fetch = FetchType.LAZY, mappedBy = "courseMaterial")
+    private LearningDocument learningDocument;
 
     // jhipster-needle-entity-add-field - JHipster will add fields here
 
@@ -71,6 +82,58 @@ public class CourseMaterial implements Serializable {
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public String getFileName() {
+        return this.fileName;
+    }
+
+    public CourseMaterial fileName(String fileName) {
+        this.setFileName(fileName);
+        return this;
+    }
+
+    public void setFileName(String fileName) {
+        this.fileName = fileName;
+    }
+
+    public String getDisplayName() {
+        return this.displayName;
+    }
+
+    public CourseMaterial displayName(String displayName) {
+        this.setDisplayName(displayName);
+        return this;
+    }
+
+    public void setDisplayName(String displayName) {
+        this.displayName = displayName;
+    }
+
+    public String getMimeType() {
+        return this.mimeType;
+    }
+
+    public CourseMaterial mimeType(String mimeType) {
+        this.setMimeType(mimeType);
+        return this;
+    }
+
+    public void setMimeType(String mimeType) {
+        this.mimeType = mimeType;
+    }
+
+    public Integer getOrderIndex() {
+        return this.orderIndex;
+    }
+
+    public CourseMaterial orderIndex(Integer orderIndex) {
+        this.setOrderIndex(orderIndex);
+        return this;
+    }
+
+    public void setOrderIndex(Integer orderIndex) {
+        this.orderIndex = orderIndex;
     }
 
     public String getFileType() {
@@ -112,6 +175,32 @@ public class CourseMaterial implements Serializable {
         this.fileSizeBytes = fileSizeBytes;
     }
 
+    public String getFileObjectKey() {
+        return this.fileObjectKey;
+    }
+
+    public CourseMaterial fileObjectKey(String fileObjectKey) {
+        this.setFileObjectKey(fileObjectKey);
+        return this;
+    }
+
+    public void setFileObjectKey(String fileObjectKey) {
+        this.fileObjectKey = fileObjectKey;
+    }
+
+    public Instant getUpdatedAt() {
+        return this.updatedAt;
+    }
+
+    public CourseMaterial updatedAt(Instant updatedAt) {
+        this.setUpdatedAt(updatedAt);
+        return this;
+    }
+
+    public void setUpdatedAt(Instant updatedAt) {
+        this.updatedAt = updatedAt;
+    }
+
     public Lesson getLesson() {
         return this.lesson;
     }
@@ -125,59 +214,26 @@ public class CourseMaterial implements Serializable {
         return this;
     }
 
+    public LearningDocument getLearningDocument() {
+        return this.learningDocument;
+    }
+
+    public void setLearningDocument(LearningDocument learningDocument) {
+        if (this.learningDocument != null) {
+            this.learningDocument.setCourseMaterial(null);
+        }
+        if (learningDocument != null) {
+            learningDocument.setCourseMaterial(this);
+        }
+        this.learningDocument = learningDocument;
+    }
+
+    public CourseMaterial learningDocument(LearningDocument learningDocument) {
+        this.setLearningDocument(learningDocument);
+        return this;
+    }
+
     // jhipster-needle-entity-add-getters-setters - JHipster will add getters and setters here
-
-    public String getFileName() {
-        return this.fileName;
-    }
-
-    public void setFileName(String fileName) {
-        this.fileName = fileName;
-    }
-
-    public CourseMaterial fileName(String fileName) {
-        this.fileName = fileName;
-        return this;
-    }
-
-    public String getDisplayName() {
-        return this.displayName;
-    }
-
-    public void setDisplayName(String displayName) {
-        this.displayName = displayName;
-    }
-
-    public CourseMaterial displayName(String displayName) {
-        this.displayName = displayName;
-        return this;
-    }
-
-    public String getMimeType() {
-        return this.mimeType;
-    }
-
-    public void setMimeType(String mimeType) {
-        this.mimeType = mimeType;
-    }
-
-    public CourseMaterial mimeType(String mimeType) {
-        this.mimeType = mimeType;
-        return this;
-    }
-
-    public Integer getOrderIndex() {
-        return this.orderIndex;
-    }
-
-    public void setOrderIndex(Integer orderIndex) {
-        this.orderIndex = orderIndex;
-    }
-
-    public CourseMaterial orderIndex(Integer orderIndex) {
-        this.orderIndex = orderIndex;
-        return this;
-    }
 
     @Override
     public boolean equals(Object o) {
@@ -201,9 +257,15 @@ public class CourseMaterial implements Serializable {
     public String toString() {
         return "CourseMaterial{" +
             "id=" + getId() +
+            ", fileName='" + getFileName() + "'" +
+            ", displayName='" + getDisplayName() + "'" +
+            ", mimeType='" + getMimeType() + "'" +
+            ", orderIndex=" + getOrderIndex() +
             ", fileType='" + getFileType() + "'" +
             ", fileUrl='" + getFileUrl() + "'" +
             ", fileSizeBytes=" + getFileSizeBytes() +
+            ", fileObjectKey='" + getFileObjectKey() + "'" +
+            ", updatedAt='" + getUpdatedAt() + "'" +
             "}";
     }
 }

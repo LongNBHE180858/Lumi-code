@@ -1,10 +1,10 @@
 package com.lumi.web.rest;
 
 import com.lumi.repository.CourseEnrollmentRepository;
-import com.lumi.service.CourseEnrollmentQueryService;
 import com.lumi.service.CourseEnrollmentService;
 import com.lumi.service.criteria.CourseEnrollmentCriteria;
 import com.lumi.service.dto.CourseEnrollmentDTO;
+import com.lumi.service.query.CourseEnrollmentQueryService;
 import com.lumi.web.rest.errors.BadRequestAlertException;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;

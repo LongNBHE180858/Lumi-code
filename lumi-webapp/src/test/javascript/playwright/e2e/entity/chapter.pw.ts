@@ -35,7 +35,7 @@ test.describe('Chapter e2e test', () => {
       await jhi.authenticatedRequest({
         method: 'POST',
         url: '/api/courses',
-        body: {"title":"shameful","description":"academics","thumbnailUrl":"whenever woot","price":8415.15,"validDurationDays":17116,"status":"DRAFT","isDeleted":false,"createdAt":"2026-10-12T16:58:55.957Z","updatedAt":"2026-10-12T13:55:55.766Z"},
+        body: {"title":"shameful","description":"Li4vZmFrZS1kYXRhL2Jsb2IvaGlwc3Rlci50eHQ=","thumbnailUrl":"academics","price":21331.09,"shortDescription":"eek","bookSeries":"inside redress finally","targetAudience":"quarrelsomely or flat","prerequisites":"yahoo monthly","learningObjectives":"Li4vZmFrZS1kYXRhL2Jsb2IvaGlwc3Rlci50eHQ=","introVideoUrl":"plus quart yet","validDurationDays":30700,"accessDurationValue":14294,"accessDurationUnit":"respray mi","version":22946,"status":"BLOCKED","isDeleted":true,"createdAt":"2026-10-12T02:31:08.258Z","updatedAt":"2026-10-12T20:27:09.098Z","storageLimitBytes":16408},
       })
     ).json();
   });

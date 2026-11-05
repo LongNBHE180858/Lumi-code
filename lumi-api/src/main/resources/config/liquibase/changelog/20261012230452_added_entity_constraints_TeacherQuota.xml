@@ -10,18 +10,18 @@
     -->
     <changeSet id="20261012230452-2" author="jhipster">
 
-        <addForeignKeyConstraint baseColumnNames="user_id"
-                                 baseTableName="teacher_quota"
-                                 constraintName="fk_teacher_quota__user_id"
+        <addForeignKeyConstraint baseColumnNames="instructor_id"
+                                 baseTableName="teacher_quotas"
+                                 constraintName="fk_teacher_quotas__instructor_id"
                                  referencedColumnNames="id"
                                  referencedTableName="jhi_user"
                                  />
 
         <addForeignKeyConstraint baseColumnNames="current_plan_id"
-                                 baseTableName="teacher_quota"
-                                 constraintName="fk_teacher_quota__current_plan_id"
+                                 baseTableName="teacher_quotas"
+                                 constraintName="fk_teacher_quotas__current_plan_id"
                                  referencedColumnNames="id"
-                                 referencedTableName="system_plan"
+                                 referencedTableName="system_plans"
                                  />
     </changeSet>
 </databaseChangeLog>

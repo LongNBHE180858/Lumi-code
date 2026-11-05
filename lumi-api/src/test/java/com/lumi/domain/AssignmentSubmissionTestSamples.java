@@ -10,18 +10,17 @@ public class AssignmentSubmissionTestSamples {
     private static final AtomicLong longCount = new AtomicLong(random.nextInt() + 2L * Integer.MAX_VALUE);
 
     public static AssignmentSubmission getAssignmentSubmissionSample1() {
-        return new AssignmentSubmission().id(1L).content("content1").teacherFeedback("teacherFeedback1").status("status1");
+        return new AssignmentSubmission().id(1L).status("status1").rowVersion(1L);
     }
 
     public static AssignmentSubmission getAssignmentSubmissionSample2() {
-        return new AssignmentSubmission().id(2L).content("content2").teacherFeedback("teacherFeedback2").status("status2");
+        return new AssignmentSubmission().id(2L).status("status2").rowVersion(2L);
     }
 
     public static AssignmentSubmission getAssignmentSubmissionRandomSampleGenerator() {
         return new AssignmentSubmission()
             .id(longCount.incrementAndGet())
-            .content(UUID.randomUUID().toString())
-            .teacherFeedback(UUID.randomUUID().toString())
-            .status(UUID.randomUUID().toString());
+            .status(UUID.randomUUID().toString())
+            .rowVersion(longCount.incrementAndGet());
     }
 }

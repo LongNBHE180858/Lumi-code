@@ -81,7 +81,7 @@ public class Feedback implements Serializable {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "course_id")
-    @JsonIgnoreProperties(value = { "author", "category", "subject", "grade" }, allowSetters = true)
+    @JsonIgnoreProperties(value = { "author", "subject", "grade" }, allowSetters = true)
     private Course course;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -276,17 +276,38 @@ public class Feedback implements Serializable {
 
     @Override
     public String toString() {
-        return "Feedback{" +
-            "id=" + getId() +
-            ", title='" + getTitle() + "'" +
-            ", type='" + getType() + "'" +
-            ", content='" + getContent() + "'" +
-            ", contactEmail='" + getContactEmail() + "'" +
-            ", status='" + getStatus() + "'" +
-            ", adminNotes='" + getAdminNotes() + "'" +
-            ", isDeleted='" + getIsDeleted() + "'" +
-            ", createdAt='" + getCreatedAt() + "'" +
-            ", updatedAt='" + getUpdatedAt() + "'" +
-            "}";
+        return (
+            "Feedback{" +
+            "id=" +
+            getId() +
+            ", title='" +
+            getTitle() +
+            "'" +
+            ", type='" +
+            getType() +
+            "'" +
+            ", content='" +
+            getContent() +
+            "'" +
+            ", contactEmail='" +
+            getContactEmail() +
+            "'" +
+            ", status='" +
+            getStatus() +
+            "'" +
+            ", adminNotes='" +
+            getAdminNotes() +
+            "'" +
+            ", isDeleted='" +
+            getIsDeleted() +
+            "'" +
+            ", createdAt='" +
+            getCreatedAt() +
+            "'" +
+            ", updatedAt='" +
+            getUpdatedAt() +
+            "'" +
+            "}"
+        );
     }
 }

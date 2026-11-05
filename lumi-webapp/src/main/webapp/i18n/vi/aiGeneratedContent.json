@@ -1,0 +1,45 @@
+{
+  "lumiApp": {
+    "aiGeneratedContent": {
+      "home": {
+        "title": "Ai Generated Contents",
+        "refreshListLabel": "Refresh list",
+        "createLabel": "Thêm mới một Ai Generated Content",
+        "createOrEditLabel": "Thêm mới hoặc cập nhật Ai Generated Content",
+        "notFound": "No Ai Generated Contents found"
+      },
+      "created": "Một Ai Generated Content mới được tạo với định danh {{ param }}",
+      "updated": "Một Ai Generated Content cập nhật với định danh {{ param }}",
+      "deleted": "Một Ai Generated Content đã xóa với định danh {{ param }}",
+      "delete": {
+        "question": "Bạn có chắc là muốn xóa Ai Generated Content {{ id }}?"
+      },
+      "detail": {
+        "title": "Ai Generated Content"
+      },
+      "id": "ID",
+      "contentType": "Content Type",
+      "requestHash": "Request Hash",
+      "generationConfig": "Generation Config",
+      "sourceVersion": "Source Version",
+      "modelName": "Model Name",
+      "promptVersion": "Prompt Version",
+      "content": "Content",
+      "generationStatus": "Generation Status",
+      "visibility": "Visibility",
+      "version": "Version",
+      "reviewStatus": "Review Status",
+      "reviewedAt": "Reviewed At",
+      "reviewerFeedback": "Reviewer Feedback",
+      "createdAt": "Created At",
+      "updatedAt": "Updated At",
+      "sourceQuestionId": "Source Question Id",
+      "contentHash": "Content Hash",
+      "createdBy": "Created By",
+      "document": "Document",
+      "lesson": "Lesson",
+      "reviewedBy": "Reviewed By",
+      "course": "Course"
+    }
+  }
+}

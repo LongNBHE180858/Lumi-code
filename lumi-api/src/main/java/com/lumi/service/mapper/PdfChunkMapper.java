@@ -1,8 +1,8 @@
 package com.lumi.service.mapper;
 
-import com.lumi.domain.CourseMaterial;
+import com.lumi.domain.LearningDocument;
 import com.lumi.domain.PdfChunk;
-import com.lumi.service.dto.CourseMaterialDTO;
+import com.lumi.service.dto.LearningDocumentDTO;
 import com.lumi.service.dto.PdfChunkDTO;
 import org.mapstruct.*;
 
@@ -11,11 +11,11 @@ import org.mapstruct.*;
  */
 @Mapper(componentModel = "spring")
 public interface PdfChunkMapper extends EntityMapper<PdfChunkDTO, PdfChunk> {
-    @Mapping(target = "material", source = "material", qualifiedByName = "courseMaterialId")
+    @Mapping(target = "material", source = "material", qualifiedByName = "learningDocumentId")
     PdfChunkDTO toDto(PdfChunk s);
 
-    @Named("courseMaterialId")
+    @Named("learningDocumentId")
     @BeanMapping(ignoreByDefault = true)
     @Mapping(target = "id", source = "id")
-    CourseMaterialDTO toDtoCourseMaterialId(CourseMaterial courseMaterial);
+    LearningDocumentDTO toDtoLearningDocumentId(LearningDocument learningDocument);
 }

@@ -23,7 +23,13 @@
       "maxUses": "Max Uses",
       "usedCount": "Used Count",
       "validTo": "Valid To",
-      "instructor": "Instructor"
+      "validFrom": "Valid From",
+      "isActive": "Is Active",
+      "minOrderAmount": "Min Order Amount",
+      "maxUsesPerUser": "Max Uses Per User",
+      "instructorDiscountSharePercent": "Instructor Discount Share Percent",
+      "instructor": "Instructor",
+      "course": "Course"
     }
   }
 }

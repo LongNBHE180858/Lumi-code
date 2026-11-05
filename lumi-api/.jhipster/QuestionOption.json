@@ -3,21 +3,29 @@
     "changelogDate": "20261012230502"
   },
   "applications": ["*"],
+  "documentation": "Lưu các lựa chọn và đáp án đúng của câu hỏi trắc nghiệm.",
   "dto": "mapstruct",
+  "entityTableName": "question_options",
   "fields": [
     {
       "fieldName": "content",
-      "fieldType": "String",
-      "fieldValidateRules": ["required", "maxlength"],
-      "fieldValidateRulesMaxlength": "5000"
+      "fieldType": "TextBlob",
+      "fieldValidateRules": ["required"]
     },
     {
       "fieldName": "isCorrect",
       "fieldType": "Boolean"
+    },
+    {
+      "fieldName": "orderIndex",
+      "fieldType": "Integer",
+      "fieldValidateRules": ["required", "min"],
+      "fieldValidateRulesMin": "0"
     }
   ],
   "jpaMetamodelFiltering": true,
   "name": "QuestionOption",
+  "pagination": "pagination",
   "relationships": [
     {
       "otherEntityName": "question",

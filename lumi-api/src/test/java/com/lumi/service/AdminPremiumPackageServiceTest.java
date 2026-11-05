@@ -3,13 +3,13 @@ package com.lumi.service;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.lumi.domain.SystemPlan;
+import com.lumi.domain.enumeration.PremiumAiLimitPeriod;
+import com.lumi.domain.enumeration.PremiumPackageStatus;
 import com.lumi.domain.enumeration.PremiumPackageType;
 import com.lumi.repository.SystemPlanRepository;
-import com.lumi.service.dto.PremiumPackageDTO;
 import com.lumi.service.dto.PremiumPackageRequest;
 import java.math.BigDecimal;
 import java.util.Optional;
@@ -26,54 +26,56 @@ class AdminPremiumPackageServiceTest {
     private SystemPlanRepository repository;
 
     @Test
-    void createsInactiveFamilyPackageWithFixedCoverage() {
+    void createsFamilyPackageUsingExistingColumns() {
         when(repository.saveAndFlush(any(SystemPlan.class))).thenAnswer(call -> {
             SystemPlan plan = call.getArgument(0);
             plan.setId(5L);
             return plan;
         });
-        AdminPremiumPackageService service = new AdminPremiumPackageService(repository);
+        when(repository.countByPackageKey(any(String.class))).thenReturn(1L);
 
-        PremiumPackageDTO result = service.create(request(PremiumPackageType.PARENT_FAMILY, null));
+        var result = new AdminPremiumPackageService(repository).create(request(PremiumPackageType.PARENT_FAMILY, null));
 
         assertThat(result.coveredPeople()).isEqualTo(4);
+        assertThat(result.maxClasses()).isNull();
         assertThat(result.revision()).isEqualTo(1);
         assertThat(result.available()).isFalse();
-        assertThat(result.id()).isEqualTo(5L);
+        assertThat(result.aiLimitPeriod()).isEqualTo("MONTH");
     }
 
     @Test
-    void editsCreateNewRevisionWithoutChangingPriorBenefits() {
-        SystemPlan old = plan(PremiumPackageType.INSTRUCTOR_CLASS);
-        old.setId(7L);
-        old.setPackageKey("key");
-        old.setAvailable(true);
-        when(repository.findByIdForUpdate(7L)).thenReturn(Optional.of(old));
+    void createsNewRevisionWithoutChangingPreviousBenefits() {
+        SystemPlan previous = plan(PremiumPackageType.INSTRUCTOR_CLASS);
+        previous.setId(7L);
+        previous.setPackageKey("key");
+        previous.setStatus(PremiumPackageStatus.AVAILABLE.name());
+        when(repository.findByIdForUpdate(7L)).thenReturn(Optional.of(previous));
         when(repository.saveAndFlush(any(SystemPlan.class))).thenAnswer(call -> call.getArgument(0));
-        AdminPremiumPackageService service = new AdminPremiumPackageService(repository);
+        when(repository.countByPackageKey("key")).thenReturn(2L);
 
-        PremiumPackageRequest updated = new PremiumPackageRequest(
-            "Revised",
-            PremiumPackageType.INSTRUCTOR_CLASS,
-            new BigDecimal("200000"),
-            60,
-            2048L,
-            20,
-            3
+        var result = new AdminPremiumPackageService(repository).update(
+            7L,
+            new PremiumPackageRequest(
+                "Revised",
+                PremiumPackageType.INSTRUCTOR_CLASS,
+                new BigDecimal("200000"),
+                60,
+                2048L,
+                20,
+                PremiumAiLimitPeriod.DAY,
+                3
+            )
         );
-        PremiumPackageDTO result = service.update(7L, updated);
 
-        assertThat(old.getPrice()).isEqualByComparingTo("100000");
-        assertThat(old.getStorageQuotaMb()).isEqualTo(1024L);
-        assertThat(old.getCurrentRevision()).isFalse();
+        assertThat(previous.getPrice()).isEqualByComparingTo("100000");
+        assertThat(previous.getStatus()).isEqualTo(PremiumPackageStatus.SUPERSEDED.name());
         assertThat(result.revision()).isEqualTo(2);
         assertThat(result.available()).isTrue();
-        assertThat(result.price()).isEqualByComparingTo("200000");
-        verify(repository).saveAndFlush(old);
+        assertThat(result.aiLimitPeriod()).isEqualTo("DAY");
     }
 
     @Test
-    void rejectsParentClassLimitAndInstructorWithoutClassLimit() {
+    void rejectsInvalidClassLimits() {
         AdminPremiumPackageService service = new AdminPremiumPackageService(repository);
         assertThatThrownBy(() -> service.create(request(PremiumPackageType.PARENT_PERSONAL, 2))).isInstanceOf(
             ResponseStatusException.class
@@ -84,26 +86,26 @@ class AdminPremiumPackageServiceTest {
     }
 
     @Test
-    void legacyPlanCannotBePublishedUntilClassified() {
+    void legacyPackageCannotBePublishedBeforeClassification() {
         SystemPlan legacy = plan(null);
         when(repository.findByIdForUpdate(1L)).thenReturn(Optional.of(legacy));
-        AdminPremiumPackageService service = new AdminPremiumPackageService(repository);
-        assertThatThrownBy(() -> service.setAvailability(1L, true)).isInstanceOf(ResponseStatusException.class);
-    }
-
-    @Test
-    void refusesEditingHistoricalRevision() {
-        SystemPlan historical = plan(PremiumPackageType.PARENT_FAMILY);
-        historical.setCurrentRevision(false);
-        when(repository.findByIdForUpdate(1L)).thenReturn(Optional.of(historical));
-        AdminPremiumPackageService service = new AdminPremiumPackageService(repository);
-        assertThatThrownBy(() -> service.update(1L, request(PremiumPackageType.PARENT_FAMILY, null))).isInstanceOf(
+        assertThatThrownBy(() -> new AdminPremiumPackageService(repository).setAvailability(1L, true)).isInstanceOf(
             ResponseStatusException.class
         );
     }
 
+    @Test
+    void historicalRevisionCannotBeEdited() {
+        SystemPlan historical = plan(PremiumPackageType.PARENT_FAMILY);
+        historical.setStatus(PremiumPackageStatus.SUPERSEDED.name());
+        when(repository.findByIdForUpdate(1L)).thenReturn(Optional.of(historical));
+        assertThatThrownBy(() ->
+            new AdminPremiumPackageService(repository).update(1L, request(PremiumPackageType.PARENT_FAMILY, null))
+        ).isInstanceOf(ResponseStatusException.class);
+    }
+
     private PremiumPackageRequest request(PremiumPackageType type, Integer maxClasses) {
-        return new PremiumPackageRequest("Package", type, new BigDecimal("100000"), 30, 1024L, 10, maxClasses);
+        return new PremiumPackageRequest("Package", type, new BigDecimal("100000"), 30, 1024L, 10, PremiumAiLimitPeriod.MONTH, maxClasses);
     }
 
     private SystemPlan plan(PremiumPackageType type) {
@@ -112,9 +114,19 @@ class AdminPremiumPackageServiceTest {
             .price(new BigDecimal("100000"))
             .durationDays(30)
             .storageQuotaMb(1024L)
-            .aiGenerationLimit(10);
-        plan.setPackageType(type);
-        plan.setMaxClasses(type == PremiumPackageType.INSTRUCTOR_CLASS ? 2 : null);
+            .aiGenerationLimit(10)
+            .aiLimitPeriod("MONTH")
+            .maxClasses(type == null || type == PremiumPackageType.PARENT_FAMILY ? 0 : 2)
+            .features("[\"AI_REQUESTS\"]")
+            .updatedAt(java.time.Instant.now())
+            .status(PremiumPackageStatus.UNAVAILABLE.name());
+        if (type != null) {
+            plan.setPlanType(type.getPlanType());
+            plan.setTargetRole(type.getTargetRole());
+        } else {
+            plan.setPlanType("LEGACY");
+            plan.setTargetRole("LEGACY");
+        }
         return plan;
     }
 }

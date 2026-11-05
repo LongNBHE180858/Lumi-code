@@ -17,6 +17,12 @@ public interface ContentReportRepository extends JpaRepository<ContentReport, Lo
     @Query("select contentReport from ContentReport contentReport where contentReport.reporter.login = ?#{authentication.name}")
     List<ContentReport> findByReporterIsCurrentUser();
 
+    @Query("select contentReport from ContentReport contentReport where contentReport.assignedTo.login = ?#{authentication.name}")
+    List<ContentReport> findByAssignedToIsCurrentUser();
+
+    @Query("select contentReport from ContentReport contentReport where contentReport.resolvedBy.login = ?#{authentication.name}")
+    List<ContentReport> findByResolvedByIsCurrentUser();
+
     default Optional<ContentReport> findOneWithEagerRelationships(Long id) {
         return this.findOneWithToOneRelationships(id);
     }
@@ -30,14 +36,18 @@ public interface ContentReportRepository extends JpaRepository<ContentReport, Lo
     }
 
     @Query(
-        value = "select contentReport from ContentReport contentReport left join fetch contentReport.reporter",
+        value = "select contentReport from ContentReport contentReport left join fetch contentReport.reporter left join fetch contentReport.assignedTo left join fetch contentReport.resolvedBy",
         countQuery = "select count(contentReport) from ContentReport contentReport"
     )
     Page<ContentReport> findAllWithToOneRelationships(Pageable pageable);
 
-    @Query("select contentReport from ContentReport contentReport left join fetch contentReport.reporter")
+    @Query(
+        "select contentReport from ContentReport contentReport left join fetch contentReport.reporter left join fetch contentReport.assignedTo left join fetch contentReport.resolvedBy"
+    )
     List<ContentReport> findAllWithToOneRelationships();
 
-    @Query("select contentReport from ContentReport contentReport left join fetch contentReport.reporter where contentReport.id =:id")
+    @Query(
+        "select contentReport from ContentReport contentReport left join fetch contentReport.reporter left join fetch contentReport.assignedTo left join fetch contentReport.resolvedBy where contentReport.id =:id"
+    )
     Optional<ContentReport> findOneWithToOneRelationships(@Param("id") Long id);
 }

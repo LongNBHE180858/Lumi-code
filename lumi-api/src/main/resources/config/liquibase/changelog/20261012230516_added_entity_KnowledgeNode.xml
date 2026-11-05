@@ -10,7 +10,7 @@
         Added the entity KnowledgeNode.
     -->
     <changeSet id="20261012230516-1" author="jhipster">
-        <createTable tableName="knowledge_node">
+        <createTable tableName="knowledge_nodes" remarks="Lưu các đơn vị kiến thức dùng để phân tích năng lực và gợi ý học tập.">
             <column name="id" type="bigint">
                 <constraints primaryKey="true" nullable="false"/>
             </column>
@@ -39,10 +39,10 @@
     -->
     <changeSet id="20261012230516-1-data" author="jhipster" context="faker">
         <loadData
-                  file="../fake-data/knowledge_node.csv"
+                  file="../fake-data/knowledge_nodes.csv"
                   relativeToChangelogFile="true"
                   separator=";"
-                  tableName="knowledge_node"
+                  tableName="knowledge_nodes"
                   usePreparedStatements="true">
             <column name="id" type="numeric"/>
             <column name="title" type="string"/>

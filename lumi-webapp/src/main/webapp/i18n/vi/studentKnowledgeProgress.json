@@ -1,0 +1,29 @@
+{
+  "lumiApp": {
+    "studentKnowledgeProgress": {
+      "home": {
+        "title": "Student Knowledge Progresses",
+        "refreshListLabel": "Refresh list",
+        "createLabel": "Thêm mới một Student Knowledge Progress",
+        "createOrEditLabel": "Thêm mới hoặc cập nhật Student Knowledge Progress",
+        "notFound": "No Student Knowledge Progresses found"
+      },
+      "created": "Một Student Knowledge Progress mới được tạo với định danh {{ param }}",
+      "updated": "Một Student Knowledge Progress cập nhật với định danh {{ param }}",
+      "deleted": "Một Student Knowledge Progress đã xóa với định danh {{ param }}",
+      "delete": {
+        "question": "Bạn có chắc là muốn xóa Student Knowledge Progress {{ id }}?"
+      },
+      "detail": {
+        "title": "Student Knowledge Progress"
+      },
+      "id": "ID",
+      "masteryScore": "Mastery Score",
+      "evidenceCount": "Evidence Count",
+      "calculationVersion": "Calculation Version",
+      "updatedAt": "Updated At",
+      "student": "Student",
+      "knowledgeNode": "Knowledge Node"
+    }
+  }
+}

@@ -74,10 +74,16 @@ class LessonCriteriaTest {
         lessonCriteria.id();
         lessonCriteria.title();
         lessonCriteria.contentType();
+        lessonCriteria.videoUrl();
+        lessonCriteria.videoFileName();
+        lessonCriteria.videoSizeBytes();
         lessonCriteria.orderIndex();
         lessonCriteria.isPreview();
         lessonCriteria.durationMinutes();
         lessonCriteria.status();
+        lessonCriteria.durationSeconds();
+        lessonCriteria.videoObjectKey();
+        lessonCriteria.updatedAt();
         lessonCriteria.chapterId();
         lessonCriteria.distinct();
     }
@@ -88,10 +94,16 @@ class LessonCriteriaTest {
                 condition.apply(criteria.getId()) &&
                 condition.apply(criteria.getTitle()) &&
                 condition.apply(criteria.getContentType()) &&
+                condition.apply(criteria.getVideoUrl()) &&
+                condition.apply(criteria.getVideoFileName()) &&
+                condition.apply(criteria.getVideoSizeBytes()) &&
                 condition.apply(criteria.getOrderIndex()) &&
                 condition.apply(criteria.getIsPreview()) &&
                 condition.apply(criteria.getDurationMinutes()) &&
                 condition.apply(criteria.getStatus()) &&
+                condition.apply(criteria.getDurationSeconds()) &&
+                condition.apply(criteria.getVideoObjectKey()) &&
+                condition.apply(criteria.getUpdatedAt()) &&
                 condition.apply(criteria.getChapterId()) &&
                 condition.apply(criteria.getDistinct()),
             "every filter matches"
@@ -104,10 +116,16 @@ class LessonCriteriaTest {
                 condition.apply(criteria.getId(), copy.getId()) &&
                 condition.apply(criteria.getTitle(), copy.getTitle()) &&
                 condition.apply(criteria.getContentType(), copy.getContentType()) &&
+                condition.apply(criteria.getVideoUrl(), copy.getVideoUrl()) &&
+                condition.apply(criteria.getVideoFileName(), copy.getVideoFileName()) &&
+                condition.apply(criteria.getVideoSizeBytes(), copy.getVideoSizeBytes()) &&
                 condition.apply(criteria.getOrderIndex(), copy.getOrderIndex()) &&
                 condition.apply(criteria.getIsPreview(), copy.getIsPreview()) &&
                 condition.apply(criteria.getDurationMinutes(), copy.getDurationMinutes()) &&
                 condition.apply(criteria.getStatus(), copy.getStatus()) &&
+                condition.apply(criteria.getDurationSeconds(), copy.getDurationSeconds()) &&
+                condition.apply(criteria.getVideoObjectKey(), copy.getVideoObjectKey()) &&
+                condition.apply(criteria.getUpdatedAt(), copy.getUpdatedAt()) &&
                 condition.apply(criteria.getChapterId(), copy.getChapterId()) &&
                 condition.apply(criteria.getDistinct(), copy.getDistinct()),
             "every filter matches"

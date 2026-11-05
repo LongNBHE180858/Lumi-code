@@ -30,18 +30,14 @@ public interface AiConversationRepository extends JpaRepository<AiConversation, 
     }
 
     @Query(
-        value = "select aiConversation from AiConversation aiConversation left join fetch aiConversation.user left join fetch aiConversation.lesson",
+        value = "select aiConversation from AiConversation aiConversation left join fetch aiConversation.user",
         countQuery = "select count(aiConversation) from AiConversation aiConversation"
     )
     Page<AiConversation> findAllWithToOneRelationships(Pageable pageable);
 
-    @Query(
-        "select aiConversation from AiConversation aiConversation left join fetch aiConversation.user left join fetch aiConversation.lesson"
-    )
+    @Query("select aiConversation from AiConversation aiConversation left join fetch aiConversation.user")
     List<AiConversation> findAllWithToOneRelationships();
 
-    @Query(
-        "select aiConversation from AiConversation aiConversation left join fetch aiConversation.user left join fetch aiConversation.lesson where aiConversation.id =:id"
-    )
+    @Query("select aiConversation from AiConversation aiConversation left join fetch aiConversation.user where aiConversation.id =:id")
     Optional<AiConversation> findOneWithToOneRelationships(@Param("id") Long id);
 }

@@ -3,7 +3,9 @@
     "changelogDate": "20261019000000"
   },
   "applications": ["*"],
+  "documentation": "Lưu lần gửi duyệt khóa học, phiên bản gửi và phản hồi của Reviewer.",
   "dto": "mapstruct",
+  "entityTableName": "course_review_requests",
   "fields": [
     {
       "fieldName": "courseVersion",
@@ -12,9 +14,9 @@
     },
     {
       "fieldName": "status",
-      "fieldType": "CourseReviewRequestStatus",
-      "fieldValidateRules": ["required"],
-      "fieldValues": "PENDING,APPROVED,REJECTED"
+      "fieldType": "String",
+      "fieldValidateRules": ["required", "maxlength"],
+      "fieldValidateRulesMaxlength": "20"
     },
     {
       "fieldName": "submissionNote",
@@ -43,35 +45,35 @@
       "fieldValidateRulesMaxlength": "5000"
     }
   ],
+  "jpaMetamodelFiltering": true,
   "name": "CourseReviewRequest",
+  "pagination": "pagination",
   "relationships": [
     {
-      "relationshipName": "course",
       "otherEntityName": "course",
-      "otherEntityField": "title",
-      "relationshipType": "many-to-one",
+      "relationshipName": "course",
       "relationshipSide": "left",
+      "relationshipType": "many-to-one",
       "relationshipValidateRules": "required"
     },
     {
-      "relationshipName": "submittedBy",
-      "otherEntityName": "user",
       "otherEntityField": "login",
-      "relationshipType": "many-to-one",
+      "otherEntityName": "user",
+      "relationshipName": "submittedBy",
       "relationshipSide": "left",
+      "relationshipType": "many-to-one",
       "relationshipValidateRules": "required",
       "relationshipWithBuiltInEntity": true
     },
     {
-      "relationshipName": "reviewedBy",
-      "otherEntityName": "user",
       "otherEntityField": "login",
-      "relationshipType": "many-to-one",
+      "otherEntityName": "user",
+      "relationshipName": "reviewedBy",
       "relationshipSide": "left",
+      "relationshipType": "many-to-one",
       "relationshipWithBuiltInEntity": true
     }
   ],
-  "service": "serviceImpl",
   "searchEngine": "no",
-  "entityTableName": "course_review_requests"
+  "service": "serviceImpl"
 }

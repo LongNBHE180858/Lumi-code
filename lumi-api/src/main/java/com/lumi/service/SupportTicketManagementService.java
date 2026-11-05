@@ -41,18 +41,16 @@ public class SupportTicketManagementService {
 
     public SupportTicketViewDTO create(SupportTicketCreateRequest request) {
         User user = currentUser();
+        Instant now = Instant.now();
         SupportTicket ticket = new SupportTicket()
             .type(request.type().trim())
             .subject(request.subject().trim())
             .status(SupportTicketStatus.OPEN.name())
-            .createdAt(Instant.now())
+            .createdAt(now)
+            .updatedAt(now)
             .user(user);
         ticket = ticketRepository.save(ticket);
-        TicketMessage message = new TicketMessage()
-            .content(request.content().trim())
-            .createdAt(ticket.getCreatedAt())
-            .sender(user)
-            .ticket(ticket);
+        TicketMessage message = new TicketMessage().content(request.content().trim()).createdAt(now).sender(user).ticket(ticket);
         messageRepository.save(message);
         return toTicketView(ticket);
     }
@@ -101,7 +99,9 @@ public class SupportTicketManagementService {
         ) {
             ticket.setStatus(SupportTicketStatus.IN_PROGRESS.name());
         }
-        TicketMessage message = new TicketMessage().content(request.content().trim()).createdAt(Instant.now()).sender(user).ticket(ticket);
+        Instant now = Instant.now();
+        ticket.setUpdatedAt(now);
+        TicketMessage message = new TicketMessage().content(request.content().trim()).createdAt(now).sender(user).ticket(ticket);
         return toMessageView(messageRepository.save(message));
     }
 
@@ -113,6 +113,7 @@ public class SupportTicketManagementService {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Only resolved tickets can be reopened");
         }
         ticket.setStatus(SupportTicketStatus.IN_PROGRESS.name());
+        ticket.setUpdatedAt(Instant.now());
         return toTicketView(ticket);
     }
 
@@ -122,7 +123,10 @@ public class SupportTicketManagementService {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "OPEN is only used for new tickets");
         }
         SupportTicket ticket = ticketRepository.findByIdForUpdate(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
-        ticket.setStatus(status.name());
+        if (!status.name().equals(ticket.getStatus())) {
+            ticket.setStatus(status.name());
+            ticket.setUpdatedAt(Instant.now());
+        }
         return toTicketView(ticket);
     }
 

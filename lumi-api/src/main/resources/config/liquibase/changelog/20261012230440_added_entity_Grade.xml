@@ -10,18 +10,67 @@
         Added the entity Grade.
     -->
     <changeSet id="20261012230440-1" author="jhipster">
-        <createTable tableName="grade">
+        <createTable tableName="grades" remarks="Lưu danh mục khối lớp của hệ thống.">
             <column name="id" type="bigint">
                 <constraints primaryKey="true" nullable="false"/>
             </column>
             <column name="level" type="integer">
-                <constraints nullable="false" unique="true" uniqueConstraintName="ux_grade__level" />
+                <constraints nullable="false" unique="true" uniqueConstraintName="ux_grades__level" />
             </column>
             <column name="name" type="varchar(50)">
                 <constraints nullable="false" />
             </column>
             <!-- jhipster-needle-liquibase-add-column - JHipster will add columns here -->
         </createTable>
+    </changeSet>
+
+    <!-- Dữ liệu danh mục dùng khi khởi tạo DB mới, không dùng dữ liệu Faker. -->
+    <changeSet id="20261012230440-seed" author="lumi" context="!faker">
+        <insert tableName="grades">
+            <column name="id" valueSequenceNext="sequence_generator"/>
+            <column name="level" valueNumeric="1"/>
+            <column name="name" value="Lớp 1"/>
+        </insert>
+        <insert tableName="grades">
+            <column name="id" valueSequenceNext="sequence_generator"/>
+            <column name="level" valueNumeric="2"/>
+            <column name="name" value="Lớp 2"/>
+        </insert>
+        <insert tableName="grades">
+            <column name="id" valueSequenceNext="sequence_generator"/>
+            <column name="level" valueNumeric="3"/>
+            <column name="name" value="Lớp 3"/>
+        </insert>
+        <insert tableName="grades">
+            <column name="id" valueSequenceNext="sequence_generator"/>
+            <column name="level" valueNumeric="4"/>
+            <column name="name" value="Lớp 4"/>
+        </insert>
+        <insert tableName="grades">
+            <column name="id" valueSequenceNext="sequence_generator"/>
+            <column name="level" valueNumeric="5"/>
+            <column name="name" value="Lớp 5"/>
+        </insert>
+        <insert tableName="grades">
+            <column name="id" valueSequenceNext="sequence_generator"/>
+            <column name="level" valueNumeric="6"/>
+            <column name="name" value="Lớp 6"/>
+        </insert>
+        <insert tableName="grades">
+            <column name="id" valueSequenceNext="sequence_generator"/>
+            <column name="level" valueNumeric="7"/>
+            <column name="name" value="Lớp 7"/>
+        </insert>
+        <insert tableName="grades">
+            <column name="id" valueSequenceNext="sequence_generator"/>
+            <column name="level" valueNumeric="8"/>
+            <column name="name" value="Lớp 8"/>
+        </insert>
+        <insert tableName="grades">
+            <column name="id" valueSequenceNext="sequence_generator"/>
+            <column name="level" valueNumeric="9"/>
+            <column name="name" value="Lớp 9"/>
+        </insert>
     </changeSet>
 
     <!-- jhipster-needle-liquibase-add-changeset - JHipster will add changesets here -->
@@ -36,10 +85,10 @@
     -->
     <changeSet id="20261012230440-1-data" author="jhipster" context="faker">
         <loadData
-                  file="../fake-data/grade.csv"
+                  file="../fake-data/grades.csv"
                   relativeToChangelogFile="true"
                   separator=";"
-                  tableName="grade"
+                  tableName="grades"
                   usePreparedStatements="true">
             <column name="id" type="numeric"/>
             <column name="level" type="numeric"/>

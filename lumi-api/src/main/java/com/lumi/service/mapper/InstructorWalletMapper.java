@@ -11,7 +11,7 @@ import org.mapstruct.*;
  */
 @Mapper(componentModel = "spring")
 public interface InstructorWalletMapper extends EntityMapper<InstructorWalletDTO, InstructorWallet> {
-    @Mapping(target = "user", source = "user", qualifiedByName = "userLogin")
+    @Mapping(target = "instructor", source = "instructor", qualifiedByName = "userLogin")
     InstructorWalletDTO toDto(InstructorWallet s);
 
     @Named("userLogin")

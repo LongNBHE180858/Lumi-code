@@ -1,5 +1,6 @@
 package com.lumi.service.dto;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.*;
 import java.io.Serializable;
 import java.time.Instant;
@@ -8,6 +9,7 @@ import java.util.Objects;
 /**
  * A DTO for the {@link com.lumi.domain.ClassMember} entity.
  */
+@Schema(description = "Lưu thành viên lớp, yêu cầu tham gia và trạng thái duyệt.")
 @SuppressWarnings("common-java:DuplicatedBlocks")
 public class ClassMemberDTO implements Serializable {
 
@@ -19,10 +21,18 @@ public class ClassMemberDTO implements Serializable {
     private Instant joinedAt;
 
     @NotNull
-    private UserDTO student;
+    private Instant requestedAt;
+
+    private Instant leftAt;
+
+    @NotNull
+    private Instant updatedAt;
 
     @NotNull
     private StudyClassDTO studyClass;
+
+    @NotNull
+    private UserDTO student;
 
     public Long getId() {
         return id;
@@ -48,12 +58,28 @@ public class ClassMemberDTO implements Serializable {
         this.joinedAt = joinedAt;
     }
 
-    public UserDTO getStudent() {
-        return student;
+    public Instant getRequestedAt() {
+        return requestedAt;
     }
 
-    public void setStudent(UserDTO student) {
-        this.student = student;
+    public void setRequestedAt(Instant requestedAt) {
+        this.requestedAt = requestedAt;
+    }
+
+    public Instant getLeftAt() {
+        return leftAt;
+    }
+
+    public void setLeftAt(Instant leftAt) {
+        this.leftAt = leftAt;
+    }
+
+    public Instant getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public void setUpdatedAt(Instant updatedAt) {
+        this.updatedAt = updatedAt;
     }
 
     public StudyClassDTO getStudyClass() {
@@ -62,6 +88,14 @@ public class ClassMemberDTO implements Serializable {
 
     public void setStudyClass(StudyClassDTO studyClass) {
         this.studyClass = studyClass;
+    }
+
+    public UserDTO getStudent() {
+        return student;
+    }
+
+    public void setStudent(UserDTO student) {
+        this.student = student;
     }
 
     @Override
@@ -92,8 +126,11 @@ public class ClassMemberDTO implements Serializable {
             "id=" + getId() +
             ", status='" + getStatus() + "'" +
             ", joinedAt='" + getJoinedAt() + "'" +
-            ", student=" + getStudent() +
+            ", requestedAt='" + getRequestedAt() + "'" +
+            ", leftAt='" + getLeftAt() + "'" +
+            ", updatedAt='" + getUpdatedAt() + "'" +
             ", studyClass=" + getStudyClass() +
+            ", student=" + getStudent() +
             "}";
     }
 }

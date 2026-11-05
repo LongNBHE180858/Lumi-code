@@ -8,10 +8,10 @@ import java.io.Serializable;
 import java.time.Instant;
 
 /**
- * A AiConversation.
+ * Lưu phiên hội thoại AI theo người dùng và ngữ cảnh bài hoặc tài liệu.
  */
 @Entity
-@Table(name = "ai_conversation")
+@Table(name = "ai_conversations")
 @SuppressWarnings("common-java:DuplicatedBlocks")
 public class AiConversation implements Serializable {
 
@@ -32,6 +32,10 @@ public class AiConversation implements Serializable {
     @Column(name = "created_at")
     private Instant createdAt;
 
+    @NotNull
+    @Column(name = "updated_at", nullable = false)
+    private Instant updatedAt;
+
     @ManyToOne(optional = false)
     @NotNull
     private User user;
@@ -39,6 +43,10 @@ public class AiConversation implements Serializable {
     @ManyToOne(fetch = FetchType.LAZY)
     @JsonIgnoreProperties(value = { "chapter" }, allowSetters = true)
     private Lesson lesson;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JsonIgnoreProperties(value = { "courseMaterial", "classMaterial", "uploadedBy", "subject", "grade" }, allowSetters = true)
+    private LearningDocument document;
 
     // jhipster-needle-entity-add-field - JHipster will add fields here
 
@@ -81,6 +89,19 @@ public class AiConversation implements Serializable {
         this.createdAt = createdAt;
     }
 
+    public Instant getUpdatedAt() {
+        return this.updatedAt;
+    }
+
+    public AiConversation updatedAt(Instant updatedAt) {
+        this.setUpdatedAt(updatedAt);
+        return this;
+    }
+
+    public void setUpdatedAt(Instant updatedAt) {
+        this.updatedAt = updatedAt;
+    }
+
     public User getUser() {
         return this.user;
     }
@@ -104,6 +125,19 @@ public class AiConversation implements Serializable {
 
     public AiConversation lesson(Lesson lesson) {
         this.setLesson(lesson);
+        return this;
+    }
+
+    public LearningDocument getDocument() {
+        return this.document;
+    }
+
+    public void setDocument(LearningDocument learningDocument) {
+        this.document = learningDocument;
+    }
+
+    public AiConversation document(LearningDocument learningDocument) {
+        this.setDocument(learningDocument);
         return this;
     }
 
@@ -133,6 +167,7 @@ public class AiConversation implements Serializable {
             "id=" + getId() +
             ", type='" + getType() + "'" +
             ", createdAt='" + getCreatedAt() + "'" +
+            ", updatedAt='" + getUpdatedAt() + "'" +
             "}";
     }
 }

@@ -8,10 +8,10 @@ import java.io.Serializable;
 import java.time.Instant;
 
 /**
- * A ProctorEvent.
+ * Lưu cảnh báo trình duyệt theo lượt thi và kết quả xem xét; không lưu ảnh hoặc nhận diện khuôn mặt.
  */
 @Entity
-@Table(name = "proctor_event")
+@Table(name = "proctor_events")
 @SuppressWarnings("common-java:DuplicatedBlocks")
 public class ProctorEvent implements Serializable {
 
@@ -29,17 +29,27 @@ public class ProctorEvent implements Serializable {
     @Column(name = "violation_type", length = 50, nullable = false)
     private String violationType;
 
-    @Size(max = 1000)
-    @Column(name = "photo_url", length = 1000)
-    private String photoUrl;
-
     @Column(name = "occurred_at")
     private Instant occurredAt;
 
+    @NotNull
+    @Size(max = 20)
+    @Column(name = "review_status", length = 20, nullable = false)
+    private String reviewStatus;
+
+    @Column(name = "reviewed_at")
+    private Instant reviewedAt;
+
+    @Column(name = "review_note", columnDefinition = "text")
+    private String reviewNote;
+
     @ManyToOne(optional = false)
     @NotNull
-    @JsonIgnoreProperties(value = { "attempt" }, allowSetters = true)
-    private ProctorSession session;
+    @JsonIgnoreProperties(value = { "exam", "student", "assignment" }, allowSetters = true)
+    private ExamAttempt attempt;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    private User reviewedBy;
 
     // jhipster-needle-entity-add-field - JHipster will add fields here
 
@@ -69,19 +79,6 @@ public class ProctorEvent implements Serializable {
         this.violationType = violationType;
     }
 
-    public String getPhotoUrl() {
-        return this.photoUrl;
-    }
-
-    public ProctorEvent photoUrl(String photoUrl) {
-        this.setPhotoUrl(photoUrl);
-        return this;
-    }
-
-    public void setPhotoUrl(String photoUrl) {
-        this.photoUrl = photoUrl;
-    }
-
     public Instant getOccurredAt() {
         return this.occurredAt;
     }
@@ -95,16 +92,68 @@ public class ProctorEvent implements Serializable {
         this.occurredAt = occurredAt;
     }
 
-    public ProctorSession getSession() {
-        return this.session;
+    public String getReviewStatus() {
+        return this.reviewStatus;
     }
 
-    public void setSession(ProctorSession proctorSession) {
-        this.session = proctorSession;
+    public ProctorEvent reviewStatus(String reviewStatus) {
+        this.setReviewStatus(reviewStatus);
+        return this;
     }
 
-    public ProctorEvent session(ProctorSession proctorSession) {
-        this.setSession(proctorSession);
+    public void setReviewStatus(String reviewStatus) {
+        this.reviewStatus = reviewStatus;
+    }
+
+    public Instant getReviewedAt() {
+        return this.reviewedAt;
+    }
+
+    public ProctorEvent reviewedAt(Instant reviewedAt) {
+        this.setReviewedAt(reviewedAt);
+        return this;
+    }
+
+    public void setReviewedAt(Instant reviewedAt) {
+        this.reviewedAt = reviewedAt;
+    }
+
+    public String getReviewNote() {
+        return this.reviewNote;
+    }
+
+    public ProctorEvent reviewNote(String reviewNote) {
+        this.setReviewNote(reviewNote);
+        return this;
+    }
+
+    public void setReviewNote(String reviewNote) {
+        this.reviewNote = reviewNote;
+    }
+
+    public ExamAttempt getAttempt() {
+        return this.attempt;
+    }
+
+    public void setAttempt(ExamAttempt examAttempt) {
+        this.attempt = examAttempt;
+    }
+
+    public ProctorEvent attempt(ExamAttempt examAttempt) {
+        this.setAttempt(examAttempt);
+        return this;
+    }
+
+    public User getReviewedBy() {
+        return this.reviewedBy;
+    }
+
+    public void setReviewedBy(User user) {
+        this.reviewedBy = user;
+    }
+
+    public ProctorEvent reviewedBy(User user) {
+        this.setReviewedBy(user);
         return this;
     }
 
@@ -133,8 +182,10 @@ public class ProctorEvent implements Serializable {
         return "ProctorEvent{" +
             "id=" + getId() +
             ", violationType='" + getViolationType() + "'" +
-            ", photoUrl='" + getPhotoUrl() + "'" +
             ", occurredAt='" + getOccurredAt() + "'" +
+            ", reviewStatus='" + getReviewStatus() + "'" +
+            ", reviewedAt='" + getReviewedAt() + "'" +
+            ", reviewNote='" + getReviewNote() + "'" +
             "}";
     }
 }

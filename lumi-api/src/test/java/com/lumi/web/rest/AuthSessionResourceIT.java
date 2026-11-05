@@ -61,6 +61,9 @@ class AuthSessionResourceIT {
     private static final Instant DEFAULT_CREATED_AT = Instant.ofEpochMilli(0L);
     private static final Instant UPDATED_CREATED_AT = Instant.ofEpochMilli(1791835009362L);
 
+    private static final String DEFAULT_REFRESH_TOKEN_HASH = "AAAAAAAAAA";
+    private static final String UPDATED_REFRESH_TOKEN_HASH = "BBBBBBBBBB";
+
     private static final String ENTITY_API_URL = "/api/auth-sessions";
     private static final String ENTITY_API_URL_ID = ENTITY_API_URL + "/{id}";
 
@@ -107,7 +110,8 @@ class AuthSessionResourceIT {
             .refreshToken(DEFAULT_REFRESH_TOKEN)
             .expiresAt(DEFAULT_EXPIRES_AT)
             .isRevoked(DEFAULT_IS_REVOKED)
-            .createdAt(DEFAULT_CREATED_AT);
+            .createdAt(DEFAULT_CREATED_AT)
+            .refreshTokenHash(DEFAULT_REFRESH_TOKEN_HASH);
         // Add required entity
         User user = UserResourceIT.createEntity();
         em.persist(user);
@@ -128,7 +132,8 @@ class AuthSessionResourceIT {
             .refreshToken(UPDATED_REFRESH_TOKEN)
             .expiresAt(UPDATED_EXPIRES_AT)
             .isRevoked(UPDATED_IS_REVOKED)
-            .createdAt(UPDATED_CREATED_AT);
+            .createdAt(UPDATED_CREATED_AT)
+            .refreshTokenHash(UPDATED_REFRESH_TOKEN_HASH);
         // Add required entity
         User user = UserResourceIT.createEntity();
         em.persist(user);
@@ -225,7 +230,8 @@ class AuthSessionResourceIT {
             .andExpect(jsonPath("$.[*].refreshToken").value(hasItem(DEFAULT_REFRESH_TOKEN)))
             .andExpect(jsonPath("$.[*].expiresAt").value(hasItem(DEFAULT_EXPIRES_AT.toString())))
             .andExpect(jsonPath("$.[*].isRevoked").value(hasItem(DEFAULT_IS_REVOKED)))
-            .andExpect(jsonPath("$.[*].createdAt").value(hasItem(DEFAULT_CREATED_AT.toString())));
+            .andExpect(jsonPath("$.[*].createdAt").value(hasItem(DEFAULT_CREATED_AT.toString())))
+            .andExpect(jsonPath("$.[*].refreshTokenHash").value(hasItem(DEFAULT_REFRESH_TOKEN_HASH)));
     }
 
     @SuppressWarnings({ "unchecked" })
@@ -261,7 +267,8 @@ class AuthSessionResourceIT {
             .andExpect(jsonPath("$.refreshToken").value(DEFAULT_REFRESH_TOKEN))
             .andExpect(jsonPath("$.expiresAt").value(DEFAULT_EXPIRES_AT.toString()))
             .andExpect(jsonPath("$.isRevoked").value(DEFAULT_IS_REVOKED))
-            .andExpect(jsonPath("$.createdAt").value(DEFAULT_CREATED_AT.toString()));
+            .andExpect(jsonPath("$.createdAt").value(DEFAULT_CREATED_AT.toString()))
+            .andExpect(jsonPath("$.refreshTokenHash").value(DEFAULT_REFRESH_TOKEN_HASH));
     }
 
     @Test
@@ -480,6 +487,68 @@ class AuthSessionResourceIT {
 
     @Test
     @Transactional
+    void getAllAuthSessionsByRefreshTokenHashIsEqualToSomething() throws Exception {
+        // Initialize the database
+        insertedAuthSession = authSessionRepository.saveAndFlush(authSession);
+
+        // Get all the authSessionList where refreshTokenHash equals to
+        defaultAuthSessionFiltering(
+            "refreshTokenHash.equals=" + DEFAULT_REFRESH_TOKEN_HASH,
+            "refreshTokenHash.equals=" + UPDATED_REFRESH_TOKEN_HASH
+        );
+    }
+
+    @Test
+    @Transactional
+    void getAllAuthSessionsByRefreshTokenHashIsInShouldWork() throws Exception {
+        // Initialize the database
+        insertedAuthSession = authSessionRepository.saveAndFlush(authSession);
+
+        // Get all the authSessionList where refreshTokenHash in
+        defaultAuthSessionFiltering(
+            "refreshTokenHash.in=" + DEFAULT_REFRESH_TOKEN_HASH + "," + UPDATED_REFRESH_TOKEN_HASH,
+            "refreshTokenHash.in=" + UPDATED_REFRESH_TOKEN_HASH
+        );
+    }
+
+    @Test
+    @Transactional
+    void getAllAuthSessionsByRefreshTokenHashIsNullOrNotNull() throws Exception {
+        // Initialize the database
+        insertedAuthSession = authSessionRepository.saveAndFlush(authSession);
+
+        // Get all the authSessionList where refreshTokenHash is not null
+        defaultAuthSessionFiltering("refreshTokenHash.specified=true", "refreshTokenHash.specified=false");
+    }
+
+    @Test
+    @Transactional
+    void getAllAuthSessionsByRefreshTokenHashContainsSomething() throws Exception {
+        // Initialize the database
+        insertedAuthSession = authSessionRepository.saveAndFlush(authSession);
+
+        // Get all the authSessionList where refreshTokenHash contains
+        defaultAuthSessionFiltering(
+            "refreshTokenHash.contains=" + DEFAULT_REFRESH_TOKEN_HASH,
+            "refreshTokenHash.contains=" + UPDATED_REFRESH_TOKEN_HASH
+        );
+    }
+
+    @Test
+    @Transactional
+    void getAllAuthSessionsByRefreshTokenHashNotContainsSomething() throws Exception {
+        // Initialize the database
+        insertedAuthSession = authSessionRepository.saveAndFlush(authSession);
+
+        // Get all the authSessionList where refreshTokenHash does not contain
+        defaultAuthSessionFiltering(
+            "refreshTokenHash.doesNotContain=" + UPDATED_REFRESH_TOKEN_HASH,
+            "refreshTokenHash.doesNotContain=" + DEFAULT_REFRESH_TOKEN_HASH
+        );
+    }
+
+    @Test
+    @Transactional
     void getAllAuthSessionsByUserIsEqualToSomething() throws Exception {
         User user;
         if (TestUtil.findAll(em, User.class).isEmpty()) {
@@ -518,7 +587,8 @@ class AuthSessionResourceIT {
             .andExpect(jsonPath("$.[*].refreshToken").value(hasItem(DEFAULT_REFRESH_TOKEN)))
             .andExpect(jsonPath("$.[*].expiresAt").value(hasItem(DEFAULT_EXPIRES_AT.toString())))
             .andExpect(jsonPath("$.[*].isRevoked").value(hasItem(DEFAULT_IS_REVOKED)))
-            .andExpect(jsonPath("$.[*].createdAt").value(hasItem(DEFAULT_CREATED_AT.toString())));
+            .andExpect(jsonPath("$.[*].createdAt").value(hasItem(DEFAULT_CREATED_AT.toString())))
+            .andExpect(jsonPath("$.[*].refreshTokenHash").value(hasItem(DEFAULT_REFRESH_TOKEN_HASH)));
 
         // Check, that the count call also returns 1
         restAuthSessionMockMvc
@@ -571,7 +641,8 @@ class AuthSessionResourceIT {
             .refreshToken(UPDATED_REFRESH_TOKEN)
             .expiresAt(UPDATED_EXPIRES_AT)
             .isRevoked(UPDATED_IS_REVOKED)
-            .createdAt(UPDATED_CREATED_AT);
+            .createdAt(UPDATED_CREATED_AT)
+            .refreshTokenHash(UPDATED_REFRESH_TOKEN_HASH);
         AuthSessionDTO authSessionDTO = authSessionMapper.toDto(updatedAuthSession);
 
         restAuthSessionMockMvc
@@ -661,7 +732,10 @@ class AuthSessionResourceIT {
         AuthSession partialUpdatedAuthSession = new AuthSession();
         partialUpdatedAuthSession.setId(authSession.getId());
 
-        partialUpdatedAuthSession.deviceInfo(UPDATED_DEVICE_INFO).expiresAt(UPDATED_EXPIRES_AT);
+        partialUpdatedAuthSession
+            .deviceInfo(UPDATED_DEVICE_INFO)
+            .expiresAt(UPDATED_EXPIRES_AT)
+            .refreshTokenHash(UPDATED_REFRESH_TOKEN_HASH);
 
         restAuthSessionMockMvc
             .perform(
@@ -697,7 +771,8 @@ class AuthSessionResourceIT {
             .refreshToken(UPDATED_REFRESH_TOKEN)
             .expiresAt(UPDATED_EXPIRES_AT)
             .isRevoked(UPDATED_IS_REVOKED)
-            .createdAt(UPDATED_CREATED_AT);
+            .createdAt(UPDATED_CREATED_AT)
+            .refreshTokenHash(UPDATED_REFRESH_TOKEN_HASH);
 
         restAuthSessionMockMvc
             .perform(

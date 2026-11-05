@@ -105,10 +105,7 @@ export const SubjectUpdate = () => {
                 id="subject-description"
                 name="description"
                 data-cy="description"
-                type="text"
-                validate={{
-                  maxLength: { value: 5000, message: translate('entity.validation.maxlength', { max: 5000 }) },
-                }}
+                type="textarea"
               />
               <Button as={Link as any} id="cancel-save" data-cy="entityCreateCancelButton" to="/subject" replace variant="info">
                 <FontAwesomeIcon icon="arrow-left" />

@@ -9,7 +9,9 @@ export interface ITeacherVerification {
   notes?: string | null;
   submittedAt?: dayjs.Dayjs | null;
   approvedAt?: dayjs.Dayjs | null;
+  reviewedAt?: dayjs.Dayjs | null;
   user?: IUser;
+  reviewedBy?: IUser | null;
 }
 
 export const defaultValue: Readonly<ITeacherVerification> = {};

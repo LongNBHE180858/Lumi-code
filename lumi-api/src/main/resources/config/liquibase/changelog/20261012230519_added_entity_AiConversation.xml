@@ -10,7 +10,7 @@
         Added the entity AiConversation.
     -->
     <changeSet id="20261012230519-1" author="jhipster">
-        <createTable tableName="ai_conversation">
+        <createTable tableName="ai_conversations" remarks="Lưu phiên hội thoại AI theo người dùng và ngữ cảnh bài hoặc tài liệu.">
             <column name="id" type="bigint">
                 <constraints primaryKey="true" nullable="false"/>
             </column>
@@ -20,15 +20,22 @@
             <column name="created_at" type="${datetimeType}">
                 <constraints nullable="true" />
             </column>
+            <column name="updated_at" type="${datetimeType}">
+                <constraints nullable="false" />
+            </column>
             <column name="user_id" type="bigint">
                 <constraints nullable="false" />
             </column>
             <column name="lesson_id" type="bigint">
                 <constraints nullable="true" />
             </column>
+            <column name="document_id" type="bigint">
+                <constraints nullable="true" />
+            </column>
             <!-- jhipster-needle-liquibase-add-column - JHipster will add columns here -->
         </createTable>
-        <dropDefaultValue tableName="ai_conversation" columnName="created_at" columnDataType="${datetimeType}"/>
+        <dropDefaultValue tableName="ai_conversations" columnName="created_at" columnDataType="${datetimeType}"/>
+        <dropDefaultValue tableName="ai_conversations" columnName="updated_at" columnDataType="${datetimeType}"/>
     </changeSet>
 
     <!-- jhipster-needle-liquibase-add-changeset - JHipster will add changesets here -->
@@ -43,14 +50,15 @@
     -->
     <changeSet id="20261012230519-1-data" author="jhipster" context="faker">
         <loadData
-                  file="../fake-data/ai_conversation.csv"
+                  file="../fake-data/ai_conversations.csv"
                   relativeToChangelogFile="true"
                   separator=";"
-                  tableName="ai_conversation"
+                  tableName="ai_conversations"
                   usePreparedStatements="true">
             <column name="id" type="numeric"/>
             <column name="type" type="string"/>
             <column name="created_at" type="date"/>
+            <column name="updated_at" type="date"/>
             <column name="user_id" type="numeric"/>
             <!-- jhipster-needle-liquibase-add-loadcolumn - JHipster (and/or extensions) can add load columns here -->
         </loadData>

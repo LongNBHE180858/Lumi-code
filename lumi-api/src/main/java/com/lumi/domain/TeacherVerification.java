@@ -7,10 +7,10 @@ import java.io.Serializable;
 import java.time.Instant;
 
 /**
- * A TeacherVerification.
+ * Lưu hồ sơ xác minh giáo viên và kết quả xét duyệt.
  */
 @Entity
-@Table(name = "teacher_verification")
+@Table(name = "teacher_verifications")
 @SuppressWarnings("common-java:DuplicatedBlocks")
 public class TeacherVerification implements Serializable {
 
@@ -32,8 +32,7 @@ public class TeacherVerification implements Serializable {
     @Column(name = "verification_status", length = 20)
     private String verificationStatus;
 
-    @Size(max = 5000)
-    @Column(name = "notes", length = 5000)
+    @Column(name = "notes", columnDefinition = "text")
     private String notes;
 
     @Column(name = "submitted_at")
@@ -42,10 +41,15 @@ public class TeacherVerification implements Serializable {
     @Column(name = "approved_at")
     private Instant approvedAt;
 
-    @OneToOne(fetch = FetchType.LAZY, optional = false)
+    @Column(name = "reviewed_at")
+    private Instant reviewedAt;
+
+    @ManyToOne(optional = false)
     @NotNull
-    @JoinColumn(unique = true)
     private User user;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    private User reviewedBy;
 
     // jhipster-needle-entity-add-field - JHipster will add fields here
 
@@ -127,6 +131,19 @@ public class TeacherVerification implements Serializable {
         this.approvedAt = approvedAt;
     }
 
+    public Instant getReviewedAt() {
+        return this.reviewedAt;
+    }
+
+    public TeacherVerification reviewedAt(Instant reviewedAt) {
+        this.setReviewedAt(reviewedAt);
+        return this;
+    }
+
+    public void setReviewedAt(Instant reviewedAt) {
+        this.reviewedAt = reviewedAt;
+    }
+
     public User getUser() {
         return this.user;
     }
@@ -137,6 +154,19 @@ public class TeacherVerification implements Serializable {
 
     public TeacherVerification user(User user) {
         this.setUser(user);
+        return this;
+    }
+
+    public User getReviewedBy() {
+        return this.reviewedBy;
+    }
+
+    public void setReviewedBy(User user) {
+        this.reviewedBy = user;
+    }
+
+    public TeacherVerification reviewedBy(User user) {
+        this.setReviewedBy(user);
         return this;
     }
 
@@ -169,6 +199,7 @@ public class TeacherVerification implements Serializable {
             ", notes='" + getNotes() + "'" +
             ", submittedAt='" + getSubmittedAt() + "'" +
             ", approvedAt='" + getApprovedAt() + "'" +
+            ", reviewedAt='" + getReviewedAt() + "'" +
             "}";
     }
 }

@@ -6,6 +6,7 @@ import {
   ChartNoAxesCombined,
   ContactRound,
   Folder,
+  GitFork,
   GraduationCap,
   LayoutDashboard,
   Leaf,
@@ -31,8 +32,9 @@ const navigation: { title: string; items: NavItem[] }[] = [
       { label: 'Học sinh', icon: GraduationCap },
       { label: 'Giảng viên', icon: ContactRound, to: '/admin/instructor-applications' },
       { label: 'Khóa học', icon: BookOpen },
+      { label: 'Cây tri thức', icon: GitFork, to: '/admin/knowledge-graph' },
       { label: 'Nội dung học tập', icon: NotebookPen },
-      { label: 'Danh mục', icon: Folder, to: '/admin/catalog' },
+      { label: 'Môn học & Khối lớp', icon: Folder, to: '/admin/catalog' },
     ],
   },
   {

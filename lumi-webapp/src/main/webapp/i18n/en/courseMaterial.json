@@ -18,14 +18,17 @@
         "title": "Course Material"
       },
       "id": "ID",
+      "fileName": "File Name",
+      "displayName": "Display Name",
+      "mimeType": "Mime Type",
+      "orderIndex": "Order Index",
       "fileType": "File Type",
       "fileUrl": "File Url",
       "fileSizeBytes": "File Size Bytes",
+      "fileObjectKey": "File Object Key",
+      "updatedAt": "Updated At",
       "lesson": "Lesson",
-      "fileName": "File name",
-      "displayName": "Display name",
-      "mimeType": "MIME type",
-      "orderIndex": "Order index"
+      "learningDocument": "Learning Document"
     }
   }
 }

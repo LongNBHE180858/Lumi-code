@@ -47,9 +47,15 @@ public class CourseMaterialAsserts {
     public static void assertCourseMaterialUpdatableFieldsEquals(CourseMaterial expected, CourseMaterial actual) {
         assertThat(actual)
             .as("Verify CourseMaterial relevant properties")
+            .satisfies(a -> assertThat(a.getFileName()).as("check fileName").isEqualTo(expected.getFileName()))
+            .satisfies(a -> assertThat(a.getDisplayName()).as("check displayName").isEqualTo(expected.getDisplayName()))
+            .satisfies(a -> assertThat(a.getMimeType()).as("check mimeType").isEqualTo(expected.getMimeType()))
+            .satisfies(a -> assertThat(a.getOrderIndex()).as("check orderIndex").isEqualTo(expected.getOrderIndex()))
             .satisfies(a -> assertThat(a.getFileType()).as("check fileType").isEqualTo(expected.getFileType()))
             .satisfies(a -> assertThat(a.getFileUrl()).as("check fileUrl").isEqualTo(expected.getFileUrl()))
-            .satisfies(a -> assertThat(a.getFileSizeBytes()).as("check fileSizeBytes").isEqualTo(expected.getFileSizeBytes()));
+            .satisfies(a -> assertThat(a.getFileSizeBytes()).as("check fileSizeBytes").isEqualTo(expected.getFileSizeBytes()))
+            .satisfies(a -> assertThat(a.getFileObjectKey()).as("check fileObjectKey").isEqualTo(expected.getFileObjectKey()))
+            .satisfies(a -> assertThat(a.getUpdatedAt()).as("check updatedAt").isEqualTo(expected.getUpdatedAt()));
     }
 
     /**

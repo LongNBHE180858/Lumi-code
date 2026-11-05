@@ -12,7 +12,7 @@ import {
 import { expect, test } from '../../support/fixtures';
 
 const courseEnrollmentPageUrl = '/course-enrollment';
-// const courseEnrollmentSample = {"expiresAt":"2026-10-12T06:10:21.909Z"};
+// const courseEnrollmentSample = {"expiresAt":"2026-10-12T07:27:19.914Z","updatedAt":"2026-10-12T20:43:43.405Z"};
 
 const courseEnrollmentApiUrl = '/api/course-enrollments';
 
@@ -21,8 +21,8 @@ const entitiesRequest = (page: import('@playwright/test').Page) =>
 
 test.describe('CourseEnrollment e2e test', () => {
   let courseEnrollment;
-  // let user;
   // let course;
+  // let user;
 
   test.beforeEach(async ({ jhi }) => {
     const { username, password } = jhi.credentials();
@@ -32,19 +32,19 @@ test.describe('CourseEnrollment e2e test', () => {
   /* Disabled due to incompatibility
   test.beforeEach(async ({ jhi }) => {
     // create an instance at the required relationship entity:
+    course = await (
+      await jhi.authenticatedRequest({
+        method: 'POST',
+        url: '/api/courses',
+        body: {"title":"demob publicity","description":"Li4vZmFrZS1kYXRhL2Jsb2IvaGlwc3Rlci50eHQ=","thumbnailUrl":"who duh","price":22389.89,"shortDescription":"meh psst strictly","bookSeries":"or","targetAudience":"sad victorious aha","prerequisites":"fat for","learningObjectives":"Li4vZmFrZS1kYXRhL2Jsb2IvaGlwc3Rlci50eHQ=","introVideoUrl":"almighty cake independence","validDurationDays":24764,"accessDurationValue":25911,"accessDurationUnit":"briefly we","version":15913,"status":"BLOCKED","isDeleted":true,"createdAt":"2026-10-12T01:02:05.048Z","updatedAt":"2026-10-12T05:51:47.148Z","storageLimitBytes":27251},
+      })
+    ).json();
+    // create an instance at the required relationship entity:
     user = await (
       await jhi.authenticatedRequest({
         method: 'POST',
         url: '/api/users',
         body: {"login":"QuangNhat.7kinh27","firstName":"Tú Nguyệt","lastName":"Trần","email":"BaoSon_7ko27@hotmail.com","langKey":"pant leagu","imageUrl":"aw incidentally"},
-      })
-    ).json();
-    // create an instance at the required relationship entity:
-    course = await (
-      await jhi.authenticatedRequest({
-        method: 'POST',
-        url: '/api/courses',
-        body: {"title":"demob publicity","description":"who duh","thumbnailUrl":"ugh if beep","price":25492.36,"validDurationDays":5402,"status":"PENDING","isDeleted":true,"createdAt":"2026-10-12T17:12:02.350Z","updatedAt":"2026-10-12T09:29:17.884Z"},
       })
     ).json();
   });
@@ -54,14 +54,20 @@ test.describe('CourseEnrollment e2e test', () => {
     // A url predicate rather than a glob: a glob's wildcards would close the "Disabled due to
     // incompatibility" block comment that wraps this section when the create test is skipped.
     await page.route(
+      url => url.pathname === '/api/courses',
+      route => route.fulfill({ status: 200, json: [course].filter(Boolean) }),
+    );
+    // A url predicate rather than a glob: a glob's wildcards would close the "Disabled due to
+    // incompatibility" block comment that wraps this section when the create test is skipped.
+    await page.route(
       url => url.pathname === '/api/users',
       route => route.fulfill({ status: 200, json: [user].filter(Boolean) }),
     );
     // A url predicate rather than a glob: a glob's wildcards would close the "Disabled due to
     // incompatibility" block comment that wraps this section when the create test is skipped.
     await page.route(
-      url => url.pathname === '/api/courses',
-      route => route.fulfill({ status: 200, json: [course].filter(Boolean) }),
+      url => url.pathname === '/api/lessons',
+      route => route.fulfill({ status: 200, json: [].filter(Boolean) }),
     );
   });
    */
@@ -78,19 +84,19 @@ test.describe('CourseEnrollment e2e test', () => {
 
   /* Disabled due to incompatibility
   test.afterEach(async ({ jhi }) => {
-    if (user) {
-      await jhi.authenticatedRequest({
-        method: 'DELETE',
-        url: `/api/users/${user.id}`,
-      });
-      user = undefined;
-    }
     if (course) {
       await jhi.authenticatedRequest({
         method: 'DELETE',
         url: `/api/courses/${course.id}`,
       });
       course = undefined;
+    }
+    if (user) {
+      await jhi.authenticatedRequest({
+        method: 'DELETE',
+        url: `/api/users/${user.id}`,
+      });
+      user = undefined;
     }
   });
    */
@@ -148,8 +154,8 @@ test.describe('CourseEnrollment e2e test', () => {
             url: '/api/course-enrollments',
             body: {
               ...courseEnrollmentSample,
-              student: user,
               course: course,
+              student: user,
             },
           })
         ).json();
@@ -237,8 +243,8 @@ test.describe('CourseEnrollment e2e test', () => {
 
     // Reason: cannot create a required entity with relationship with required relationships.
     test.skip('should create an instance of CourseEnrollment', async ({ page }) => {
-      await page.locator(`[data-cy="progressPercent"]`).fill('49.39');
-      await expect(page.locator(`[data-cy="progressPercent"]`)).toHaveValue('49.39');
+      await page.locator(`[data-cy="progressPercent"]`).fill('16182.99');
+      await expect(page.locator(`[data-cy="progressPercent"]`)).toHaveValue('16182.99');
 
       await page.locator(`[data-cy="status"]`).fill('soup average');
       await expect(page.locator(`[data-cy="status"]`)).toHaveValue('soup average');
@@ -251,8 +257,12 @@ test.describe('CourseEnrollment e2e test', () => {
       await page.locator(`[data-cy="expiresAt"]`).blur();
       await expect(page.locator(`[data-cy="expiresAt"]`)).toHaveValue('2026-10-12T20:41');
 
-      await page.locator(`[data-cy="student"]`).selectOption({ index: 1 });
+      await page.locator(`[data-cy="updatedAt"]`).fill('2026-10-12T06:10');
+      await page.locator(`[data-cy="updatedAt"]`).blur();
+      await expect(page.locator(`[data-cy="updatedAt"]`)).toHaveValue('2026-10-12T06:10');
+
       await page.locator(`[data-cy="course"]`).selectOption({ index: 1 });
+      await page.locator(`[data-cy="student"]`).selectOption({ index: 1 });
 
       const postRequest = page.waitForResponse(
         response => new URL(response.url()).pathname === courseEnrollmentApiUrl && response.request().method() === 'POST',

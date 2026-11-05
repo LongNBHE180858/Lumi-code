@@ -11,10 +11,10 @@
     <changeSet id="20261012230516-2" author="jhipster">
 
         <addForeignKeyConstraint baseColumnNames="subject_id"
-                                 baseTableName="knowledge_node"
-                                 constraintName="fk_knowledge_node__subject_id"
+                                 baseTableName="knowledge_nodes"
+                                 constraintName="fk_knowledge_nodes__subject_id"
                                  referencedColumnNames="id"
-                                 referencedTableName="subject"
+                                 referencedTableName="subjects"
                                  />
     </changeSet>
 </databaseChangeLog>

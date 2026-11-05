@@ -152,6 +152,18 @@ export const Notification = () => {
                     <Translate contentKey="lumiApp.notification.createdAt">Created At</Translate>{' '}
                     <FontAwesomeIcon icon={getSortIconByFieldName('createdAt')} />
                   </th>
+                  <th className="hand" onClick={sort('targetType')}>
+                    <Translate contentKey="lumiApp.notification.targetType">Target Type</Translate>{' '}
+                    <FontAwesomeIcon icon={getSortIconByFieldName('targetType')} />
+                  </th>
+                  <th className="hand" onClick={sort('targetId')}>
+                    <Translate contentKey="lumiApp.notification.targetId">Target Id</Translate>{' '}
+                    <FontAwesomeIcon icon={getSortIconByFieldName('targetId')} />
+                  </th>
+                  <th className="hand" onClick={sort('readAt')}>
+                    <Translate contentKey="lumiApp.notification.readAt">Read At</Translate>{' '}
+                    <FontAwesomeIcon icon={getSortIconByFieldName('readAt')} />
+                  </th>
                   <th>
                     <Translate contentKey="lumiApp.notification.user">User</Translate> <FontAwesomeIcon icon="sort" />
                   </th>
@@ -173,6 +185,9 @@ export const Notification = () => {
                     <td>
                       {notification.createdAt ? <TextFormat type="date" value={notification.createdAt} format={APP_DATE_FORMAT} /> : null}
                     </td>
+                    <td>{notification.targetType}</td>
+                    <td>{notification.targetId}</td>
+                    <td>{notification.readAt ? <TextFormat type="date" value={notification.readAt} format={APP_DATE_FORMAT} /> : null}</td>
                     <td>{notification.user ? notification.user.login : ''}</td>
                     <td className="text-end">
                       <div className="btn-group flex-btn-group-container">

@@ -12,7 +12,7 @@ import {
 import { expect, test } from '../../support/fixtures';
 
 const lessonPageUrl = '/lesson';
-// const lessonSample = {"title":"nor confide","contentType":"consequently","orderIndex":24721};
+// const lessonSample = {"title":"restfully dishonor save","contentType":"classic","orderIndex":8513,"updatedAt":"2026-10-12T17:03:13.075Z"};
 
 const lessonApiUrl = '/api/lessons';
 
@@ -217,20 +217,42 @@ test.describe('Lesson e2e test', () => {
       await page.locator(`[data-cy="title"]`).fill('swing cheerfully');
       await expect(page.locator(`[data-cy="title"]`)).toHaveValue('swing cheerfully');
 
+      await page.locator(`[data-cy="description"]`).fill('../fake-data/blob/hipster.txt');
+      await expect(page.locator(`[data-cy="description"]`)).toHaveValue(new RegExp('../fake-data/blob/hipster.txt'));
+
       await page.locator(`[data-cy="contentType"]`).fill('whether towards');
       await expect(page.locator(`[data-cy="contentType"]`)).toHaveValue('whether towards');
 
-      await page.locator(`[data-cy="orderIndex"]`).fill('32583');
-      await expect(page.locator(`[data-cy="orderIndex"]`)).toHaveValue('32583');
+      await page.locator(`[data-cy="videoUrl"]`).fill('separate likewise till');
+      await expect(page.locator(`[data-cy="videoUrl"]`)).toHaveValue('separate likewise till');
+
+      await page.locator(`[data-cy="videoFileName"]`).fill('settle');
+      await expect(page.locator(`[data-cy="videoFileName"]`)).toHaveValue('settle');
+
+      await page.locator(`[data-cy="videoSizeBytes"]`).fill('8361');
+      await expect(page.locator(`[data-cy="videoSizeBytes"]`)).toHaveValue('8361');
+
+      await page.locator(`[data-cy="orderIndex"]`).fill('18502');
+      await expect(page.locator(`[data-cy="orderIndex"]`)).toHaveValue('18502');
 
       await expect(page.locator(`[data-cy="isPreview"]`)).not.toBeChecked();
       await page.locator(`[data-cy="isPreview"]`).click();
       await expect(page.locator(`[data-cy="isPreview"]`)).toBeChecked();
 
-      await page.locator(`[data-cy="durationMinutes"]`).fill('20337');
-      await expect(page.locator(`[data-cy="durationMinutes"]`)).toHaveValue('20337');
+      await page.locator(`[data-cy="durationMinutes"]`).fill('26406');
+      await expect(page.locator(`[data-cy="durationMinutes"]`)).toHaveValue('26406');
 
-      await page.locator(`[data-cy="status"]`).selectOption('HIDDEN');
+      await page.locator(`[data-cy="status"]`).selectOption('ARCHIVED');
+
+      await page.locator(`[data-cy="durationSeconds"]`).fill('13867');
+      await expect(page.locator(`[data-cy="durationSeconds"]`)).toHaveValue('13867');
+
+      await page.locator(`[data-cy="videoObjectKey"]`).fill('barring drat sinful');
+      await expect(page.locator(`[data-cy="videoObjectKey"]`)).toHaveValue('barring drat sinful');
+
+      await page.locator(`[data-cy="updatedAt"]`).fill('2026-10-12T12:51');
+      await page.locator(`[data-cy="updatedAt"]`).blur();
+      await expect(page.locator(`[data-cy="updatedAt"]`)).toHaveValue('2026-10-12T12:51');
 
       await page.locator(`[data-cy="chapter"]`).selectOption({ index: 1 });
 

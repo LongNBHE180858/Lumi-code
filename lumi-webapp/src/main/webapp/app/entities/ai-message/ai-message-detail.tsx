@@ -54,6 +54,44 @@ export const AiMessageDetail = () => {
             {aiMessageEntity.createdAt ? <TextFormat value={aiMessageEntity.createdAt} type="date" format={APP_DATE_FORMAT} /> : null}
           </dd>
           <dt>
+            <span id="citations">
+              <Translate contentKey="lumiApp.aiMessage.citations">Citations</Translate>
+            </span>
+          </dt>
+          <dd>{aiMessageEntity.citations}</dd>
+          <dt>
+            <span id="generationStatus">
+              <Translate contentKey="lumiApp.aiMessage.generationStatus">Generation Status</Translate>
+            </span>
+          </dt>
+          <dd>{aiMessageEntity.generationStatus}</dd>
+          <dt>
+            <span id="modelName">
+              <Translate contentKey="lumiApp.aiMessage.modelName">Model Name</Translate>
+            </span>
+          </dt>
+          <dd>{aiMessageEntity.modelName}</dd>
+          <dt>
+            <span id="feedbackRating">
+              <Translate contentKey="lumiApp.aiMessage.feedbackRating">Feedback Rating</Translate>
+            </span>
+          </dt>
+          <dd>{aiMessageEntity.feedbackRating}</dd>
+          <dt>
+            <span id="feedbackNote">
+              <Translate contentKey="lumiApp.aiMessage.feedbackNote">Feedback Note</Translate>
+            </span>
+          </dt>
+          <dd>{aiMessageEntity.feedbackNote}</dd>
+          <dt>
+            <span id="feedbackAt">
+              <Translate contentKey="lumiApp.aiMessage.feedbackAt">Feedback At</Translate>
+            </span>
+          </dt>
+          <dd>
+            {aiMessageEntity.feedbackAt ? <TextFormat value={aiMessageEntity.feedbackAt} type="date" format={APP_DATE_FORMAT} /> : null}
+          </dd>
+          <dt>
             <Translate contentKey="lumiApp.aiMessage.conversation">Conversation</Translate>
           </dt>
           <dd>{aiMessageEntity.conversation ? aiMessageEntity.conversation.id : ''}</dd>

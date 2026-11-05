@@ -6,10 +6,10 @@ import java.io.Serial;
 import java.io.Serializable;
 
 /**
- * A Grade.
+ * Lưu danh mục khối lớp của hệ thống.
  */
 @Entity
-@Table(name = "grade")
+@Table(name = "grades")
 @SuppressWarnings("common-java:DuplicatedBlocks")
 public class Grade implements Serializable {
 
@@ -32,17 +32,6 @@ public class Grade implements Serializable {
     @Size(max = 50)
     @Column(name = "name", length = 50, nullable = false)
     private String name;
-
-    @Column(name = "active", nullable = false)
-    private Boolean active = true;
-
-    public Boolean getActive() {
-        return active;
-    }
-
-    public void setActive(Boolean active) {
-        this.active = active;
-    }
 
     // jhipster-needle-entity-add-field - JHipster will add fields here
 

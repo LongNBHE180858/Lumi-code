@@ -1,10 +1,10 @@
 package com.lumi.web.rest;
 
 import com.lumi.repository.NotificationRepository;
-import com.lumi.service.NotificationQueryService;
 import com.lumi.service.NotificationService;
 import com.lumi.service.criteria.NotificationCriteria;
 import com.lumi.service.dto.NotificationDTO;
+import com.lumi.service.query.NotificationQueryService;
 import com.lumi.web.rest.errors.BadRequestAlertException;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;

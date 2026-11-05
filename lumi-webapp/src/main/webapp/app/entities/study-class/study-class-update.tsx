@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { Button, Col, FormText, Row } from 'react-bootstrap';
-import { Translate, ValidatedField, ValidatedForm, isNumber, translate } from 'react-jhipster';
+import { Translate, ValidatedField, ValidatedForm, translate } from 'react-jhipster';
 import { Link, useNavigate, useParams } from 'react-router';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -66,6 +66,8 @@ export const StudyClassUpdate = () => {
       values.currentStudents = Number(values.currentStudents);
     }
     values.createdAt = convertDateTimeToServer(values.createdAt);
+    values.joinCodeExpiresAt = convertDateTimeToServer(values.joinCodeExpiresAt);
+    values.updatedAt = convertDateTimeToServer(values.updatedAt);
 
     const entity = {
       ...studyClassEntity,
@@ -86,12 +88,16 @@ export const StudyClassUpdate = () => {
     isNew
       ? {
           createdAt: displayDefaultDateTime(),
+          joinCodeExpiresAt: displayDefaultDateTime(),
+          updatedAt: displayDefaultDateTime(),
         }
       : {
           joinMode: 'INVITE_ONLY',
           status: 'DRAFT',
           ...studyClassEntity,
           createdAt: convertDateTimeFromServer(studyClassEntity.createdAt),
+          joinCodeExpiresAt: convertDateTimeFromServer(studyClassEntity.joinCodeExpiresAt),
+          updatedAt: convertDateTimeFromServer(studyClassEntity.updatedAt),
           instructor: studyClassEntity?.instructor?.id,
           subject: studyClassEntity?.subject?.id,
           grade: studyClassEntity?.grade?.id,
@@ -138,10 +144,7 @@ export const StudyClassUpdate = () => {
                 id="study-class-description"
                 name="description"
                 data-cy="description"
-                type="text"
-                validate={{
-                  maxLength: { value: 5000, message: translate('entity.validation.maxlength', { max: 5000 }) },
-                }}
+                type="textarea"
               />
               <ValidatedField
                 label={translate('lumiApp.studyClass.joinCode')}
@@ -172,10 +175,6 @@ export const StudyClassUpdate = () => {
                 name="maxStudents"
                 data-cy="maxStudents"
                 type="text"
-                validate={{
-                  min: { value: 1, message: translate('entity.validation.min', { min: 1 }) },
-                  validate: v => isNumber(v) || translate('entity.validation.number'),
-                }}
               />
               <ValidatedField
                 label={translate('lumiApp.studyClass.currentStudents')}
@@ -183,10 +182,6 @@ export const StudyClassUpdate = () => {
                 name="currentStudents"
                 data-cy="currentStudents"
                 type="text"
-                validate={{
-                  min: { value: 0, message: translate('entity.validation.min', { min: 0 }) },
-                  validate: v => isNumber(v) || translate('entity.validation.number'),
-                }}
               />
               <ValidatedField
                 label={translate('lumiApp.studyClass.status')}
@@ -216,6 +211,25 @@ export const StudyClassUpdate = () => {
                 data-cy="createdAt"
                 type="datetime-local"
                 placeholder="YYYY-MM-DD HH:mm"
+              />
+              <ValidatedField
+                label={translate('lumiApp.studyClass.joinCodeExpiresAt')}
+                id="study-class-joinCodeExpiresAt"
+                name="joinCodeExpiresAt"
+                data-cy="joinCodeExpiresAt"
+                type="datetime-local"
+                placeholder="YYYY-MM-DD HH:mm"
+              />
+              <ValidatedField
+                label={translate('lumiApp.studyClass.updatedAt')}
+                id="study-class-updatedAt"
+                name="updatedAt"
+                data-cy="updatedAt"
+                type="datetime-local"
+                placeholder="YYYY-MM-DD HH:mm"
+                validate={{
+                  required: { value: true, message: translate('entity.validation.required') },
+                }}
               />
               <ValidatedField
                 id="study-class-instructor"
@@ -248,7 +262,7 @@ export const StudyClassUpdate = () => {
                 {subjects
                   ? subjects.map(otherEntity => (
                       <option value={otherEntity.id} key={otherEntity.id}>
-                        {otherEntity.name}
+                        {otherEntity.id}
                       </option>
                     ))
                   : null}
@@ -264,7 +278,7 @@ export const StudyClassUpdate = () => {
                 {grades
                   ? grades.map(otherEntity => (
                       <option value={otherEntity.id} key={otherEntity.id}>
-                        {otherEntity.name}
+                        {otherEntity.id}
                       </option>
                     ))
                   : null}

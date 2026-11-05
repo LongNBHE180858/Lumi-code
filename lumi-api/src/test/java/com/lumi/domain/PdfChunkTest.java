@@ -1,6 +1,6 @@
 package com.lumi.domain;
 
-import static com.lumi.domain.CourseMaterialTestSamples.*;
+import static com.lumi.domain.LearningDocumentTestSamples.*;
 import static com.lumi.domain.PdfChunkTestSamples.*;
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -26,10 +26,10 @@ class PdfChunkTest {
     @Test
     void materialTest() {
         PdfChunk pdfChunk = getPdfChunkRandomSampleGenerator();
-        CourseMaterial courseMaterialBack = getCourseMaterialRandomSampleGenerator();
+        LearningDocument learningDocumentBack = getLearningDocumentRandomSampleGenerator();
 
-        pdfChunk.setMaterial(courseMaterialBack);
-        assertThat(pdfChunk.getMaterial()).isEqualTo(courseMaterialBack);
+        pdfChunk.setMaterial(learningDocumentBack);
+        assertThat(pdfChunk.getMaterial()).isEqualTo(learningDocumentBack);
 
         pdfChunk.material(null);
         assertThat(pdfChunk.getMaterial()).isNull();

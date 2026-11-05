@@ -68,6 +68,12 @@ export const WalletTransactionDetail = () => {
             ) : null}
           </dd>
           <dt>
+            <span id="balanceBucket">
+              <Translate contentKey="lumiApp.walletTransaction.balanceBucket">Balance Bucket</Translate>
+            </span>
+          </dt>
+          <dd>{walletTransactionEntity.balanceBucket}</dd>
+          <dt>
             <Translate contentKey="lumiApp.walletTransaction.wallet">Wallet</Translate>
           </dt>
           <dd>{walletTransactionEntity.wallet ? walletTransactionEntity.wallet.id : ''}</dd>
@@ -75,6 +81,14 @@ export const WalletTransactionDetail = () => {
             <Translate contentKey="lumiApp.walletTransaction.order">Order</Translate>
           </dt>
           <dd>{walletTransactionEntity.order ? walletTransactionEntity.order.id : ''}</dd>
+          <dt>
+            <Translate contentKey="lumiApp.walletTransaction.payoutRequest">Payout Request</Translate>
+          </dt>
+          <dd>{walletTransactionEntity.payoutRequest ? walletTransactionEntity.payoutRequest.id : ''}</dd>
+          <dt>
+            <Translate contentKey="lumiApp.walletTransaction.refund">Refund</Translate>
+          </dt>
+          <dd>{walletTransactionEntity.refund ? walletTransactionEntity.refund.id : ''}</dd>
         </dl>
         <Button as={Link as any} to="/wallet-transaction" replace variant="info" data-cy="entityDetailsBackButton">
           <FontAwesomeIcon icon="arrow-left" />{' '}

@@ -8,10 +8,10 @@ import java.io.Serializable;
 import java.time.Instant;
 
 /**
- * A StudentNote.
+ * Lưu ghi chú cá nhân của học sinh theo bài học hoặc mốc video.
  */
 @Entity
-@Table(name = "student_note")
+@Table(name = "student_notes")
 @SuppressWarnings("common-java:DuplicatedBlocks")
 public class StudentNote implements Serializable {
 
@@ -24,13 +24,10 @@ public class StudentNote implements Serializable {
     @Column(name = "id")
     private Long id;
 
-    @Min(value = 0)
     @Column(name = "video_timestamp")
     private Integer videoTimestamp;
 
-    @NotNull
-    @Size(max = 5000)
-    @Column(name = "content", length = 5000, nullable = false)
+    @Column(name = "content", nullable = false, columnDefinition = "text")
     private String content;
 
     @Column(name = "created_at")

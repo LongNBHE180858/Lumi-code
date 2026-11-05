@@ -10,10 +10,10 @@ import java.math.BigDecimal;
 import java.time.Instant;
 
 /**
- * A WalletTransaction.
+ * Lưu sổ phát sinh tiền của ví giáo viên để đối soát doanh thu, hoàn và rút tiền.
  */
 @Entity
-@Table(name = "wallet_transaction")
+@Table(name = "wallet_transactions")
 @SuppressWarnings("common-java:DuplicatedBlocks")
 public class WalletTransaction implements Serializable {
 
@@ -47,14 +47,27 @@ public class WalletTransaction implements Serializable {
     @Column(name = "occurred_at")
     private Instant occurredAt;
 
+    @NotNull
+    @Size(max = 20)
+    @Column(name = "balance_bucket", length = 20, nullable = false)
+    private String balanceBucket;
+
     @ManyToOne(optional = false)
     @NotNull
-    @JsonIgnoreProperties(value = { "user" }, allowSetters = true)
+    @JsonIgnoreProperties(value = { "instructor" }, allowSetters = true)
     private InstructorWallet wallet;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JsonIgnoreProperties(value = { "student", "course", "plan", "coupon" }, allowSetters = true)
     private CourseOrder order;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JsonIgnoreProperties(value = { "wallet", "processedBy" }, allowSetters = true)
+    private PayoutRequest payoutRequest;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JsonIgnoreProperties(value = { "order", "payment", "processedBy" }, allowSetters = true)
+    private Refund refund;
 
     // jhipster-needle-entity-add-field - JHipster will add fields here
 
@@ -136,6 +149,19 @@ public class WalletTransaction implements Serializable {
         this.occurredAt = occurredAt;
     }
 
+    public String getBalanceBucket() {
+        return this.balanceBucket;
+    }
+
+    public WalletTransaction balanceBucket(String balanceBucket) {
+        this.setBalanceBucket(balanceBucket);
+        return this;
+    }
+
+    public void setBalanceBucket(String balanceBucket) {
+        this.balanceBucket = balanceBucket;
+    }
+
     public InstructorWallet getWallet() {
         return this.wallet;
     }
@@ -159,6 +185,32 @@ public class WalletTransaction implements Serializable {
 
     public WalletTransaction order(CourseOrder courseOrder) {
         this.setOrder(courseOrder);
+        return this;
+    }
+
+    public PayoutRequest getPayoutRequest() {
+        return this.payoutRequest;
+    }
+
+    public void setPayoutRequest(PayoutRequest payoutRequest) {
+        this.payoutRequest = payoutRequest;
+    }
+
+    public WalletTransaction payoutRequest(PayoutRequest payoutRequest) {
+        this.setPayoutRequest(payoutRequest);
+        return this;
+    }
+
+    public Refund getRefund() {
+        return this.refund;
+    }
+
+    public void setRefund(Refund refund) {
+        this.refund = refund;
+    }
+
+    public WalletTransaction refund(Refund refund) {
+        this.setRefund(refund);
         return this;
     }
 
@@ -191,6 +243,7 @@ public class WalletTransaction implements Serializable {
             ", status='" + getStatus() + "'" +
             ", idempotencyKey='" + getIdempotencyKey() + "'" +
             ", occurredAt='" + getOccurredAt() + "'" +
+            ", balanceBucket='" + getBalanceBucket() + "'" +
             "}";
     }
 }

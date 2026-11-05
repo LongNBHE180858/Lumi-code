@@ -10,11 +10,18 @@
     -->
     <changeSet id="20261012230510-2" author="jhipster">
 
-        <addForeignKeyConstraint baseColumnNames="session_id"
-                                 baseTableName="proctor_event"
-                                 constraintName="fk_proctor_event__session_id"
+        <addForeignKeyConstraint baseColumnNames="attempt_id"
+                                 baseTableName="proctor_events"
+                                 constraintName="fk_proctor_events__attempt_id"
                                  referencedColumnNames="id"
-                                 referencedTableName="proctor_session"
+                                 referencedTableName="exam_attempts"
+                                 />
+
+        <addForeignKeyConstraint baseColumnNames="reviewed_by_id"
+                                 baseTableName="proctor_events"
+                                 constraintName="fk_proctor_events__reviewed_by_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="jhi_user"
                                  />
     </changeSet>
 </databaseChangeLog>

@@ -21,8 +21,9 @@
       "rating": "Rating",
       "content": "Content",
       "createdAt": "Created At",
-      "student": "Student",
-      "course": "Course"
+      "updatedAt": "Updated At",
+      "course": "Course",
+      "student": "Student"
     }
   }
 }

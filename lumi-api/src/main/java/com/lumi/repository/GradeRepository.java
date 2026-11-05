@@ -10,6 +10,6 @@ import org.springframework.stereotype.Repository;
 @SuppressWarnings("unused")
 @Repository
 public interface GradeRepository extends JpaRepository<Grade, Long>, JpaSpecificationExecutor<Grade> {
-    java.util.List<Grade> findByActiveTrueOrderByLevelAsc();
+    java.util.List<Grade> findAllByOrderByLevelAsc();
     java.util.Optional<Grade> findByLevel(Integer level);
 }

@@ -1,0 +1,26 @@
+{
+  "lumiApp": {
+    "questionKnowledgeLink": {
+      "home": {
+        "title": "Question Knowledge Links",
+        "refreshListLabel": "Refresh list",
+        "createLabel": "Create a new Question Knowledge Link",
+        "createOrEditLabel": "Create or edit a Question Knowledge Link",
+        "notFound": "No Question Knowledge Links found"
+      },
+      "created": "A new Question Knowledge Link is created with identifier {{ param }}",
+      "updated": "A Question Knowledge Link is updated with identifier {{ param }}",
+      "deleted": "A Question Knowledge Link is deleted with identifier {{ param }}",
+      "delete": {
+        "question": "Are you sure you want to delete Question Knowledge Link {{ id }}?"
+      },
+      "detail": {
+        "title": "Question Knowledge Link"
+      },
+      "id": "ID",
+      "weight": "Weight",
+      "question": "Question",
+      "knowledgeNode": "Knowledge Node"
+    }
+  }
+}

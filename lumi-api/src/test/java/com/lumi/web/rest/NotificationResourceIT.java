@@ -61,6 +61,16 @@ class NotificationResourceIT {
     private static final Instant DEFAULT_CREATED_AT = Instant.ofEpochMilli(0L);
     private static final Instant UPDATED_CREATED_AT = Instant.ofEpochMilli(1791835009362L);
 
+    private static final String DEFAULT_TARGET_TYPE = "AAAAAAAAAA";
+    private static final String UPDATED_TARGET_TYPE = "BBBBBBBBBB";
+
+    private static final Long DEFAULT_TARGET_ID = 1L;
+    private static final Long UPDATED_TARGET_ID = 2L;
+    private static final Long SMALLER_TARGET_ID = 1L - 1L;
+
+    private static final Instant DEFAULT_READ_AT = Instant.ofEpochMilli(0L);
+    private static final Instant UPDATED_READ_AT = Instant.ofEpochMilli(1791835009362L);
+
     private static final String ENTITY_API_URL = "/api/notifications";
     private static final String ENTITY_API_URL_ID = ENTITY_API_URL + "/{id}";
 
@@ -107,7 +117,10 @@ class NotificationResourceIT {
             .content(DEFAULT_CONTENT)
             .isRead(DEFAULT_IS_READ)
             .type(DEFAULT_TYPE)
-            .createdAt(DEFAULT_CREATED_AT);
+            .createdAt(DEFAULT_CREATED_AT)
+            .targetType(DEFAULT_TARGET_TYPE)
+            .targetId(DEFAULT_TARGET_ID)
+            .readAt(DEFAULT_READ_AT);
         // Add required entity
         User user = UserResourceIT.createEntity();
         em.persist(user);
@@ -128,7 +141,10 @@ class NotificationResourceIT {
             .content(UPDATED_CONTENT)
             .isRead(UPDATED_IS_READ)
             .type(UPDATED_TYPE)
-            .createdAt(UPDATED_CREATED_AT);
+            .createdAt(UPDATED_CREATED_AT)
+            .targetType(UPDATED_TARGET_TYPE)
+            .targetId(UPDATED_TARGET_ID)
+            .readAt(UPDATED_READ_AT);
         // Add required entity
         User user = UserResourceIT.createEntity();
         em.persist(user);
@@ -211,23 +227,6 @@ class NotificationResourceIT {
 
     @Test
     @Transactional
-    void checkContentIsRequired() throws Exception {
-        long databaseSizeBeforeTest = getRepositoryCount();
-        // set the field null
-        notification.setContent(null);
-
-        // Create the Notification, which fails.
-        NotificationDTO notificationDTO = notificationMapper.toDto(notification);
-
-        restNotificationMockMvc
-            .perform(post(ENTITY_API_URL).contentType(MediaType.APPLICATION_JSON).content(om.writeValueAsBytes(notificationDTO)))
-            .andExpect(status().isBadRequest());
-
-        assertSameRepositoryCount(databaseSizeBeforeTest);
-    }
-
-    @Test
-    @Transactional
     void checkTypeIsRequired() throws Exception {
         long databaseSizeBeforeTest = getRepositoryCount();
         // set the field null
@@ -259,7 +258,10 @@ class NotificationResourceIT {
             .andExpect(jsonPath("$.[*].content").value(hasItem(DEFAULT_CONTENT)))
             .andExpect(jsonPath("$.[*].isRead").value(hasItem(DEFAULT_IS_READ)))
             .andExpect(jsonPath("$.[*].type").value(hasItem(DEFAULT_TYPE)))
-            .andExpect(jsonPath("$.[*].createdAt").value(hasItem(DEFAULT_CREATED_AT.toString())));
+            .andExpect(jsonPath("$.[*].createdAt").value(hasItem(DEFAULT_CREATED_AT.toString())))
+            .andExpect(jsonPath("$.[*].targetType").value(hasItem(DEFAULT_TARGET_TYPE)))
+            .andExpect(jsonPath("$.[*].targetId").value(hasItem(DEFAULT_TARGET_ID.intValue())))
+            .andExpect(jsonPath("$.[*].readAt").value(hasItem(DEFAULT_READ_AT.toString())));
     }
 
     @SuppressWarnings({ "unchecked" })
@@ -295,7 +297,10 @@ class NotificationResourceIT {
             .andExpect(jsonPath("$.content").value(DEFAULT_CONTENT))
             .andExpect(jsonPath("$.isRead").value(DEFAULT_IS_READ))
             .andExpect(jsonPath("$.type").value(DEFAULT_TYPE))
-            .andExpect(jsonPath("$.createdAt").value(DEFAULT_CREATED_AT.toString()));
+            .andExpect(jsonPath("$.createdAt").value(DEFAULT_CREATED_AT.toString()))
+            .andExpect(jsonPath("$.targetType").value(DEFAULT_TARGET_TYPE))
+            .andExpect(jsonPath("$.targetId").value(DEFAULT_TARGET_ID.intValue()))
+            .andExpect(jsonPath("$.readAt").value(DEFAULT_READ_AT.toString()));
     }
 
     @Test
@@ -361,56 +366,6 @@ class NotificationResourceIT {
 
         // Get all the notificationList where title does not contain
         defaultNotificationFiltering("title.doesNotContain=" + UPDATED_TITLE, "title.doesNotContain=" + DEFAULT_TITLE);
-    }
-
-    @Test
-    @Transactional
-    void getAllNotificationsByContentIsEqualToSomething() throws Exception {
-        // Initialize the database
-        insertedNotification = notificationRepository.saveAndFlush(notification);
-
-        // Get all the notificationList where content equals to
-        defaultNotificationFiltering("content.equals=" + DEFAULT_CONTENT, "content.equals=" + UPDATED_CONTENT);
-    }
-
-    @Test
-    @Transactional
-    void getAllNotificationsByContentIsInShouldWork() throws Exception {
-        // Initialize the database
-        insertedNotification = notificationRepository.saveAndFlush(notification);
-
-        // Get all the notificationList where content in
-        defaultNotificationFiltering("content.in=" + DEFAULT_CONTENT + "," + UPDATED_CONTENT, "content.in=" + UPDATED_CONTENT);
-    }
-
-    @Test
-    @Transactional
-    void getAllNotificationsByContentIsNullOrNotNull() throws Exception {
-        // Initialize the database
-        insertedNotification = notificationRepository.saveAndFlush(notification);
-
-        // Get all the notificationList where content is not null
-        defaultNotificationFiltering("content.specified=true", "content.specified=false");
-    }
-
-    @Test
-    @Transactional
-    void getAllNotificationsByContentContainsSomething() throws Exception {
-        // Initialize the database
-        insertedNotification = notificationRepository.saveAndFlush(notification);
-
-        // Get all the notificationList where content contains
-        defaultNotificationFiltering("content.contains=" + DEFAULT_CONTENT, "content.contains=" + UPDATED_CONTENT);
-    }
-
-    @Test
-    @Transactional
-    void getAllNotificationsByContentNotContainsSomething() throws Exception {
-        // Initialize the database
-        insertedNotification = notificationRepository.saveAndFlush(notification);
-
-        // Get all the notificationList where content does not contain
-        defaultNotificationFiltering("content.doesNotContain=" + UPDATED_CONTENT, "content.doesNotContain=" + DEFAULT_CONTENT);
     }
 
     @Test
@@ -525,6 +480,165 @@ class NotificationResourceIT {
 
     @Test
     @Transactional
+    void getAllNotificationsByTargetTypeIsEqualToSomething() throws Exception {
+        // Initialize the database
+        insertedNotification = notificationRepository.saveAndFlush(notification);
+
+        // Get all the notificationList where targetType equals to
+        defaultNotificationFiltering("targetType.equals=" + DEFAULT_TARGET_TYPE, "targetType.equals=" + UPDATED_TARGET_TYPE);
+    }
+
+    @Test
+    @Transactional
+    void getAllNotificationsByTargetTypeIsInShouldWork() throws Exception {
+        // Initialize the database
+        insertedNotification = notificationRepository.saveAndFlush(notification);
+
+        // Get all the notificationList where targetType in
+        defaultNotificationFiltering(
+            "targetType.in=" + DEFAULT_TARGET_TYPE + "," + UPDATED_TARGET_TYPE,
+            "targetType.in=" + UPDATED_TARGET_TYPE
+        );
+    }
+
+    @Test
+    @Transactional
+    void getAllNotificationsByTargetTypeIsNullOrNotNull() throws Exception {
+        // Initialize the database
+        insertedNotification = notificationRepository.saveAndFlush(notification);
+
+        // Get all the notificationList where targetType is not null
+        defaultNotificationFiltering("targetType.specified=true", "targetType.specified=false");
+    }
+
+    @Test
+    @Transactional
+    void getAllNotificationsByTargetTypeContainsSomething() throws Exception {
+        // Initialize the database
+        insertedNotification = notificationRepository.saveAndFlush(notification);
+
+        // Get all the notificationList where targetType contains
+        defaultNotificationFiltering("targetType.contains=" + DEFAULT_TARGET_TYPE, "targetType.contains=" + UPDATED_TARGET_TYPE);
+    }
+
+    @Test
+    @Transactional
+    void getAllNotificationsByTargetTypeNotContainsSomething() throws Exception {
+        // Initialize the database
+        insertedNotification = notificationRepository.saveAndFlush(notification);
+
+        // Get all the notificationList where targetType does not contain
+        defaultNotificationFiltering(
+            "targetType.doesNotContain=" + UPDATED_TARGET_TYPE,
+            "targetType.doesNotContain=" + DEFAULT_TARGET_TYPE
+        );
+    }
+
+    @Test
+    @Transactional
+    void getAllNotificationsByTargetIdIsEqualToSomething() throws Exception {
+        // Initialize the database
+        insertedNotification = notificationRepository.saveAndFlush(notification);
+
+        // Get all the notificationList where targetId equals to
+        defaultNotificationFiltering("targetId.equals=" + DEFAULT_TARGET_ID, "targetId.equals=" + UPDATED_TARGET_ID);
+    }
+
+    @Test
+    @Transactional
+    void getAllNotificationsByTargetIdIsInShouldWork() throws Exception {
+        // Initialize the database
+        insertedNotification = notificationRepository.saveAndFlush(notification);
+
+        // Get all the notificationList where targetId in
+        defaultNotificationFiltering("targetId.in=" + DEFAULT_TARGET_ID + "," + UPDATED_TARGET_ID, "targetId.in=" + UPDATED_TARGET_ID);
+    }
+
+    @Test
+    @Transactional
+    void getAllNotificationsByTargetIdIsNullOrNotNull() throws Exception {
+        // Initialize the database
+        insertedNotification = notificationRepository.saveAndFlush(notification);
+
+        // Get all the notificationList where targetId is not null
+        defaultNotificationFiltering("targetId.specified=true", "targetId.specified=false");
+    }
+
+    @Test
+    @Transactional
+    void getAllNotificationsByTargetIdIsGreaterThanOrEqualToSomething() throws Exception {
+        // Initialize the database
+        insertedNotification = notificationRepository.saveAndFlush(notification);
+
+        // Get all the notificationList where targetId is greater than or equal to
+        defaultNotificationFiltering(
+            "targetId.greaterThanOrEqual=" + DEFAULT_TARGET_ID,
+            "targetId.greaterThanOrEqual=" + UPDATED_TARGET_ID
+        );
+    }
+
+    @Test
+    @Transactional
+    void getAllNotificationsByTargetIdIsLessThanOrEqualToSomething() throws Exception {
+        // Initialize the database
+        insertedNotification = notificationRepository.saveAndFlush(notification);
+
+        // Get all the notificationList where targetId is less than or equal to
+        defaultNotificationFiltering("targetId.lessThanOrEqual=" + DEFAULT_TARGET_ID, "targetId.lessThanOrEqual=" + SMALLER_TARGET_ID);
+    }
+
+    @Test
+    @Transactional
+    void getAllNotificationsByTargetIdIsLessThanSomething() throws Exception {
+        // Initialize the database
+        insertedNotification = notificationRepository.saveAndFlush(notification);
+
+        // Get all the notificationList where targetId is less than
+        defaultNotificationFiltering("targetId.lessThan=" + UPDATED_TARGET_ID, "targetId.lessThan=" + DEFAULT_TARGET_ID);
+    }
+
+    @Test
+    @Transactional
+    void getAllNotificationsByTargetIdIsGreaterThanSomething() throws Exception {
+        // Initialize the database
+        insertedNotification = notificationRepository.saveAndFlush(notification);
+
+        // Get all the notificationList where targetId is greater than
+        defaultNotificationFiltering("targetId.greaterThan=" + SMALLER_TARGET_ID, "targetId.greaterThan=" + DEFAULT_TARGET_ID);
+    }
+
+    @Test
+    @Transactional
+    void getAllNotificationsByReadAtIsEqualToSomething() throws Exception {
+        // Initialize the database
+        insertedNotification = notificationRepository.saveAndFlush(notification);
+
+        // Get all the notificationList where readAt equals to
+        defaultNotificationFiltering("readAt.equals=" + DEFAULT_READ_AT, "readAt.equals=" + UPDATED_READ_AT);
+    }
+
+    @Test
+    @Transactional
+    void getAllNotificationsByReadAtIsInShouldWork() throws Exception {
+        // Initialize the database
+        insertedNotification = notificationRepository.saveAndFlush(notification);
+
+        // Get all the notificationList where readAt in
+        defaultNotificationFiltering("readAt.in=" + DEFAULT_READ_AT + "," + UPDATED_READ_AT, "readAt.in=" + UPDATED_READ_AT);
+    }
+
+    @Test
+    @Transactional
+    void getAllNotificationsByReadAtIsNullOrNotNull() throws Exception {
+        // Initialize the database
+        insertedNotification = notificationRepository.saveAndFlush(notification);
+
+        // Get all the notificationList where readAt is not null
+        defaultNotificationFiltering("readAt.specified=true", "readAt.specified=false");
+    }
+
+    @Test
+    @Transactional
     void getAllNotificationsByUserIsEqualToSomething() throws Exception {
         User user;
         if (TestUtil.findAll(em, User.class).isEmpty()) {
@@ -563,7 +677,10 @@ class NotificationResourceIT {
             .andExpect(jsonPath("$.[*].content").value(hasItem(DEFAULT_CONTENT)))
             .andExpect(jsonPath("$.[*].isRead").value(hasItem(DEFAULT_IS_READ)))
             .andExpect(jsonPath("$.[*].type").value(hasItem(DEFAULT_TYPE)))
-            .andExpect(jsonPath("$.[*].createdAt").value(hasItem(DEFAULT_CREATED_AT.toString())));
+            .andExpect(jsonPath("$.[*].createdAt").value(hasItem(DEFAULT_CREATED_AT.toString())))
+            .andExpect(jsonPath("$.[*].targetType").value(hasItem(DEFAULT_TARGET_TYPE)))
+            .andExpect(jsonPath("$.[*].targetId").value(hasItem(DEFAULT_TARGET_ID.intValue())))
+            .andExpect(jsonPath("$.[*].readAt").value(hasItem(DEFAULT_READ_AT.toString())));
 
         // Check, that the count call also returns 1
         restNotificationMockMvc
@@ -616,7 +733,10 @@ class NotificationResourceIT {
             .content(UPDATED_CONTENT)
             .isRead(UPDATED_IS_READ)
             .type(UPDATED_TYPE)
-            .createdAt(UPDATED_CREATED_AT);
+            .createdAt(UPDATED_CREATED_AT)
+            .targetType(UPDATED_TARGET_TYPE)
+            .targetId(UPDATED_TARGET_ID)
+            .readAt(UPDATED_READ_AT);
         NotificationDTO notificationDTO = notificationMapper.toDto(updatedNotification);
 
         restNotificationMockMvc
@@ -706,7 +826,13 @@ class NotificationResourceIT {
         Notification partialUpdatedNotification = new Notification();
         partialUpdatedNotification.setId(notification.getId());
 
-        partialUpdatedNotification.title(UPDATED_TITLE).isRead(UPDATED_IS_READ).type(UPDATED_TYPE).createdAt(UPDATED_CREATED_AT);
+        partialUpdatedNotification
+            .title(UPDATED_TITLE)
+            .isRead(UPDATED_IS_READ)
+            .type(UPDATED_TYPE)
+            .createdAt(UPDATED_CREATED_AT)
+            .targetType(UPDATED_TARGET_TYPE)
+            .targetId(UPDATED_TARGET_ID);
 
         restNotificationMockMvc
             .perform(
@@ -742,7 +868,10 @@ class NotificationResourceIT {
             .content(UPDATED_CONTENT)
             .isRead(UPDATED_IS_READ)
             .type(UPDATED_TYPE)
-            .createdAt(UPDATED_CREATED_AT);
+            .createdAt(UPDATED_CREATED_AT)
+            .targetType(UPDATED_TARGET_TYPE)
+            .targetId(UPDATED_TARGET_ID)
+            .readAt(UPDATED_READ_AT);
 
         restNotificationMockMvc
             .perform(

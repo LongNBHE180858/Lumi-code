@@ -53,6 +53,15 @@ class ClassMemberResourceIT {
     private static final Instant DEFAULT_JOINED_AT = Instant.ofEpochMilli(0L);
     private static final Instant UPDATED_JOINED_AT = Instant.ofEpochMilli(1791835009362L);
 
+    private static final Instant DEFAULT_REQUESTED_AT = Instant.ofEpochMilli(0L);
+    private static final Instant UPDATED_REQUESTED_AT = Instant.ofEpochMilli(1791835009362L);
+
+    private static final Instant DEFAULT_LEFT_AT = Instant.ofEpochMilli(0L);
+    private static final Instant UPDATED_LEFT_AT = Instant.ofEpochMilli(1791835009362L);
+
+    private static final Instant DEFAULT_UPDATED_AT = Instant.ofEpochMilli(0L);
+    private static final Instant UPDATED_UPDATED_AT = Instant.ofEpochMilli(1791835009362L);
+
     private static final String ENTITY_API_URL = "/api/class-members";
     private static final String ENTITY_API_URL_ID = ENTITY_API_URL + "/{id}";
 
@@ -94,12 +103,12 @@ class ClassMemberResourceIT {
      * if they test an entity which requires the current entity.
      */
     public static ClassMember createEntity(EntityManager em) {
-        ClassMember classMember = new ClassMember().status(DEFAULT_STATUS).joinedAt(DEFAULT_JOINED_AT);
-        // Add required entity
-        User user = UserResourceIT.createEntity();
-        em.persist(user);
-        em.flush();
-        classMember.setStudent(user);
+        ClassMember classMember = new ClassMember()
+            .status(DEFAULT_STATUS)
+            .joinedAt(DEFAULT_JOINED_AT)
+            .requestedAt(DEFAULT_REQUESTED_AT)
+            .leftAt(DEFAULT_LEFT_AT)
+            .updatedAt(DEFAULT_UPDATED_AT);
         // Add required entity
         StudyClass studyClass;
         if (TestUtil.findAll(em, StudyClass.class).isEmpty()) {
@@ -110,6 +119,11 @@ class ClassMemberResourceIT {
             studyClass = TestUtil.findAll(em, StudyClass.class).getFirst();
         }
         classMember.setStudyClass(studyClass);
+        // Add required entity
+        User user = UserResourceIT.createEntity();
+        em.persist(user);
+        em.flush();
+        classMember.setStudent(user);
         return classMember;
     }
 
@@ -120,12 +134,12 @@ class ClassMemberResourceIT {
      * if they test an entity which requires the current entity.
      */
     public static ClassMember createUpdatedEntity(EntityManager em) {
-        ClassMember updatedClassMember = new ClassMember().status(UPDATED_STATUS).joinedAt(UPDATED_JOINED_AT);
-        // Add required entity
-        User user = UserResourceIT.createEntity();
-        em.persist(user);
-        em.flush();
-        updatedClassMember.setStudent(user);
+        ClassMember updatedClassMember = new ClassMember()
+            .status(UPDATED_STATUS)
+            .joinedAt(UPDATED_JOINED_AT)
+            .requestedAt(UPDATED_REQUESTED_AT)
+            .leftAt(UPDATED_LEFT_AT)
+            .updatedAt(UPDATED_UPDATED_AT);
         // Add required entity
         StudyClass studyClass;
         if (TestUtil.findAll(em, StudyClass.class).isEmpty()) {
@@ -136,6 +150,11 @@ class ClassMemberResourceIT {
             studyClass = TestUtil.findAll(em, StudyClass.class).getFirst();
         }
         updatedClassMember.setStudyClass(studyClass);
+        // Add required entity
+        User user = UserResourceIT.createEntity();
+        em.persist(user);
+        em.flush();
+        updatedClassMember.setStudent(user);
         return updatedClassMember;
     }
 
@@ -196,6 +215,40 @@ class ClassMemberResourceIT {
 
     @Test
     @Transactional
+    void checkRequestedAtIsRequired() throws Exception {
+        long databaseSizeBeforeTest = getRepositoryCount();
+        // set the field null
+        classMember.setRequestedAt(null);
+
+        // Create the ClassMember, which fails.
+        ClassMemberDTO classMemberDTO = classMemberMapper.toDto(classMember);
+
+        restClassMemberMockMvc
+            .perform(post(ENTITY_API_URL).contentType(MediaType.APPLICATION_JSON).content(om.writeValueAsBytes(classMemberDTO)))
+            .andExpect(status().isBadRequest());
+
+        assertSameRepositoryCount(databaseSizeBeforeTest);
+    }
+
+    @Test
+    @Transactional
+    void checkUpdatedAtIsRequired() throws Exception {
+        long databaseSizeBeforeTest = getRepositoryCount();
+        // set the field null
+        classMember.setUpdatedAt(null);
+
+        // Create the ClassMember, which fails.
+        ClassMemberDTO classMemberDTO = classMemberMapper.toDto(classMember);
+
+        restClassMemberMockMvc
+            .perform(post(ENTITY_API_URL).contentType(MediaType.APPLICATION_JSON).content(om.writeValueAsBytes(classMemberDTO)))
+            .andExpect(status().isBadRequest());
+
+        assertSameRepositoryCount(databaseSizeBeforeTest);
+    }
+
+    @Test
+    @Transactional
     void getAllClassMembers() throws Exception {
         // Initialize the database
         insertedClassMember = classMemberRepository.saveAndFlush(classMember);
@@ -207,7 +260,10 @@ class ClassMemberResourceIT {
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
             .andExpect(jsonPath("$.[*].id").value(hasItem(classMember.getId().intValue())))
             .andExpect(jsonPath("$.[*].status").value(hasItem(DEFAULT_STATUS)))
-            .andExpect(jsonPath("$.[*].joinedAt").value(hasItem(DEFAULT_JOINED_AT.toString())));
+            .andExpect(jsonPath("$.[*].joinedAt").value(hasItem(DEFAULT_JOINED_AT.toString())))
+            .andExpect(jsonPath("$.[*].requestedAt").value(hasItem(DEFAULT_REQUESTED_AT.toString())))
+            .andExpect(jsonPath("$.[*].leftAt").value(hasItem(DEFAULT_LEFT_AT.toString())))
+            .andExpect(jsonPath("$.[*].updatedAt").value(hasItem(DEFAULT_UPDATED_AT.toString())));
     }
 
     @SuppressWarnings({ "unchecked" })
@@ -240,7 +296,10 @@ class ClassMemberResourceIT {
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
             .andExpect(jsonPath("$.id").value(classMember.getId().intValue()))
             .andExpect(jsonPath("$.status").value(DEFAULT_STATUS))
-            .andExpect(jsonPath("$.joinedAt").value(DEFAULT_JOINED_AT.toString()));
+            .andExpect(jsonPath("$.joinedAt").value(DEFAULT_JOINED_AT.toString()))
+            .andExpect(jsonPath("$.requestedAt").value(DEFAULT_REQUESTED_AT.toString()))
+            .andExpect(jsonPath("$.leftAt").value(DEFAULT_LEFT_AT.toString()))
+            .andExpect(jsonPath("$.updatedAt").value(DEFAULT_UPDATED_AT.toString()));
     }
 
     @Test
@@ -340,24 +399,95 @@ class ClassMemberResourceIT {
 
     @Test
     @Transactional
-    void getAllClassMembersByStudentIsEqualToSomething() throws Exception {
-        User student;
-        if (TestUtil.findAll(em, User.class).isEmpty()) {
-            classMemberRepository.saveAndFlush(classMember);
-            student = UserResourceIT.createEntity();
-        } else {
-            student = TestUtil.findAll(em, User.class).getFirst();
-        }
-        em.persist(student);
-        em.flush();
-        classMember.setStudent(student);
-        classMemberRepository.saveAndFlush(classMember);
-        Long studentId = student.getId();
-        // Get all the classMemberList where student equals to studentId
-        defaultClassMemberShouldBeFound("studentId.equals=" + studentId);
+    void getAllClassMembersByRequestedAtIsEqualToSomething() throws Exception {
+        // Initialize the database
+        insertedClassMember = classMemberRepository.saveAndFlush(classMember);
 
-        // Get all the classMemberList where student equals to (studentId + 1)
-        defaultClassMemberShouldNotBeFound("studentId.equals=" + (studentId + 1));
+        // Get all the classMemberList where requestedAt equals to
+        defaultClassMemberFiltering("requestedAt.equals=" + DEFAULT_REQUESTED_AT, "requestedAt.equals=" + UPDATED_REQUESTED_AT);
+    }
+
+    @Test
+    @Transactional
+    void getAllClassMembersByRequestedAtIsInShouldWork() throws Exception {
+        // Initialize the database
+        insertedClassMember = classMemberRepository.saveAndFlush(classMember);
+
+        // Get all the classMemberList where requestedAt in
+        defaultClassMemberFiltering(
+            "requestedAt.in=" + DEFAULT_REQUESTED_AT + "," + UPDATED_REQUESTED_AT,
+            "requestedAt.in=" + UPDATED_REQUESTED_AT
+        );
+    }
+
+    @Test
+    @Transactional
+    void getAllClassMembersByRequestedAtIsNullOrNotNull() throws Exception {
+        // Initialize the database
+        insertedClassMember = classMemberRepository.saveAndFlush(classMember);
+
+        // Get all the classMemberList where requestedAt is not null
+        defaultClassMemberFiltering("requestedAt.specified=true", "requestedAt.specified=false");
+    }
+
+    @Test
+    @Transactional
+    void getAllClassMembersByLeftAtIsEqualToSomething() throws Exception {
+        // Initialize the database
+        insertedClassMember = classMemberRepository.saveAndFlush(classMember);
+
+        // Get all the classMemberList where leftAt equals to
+        defaultClassMemberFiltering("leftAt.equals=" + DEFAULT_LEFT_AT, "leftAt.equals=" + UPDATED_LEFT_AT);
+    }
+
+    @Test
+    @Transactional
+    void getAllClassMembersByLeftAtIsInShouldWork() throws Exception {
+        // Initialize the database
+        insertedClassMember = classMemberRepository.saveAndFlush(classMember);
+
+        // Get all the classMemberList where leftAt in
+        defaultClassMemberFiltering("leftAt.in=" + DEFAULT_LEFT_AT + "," + UPDATED_LEFT_AT, "leftAt.in=" + UPDATED_LEFT_AT);
+    }
+
+    @Test
+    @Transactional
+    void getAllClassMembersByLeftAtIsNullOrNotNull() throws Exception {
+        // Initialize the database
+        insertedClassMember = classMemberRepository.saveAndFlush(classMember);
+
+        // Get all the classMemberList where leftAt is not null
+        defaultClassMemberFiltering("leftAt.specified=true", "leftAt.specified=false");
+    }
+
+    @Test
+    @Transactional
+    void getAllClassMembersByUpdatedAtIsEqualToSomething() throws Exception {
+        // Initialize the database
+        insertedClassMember = classMemberRepository.saveAndFlush(classMember);
+
+        // Get all the classMemberList where updatedAt equals to
+        defaultClassMemberFiltering("updatedAt.equals=" + DEFAULT_UPDATED_AT, "updatedAt.equals=" + UPDATED_UPDATED_AT);
+    }
+
+    @Test
+    @Transactional
+    void getAllClassMembersByUpdatedAtIsInShouldWork() throws Exception {
+        // Initialize the database
+        insertedClassMember = classMemberRepository.saveAndFlush(classMember);
+
+        // Get all the classMemberList where updatedAt in
+        defaultClassMemberFiltering("updatedAt.in=" + DEFAULT_UPDATED_AT + "," + UPDATED_UPDATED_AT, "updatedAt.in=" + UPDATED_UPDATED_AT);
+    }
+
+    @Test
+    @Transactional
+    void getAllClassMembersByUpdatedAtIsNullOrNotNull() throws Exception {
+        // Initialize the database
+        insertedClassMember = classMemberRepository.saveAndFlush(classMember);
+
+        // Get all the classMemberList where updatedAt is not null
+        defaultClassMemberFiltering("updatedAt.specified=true", "updatedAt.specified=false");
     }
 
     @Test
@@ -382,6 +512,28 @@ class ClassMemberResourceIT {
         defaultClassMemberShouldNotBeFound("studyClassId.equals=" + (studyClassId + 1));
     }
 
+    @Test
+    @Transactional
+    void getAllClassMembersByStudentIsEqualToSomething() throws Exception {
+        User student;
+        if (TestUtil.findAll(em, User.class).isEmpty()) {
+            classMemberRepository.saveAndFlush(classMember);
+            student = UserResourceIT.createEntity();
+        } else {
+            student = TestUtil.findAll(em, User.class).getFirst();
+        }
+        em.persist(student);
+        em.flush();
+        classMember.setStudent(student);
+        classMemberRepository.saveAndFlush(classMember);
+        Long studentId = student.getId();
+        // Get all the classMemberList where student equals to studentId
+        defaultClassMemberShouldBeFound("studentId.equals=" + studentId);
+
+        // Get all the classMemberList where student equals to (studentId + 1)
+        defaultClassMemberShouldNotBeFound("studentId.equals=" + (studentId + 1));
+    }
+
     private void defaultClassMemberFiltering(String shouldBeFound, String shouldNotBeFound) throws Exception {
         defaultClassMemberShouldBeFound(shouldBeFound);
         defaultClassMemberShouldNotBeFound(shouldNotBeFound);
@@ -397,7 +549,10 @@ class ClassMemberResourceIT {
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
             .andExpect(jsonPath("$.[*].id").value(hasItem(classMember.getId().intValue())))
             .andExpect(jsonPath("$.[*].status").value(hasItem(DEFAULT_STATUS)))
-            .andExpect(jsonPath("$.[*].joinedAt").value(hasItem(DEFAULT_JOINED_AT.toString())));
+            .andExpect(jsonPath("$.[*].joinedAt").value(hasItem(DEFAULT_JOINED_AT.toString())))
+            .andExpect(jsonPath("$.[*].requestedAt").value(hasItem(DEFAULT_REQUESTED_AT.toString())))
+            .andExpect(jsonPath("$.[*].leftAt").value(hasItem(DEFAULT_LEFT_AT.toString())))
+            .andExpect(jsonPath("$.[*].updatedAt").value(hasItem(DEFAULT_UPDATED_AT.toString())));
 
         // Check, that the count call also returns 1
         restClassMemberMockMvc
@@ -445,7 +600,12 @@ class ClassMemberResourceIT {
         ClassMember updatedClassMember = classMemberRepository.findById(classMember.getId()).orElseThrow();
         // Disconnect from session so that the updates on updatedClassMember are not directly saved in db
         em.detach(updatedClassMember);
-        updatedClassMember.status(UPDATED_STATUS).joinedAt(UPDATED_JOINED_AT);
+        updatedClassMember
+            .status(UPDATED_STATUS)
+            .joinedAt(UPDATED_JOINED_AT)
+            .requestedAt(UPDATED_REQUESTED_AT)
+            .leftAt(UPDATED_LEFT_AT)
+            .updatedAt(UPDATED_UPDATED_AT);
         ClassMemberDTO classMemberDTO = classMemberMapper.toDto(updatedClassMember);
 
         restClassMemberMockMvc
@@ -566,7 +726,12 @@ class ClassMemberResourceIT {
         ClassMember partialUpdatedClassMember = new ClassMember();
         partialUpdatedClassMember.setId(classMember.getId());
 
-        partialUpdatedClassMember.status(UPDATED_STATUS).joinedAt(UPDATED_JOINED_AT);
+        partialUpdatedClassMember
+            .status(UPDATED_STATUS)
+            .joinedAt(UPDATED_JOINED_AT)
+            .requestedAt(UPDATED_REQUESTED_AT)
+            .leftAt(UPDATED_LEFT_AT)
+            .updatedAt(UPDATED_UPDATED_AT);
 
         restClassMemberMockMvc
             .perform(

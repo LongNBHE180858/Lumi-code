@@ -23,7 +23,9 @@
       "notes": "Notes",
       "submittedAt": "Submitted At",
       "approvedAt": "Approved At",
-      "user": "User"
+      "reviewedAt": "Reviewed At",
+      "user": "User",
+      "reviewedBy": "Reviewed By"
     }
   }
 }

@@ -50,14 +50,15 @@ public class AccountResource {
 
     private final PasswordEncoder passwordEncoder;
 
-    private final com.lumi.service.AuthService authService;
+    private final com.lumi.service.IAuthService authService;
 
+    //dáccascd
     public AccountResource(
         UserRepository userRepository,
         UserService userService,
         MailService mailService,
         PasswordEncoder passwordEncoder,
-        com.lumi.service.AuthService authService
+        com.lumi.service.IAuthService authService
     ) {
         this.userRepository = userRepository;
         this.userService = userService;

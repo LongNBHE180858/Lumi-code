@@ -23,15 +23,29 @@ const addErrorAlert = (message: ToastMessage) => {
 // Confirmed at runtime in C2.3: the validation response carries this `type` and a `fieldErrors` array.
 const CONSTRAINT_VIOLATION_TYPE = 'https://www.jhipster.tech/problem/constraint-violation';
 
+const normalizeFieldError = (fieldError: FieldErrorVM): FieldErrorVM => {
+  if (['Min', 'Max', 'DecimalMin', 'DecimalMax'].includes(fieldError.message)) {
+    return { ...fieldError, message: 'Size' };
+  }
+  if (fieldError.message === 'must not be null') {
+    return { ...fieldError, message: 'NotNull' };
+  }
+  return fieldError;
+};
+
 const getFieldErrorsToasts = (fieldErrors: FieldErrorVM[]): ToastMessage[] =>
   fieldErrors.map(fieldError => {
-    if (['Min', 'Max', 'DecimalMin', 'DecimalMax'].includes(fieldError.message)) {
-      fieldError.message = 'Size';
-    }
+    const normalizedFieldError = normalizeFieldError(fieldError);
+    const field = typeof normalizedFieldError.field === 'string' ? normalizedFieldError.field : '';
+    const objectName = typeof normalizedFieldError.objectName === 'string' ? normalizedFieldError.objectName : 'unknown';
     // convert 'something[14].other[4].id' to 'something[].other[].id' so translations can be written to it
-    const convertedField = fieldError.field.replace(/\[\d*\]/g, '[]');
-    const fieldName = translate(`lumiApp.${fieldError.objectName}.${convertedField}`);
-    return { message: `Error on field "${fieldName}"`, key: `error.${fieldError.message}`, data: { fieldName } };
+    const convertedField = field.replace(/\[\d*\]/g, '[]');
+    const fieldName = translate(`lumiApp.${objectName}.${convertedField}`);
+    return {
+      message: `Error on field "${fieldName}"`,
+      key: `error.${normalizedFieldError.message}`,
+      data: { fieldName },
+    };
   });
 
 // eslint-disable-next-line complexity
@@ -97,9 +111,7 @@ export default () => next => action => {
           // behavior and translations are preserved. Spring reports @NotNull failures with the human
           // message "must not be null", which has no translation; normalize it to the "NotNull"
           // constraint key (which is translated) so the message stays friendly and localized.
-          const otherFieldErrors = validationFieldErrors
-            .filter(fieldError => fieldError.field !== 'course')
-            .map(fieldError => (fieldError.message === 'must not be null' ? { ...fieldError, message: 'NotNull' } : fieldError));
+          const otherFieldErrors = validationFieldErrors.filter(fieldError => fieldError.field !== 'course').map(normalizeFieldError);
           getFieldErrorsToasts(otherFieldErrors).forEach(message => addErrorAlert(message));
         } else if (problem?.fieldErrors) {
           getFieldErrorsToasts(problem.fieldErrors).forEach(message => addErrorAlert(message));

@@ -1,5 +1,6 @@
 package com.lumi.service.dto;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.*;
 import java.io.Serializable;
 import java.time.Instant;
@@ -8,6 +9,7 @@ import java.util.Objects;
 /**
  * A DTO for the {@link com.lumi.domain.AuthSession} entity.
  */
+@Schema(description = "Quản lý phiên đăng nhập, thiết bị và việc thu hồi refresh token.")
 @SuppressWarnings("common-java:DuplicatedBlocks")
 public class AuthSessionDTO implements Serializable {
 
@@ -25,6 +27,9 @@ public class AuthSessionDTO implements Serializable {
     private Boolean isRevoked;
 
     private Instant createdAt;
+
+    @Size(max = 255)
+    private String refreshTokenHash;
 
     @NotNull
     private UserDTO user;
@@ -77,6 +82,14 @@ public class AuthSessionDTO implements Serializable {
         this.createdAt = createdAt;
     }
 
+    public String getRefreshTokenHash() {
+        return refreshTokenHash;
+    }
+
+    public void setRefreshTokenHash(String refreshTokenHash) {
+        this.refreshTokenHash = refreshTokenHash;
+    }
+
     public UserDTO getUser() {
         return user;
     }
@@ -116,6 +129,7 @@ public class AuthSessionDTO implements Serializable {
             ", expiresAt='" + getExpiresAt() + "'" +
             ", isRevoked='" + getIsRevoked() + "'" +
             ", createdAt='" + getCreatedAt() + "'" +
+            ", refreshTokenHash='" + getRefreshTokenHash() + "'" +
             ", user=" + getUser() +
             "}";
     }

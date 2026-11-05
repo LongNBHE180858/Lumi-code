@@ -1,10 +1,10 @@
 package com.lumi.web.rest;
 
 import com.lumi.repository.PayoutRequestRepository;
-import com.lumi.service.PayoutRequestQueryService;
 import com.lumi.service.PayoutRequestService;
 import com.lumi.service.criteria.PayoutRequestCriteria;
 import com.lumi.service.dto.PayoutRequestDTO;
+import com.lumi.service.query.PayoutRequestQueryService;
 import com.lumi.web.rest.errors.BadRequestAlertException;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;

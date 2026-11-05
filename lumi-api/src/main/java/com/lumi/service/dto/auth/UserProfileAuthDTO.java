@@ -3,6 +3,7 @@ package com.lumi.service.dto.auth;
 import com.lumi.domain.UserProfile;
 import com.lumi.domain.enumeration.InstructorApplicationStatus;
 import java.io.Serializable;
+import java.time.LocalDate;
 
 public class UserProfileAuthDTO implements Serializable {
 
@@ -11,6 +12,7 @@ public class UserProfileAuthDTO implements Serializable {
     private String bio;
     private String schoolName;
     private Integer gradeLevel;
+    private LocalDate birthDate;
     private Boolean is2faEnabled;
     private InstructorApplicationStatus instructorStatus;
 
@@ -23,6 +25,7 @@ public class UserProfileAuthDTO implements Serializable {
             this.bio = profile.getBio();
             this.schoolName = profile.getSchoolName();
             this.gradeLevel = profile.getGradeLevel();
+            this.birthDate = profile.getBirthDate();
             this.is2faEnabled = profile.getIs2faEnabled();
             this.instructorStatus = profile.getInstructorStatus();
         }
@@ -66,6 +69,14 @@ public class UserProfileAuthDTO implements Serializable {
 
     public void setGradeLevel(Integer gradeLevel) {
         this.gradeLevel = gradeLevel;
+    }
+
+    public LocalDate getBirthDate() {
+        return birthDate;
+    }
+
+    public void setBirthDate(LocalDate birthDate) {
+        this.birthDate = birthDate;
     }
 
     public Boolean getIs2faEnabled() {

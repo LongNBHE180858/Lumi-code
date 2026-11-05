@@ -2,6 +2,8 @@ package com.lumi.service;
 
 import com.lumi.service.dto.RefundDTO;
 import java.util.Optional;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 /**
  * Service Interface for managing {@link com.lumi.domain.Refund}.
@@ -30,6 +32,14 @@ public interface RefundService {
      * @return the persisted entity.
      */
     Optional<RefundDTO> partialUpdate(RefundDTO refundDTO);
+
+    /**
+     * Get all the refunds with eager load of many-to-many relationships.
+     *
+     * @param pageable the pagination information.
+     * @return the list of entities.
+     */
+    Page<RefundDTO> findAllWithEagerRelationships(Pageable pageable);
 
     /**
      * Get the "id" refund.

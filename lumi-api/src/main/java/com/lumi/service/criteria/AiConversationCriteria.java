@@ -30,9 +30,13 @@ public class AiConversationCriteria implements Serializable, Criteria {
 
     private InstantFilter createdAt;
 
+    private InstantFilter updatedAt;
+
     private LongFilter userId;
 
     private LongFilter lessonId;
+
+    private LongFilter documentId;
 
     private Boolean distinct;
 
@@ -42,8 +46,10 @@ public class AiConversationCriteria implements Serializable, Criteria {
         this.id = other.optionalId().map(LongFilter::copy).orElse(null);
         this.type = other.optionalType().map(StringFilter::copy).orElse(null);
         this.createdAt = other.optionalCreatedAt().map(InstantFilter::copy).orElse(null);
+        this.updatedAt = other.optionalUpdatedAt().map(InstantFilter::copy).orElse(null);
         this.userId = other.optionalUserId().map(LongFilter::copy).orElse(null);
         this.lessonId = other.optionalLessonId().map(LongFilter::copy).orElse(null);
+        this.documentId = other.optionalDocumentId().map(LongFilter::copy).orElse(null);
         this.distinct = other.distinct;
     }
 
@@ -109,6 +115,25 @@ public class AiConversationCriteria implements Serializable, Criteria {
         this.createdAt = createdAt;
     }
 
+    public InstantFilter getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public Optional<InstantFilter> optionalUpdatedAt() {
+        return Optional.ofNullable(updatedAt);
+    }
+
+    public InstantFilter updatedAt() {
+        if (updatedAt == null) {
+            setUpdatedAt(new InstantFilter());
+        }
+        return updatedAt;
+    }
+
+    public void setUpdatedAt(InstantFilter updatedAt) {
+        this.updatedAt = updatedAt;
+    }
+
     public LongFilter getUserId() {
         return userId;
     }
@@ -147,6 +172,25 @@ public class AiConversationCriteria implements Serializable, Criteria {
         this.lessonId = lessonId;
     }
 
+    public LongFilter getDocumentId() {
+        return documentId;
+    }
+
+    public Optional<LongFilter> optionalDocumentId() {
+        return Optional.ofNullable(documentId);
+    }
+
+    public LongFilter documentId() {
+        if (documentId == null) {
+            setDocumentId(new LongFilter());
+        }
+        return documentId;
+    }
+
+    public void setDocumentId(LongFilter documentId) {
+        this.documentId = documentId;
+    }
+
     public Boolean getDistinct() {
         return distinct;
     }
@@ -179,15 +223,17 @@ public class AiConversationCriteria implements Serializable, Criteria {
             Objects.equals(id, that.id) &&
             Objects.equals(type, that.type) &&
             Objects.equals(createdAt, that.createdAt) &&
+            Objects.equals(updatedAt, that.updatedAt) &&
             Objects.equals(userId, that.userId) &&
             Objects.equals(lessonId, that.lessonId) &&
+            Objects.equals(documentId, that.documentId) &&
             Objects.equals(distinct, that.distinct)
         );
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, type, createdAt, userId, lessonId, distinct);
+        return Objects.hash(id, type, createdAt, updatedAt, userId, lessonId, documentId, distinct);
     }
 
     // prettier-ignore
@@ -197,8 +243,10 @@ public class AiConversationCriteria implements Serializable, Criteria {
             optionalId().map(f -> "id=" + f + ", ").orElse("") +
             optionalType().map(f -> "type=" + f + ", ").orElse("") +
             optionalCreatedAt().map(f -> "createdAt=" + f + ", ").orElse("") +
+            optionalUpdatedAt().map(f -> "updatedAt=" + f + ", ").orElse("") +
             optionalUserId().map(f -> "userId=" + f + ", ").orElse("") +
             optionalLessonId().map(f -> "lessonId=" + f + ", ").orElse("") +
+            optionalDocumentId().map(f -> "documentId=" + f + ", ").orElse("") +
             optionalDistinct().map(f -> "distinct=" + f + ", ").orElse("") +
         "}";
     }

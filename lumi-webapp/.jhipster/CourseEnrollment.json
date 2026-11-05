@@ -3,14 +3,13 @@
     "changelogDate": "20261012231650"
   },
   "applications": ["*"],
+  "documentation": "Lưu quyền học, thời hạn và tiến độ tổng hợp của học sinh theo khóa.",
   "dto": "mapstruct",
+  "entityTableName": "course_enrollments",
   "fields": [
     {
       "fieldName": "progressPercent",
-      "fieldType": "BigDecimal",
-      "fieldValidateRules": ["min", "max"],
-      "fieldValidateRulesMax": "100",
-      "fieldValidateRulesMin": "0"
+      "fieldType": "BigDecimal"
     },
     {
       "fieldName": "status",
@@ -26,12 +25,24 @@
       "fieldName": "expiresAt",
       "fieldType": "Instant",
       "fieldValidateRules": ["required"]
+    },
+    {
+      "fieldName": "updatedAt",
+      "fieldType": "Instant",
+      "fieldValidateRules": ["required"]
     }
   ],
   "jpaMetamodelFiltering": true,
   "name": "CourseEnrollment",
   "pagination": "pagination",
   "relationships": [
+    {
+      "otherEntityName": "course",
+      "relationshipName": "course",
+      "relationshipSide": "left",
+      "relationshipType": "many-to-one",
+      "relationshipValidateRules": "required"
+    },
     {
       "otherEntityField": "login",
       "otherEntityName": "user",
@@ -42,12 +53,10 @@
       "relationshipWithBuiltInEntity": true
     },
     {
-      "otherEntityField": "title",
-      "otherEntityName": "course",
-      "relationshipName": "course",
+      "otherEntityName": "lesson",
+      "relationshipName": "lastAccessedLesson",
       "relationshipSide": "left",
-      "relationshipType": "many-to-one",
-      "relationshipValidateRules": "required"
+      "relationshipType": "many-to-one"
     }
   ],
   "service": "serviceImpl"

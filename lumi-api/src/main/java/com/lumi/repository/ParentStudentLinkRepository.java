@@ -13,13 +13,26 @@ import org.springframework.stereotype.Repository;
  * Spring Data JPA repository for the ParentStudentLink entity.
  */
 @Repository
-public interface ParentStudentLinkRepository
-        extends JpaRepository<ParentStudentLink, Long>, JpaSpecificationExecutor<ParentStudentLink> {
-    @Query("select parentStudentLink from ParentStudentLink parentStudentLink where parentStudentLink.parent.login = ?#{authentication.name}")
+public interface ParentStudentLinkRepository extends JpaRepository<ParentStudentLink, Long>, JpaSpecificationExecutor<ParentStudentLink> {
+    @Query(
+        "select parentStudentLink from ParentStudentLink parentStudentLink where parentStudentLink.parent.login = ?#{authentication.name}"
+    )
     List<ParentStudentLink> findByParentIsCurrentUser();
 
-    @Query("select parentStudentLink from ParentStudentLink parentStudentLink where parentStudentLink.student.login = ?#{authentication.name}")
+    @Query(
+        "select parentStudentLink from ParentStudentLink parentStudentLink where parentStudentLink.student.login = ?#{authentication.name}"
+    )
     List<ParentStudentLink> findByStudentIsCurrentUser();
+
+    @Query(
+        "select parentStudentLink from ParentStudentLink parentStudentLink where parentStudentLink.confirmedBy.login = ?#{authentication.name}"
+    )
+    List<ParentStudentLink> findByConfirmedByIsCurrentUser();
+
+    @Query(
+        "select parentStudentLink from ParentStudentLink parentStudentLink where parentStudentLink.guardianVerifiedBy.login = ?#{authentication.name}"
+    )
+    List<ParentStudentLink> findByGuardianVerifiedByIsCurrentUser();
 
     default Optional<ParentStudentLink> findOneWithEagerRelationships(Long id) {
         return this.findOneWithToOneRelationships(id);
@@ -33,13 +46,20 @@ public interface ParentStudentLinkRepository
         return this.findAllWithToOneRelationships(pageable);
     }
 
-    @Query(value = "select parentStudentLink from ParentStudentLink parentStudentLink left join fetch parentStudentLink.parent left join fetch parentStudentLink.student", countQuery = "select count(parentStudentLink) from ParentStudentLink parentStudentLink")
+    @Query(
+        value = "select parentStudentLink from ParentStudentLink parentStudentLink left join fetch parentStudentLink.parent left join fetch parentStudentLink.student left join fetch parentStudentLink.confirmedBy left join fetch parentStudentLink.guardianVerifiedBy",
+        countQuery = "select count(parentStudentLink) from ParentStudentLink parentStudentLink"
+    )
     Page<ParentStudentLink> findAllWithToOneRelationships(Pageable pageable);
 
-    @Query("select parentStudentLink from ParentStudentLink parentStudentLink left join fetch parentStudentLink.parent left join fetch parentStudentLink.student")
+    @Query(
+        "select parentStudentLink from ParentStudentLink parentStudentLink left join fetch parentStudentLink.parent left join fetch parentStudentLink.student left join fetch parentStudentLink.confirmedBy left join fetch parentStudentLink.guardianVerifiedBy"
+    )
     List<ParentStudentLink> findAllWithToOneRelationships();
 
-    @Query("select parentStudentLink from ParentStudentLink parentStudentLink left join fetch parentStudentLink.parent left join fetch parentStudentLink.student where parentStudentLink.id =:id")
+    @Query(
+        "select parentStudentLink from ParentStudentLink parentStudentLink left join fetch parentStudentLink.parent left join fetch parentStudentLink.student left join fetch parentStudentLink.confirmedBy left join fetch parentStudentLink.guardianVerifiedBy where parentStudentLink.id =:id"
+    )
     Optional<ParentStudentLink> findOneWithToOneRelationships(@Param("id") Long id);
 
     // Dung 'left join fetch' de lay luon thong tin student (ho ten, login...) ve

@@ -7,10 +7,10 @@ import java.io.Serial;
 import java.io.Serializable;
 
 /**
- * A PdfChunk.
+ * Lưu đoạn văn bản và embedding được tách từ nguồn tài liệu.
  */
 @Entity
-@Table(name = "pdf_chunk")
+@Table(name = "pdf_chunks")
 @SuppressWarnings("common-java:DuplicatedBlocks")
 public class PdfChunk implements Serializable {
 
@@ -23,23 +23,29 @@ public class PdfChunk implements Serializable {
     @Column(name = "id")
     private Long id;
 
-    @Min(value = 1)
     @Column(name = "page_number")
     private Integer pageNumber;
 
-    @NotNull
-    @Size(max = 5000)
-    @Column(name = "chunk_text", length = 5000, nullable = false)
+    @Column(name = "chunk_text", nullable = false, columnDefinition = "text")
     private String chunkText;
 
-    @Size(max = 5000)
-    @Column(name = "embedding", length = 5000)
+    @Column(name = "embedding", columnDefinition = "text")
     private String embedding;
+
+    @NotNull
+    @Min(value = 0)
+    @Column(name = "chunk_index", nullable = false)
+    private Integer chunkIndex;
+
+    @NotNull
+    @Min(value = 1)
+    @Column(name = "index_version", nullable = false)
+    private Integer indexVersion;
 
     @ManyToOne(optional = false)
     @NotNull
-    @JsonIgnoreProperties(value = { "lesson" }, allowSetters = true)
-    private CourseMaterial material;
+    @JsonIgnoreProperties(value = { "courseMaterial", "classMaterial", "uploadedBy", "subject", "grade" }, allowSetters = true)
+    private LearningDocument material;
 
     // jhipster-needle-entity-add-field - JHipster will add fields here
 
@@ -95,16 +101,42 @@ public class PdfChunk implements Serializable {
         this.embedding = embedding;
     }
 
-    public CourseMaterial getMaterial() {
+    public Integer getChunkIndex() {
+        return this.chunkIndex;
+    }
+
+    public PdfChunk chunkIndex(Integer chunkIndex) {
+        this.setChunkIndex(chunkIndex);
+        return this;
+    }
+
+    public void setChunkIndex(Integer chunkIndex) {
+        this.chunkIndex = chunkIndex;
+    }
+
+    public Integer getIndexVersion() {
+        return this.indexVersion;
+    }
+
+    public PdfChunk indexVersion(Integer indexVersion) {
+        this.setIndexVersion(indexVersion);
+        return this;
+    }
+
+    public void setIndexVersion(Integer indexVersion) {
+        this.indexVersion = indexVersion;
+    }
+
+    public LearningDocument getMaterial() {
         return this.material;
     }
 
-    public void setMaterial(CourseMaterial courseMaterial) {
-        this.material = courseMaterial;
+    public void setMaterial(LearningDocument learningDocument) {
+        this.material = learningDocument;
     }
 
-    public PdfChunk material(CourseMaterial courseMaterial) {
-        this.setMaterial(courseMaterial);
+    public PdfChunk material(LearningDocument learningDocument) {
+        this.setMaterial(learningDocument);
         return this;
     }
 
@@ -135,6 +167,8 @@ public class PdfChunk implements Serializable {
             ", pageNumber=" + getPageNumber() +
             ", chunkText='" + getChunkText() + "'" +
             ", embedding='" + getEmbedding() + "'" +
+            ", chunkIndex=" + getChunkIndex() +
+            ", indexVersion=" + getIndexVersion() +
             "}";
     }
 }

@@ -9,10 +9,10 @@ import java.math.BigDecimal;
 import java.time.Instant;
 
 /**
- * A Assignment.
+ * Lưu bài tập được giáo viên giao trong lớp và liên kết đề nếu có.
  */
 @Entity
-@Table(name = "assignment")
+@Table(name = "assignments")
 @SuppressWarnings("common-java:DuplicatedBlocks")
 public class Assignment implements Serializable {
 
@@ -30,14 +30,12 @@ public class Assignment implements Serializable {
     @Column(name = "title", length = 255, nullable = false)
     private String title;
 
-    @Size(max = 5000)
-    @Column(name = "instructions", length = 5000)
+    @Column(name = "instructions", columnDefinition = "text")
     private String instructions;
 
     @Column(name = "due_at")
     private Instant dueAt;
 
-    @DecimalMin(value = "0")
     @Column(name = "max_score", precision = 21, scale = 2)
     private BigDecimal maxScore;
 
@@ -47,10 +45,31 @@ public class Assignment implements Serializable {
     @Column(name = "is_deleted")
     private Boolean isDeleted;
 
+    @NotNull
+    @Size(max = 20)
+    @Column(name = "status", length = 20, nullable = false)
+    private String status;
+
+    @NotNull
+    @Column(name = "created_at", nullable = false)
+    private Instant createdAt;
+
+    @NotNull
+    @Column(name = "updated_at", nullable = false)
+    private Instant updatedAt;
+
     @ManyToOne(optional = false)
     @NotNull
     @JsonIgnoreProperties(value = { "instructor", "subject", "grade" }, allowSetters = true)
     private StudyClass studyClass;
+
+    @ManyToOne(optional = false)
+    @NotNull
+    private User assignedBy;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JsonIgnoreProperties(value = { "studyClass", "createdBy", "lesson", "assignedStudent" }, allowSetters = true)
+    private Exam exam;
 
     // jhipster-needle-entity-add-field - JHipster will add fields here
 
@@ -145,6 +164,45 @@ public class Assignment implements Serializable {
         this.isDeleted = isDeleted;
     }
 
+    public String getStatus() {
+        return this.status;
+    }
+
+    public Assignment status(String status) {
+        this.setStatus(status);
+        return this;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    public Instant getCreatedAt() {
+        return this.createdAt;
+    }
+
+    public Assignment createdAt(Instant createdAt) {
+        this.setCreatedAt(createdAt);
+        return this;
+    }
+
+    public void setCreatedAt(Instant createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public Instant getUpdatedAt() {
+        return this.updatedAt;
+    }
+
+    public Assignment updatedAt(Instant updatedAt) {
+        this.setUpdatedAt(updatedAt);
+        return this;
+    }
+
+    public void setUpdatedAt(Instant updatedAt) {
+        this.updatedAt = updatedAt;
+    }
+
     public StudyClass getStudyClass() {
         return this.studyClass;
     }
@@ -155,6 +213,32 @@ public class Assignment implements Serializable {
 
     public Assignment studyClass(StudyClass studyClass) {
         this.setStudyClass(studyClass);
+        return this;
+    }
+
+    public User getAssignedBy() {
+        return this.assignedBy;
+    }
+
+    public void setAssignedBy(User user) {
+        this.assignedBy = user;
+    }
+
+    public Assignment assignedBy(User user) {
+        this.setAssignedBy(user);
+        return this;
+    }
+
+    public Exam getExam() {
+        return this.exam;
+    }
+
+    public void setExam(Exam exam) {
+        this.exam = exam;
+    }
+
+    public Assignment exam(Exam exam) {
+        this.setExam(exam);
         return this;
     }
 
@@ -188,6 +272,9 @@ public class Assignment implements Serializable {
             ", maxScore=" + getMaxScore() +
             ", allowLate='" + getAllowLate() + "'" +
             ", isDeleted='" + getIsDeleted() + "'" +
+            ", status='" + getStatus() + "'" +
+            ", createdAt='" + getCreatedAt() + "'" +
+            ", updatedAt='" + getUpdatedAt() + "'" +
             "}";
     }
 }

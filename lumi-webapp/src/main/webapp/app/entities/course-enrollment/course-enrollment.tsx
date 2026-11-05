@@ -131,11 +131,19 @@ export const CourseEnrollment = () => {
                   <Translate contentKey="lumiApp.courseEnrollment.expiresAt">Expires At</Translate>{' '}
                   <FontAwesomeIcon icon={getSortIconByFieldName('expiresAt')} />
                 </th>
+                <th className="hand" onClick={sort('updatedAt')}>
+                  <Translate contentKey="lumiApp.courseEnrollment.updatedAt">Updated At</Translate>{' '}
+                  <FontAwesomeIcon icon={getSortIconByFieldName('updatedAt')} />
+                </th>
+                <th>
+                  <Translate contentKey="lumiApp.courseEnrollment.course">Course</Translate> <FontAwesomeIcon icon="sort" />
+                </th>
                 <th>
                   <Translate contentKey="lumiApp.courseEnrollment.student">Student</Translate> <FontAwesomeIcon icon="sort" />
                 </th>
                 <th>
-                  <Translate contentKey="lumiApp.courseEnrollment.course">Course</Translate> <FontAwesomeIcon icon="sort" />
+                  <Translate contentKey="lumiApp.courseEnrollment.lastAccessedLesson">Last Accessed Lesson</Translate>{' '}
+                  <FontAwesomeIcon icon="sort" />
                 </th>
                 <th />
               </tr>
@@ -160,10 +168,18 @@ export const CourseEnrollment = () => {
                       <TextFormat type="date" value={courseEnrollment.expiresAt} format={APP_DATE_FORMAT} />
                     ) : null}
                   </td>
+                  <td>
+                    {courseEnrollment.updatedAt ? (
+                      <TextFormat type="date" value={courseEnrollment.updatedAt} format={APP_DATE_FORMAT} />
+                    ) : null}
+                  </td>
+                  <td>
+                    {courseEnrollment.course ? <Link to={`/course/${courseEnrollment.course.id}`}>{courseEnrollment.course.id}</Link> : ''}
+                  </td>
                   <td>{courseEnrollment.student ? courseEnrollment.student.login : ''}</td>
                   <td>
-                    {courseEnrollment.course ? (
-                      <Link to={`/course/${courseEnrollment.course.id}`}>{courseEnrollment.course.title}</Link>
+                    {courseEnrollment.lastAccessedLesson ? (
+                      <Link to={`/lesson/${courseEnrollment.lastAccessedLesson.id}`}>{courseEnrollment.lastAccessedLesson.id}</Link>
                     ) : (
                       ''
                     )}

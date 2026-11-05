@@ -3,7 +3,9 @@
     "changelogDate": "20261012231703"
   },
   "applications": ["*"],
+  "documentation": "Lưu sổ phát sinh tiền của ví giáo viên để đối soát doanh thu, hoàn và rút tiền.",
   "dto": "mapstruct",
+  "entityTableName": "wallet_transactions",
   "fields": [
     {
       "fieldName": "type",
@@ -31,6 +33,12 @@
     {
       "fieldName": "occurredAt",
       "fieldType": "Instant"
+    },
+    {
+      "fieldName": "balanceBucket",
+      "fieldType": "String",
+      "fieldValidateRules": ["required", "maxlength"],
+      "fieldValidateRulesMaxlength": "20"
     }
   ],
   "jpaMetamodelFiltering": true,
@@ -47,6 +55,18 @@
     {
       "otherEntityName": "courseOrder",
       "relationshipName": "order",
+      "relationshipSide": "left",
+      "relationshipType": "many-to-one"
+    },
+    {
+      "otherEntityName": "payoutRequest",
+      "relationshipName": "payoutRequest",
+      "relationshipSide": "left",
+      "relationshipType": "many-to-one"
+    },
+    {
+      "otherEntityName": "refund",
+      "relationshipName": "refund",
       "relationshipSide": "left",
       "relationshipType": "many-to-one"
     }

@@ -13,19 +13,18 @@ import org.mapstruct.*;
  */
 @Mapper(componentModel = "spring")
 public interface CourseReviewMapper extends EntityMapper<CourseReviewDTO, CourseReview> {
+    @Mapping(target = "course", source = "course", qualifiedByName = "courseId")
     @Mapping(target = "student", source = "student", qualifiedByName = "userLogin")
-    @Mapping(target = "course", source = "course", qualifiedByName = "courseTitle")
     CourseReviewDTO toDto(CourseReview s);
+
+    @Named("courseId")
+    @BeanMapping(ignoreByDefault = true)
+    @Mapping(target = "id", source = "id")
+    CourseDTO toDtoCourseId(Course course);
 
     @Named("userLogin")
     @BeanMapping(ignoreByDefault = true)
     @Mapping(target = "id", source = "id")
     @Mapping(target = "login", source = "login")
     UserDTO toDtoUserLogin(User user);
-
-    @Named("courseTitle")
-    @BeanMapping(ignoreByDefault = true)
-    @Mapping(target = "id", source = "id")
-    @Mapping(target = "title", source = "title")
-    CourseDTO toDtoCourseTitle(Course course);
 }

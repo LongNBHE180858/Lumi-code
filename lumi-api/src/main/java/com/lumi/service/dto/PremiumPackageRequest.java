@@ -1,5 +1,6 @@
 package com.lumi.service.dto;
 
+import com.lumi.domain.enumeration.PremiumAiLimitPeriod;
 import com.lumi.domain.enumeration.PremiumPackageType;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.Digits;
@@ -16,5 +17,6 @@ public record PremiumPackageRequest(
     @NotNull @Min(1) Integer durationDays,
     @NotNull @Min(0) Long storageQuotaMb,
     @NotNull @Min(0) Integer aiGenerationLimit,
+    @NotNull PremiumAiLimitPeriod aiLimitPeriod,
     @Min(1) Integer maxClasses
 ) {}

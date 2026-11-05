@@ -66,9 +66,9 @@ class StudyClassResourceIT {
     private static final Integer UPDATED_MAX_STUDENTS = 2;
     private static final Integer SMALLER_MAX_STUDENTS = 1 - 1;
 
-    private static final Integer DEFAULT_CURRENT_STUDENTS = 0;
-    private static final Integer UPDATED_CURRENT_STUDENTS = 1;
-    private static final Integer SMALLER_CURRENT_STUDENTS = 0 - 1;
+    private static final Integer DEFAULT_CURRENT_STUDENTS = 1;
+    private static final Integer UPDATED_CURRENT_STUDENTS = 2;
+    private static final Integer SMALLER_CURRENT_STUDENTS = 1 - 1;
 
     private static final RecordStatus DEFAULT_STATUS = RecordStatus.DRAFT;
     private static final RecordStatus UPDATED_STATUS = RecordStatus.PENDING;
@@ -78,6 +78,12 @@ class StudyClassResourceIT {
 
     private static final Instant DEFAULT_CREATED_AT = Instant.ofEpochMilli(0L);
     private static final Instant UPDATED_CREATED_AT = Instant.ofEpochMilli(1791835009362L);
+
+    private static final Instant DEFAULT_JOIN_CODE_EXPIRES_AT = Instant.ofEpochMilli(0L);
+    private static final Instant UPDATED_JOIN_CODE_EXPIRES_AT = Instant.ofEpochMilli(1791835009362L);
+
+    private static final Instant DEFAULT_UPDATED_AT = Instant.ofEpochMilli(0L);
+    private static final Instant UPDATED_UPDATED_AT = Instant.ofEpochMilli(1791835009362L);
 
     private static final String ENTITY_API_URL = "/api/study-classes";
     private static final String ENTITY_API_URL_ID = ENTITY_API_URL + "/{id}";
@@ -129,7 +135,9 @@ class StudyClassResourceIT {
             .currentStudents(DEFAULT_CURRENT_STUDENTS)
             .status(DEFAULT_STATUS)
             .isDeleted(DEFAULT_IS_DELETED)
-            .createdAt(DEFAULT_CREATED_AT);
+            .createdAt(DEFAULT_CREATED_AT)
+            .joinCodeExpiresAt(DEFAULT_JOIN_CODE_EXPIRES_AT)
+            .updatedAt(DEFAULT_UPDATED_AT);
         // Add required entity
         User user = UserResourceIT.createEntity();
         em.persist(user);
@@ -154,7 +162,9 @@ class StudyClassResourceIT {
             .currentStudents(UPDATED_CURRENT_STUDENTS)
             .status(UPDATED_STATUS)
             .isDeleted(UPDATED_IS_DELETED)
-            .createdAt(UPDATED_CREATED_AT);
+            .createdAt(UPDATED_CREATED_AT)
+            .joinCodeExpiresAt(UPDATED_JOIN_CODE_EXPIRES_AT)
+            .updatedAt(UPDATED_UPDATED_AT);
         // Add required entity
         User user = UserResourceIT.createEntity();
         em.persist(user);
@@ -237,6 +247,23 @@ class StudyClassResourceIT {
 
     @Test
     @Transactional
+    void checkUpdatedAtIsRequired() throws Exception {
+        long databaseSizeBeforeTest = getRepositoryCount();
+        // set the field null
+        studyClass.setUpdatedAt(null);
+
+        // Create the StudyClass, which fails.
+        StudyClassDTO studyClassDTO = studyClassMapper.toDto(studyClass);
+
+        restStudyClassMockMvc
+            .perform(post(ENTITY_API_URL).contentType(MediaType.APPLICATION_JSON).content(om.writeValueAsBytes(studyClassDTO)))
+            .andExpect(status().isBadRequest());
+
+        assertSameRepositoryCount(databaseSizeBeforeTest);
+    }
+
+    @Test
+    @Transactional
     void getAllStudyClasses() throws Exception {
         // Initialize the database
         insertedStudyClass = studyClassRepository.saveAndFlush(studyClass);
@@ -255,7 +282,9 @@ class StudyClassResourceIT {
             .andExpect(jsonPath("$.[*].currentStudents").value(hasItem(DEFAULT_CURRENT_STUDENTS)))
             .andExpect(jsonPath("$.[*].status").value(hasItem(DEFAULT_STATUS.toString())))
             .andExpect(jsonPath("$.[*].isDeleted").value(hasItem(DEFAULT_IS_DELETED)))
-            .andExpect(jsonPath("$.[*].createdAt").value(hasItem(DEFAULT_CREATED_AT.toString())));
+            .andExpect(jsonPath("$.[*].createdAt").value(hasItem(DEFAULT_CREATED_AT.toString())))
+            .andExpect(jsonPath("$.[*].joinCodeExpiresAt").value(hasItem(DEFAULT_JOIN_CODE_EXPIRES_AT.toString())))
+            .andExpect(jsonPath("$.[*].updatedAt").value(hasItem(DEFAULT_UPDATED_AT.toString())));
     }
 
     @SuppressWarnings({ "unchecked" })
@@ -295,7 +324,9 @@ class StudyClassResourceIT {
             .andExpect(jsonPath("$.currentStudents").value(DEFAULT_CURRENT_STUDENTS))
             .andExpect(jsonPath("$.status").value(DEFAULT_STATUS.toString()))
             .andExpect(jsonPath("$.isDeleted").value(DEFAULT_IS_DELETED))
-            .andExpect(jsonPath("$.createdAt").value(DEFAULT_CREATED_AT.toString()));
+            .andExpect(jsonPath("$.createdAt").value(DEFAULT_CREATED_AT.toString()))
+            .andExpect(jsonPath("$.joinCodeExpiresAt").value(DEFAULT_JOIN_CODE_EXPIRES_AT.toString()))
+            .andExpect(jsonPath("$.updatedAt").value(DEFAULT_UPDATED_AT.toString()));
     }
 
     @Test
@@ -361,62 +392,6 @@ class StudyClassResourceIT {
 
         // Get all the studyClassList where name does not contain
         defaultStudyClassFiltering("name.doesNotContain=" + UPDATED_NAME, "name.doesNotContain=" + DEFAULT_NAME);
-    }
-
-    @Test
-    @Transactional
-    void getAllStudyClassesByDescriptionIsEqualToSomething() throws Exception {
-        // Initialize the database
-        insertedStudyClass = studyClassRepository.saveAndFlush(studyClass);
-
-        // Get all the studyClassList where description equals to
-        defaultStudyClassFiltering("description.equals=" + DEFAULT_DESCRIPTION, "description.equals=" + UPDATED_DESCRIPTION);
-    }
-
-    @Test
-    @Transactional
-    void getAllStudyClassesByDescriptionIsInShouldWork() throws Exception {
-        // Initialize the database
-        insertedStudyClass = studyClassRepository.saveAndFlush(studyClass);
-
-        // Get all the studyClassList where description in
-        defaultStudyClassFiltering(
-            "description.in=" + DEFAULT_DESCRIPTION + "," + UPDATED_DESCRIPTION,
-            "description.in=" + UPDATED_DESCRIPTION
-        );
-    }
-
-    @Test
-    @Transactional
-    void getAllStudyClassesByDescriptionIsNullOrNotNull() throws Exception {
-        // Initialize the database
-        insertedStudyClass = studyClassRepository.saveAndFlush(studyClass);
-
-        // Get all the studyClassList where description is not null
-        defaultStudyClassFiltering("description.specified=true", "description.specified=false");
-    }
-
-    @Test
-    @Transactional
-    void getAllStudyClassesByDescriptionContainsSomething() throws Exception {
-        // Initialize the database
-        insertedStudyClass = studyClassRepository.saveAndFlush(studyClass);
-
-        // Get all the studyClassList where description contains
-        defaultStudyClassFiltering("description.contains=" + DEFAULT_DESCRIPTION, "description.contains=" + UPDATED_DESCRIPTION);
-    }
-
-    @Test
-    @Transactional
-    void getAllStudyClassesByDescriptionNotContainsSomething() throws Exception {
-        // Initialize the database
-        insertedStudyClass = studyClassRepository.saveAndFlush(studyClass);
-
-        // Get all the studyClassList where description does not contain
-        defaultStudyClassFiltering(
-            "description.doesNotContain=" + UPDATED_DESCRIPTION,
-            "description.doesNotContain=" + DEFAULT_DESCRIPTION
-        );
     }
 
     @Test
@@ -758,6 +733,72 @@ class StudyClassResourceIT {
 
     @Test
     @Transactional
+    void getAllStudyClassesByJoinCodeExpiresAtIsEqualToSomething() throws Exception {
+        // Initialize the database
+        insertedStudyClass = studyClassRepository.saveAndFlush(studyClass);
+
+        // Get all the studyClassList where joinCodeExpiresAt equals to
+        defaultStudyClassFiltering(
+            "joinCodeExpiresAt.equals=" + DEFAULT_JOIN_CODE_EXPIRES_AT,
+            "joinCodeExpiresAt.equals=" + UPDATED_JOIN_CODE_EXPIRES_AT
+        );
+    }
+
+    @Test
+    @Transactional
+    void getAllStudyClassesByJoinCodeExpiresAtIsInShouldWork() throws Exception {
+        // Initialize the database
+        insertedStudyClass = studyClassRepository.saveAndFlush(studyClass);
+
+        // Get all the studyClassList where joinCodeExpiresAt in
+        defaultStudyClassFiltering(
+            "joinCodeExpiresAt.in=" + DEFAULT_JOIN_CODE_EXPIRES_AT + "," + UPDATED_JOIN_CODE_EXPIRES_AT,
+            "joinCodeExpiresAt.in=" + UPDATED_JOIN_CODE_EXPIRES_AT
+        );
+    }
+
+    @Test
+    @Transactional
+    void getAllStudyClassesByJoinCodeExpiresAtIsNullOrNotNull() throws Exception {
+        // Initialize the database
+        insertedStudyClass = studyClassRepository.saveAndFlush(studyClass);
+
+        // Get all the studyClassList where joinCodeExpiresAt is not null
+        defaultStudyClassFiltering("joinCodeExpiresAt.specified=true", "joinCodeExpiresAt.specified=false");
+    }
+
+    @Test
+    @Transactional
+    void getAllStudyClassesByUpdatedAtIsEqualToSomething() throws Exception {
+        // Initialize the database
+        insertedStudyClass = studyClassRepository.saveAndFlush(studyClass);
+
+        // Get all the studyClassList where updatedAt equals to
+        defaultStudyClassFiltering("updatedAt.equals=" + DEFAULT_UPDATED_AT, "updatedAt.equals=" + UPDATED_UPDATED_AT);
+    }
+
+    @Test
+    @Transactional
+    void getAllStudyClassesByUpdatedAtIsInShouldWork() throws Exception {
+        // Initialize the database
+        insertedStudyClass = studyClassRepository.saveAndFlush(studyClass);
+
+        // Get all the studyClassList where updatedAt in
+        defaultStudyClassFiltering("updatedAt.in=" + DEFAULT_UPDATED_AT + "," + UPDATED_UPDATED_AT, "updatedAt.in=" + UPDATED_UPDATED_AT);
+    }
+
+    @Test
+    @Transactional
+    void getAllStudyClassesByUpdatedAtIsNullOrNotNull() throws Exception {
+        // Initialize the database
+        insertedStudyClass = studyClassRepository.saveAndFlush(studyClass);
+
+        // Get all the studyClassList where updatedAt is not null
+        defaultStudyClassFiltering("updatedAt.specified=true", "updatedAt.specified=false");
+    }
+
+    @Test
+    @Transactional
     void getAllStudyClassesByInstructorIsEqualToSomething() throws Exception {
         User instructor;
         if (TestUtil.findAll(em, User.class).isEmpty()) {
@@ -844,7 +885,9 @@ class StudyClassResourceIT {
             .andExpect(jsonPath("$.[*].currentStudents").value(hasItem(DEFAULT_CURRENT_STUDENTS)))
             .andExpect(jsonPath("$.[*].status").value(hasItem(DEFAULT_STATUS.toString())))
             .andExpect(jsonPath("$.[*].isDeleted").value(hasItem(DEFAULT_IS_DELETED)))
-            .andExpect(jsonPath("$.[*].createdAt").value(hasItem(DEFAULT_CREATED_AT.toString())));
+            .andExpect(jsonPath("$.[*].createdAt").value(hasItem(DEFAULT_CREATED_AT.toString())))
+            .andExpect(jsonPath("$.[*].joinCodeExpiresAt").value(hasItem(DEFAULT_JOIN_CODE_EXPIRES_AT.toString())))
+            .andExpect(jsonPath("$.[*].updatedAt").value(hasItem(DEFAULT_UPDATED_AT.toString())));
 
         // Check, that the count call also returns 1
         restStudyClassMockMvc
@@ -901,7 +944,9 @@ class StudyClassResourceIT {
             .currentStudents(UPDATED_CURRENT_STUDENTS)
             .status(UPDATED_STATUS)
             .isDeleted(UPDATED_IS_DELETED)
-            .createdAt(UPDATED_CREATED_AT);
+            .createdAt(UPDATED_CREATED_AT)
+            .joinCodeExpiresAt(UPDATED_JOIN_CODE_EXPIRES_AT)
+            .updatedAt(UPDATED_UPDATED_AT);
         StudyClassDTO studyClassDTO = studyClassMapper.toDto(updatedStudyClass);
 
         restStudyClassMockMvc
@@ -996,7 +1041,8 @@ class StudyClassResourceIT {
             .joinMode(UPDATED_JOIN_MODE)
             .maxStudents(UPDATED_MAX_STUDENTS)
             .currentStudents(UPDATED_CURRENT_STUDENTS)
-            .createdAt(UPDATED_CREATED_AT);
+            .createdAt(UPDATED_CREATED_AT)
+            .joinCodeExpiresAt(UPDATED_JOIN_CODE_EXPIRES_AT);
 
         restStudyClassMockMvc
             .perform(
@@ -1036,7 +1082,9 @@ class StudyClassResourceIT {
             .currentStudents(UPDATED_CURRENT_STUDENTS)
             .status(UPDATED_STATUS)
             .isDeleted(UPDATED_IS_DELETED)
-            .createdAt(UPDATED_CREATED_AT);
+            .createdAt(UPDATED_CREATED_AT)
+            .joinCodeExpiresAt(UPDATED_JOIN_CODE_EXPIRES_AT)
+            .updatedAt(UPDATED_UPDATED_AT);
 
         restStudyClassMockMvc
             .perform(

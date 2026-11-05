@@ -64,11 +64,16 @@
       "Notification",
       "AuditLog",
       "AssignmentStudent",
-      "CourseReviewRequest"
+      "CourseReviewRequest",
+      "LessonProgress",
+      "StudentKnowledgeProgress",
+      "LearningDocument",
+      "AiGeneratedContent",
+      "QuestionKnowledgeLink"
     ],
     "jhipsterVersion": "9.4.0",
     "languages": ["vi", "en"],
-    "lastLiquibaseTimestamp": 1792005077000,
+    "lastLiquibaseTimestamp": 1793691880000,
     "microfrontend": null,
     "microfrontends": [],
     "nativeLanguage": "vi",

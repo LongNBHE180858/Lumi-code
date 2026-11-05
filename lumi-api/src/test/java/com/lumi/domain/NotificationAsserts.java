@@ -51,7 +51,10 @@ public class NotificationAsserts {
             .satisfies(a -> assertThat(a.getContent()).as("check content").isEqualTo(expected.getContent()))
             .satisfies(a -> assertThat(a.getIsRead()).as("check isRead").isEqualTo(expected.getIsRead()))
             .satisfies(a -> assertThat(a.getType()).as("check type").isEqualTo(expected.getType()))
-            .satisfies(a -> assertThat(a.getCreatedAt()).as("check createdAt").isEqualTo(expected.getCreatedAt()));
+            .satisfies(a -> assertThat(a.getCreatedAt()).as("check createdAt").isEqualTo(expected.getCreatedAt()))
+            .satisfies(a -> assertThat(a.getTargetType()).as("check targetType").isEqualTo(expected.getTargetType()))
+            .satisfies(a -> assertThat(a.getTargetId()).as("check targetId").isEqualTo(expected.getTargetId()))
+            .satisfies(a -> assertThat(a.getReadAt()).as("check readAt").isEqualTo(expected.getReadAt()));
     }
 
     /**

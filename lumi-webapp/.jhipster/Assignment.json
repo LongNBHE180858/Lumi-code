@@ -3,7 +3,9 @@
     "changelogDate": "20261012231710"
   },
   "applications": ["*"],
+  "documentation": "Lưu bài tập được giáo viên giao trong lớp và liên kết đề nếu có.",
   "dto": "mapstruct",
+  "entityTableName": "assignments",
   "fields": [
     {
       "fieldName": "title",
@@ -13,9 +15,7 @@
     },
     {
       "fieldName": "instructions",
-      "fieldType": "String",
-      "fieldValidateRules": ["maxlength"],
-      "fieldValidateRulesMaxlength": "5000"
+      "fieldType": "TextBlob"
     },
     {
       "fieldName": "dueAt",
@@ -23,9 +23,7 @@
     },
     {
       "fieldName": "maxScore",
-      "fieldType": "BigDecimal",
-      "fieldValidateRules": ["min"],
-      "fieldValidateRulesMin": "0"
+      "fieldType": "BigDecimal"
     },
     {
       "fieldName": "allowLate",
@@ -34,6 +32,22 @@
     {
       "fieldName": "isDeleted",
       "fieldType": "Boolean"
+    },
+    {
+      "fieldName": "status",
+      "fieldType": "String",
+      "fieldValidateRules": ["required", "maxlength"],
+      "fieldValidateRulesMaxlength": "20"
+    },
+    {
+      "fieldName": "createdAt",
+      "fieldType": "Instant",
+      "fieldValidateRules": ["required"]
+    },
+    {
+      "fieldName": "updatedAt",
+      "fieldType": "Instant",
+      "fieldValidateRules": ["required"]
     }
   ],
   "jpaMetamodelFiltering": true,
@@ -41,12 +55,26 @@
   "pagination": "pagination",
   "relationships": [
     {
-      "otherEntityField": "name",
       "otherEntityName": "studyClass",
       "relationshipName": "studyClass",
       "relationshipSide": "left",
       "relationshipType": "many-to-one",
       "relationshipValidateRules": "required"
+    },
+    {
+      "otherEntityField": "login",
+      "otherEntityName": "user",
+      "relationshipName": "assignedBy",
+      "relationshipSide": "left",
+      "relationshipType": "many-to-one",
+      "relationshipValidateRules": "required",
+      "relationshipWithBuiltInEntity": true
+    },
+    {
+      "otherEntityName": "exam",
+      "relationshipName": "exam",
+      "relationshipSide": "left",
+      "relationshipType": "many-to-one"
     }
   ],
   "service": "serviceImpl"

@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { Button, Table } from 'react-bootstrap';
-import { JhiItemCount, JhiPagination, Translate, getPaginationState } from 'react-jhipster';
+import { JhiItemCount, JhiPagination, TextFormat, Translate, getPaginationState } from 'react-jhipster';
 import { Link, useLocation, useNavigate } from 'react-router';
 
 import { faSort, faSortDown, faSortUp } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
+import { APP_DATE_FORMAT } from 'app/config/constants';
 import { useAppDispatch, useAppSelector } from 'app/config/store';
 import { overridePaginationStateWithQueryParams } from 'app/shared/util/entity-utils';
 import { ASC, DESC, ITEMS_PER_PAGE, SORT } from 'app/shared/util/pagination.constants';
@@ -117,9 +118,25 @@ export const Lesson = () => {
                 <th className="hand" onClick={sort('title')}>
                   <Translate contentKey="lumiApp.lesson.title">Title</Translate> <FontAwesomeIcon icon={getSortIconByFieldName('title')} />
                 </th>
+                <th className="hand" onClick={sort('description')}>
+                  <Translate contentKey="lumiApp.lesson.description">Description</Translate>{' '}
+                  <FontAwesomeIcon icon={getSortIconByFieldName('description')} />
+                </th>
                 <th className="hand" onClick={sort('contentType')}>
                   <Translate contentKey="lumiApp.lesson.contentType">Content Type</Translate>{' '}
                   <FontAwesomeIcon icon={getSortIconByFieldName('contentType')} />
+                </th>
+                <th className="hand" onClick={sort('videoUrl')}>
+                  <Translate contentKey="lumiApp.lesson.videoUrl">Video Url</Translate>{' '}
+                  <FontAwesomeIcon icon={getSortIconByFieldName('videoUrl')} />
+                </th>
+                <th className="hand" onClick={sort('videoFileName')}>
+                  <Translate contentKey="lumiApp.lesson.videoFileName">Video File Name</Translate>{' '}
+                  <FontAwesomeIcon icon={getSortIconByFieldName('videoFileName')} />
+                </th>
+                <th className="hand" onClick={sort('videoSizeBytes')}>
+                  <Translate contentKey="lumiApp.lesson.videoSizeBytes">Video Size Bytes</Translate>{' '}
+                  <FontAwesomeIcon icon={getSortIconByFieldName('videoSizeBytes')} />
                 </th>
                 <th className="hand" onClick={sort('orderIndex')}>
                   <Translate contentKey="lumiApp.lesson.orderIndex">Order Index</Translate>{' '}
@@ -137,20 +154,20 @@ export const Lesson = () => {
                   <Translate contentKey="lumiApp.lesson.status">Status</Translate>{' '}
                   <FontAwesomeIcon icon={getSortIconByFieldName('status')} />
                 </th>
+                <th className="hand" onClick={sort('durationSeconds')}>
+                  <Translate contentKey="lumiApp.lesson.durationSeconds">Duration Seconds</Translate>{' '}
+                  <FontAwesomeIcon icon={getSortIconByFieldName('durationSeconds')} />
+                </th>
+                <th className="hand" onClick={sort('videoObjectKey')}>
+                  <Translate contentKey="lumiApp.lesson.videoObjectKey">Video Object Key</Translate>{' '}
+                  <FontAwesomeIcon icon={getSortIconByFieldName('videoObjectKey')} />
+                </th>
+                <th className="hand" onClick={sort('updatedAt')}>
+                  <Translate contentKey="lumiApp.lesson.updatedAt">Updated At</Translate>{' '}
+                  <FontAwesomeIcon icon={getSortIconByFieldName('updatedAt')} />
+                </th>
                 <th>
                   <Translate contentKey="lumiApp.lesson.chapter">Chapter</Translate> <FontAwesomeIcon icon="sort" />
-                </th>
-                <th>
-                  <Translate contentKey="lumiApp.lesson.description" />
-                </th>
-                <th>
-                  <Translate contentKey="lumiApp.lesson.videoUrl" />
-                </th>
-                <th>
-                  <Translate contentKey="lumiApp.lesson.videoFileName" />
-                </th>
-                <th>
-                  <Translate contentKey="lumiApp.lesson.videoSizeBytes" />
                 </th>
                 <th />
               </tr>
@@ -164,18 +181,21 @@ export const Lesson = () => {
                     </Button>
                   </td>
                   <td>{lesson.title}</td>
+                  <td>{lesson.description}</td>
                   <td>{lesson.contentType}</td>
+                  <td>{lesson.videoUrl}</td>
+                  <td>{lesson.videoFileName}</td>
+                  <td>{lesson.videoSizeBytes}</td>
                   <td>{lesson.orderIndex}</td>
                   <td>{lesson.isPreview ? 'true' : 'false'}</td>
                   <td>{lesson.durationMinutes}</td>
                   <td>
                     <Translate contentKey={`lumiApp.RecordStatus.${lesson.status}`} />
                   </td>
-                  <td>{lesson.chapter ? <Link to={`/chapter/${lesson.chapter.id}`}>{lesson.chapter.title}</Link> : ''}</td>
-                  <td>{lesson.description}</td>
-                  <td>{lesson.videoUrl}</td>
-                  <td>{lesson.videoFileName}</td>
-                  <td>{lesson.videoSizeBytes}</td>
+                  <td>{lesson.durationSeconds}</td>
+                  <td>{lesson.videoObjectKey}</td>
+                  <td>{lesson.updatedAt ? <TextFormat type="date" value={lesson.updatedAt} format={APP_DATE_FORMAT} /> : null}</td>
+                  <td>{lesson.chapter ? <Link to={`/chapter/${lesson.chapter.id}`}>{lesson.chapter.id}</Link> : ''}</td>
                   <td className="text-end">
                     <div className="btn-group flex-btn-group-container">
                       <Button as={Link as any} to={`/lesson/${lesson.id}`} variant="info" size="sm" data-cy="entityDetailsButton">

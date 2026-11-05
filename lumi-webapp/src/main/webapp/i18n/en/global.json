@@ -12,7 +12,6 @@
         "teacherVerification": "Teacher Verification",
         "parentStudentLink": "Parent Student Link",
         "authSession": "Auth Session",
-        "category": "Category",
         "subject": "Subject",
         "grade": "Grade",
         "course": "Course",
@@ -59,7 +58,13 @@
         "contentReport": "Content Report",
         "notification": "Notification",
         "auditLog": "Audit Log",
-        "assignmentStudent": "Assignment Student"
+        "assignmentStudent": "Assignment Student",
+        "courseReviewRequest": "Course Review Request",
+        "lessonProgress": "Lesson Progress",
+        "studentKnowledgeProgress": "Student Knowledge Progress",
+        "learningDocument": "Learning Document",
+        "aiGeneratedContent": "Ai Generated Content",
+        "questionKnowledgeLink": "Question Knowledge Link"
       },
       "account": {
         "main": "Account",

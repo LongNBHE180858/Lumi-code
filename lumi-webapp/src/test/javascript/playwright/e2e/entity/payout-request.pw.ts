@@ -12,7 +12,7 @@ import {
 import { expect, test } from '../../support/fixtures';
 
 const payoutRequestPageUrl = '/payout-request';
-// const payoutRequestSample = {"amount":26957.8,"bankCode":"voluntarily sometimes oh","bankAccount":"unlike"};
+// const payoutRequestSample = {"amount":16886.4,"bankCode":"yum","bankAccount":"reluctantly ack webbed","accountHolderName":"bestride","updatedAt":"2026-10-12T10:04:49.904Z"};
 
 const payoutRequestApiUrl = '/api/payout-requests';
 
@@ -47,6 +47,12 @@ test.describe('PayoutRequest e2e test', () => {
     await page.route(
       url => url.pathname === '/api/instructor-wallets',
       route => route.fulfill({ status: 200, json: [instructorWallet].filter(Boolean) }),
+    );
+    // A url predicate rather than a glob: a glob's wildcards would close the "Disabled due to
+    // incompatibility" block comment that wraps this section when the create test is skipped.
+    await page.route(
+      url => url.pathname === '/api/users',
+      route => route.fulfill({ status: 200, json: [].filter(Boolean) }),
     );
   });
    */
@@ -229,6 +235,23 @@ test.describe('PayoutRequest e2e test', () => {
       await page.locator(`[data-cy="createdAt"]`).fill('2026-10-11T23:47');
       await page.locator(`[data-cy="createdAt"]`).blur();
       await expect(page.locator(`[data-cy="createdAt"]`)).toHaveValue('2026-10-11T23:47');
+
+      await page.locator(`[data-cy="accountHolderName"]`).fill('barring dismal brr');
+      await expect(page.locator(`[data-cy="accountHolderName"]`)).toHaveValue('barring dismal brr');
+
+      await page.locator(`[data-cy="processedAt"]`).fill('2026-10-11T23:49');
+      await page.locator(`[data-cy="processedAt"]`).blur();
+      await expect(page.locator(`[data-cy="processedAt"]`)).toHaveValue('2026-10-11T23:49');
+
+      await page.locator(`[data-cy="rejectionReason"]`).fill('../fake-data/blob/hipster.txt');
+      await expect(page.locator(`[data-cy="rejectionReason"]`)).toHaveValue(new RegExp('../fake-data/blob/hipster.txt'));
+
+      await page.locator(`[data-cy="transferReference"]`).fill('unlike');
+      await expect(page.locator(`[data-cy="transferReference"]`)).toHaveValue('unlike');
+
+      await page.locator(`[data-cy="updatedAt"]`).fill('2026-10-12T04:08');
+      await page.locator(`[data-cy="updatedAt"]`).blur();
+      await expect(page.locator(`[data-cy="updatedAt"]`)).toHaveValue('2026-10-12T04:08');
 
       await page.locator(`[data-cy="wallet"]`).selectOption({ index: 1 });
 

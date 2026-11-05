@@ -21,7 +21,7 @@
       "pendingAmount": "Pending Amount",
       "availableAmount": "Available Amount",
       "rowVersion": "Row Version",
-      "user": "User"
+      "instructor": "Instructor"
     }
   }
 }

@@ -30,13 +30,15 @@ public class TeacherVerificationCriteria implements Serializable, Criteria {
 
     private StringFilter verificationStatus;
 
-    private StringFilter notes;
-
     private InstantFilter submittedAt;
 
     private InstantFilter approvedAt;
 
+    private InstantFilter reviewedAt;
+
     private LongFilter userId;
+
+    private LongFilter reviewedById;
 
     private Boolean distinct;
 
@@ -46,10 +48,11 @@ public class TeacherVerificationCriteria implements Serializable, Criteria {
         this.id = other.optionalId().map(LongFilter::copy).orElse(null);
         this.identityDocumentUrl = other.optionalIdentityDocumentUrl().map(StringFilter::copy).orElse(null);
         this.verificationStatus = other.optionalVerificationStatus().map(StringFilter::copy).orElse(null);
-        this.notes = other.optionalNotes().map(StringFilter::copy).orElse(null);
         this.submittedAt = other.optionalSubmittedAt().map(InstantFilter::copy).orElse(null);
         this.approvedAt = other.optionalApprovedAt().map(InstantFilter::copy).orElse(null);
+        this.reviewedAt = other.optionalReviewedAt().map(InstantFilter::copy).orElse(null);
         this.userId = other.optionalUserId().map(LongFilter::copy).orElse(null);
+        this.reviewedById = other.optionalReviewedById().map(LongFilter::copy).orElse(null);
         this.distinct = other.distinct;
     }
 
@@ -115,25 +118,6 @@ public class TeacherVerificationCriteria implements Serializable, Criteria {
         this.verificationStatus = verificationStatus;
     }
 
-    public StringFilter getNotes() {
-        return notes;
-    }
-
-    public Optional<StringFilter> optionalNotes() {
-        return Optional.ofNullable(notes);
-    }
-
-    public StringFilter notes() {
-        if (notes == null) {
-            setNotes(new StringFilter());
-        }
-        return notes;
-    }
-
-    public void setNotes(StringFilter notes) {
-        this.notes = notes;
-    }
-
     public InstantFilter getSubmittedAt() {
         return submittedAt;
     }
@@ -172,6 +156,25 @@ public class TeacherVerificationCriteria implements Serializable, Criteria {
         this.approvedAt = approvedAt;
     }
 
+    public InstantFilter getReviewedAt() {
+        return reviewedAt;
+    }
+
+    public Optional<InstantFilter> optionalReviewedAt() {
+        return Optional.ofNullable(reviewedAt);
+    }
+
+    public InstantFilter reviewedAt() {
+        if (reviewedAt == null) {
+            setReviewedAt(new InstantFilter());
+        }
+        return reviewedAt;
+    }
+
+    public void setReviewedAt(InstantFilter reviewedAt) {
+        this.reviewedAt = reviewedAt;
+    }
+
     public LongFilter getUserId() {
         return userId;
     }
@@ -189,6 +192,25 @@ public class TeacherVerificationCriteria implements Serializable, Criteria {
 
     public void setUserId(LongFilter userId) {
         this.userId = userId;
+    }
+
+    public LongFilter getReviewedById() {
+        return reviewedById;
+    }
+
+    public Optional<LongFilter> optionalReviewedById() {
+        return Optional.ofNullable(reviewedById);
+    }
+
+    public LongFilter reviewedById() {
+        if (reviewedById == null) {
+            setReviewedById(new LongFilter());
+        }
+        return reviewedById;
+    }
+
+    public void setReviewedById(LongFilter reviewedById) {
+        this.reviewedById = reviewedById;
     }
 
     public Boolean getDistinct() {
@@ -223,17 +245,28 @@ public class TeacherVerificationCriteria implements Serializable, Criteria {
             Objects.equals(id, that.id) &&
             Objects.equals(identityDocumentUrl, that.identityDocumentUrl) &&
             Objects.equals(verificationStatus, that.verificationStatus) &&
-            Objects.equals(notes, that.notes) &&
             Objects.equals(submittedAt, that.submittedAt) &&
             Objects.equals(approvedAt, that.approvedAt) &&
+            Objects.equals(reviewedAt, that.reviewedAt) &&
             Objects.equals(userId, that.userId) &&
+            Objects.equals(reviewedById, that.reviewedById) &&
             Objects.equals(distinct, that.distinct)
         );
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, identityDocumentUrl, verificationStatus, notes, submittedAt, approvedAt, userId, distinct);
+        return Objects.hash(
+            id,
+            identityDocumentUrl,
+            verificationStatus,
+            submittedAt,
+            approvedAt,
+            reviewedAt,
+            userId,
+            reviewedById,
+            distinct
+        );
     }
 
     // prettier-ignore
@@ -243,10 +276,11 @@ public class TeacherVerificationCriteria implements Serializable, Criteria {
             optionalId().map(f -> "id=" + f + ", ").orElse("") +
             optionalIdentityDocumentUrl().map(f -> "identityDocumentUrl=" + f + ", ").orElse("") +
             optionalVerificationStatus().map(f -> "verificationStatus=" + f + ", ").orElse("") +
-            optionalNotes().map(f -> "notes=" + f + ", ").orElse("") +
             optionalSubmittedAt().map(f -> "submittedAt=" + f + ", ").orElse("") +
             optionalApprovedAt().map(f -> "approvedAt=" + f + ", ").orElse("") +
+            optionalReviewedAt().map(f -> "reviewedAt=" + f + ", ").orElse("") +
             optionalUserId().map(f -> "userId=" + f + ", ").orElse("") +
+            optionalReviewedById().map(f -> "reviewedById=" + f + ", ").orElse("") +
             optionalDistinct().map(f -> "distinct=" + f + ", ").orElse("") +
         "}";
     }

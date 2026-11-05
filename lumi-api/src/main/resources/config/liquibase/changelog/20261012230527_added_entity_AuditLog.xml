@@ -10,7 +10,7 @@
         Added the entity AuditLog.
     -->
     <changeSet id="20261012230527-1" author="jhipster">
-        <createTable tableName="audit_log">
+        <createTable tableName="audit_logs" remarks="Lưu dấu vết hành động và thay đổi dữ liệu quan trọng trong hệ thống.">
             <column name="id" type="bigint">
                 <constraints primaryKey="true" nullable="false"/>
             </column>
@@ -26,18 +26,18 @@
             <column name="ip_address" type="varchar(50)">
                 <constraints nullable="true" />
             </column>
-            <column name="details" type="varchar(5000)">
+            <column name="details" type="${clobType}">
                 <constraints nullable="true" />
             </column>
             <column name="occurred_at" type="${datetimeType}">
                 <constraints nullable="true" />
             </column>
             <column name="actor_id" type="bigint">
-                <constraints nullable="true" />
+                <constraints nullable="false" />
             </column>
             <!-- jhipster-needle-liquibase-add-column - JHipster will add columns here -->
         </createTable>
-        <dropDefaultValue tableName="audit_log" columnName="occurred_at" columnDataType="${datetimeType}"/>
+        <dropDefaultValue tableName="audit_logs" columnName="occurred_at" columnDataType="${datetimeType}"/>
     </changeSet>
 
     <!-- jhipster-needle-liquibase-add-changeset - JHipster will add changesets here -->
@@ -52,18 +52,19 @@
     -->
     <changeSet id="20261012230527-1-data" author="jhipster" context="faker">
         <loadData
-                  file="../fake-data/audit_log.csv"
+                  file="../fake-data/audit_logs.csv"
                   relativeToChangelogFile="true"
                   separator=";"
-                  tableName="audit_log"
+                  tableName="audit_logs"
                   usePreparedStatements="true">
             <column name="id" type="numeric"/>
             <column name="action" type="string"/>
             <column name="target_entity" type="string"/>
             <column name="target_id" type="string"/>
             <column name="ip_address" type="string"/>
-            <column name="details" type="string"/>
+            <column name="details" type="clob"/>
             <column name="occurred_at" type="date"/>
+            <column name="actor_id" type="numeric"/>
             <!-- jhipster-needle-liquibase-add-loadcolumn - JHipster (and/or extensions) can add load columns here -->
         </loadData>
     </changeSet>

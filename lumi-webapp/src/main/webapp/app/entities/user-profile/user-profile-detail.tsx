@@ -5,7 +5,7 @@ import { Link, useParams } from 'react-router';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
-import { APP_DATE_FORMAT } from 'app/config/constants';
+import { APP_DATE_FORMAT, APP_LOCAL_DATE_FORMAT } from 'app/config/constants';
 import { useAppDispatch, useAppSelector } from 'app/config/store';
 
 import { getEntity } from './user-profile.reducer';
@@ -76,6 +76,16 @@ export const UserProfileDetail = () => {
           </dt>
           <dd>
             {userProfileEntity.updatedAt ? <TextFormat value={userProfileEntity.updatedAt} type="date" format={APP_DATE_FORMAT} /> : null}
+          </dd>
+          <dt>
+            <span id="birthDate">
+              <Translate contentKey="lumiApp.userProfile.birthDate">Birth Date</Translate>
+            </span>
+          </dt>
+          <dd>
+            {userProfileEntity.birthDate ? (
+              <TextFormat value={userProfileEntity.birthDate} type="date" format={APP_LOCAL_DATE_FORMAT} />
+            ) : null}
           </dd>
           <dt>
             <Translate contentKey="lumiApp.userProfile.user">User</Translate>

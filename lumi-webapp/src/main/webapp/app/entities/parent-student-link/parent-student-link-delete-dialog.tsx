@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Button, Modal, ModalBody, ModalFooter, ModalHeader } from 'react-bootstrap';
 import { Translate } from 'react-jhipster';
-import { useNavigate, useParams } from 'react-router';
+import { useLocation, useNavigate, useParams } from 'react-router';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
@@ -11,6 +11,7 @@ import { deleteEntity, getEntity } from './parent-student-link.reducer';
 
 export const ParentStudentLinkDeleteDialog = () => {
   const dispatch = useAppDispatch();
+  const pageLocation = useLocation();
   const navigate = useNavigate();
   const { id } = useParams<'id'>();
 
@@ -25,7 +26,7 @@ export const ParentStudentLinkDeleteDialog = () => {
   const updateSuccess = useAppSelector(state => state.parentStudentLink.updateSuccess);
 
   const handleClose = () => {
-    navigate('/parent-student-link');
+    navigate(`/parent-student-link${pageLocation.search}`);
   };
 
   useEffect(() => {

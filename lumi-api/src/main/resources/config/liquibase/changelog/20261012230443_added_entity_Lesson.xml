@@ -10,15 +10,27 @@
         Added the entity Lesson.
     -->
     <changeSet id="20261012230443-1" author="jhipster">
-        <createTable tableName="lesson">
+        <createTable tableName="lessons" remarks="Lưu bài học, video và thứ tự bài trong chương.">
             <column name="id" type="bigint">
                 <constraints primaryKey="true" nullable="false"/>
             </column>
             <column name="title" type="varchar(255)">
                 <constraints nullable="false" />
             </column>
+            <column name="description" type="${clobType}">
+                <constraints nullable="true" />
+            </column>
             <column name="content_type" type="varchar(20)">
                 <constraints nullable="false" />
+            </column>
+            <column name="video_url" type="varchar(1000)">
+                <constraints nullable="true" />
+            </column>
+            <column name="video_file_name" type="varchar(255)">
+                <constraints nullable="true" />
+            </column>
+            <column name="video_size_bytes" type="bigint">
+                <constraints nullable="true" />
             </column>
             <column name="order_index" type="integer">
                 <constraints nullable="false" />
@@ -32,11 +44,21 @@
             <column name="status" type="varchar(255)">
                 <constraints nullable="true" />
             </column>
+            <column name="duration_seconds" type="integer">
+                <constraints nullable="true" />
+            </column>
+            <column name="video_object_key" type="varchar(1000)">
+                <constraints nullable="true" />
+            </column>
+            <column name="updated_at" type="${datetimeType}">
+                <constraints nullable="false" />
+            </column>
             <column name="chapter_id" type="bigint">
                 <constraints nullable="false" />
             </column>
             <!-- jhipster-needle-liquibase-add-column - JHipster will add columns here -->
         </createTable>
+        <dropDefaultValue tableName="lessons" columnName="updated_at" columnDataType="${datetimeType}"/>
     </changeSet>
 
     <!-- jhipster-needle-liquibase-add-changeset - JHipster will add changesets here -->
@@ -51,18 +73,25 @@
     -->
     <changeSet id="20261012230443-1-data" author="jhipster" context="faker">
         <loadData
-                  file="../fake-data/lesson.csv"
+                  file="../fake-data/lessons.csv"
                   relativeToChangelogFile="true"
                   separator=";"
-                  tableName="lesson"
+                  tableName="lessons"
                   usePreparedStatements="true">
             <column name="id" type="numeric"/>
             <column name="title" type="string"/>
+            <column name="description" type="clob"/>
             <column name="content_type" type="string"/>
+            <column name="video_url" type="string"/>
+            <column name="video_file_name" type="string"/>
+            <column name="video_size_bytes" type="numeric"/>
             <column name="order_index" type="numeric"/>
             <column name="is_preview" type="boolean"/>
             <column name="duration_minutes" type="numeric"/>
             <column name="status" type="string"/>
+            <column name="duration_seconds" type="numeric"/>
+            <column name="video_object_key" type="string"/>
+            <column name="updated_at" type="date"/>
             <column name="chapter_id" type="numeric"/>
             <!-- jhipster-needle-liquibase-add-loadcolumn - JHipster (and/or extensions) can add load columns here -->
         </loadData>

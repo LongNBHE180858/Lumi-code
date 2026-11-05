@@ -1,5 +1,7 @@
 package com.lumi.service.dto;
 
+import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.persistence.Lob;
 import jakarta.validation.constraints.*;
 import java.io.Serializable;
 import java.util.Objects;
@@ -7,6 +9,7 @@ import java.util.Objects;
 /**
  * A DTO for the {@link com.lumi.domain.Subject} entity.
  */
+@Schema(description = "Lưu danh mục môn học của hệ thống.")
 @SuppressWarnings("common-java:DuplicatedBlocks")
 public class SubjectDTO implements Serializable {
 
@@ -16,18 +19,8 @@ public class SubjectDTO implements Serializable {
     @Size(max = 100)
     private String name;
 
-    @Size(max = 5000)
+    @Lob
     private String description;
-
-    private Boolean active;
-
-    public Boolean getActive() {
-        return active;
-    }
-
-    public void setActive(Boolean active) {
-        this.active = active;
-    }
 
     public Long getId() {
         return id;

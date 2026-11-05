@@ -1,6 +1,7 @@
 package com.lumi.service.dto;
 
 import com.lumi.domain.SystemPlan;
+import com.lumi.domain.enumeration.PremiumPackageStatus;
 import com.lumi.domain.enumeration.PremiumPackageType;
 import java.math.BigDecimal;
 
@@ -16,22 +17,25 @@ public record PremiumPackageDTO(
     Integer coveredPeople,
     Integer revision,
     boolean available,
-    boolean needsClassification
+    boolean needsClassification,
+    String aiLimitPeriod
 ) {
-    public static PremiumPackageDTO from(SystemPlan plan) {
+    public static PremiumPackageDTO from(SystemPlan plan, int revision) {
+        PremiumPackageType type = PremiumPackageType.from(plan.getPlanType(), plan.getTargetRole());
         return new PremiumPackageDTO(
             plan.getId(),
             plan.getName(),
-            plan.getPackageType(),
+            type,
             plan.getPrice(),
             plan.getDurationDays(),
             plan.getStorageQuotaMb(),
             plan.getAiGenerationLimit(),
-            plan.getMaxClasses(),
-            plan.getPackageType() == PremiumPackageType.PARENT_FAMILY ? 4 : null,
-            plan.getRevision(),
-            Boolean.TRUE.equals(plan.getAvailable()),
-            plan.getPackageType() == null
+            type == PremiumPackageType.INSTRUCTOR_CLASS || type == PremiumPackageType.INSTRUCTOR_PERSONAL ? plan.getMaxClasses() : null,
+            type == PremiumPackageType.PARENT_FAMILY ? 4 : null,
+            revision,
+            PremiumPackageStatus.AVAILABLE.name().equals(plan.getStatus()),
+            type == null,
+            plan.getAiLimitPeriod()
         );
     }
 }

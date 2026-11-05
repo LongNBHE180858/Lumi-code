@@ -12,7 +12,7 @@ import {
 import { expect, test } from '../../support/fixtures';
 
 const subjectPageUrl = '/subject';
-const subjectSample = { name: 'indeed gee' };
+const subjectSample = { name: 'cautiously duh' };
 
 const subjectApiUrl = '/api/subjects';
 
@@ -167,8 +167,8 @@ test.describe('Subject e2e test', () => {
       await page.locator(`[data-cy="name"]`).fill('pine ew');
       await expect(page.locator(`[data-cy="name"]`)).toHaveValue('pine ew');
 
-      await page.locator(`[data-cy="description"]`).fill('cautiously duh');
-      await expect(page.locator(`[data-cy="description"]`)).toHaveValue('cautiously duh');
+      await page.locator(`[data-cy="description"]`).fill('../fake-data/blob/hipster.txt');
+      await expect(page.locator(`[data-cy="description"]`)).toHaveValue(new RegExp('../fake-data/blob/hipster.txt'));
 
       const postRequest = page.waitForResponse(
         response => new URL(response.url()).pathname === subjectApiUrl && response.request().method() === 'POST',

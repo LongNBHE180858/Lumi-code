@@ -1,17 +1,17 @@
 package com.lumi.domain;
 
-import com.lumi.domain.enumeration.PremiumPackageType;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import java.io.Serial;
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.time.Instant;
 
 /**
- * A SystemPlan.
+ * Lưu gói dịch vụ, giá, thời hạn và hạn mức quyền lợi.
  */
 @Entity
-@Table(name = "system_plan")
+@Table(name = "system_plans")
 @SuppressWarnings("common-java:DuplicatedBlocks")
 public class SystemPlan implements Serializable {
 
@@ -30,48 +30,54 @@ public class SystemPlan implements Serializable {
     private String name;
 
     @NotNull
-    @DecimalMin(value = "0")
     @Column(name = "price", precision = 21, scale = 2, nullable = false)
     private BigDecimal price;
 
     @NotNull
-    @Min(value = 1)
     @Column(name = "duration_days", nullable = false)
     private Integer durationDays;
 
     @NotNull
-    @Min(value = 0L)
     @Column(name = "storage_quota_mb", nullable = false)
     private Long storageQuotaMb;
 
     @NotNull
-    @Min(value = 0)
     @Column(name = "ai_generation_limit", nullable = false)
     private Integer aiGenerationLimit;
-
-    @Min(value = 1)
-    @Column(name = "max_classes")
-    private Integer maxClasses;
-
-    @Enumerated(EnumType.STRING)
-    @Column(name = "package_type", length = 40)
-    private PremiumPackageType packageType;
 
     @Column(name = "package_key", length = 36)
     private String packageKey;
 
     @NotNull
-    @Min(value = 1)
-    @Column(name = "revision", nullable = false)
-    private Integer revision = 1;
+    @Column(name = "max_classes", nullable = false)
+    private Integer maxClasses;
 
     @NotNull
-    @Column(name = "current_revision", nullable = false)
-    private Boolean currentRevision = true;
+    @Size(max = 30)
+    @Column(name = "plan_type", length = 30, nullable = false)
+    private String planType;
 
     @NotNull
-    @Column(name = "available", nullable = false)
-    private Boolean available = false;
+    @Size(max = 20)
+    @Column(name = "target_role", length = 20, nullable = false)
+    private String targetRole;
+
+    @NotNull
+    @Size(max = 20)
+    @Column(name = "status", length = 20, nullable = false)
+    private String status;
+
+    @NotNull
+    @Size(max = 20)
+    @Column(name = "ai_limit_period", length = 20, nullable = false)
+    private String aiLimitPeriod;
+
+    @Column(name = "features", nullable = false, columnDefinition = "text")
+    private String features;
+
+    @NotNull
+    @Column(name = "updated_at", nullable = false)
+    private Instant updatedAt;
 
     // jhipster-needle-entity-add-field - JHipster will add fields here
 
@@ -153,6 +159,19 @@ public class SystemPlan implements Serializable {
         this.aiGenerationLimit = aiGenerationLimit;
     }
 
+    public String getPackageKey() {
+        return this.packageKey;
+    }
+
+    public SystemPlan packageKey(String packageKey) {
+        this.setPackageKey(packageKey);
+        return this;
+    }
+
+    public void setPackageKey(String packageKey) {
+        this.packageKey = packageKey;
+    }
+
     public Integer getMaxClasses() {
         return this.maxClasses;
     }
@@ -166,44 +185,82 @@ public class SystemPlan implements Serializable {
         this.maxClasses = maxClasses;
     }
 
-    public PremiumPackageType getPackageType() {
-        return packageType;
+    public String getPlanType() {
+        return this.planType;
     }
 
-    public void setPackageType(PremiumPackageType packageType) {
-        this.packageType = packageType;
+    public SystemPlan planType(String planType) {
+        this.setPlanType(planType);
+        return this;
     }
 
-    public String getPackageKey() {
-        return packageKey;
+    public void setPlanType(String planType) {
+        this.planType = planType;
     }
 
-    public void setPackageKey(String packageKey) {
-        this.packageKey = packageKey;
+    public String getTargetRole() {
+        return this.targetRole;
     }
 
-    public Integer getRevision() {
-        return revision;
+    public SystemPlan targetRole(String targetRole) {
+        this.setTargetRole(targetRole);
+        return this;
     }
 
-    public void setRevision(Integer revision) {
-        this.revision = revision;
+    public void setTargetRole(String targetRole) {
+        this.targetRole = targetRole;
     }
 
-    public Boolean getCurrentRevision() {
-        return currentRevision;
+    public String getStatus() {
+        return this.status;
     }
 
-    public void setCurrentRevision(Boolean currentRevision) {
-        this.currentRevision = currentRevision;
+    public SystemPlan status(String status) {
+        this.setStatus(status);
+        return this;
     }
 
-    public Boolean getAvailable() {
-        return available;
+    public void setStatus(String status) {
+        this.status = status;
     }
 
-    public void setAvailable(Boolean available) {
-        this.available = available;
+    public String getAiLimitPeriod() {
+        return this.aiLimitPeriod;
+    }
+
+    public SystemPlan aiLimitPeriod(String aiLimitPeriod) {
+        this.setAiLimitPeriod(aiLimitPeriod);
+        return this;
+    }
+
+    public void setAiLimitPeriod(String aiLimitPeriod) {
+        this.aiLimitPeriod = aiLimitPeriod;
+    }
+
+    public String getFeatures() {
+        return this.features;
+    }
+
+    public SystemPlan features(String features) {
+        this.setFeatures(features);
+        return this;
+    }
+
+    public void setFeatures(String features) {
+        this.features = features;
+    }
+
+    public Instant getUpdatedAt() {
+        return this.updatedAt;
+    }
+
+    public SystemPlan updatedAt(Instant updatedAt) {
+        this.setUpdatedAt(updatedAt);
+        return this;
+    }
+
+    public void setUpdatedAt(Instant updatedAt) {
+        this.updatedAt = updatedAt;
     }
 
     // jhipster-needle-entity-add-getters-setters - JHipster will add getters and setters here
@@ -235,7 +292,14 @@ public class SystemPlan implements Serializable {
             ", durationDays=" + getDurationDays() +
             ", storageQuotaMb=" + getStorageQuotaMb() +
             ", aiGenerationLimit=" + getAiGenerationLimit() +
+            ", packageKey='" + getPackageKey() + "'" +
             ", maxClasses=" + getMaxClasses() +
+            ", planType='" + getPlanType() + "'" +
+            ", targetRole='" + getTargetRole() + "'" +
+            ", status='" + getStatus() + "'" +
+            ", aiLimitPeriod='" + getAiLimitPeriod() + "'" +
+            ", features='" + getFeatures() + "'" +
+            ", updatedAt='" + getUpdatedAt() + "'" +
             "}";
     }
 }

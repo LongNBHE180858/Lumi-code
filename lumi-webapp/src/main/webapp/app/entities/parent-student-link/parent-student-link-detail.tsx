@@ -56,6 +56,74 @@ export const ParentStudentLinkDetail = () => {
             ) : null}
           </dd>
           <dt>
+            <span id="createdAt">
+              <Translate contentKey="lumiApp.parentStudentLink.createdAt">Created At</Translate>
+            </span>
+          </dt>
+          <dd>
+            {parentStudentLinkEntity.createdAt ? (
+              <TextFormat value={parentStudentLinkEntity.createdAt} type="date" format={APP_DATE_FORMAT} />
+            ) : null}
+          </dd>
+          <dt>
+            <span id="codeExpiresAt">
+              <Translate contentKey="lumiApp.parentStudentLink.codeExpiresAt">Code Expires At</Translate>
+            </span>
+          </dt>
+          <dd>
+            {parentStudentLinkEntity.codeExpiresAt ? (
+              <TextFormat value={parentStudentLinkEntity.codeExpiresAt} type="date" format={APP_DATE_FORMAT} />
+            ) : null}
+          </dd>
+          <dt>
+            <span id="confirmedAt">
+              <Translate contentKey="lumiApp.parentStudentLink.confirmedAt">Confirmed At</Translate>
+            </span>
+          </dt>
+          <dd>
+            {parentStudentLinkEntity.confirmedAt ? (
+              <TextFormat value={parentStudentLinkEntity.confirmedAt} type="date" format={APP_DATE_FORMAT} />
+            ) : null}
+          </dd>
+          <dt>
+            <span id="revokedAt">
+              <Translate contentKey="lumiApp.parentStudentLink.revokedAt">Revoked At</Translate>
+            </span>
+          </dt>
+          <dd>
+            {parentStudentLinkEntity.revokedAt ? (
+              <TextFormat value={parentStudentLinkEntity.revokedAt} type="date" format={APP_DATE_FORMAT} />
+            ) : null}
+          </dd>
+          <dt>
+            <span id="relationshipType">
+              <Translate contentKey="lumiApp.parentStudentLink.relationshipType">Relationship Type</Translate>
+            </span>
+          </dt>
+          <dd>{parentStudentLinkEntity.relationshipType}</dd>
+          <dt>
+            <span id="guardianVerificationStatus">
+              <Translate contentKey="lumiApp.parentStudentLink.guardianVerificationStatus">Guardian Verification Status</Translate>
+            </span>
+          </dt>
+          <dd>{parentStudentLinkEntity.guardianVerificationStatus}</dd>
+          <dt>
+            <span id="guardianVerifiedAt">
+              <Translate contentKey="lumiApp.parentStudentLink.guardianVerifiedAt">Guardian Verified At</Translate>
+            </span>
+          </dt>
+          <dd>
+            {parentStudentLinkEntity.guardianVerifiedAt ? (
+              <TextFormat value={parentStudentLinkEntity.guardianVerifiedAt} type="date" format={APP_DATE_FORMAT} />
+            ) : null}
+          </dd>
+          <dt>
+            <span id="guardianVerificationNote">
+              <Translate contentKey="lumiApp.parentStudentLink.guardianVerificationNote">Guardian Verification Note</Translate>
+            </span>
+          </dt>
+          <dd>{parentStudentLinkEntity.guardianVerificationNote}</dd>
+          <dt>
             <Translate contentKey="lumiApp.parentStudentLink.parent">Parent</Translate>
           </dt>
           <dd>{parentStudentLinkEntity.parent ? parentStudentLinkEntity.parent.login : ''}</dd>
@@ -63,6 +131,14 @@ export const ParentStudentLinkDetail = () => {
             <Translate contentKey="lumiApp.parentStudentLink.student">Student</Translate>
           </dt>
           <dd>{parentStudentLinkEntity.student ? parentStudentLinkEntity.student.login : ''}</dd>
+          <dt>
+            <Translate contentKey="lumiApp.parentStudentLink.confirmedBy">Confirmed By</Translate>
+          </dt>
+          <dd>{parentStudentLinkEntity.confirmedBy ? parentStudentLinkEntity.confirmedBy.login : ''}</dd>
+          <dt>
+            <Translate contentKey="lumiApp.parentStudentLink.guardianVerifiedBy">Guardian Verified By</Translate>
+          </dt>
+          <dd>{parentStudentLinkEntity.guardianVerifiedBy ? parentStudentLinkEntity.guardianVerifiedBy.login : ''}</dd>
         </dl>
         <Button as={Link as any} to="/parent-student-link" replace variant="info" data-cy="entityDetailsBackButton">
           <FontAwesomeIcon icon="arrow-left" />{' '}

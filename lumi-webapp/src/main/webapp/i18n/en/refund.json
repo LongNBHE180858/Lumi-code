@@ -22,8 +22,13 @@
       "reason": "Reason",
       "status": "Status",
       "createdAt": "Created At",
+      "processedAt": "Processed At",
+      "reviewNote": "Review Note",
+      "refundReference": "Refund Reference",
+      "accessRevokedAt": "Access Revoked At",
       "order": "Order",
-      "payment": "Payment"
+      "payment": "Payment",
+      "processedBy": "Processed By"
     }
   }
 }

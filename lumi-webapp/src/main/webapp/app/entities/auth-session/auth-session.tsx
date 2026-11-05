@@ -152,6 +152,10 @@ export const AuthSession = () => {
                     <Translate contentKey="lumiApp.authSession.createdAt">Created At</Translate>{' '}
                     <FontAwesomeIcon icon={getSortIconByFieldName('createdAt')} />
                   </th>
+                  <th className="hand" onClick={sort('refreshTokenHash')}>
+                    <Translate contentKey="lumiApp.authSession.refreshTokenHash">Refresh Token Hash</Translate>{' '}
+                    <FontAwesomeIcon icon={getSortIconByFieldName('refreshTokenHash')} />
+                  </th>
                   <th>
                     <Translate contentKey="lumiApp.authSession.user">User</Translate> <FontAwesomeIcon icon="sort" />
                   </th>
@@ -175,6 +179,7 @@ export const AuthSession = () => {
                     <td>
                       {authSession.createdAt ? <TextFormat type="date" value={authSession.createdAt} format={APP_DATE_FORMAT} /> : null}
                     </td>
+                    <td>{authSession.refreshTokenHash}</td>
                     <td>{authSession.user ? authSession.user.login : ''}</td>
                     <td className="text-end">
                       <div className="btn-group flex-btn-group-container">

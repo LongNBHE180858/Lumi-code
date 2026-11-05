@@ -70,7 +70,44 @@ public class CourseOrderAsserts {
             .satisfies(a -> assertThat(a.getStatus()).as("check status").isEqualTo(expected.getStatus()))
             .satisfies(a -> assertThat(a.getIdempotencyKey()).as("check idempotencyKey").isEqualTo(expected.getIdempotencyKey()))
             .satisfies(a -> assertThat(a.getRowVersion()).as("check rowVersion").isEqualTo(expected.getRowVersion()))
-            .satisfies(a -> assertThat(a.getCreatedAt()).as("check createdAt").isEqualTo(expected.getCreatedAt()));
+            .satisfies(a -> assertThat(a.getCreatedAt()).as("check createdAt").isEqualTo(expected.getCreatedAt()))
+            .satisfies(a ->
+                assertThat(a.getInstructorSharePercent())
+                    .as("check instructorSharePercent")
+                    .usingComparator(bigDecimalCompareTo)
+                    .isEqualTo(expected.getInstructorSharePercent())
+            )
+            .satisfies(a ->
+                assertThat(a.getInstructorAmount())
+                    .as("check instructorAmount")
+                    .usingComparator(bigDecimalCompareTo)
+                    .isEqualTo(expected.getInstructorAmount())
+            )
+            .satisfies(a ->
+                assertThat(a.getPlatformAmount())
+                    .as("check platformAmount")
+                    .usingComparator(bigDecimalCompareTo)
+                    .isEqualTo(expected.getPlatformAmount())
+            )
+            .satisfies(a -> assertThat(a.getOrderType()).as("check orderType").isEqualTo(expected.getOrderType()))
+            .satisfies(a -> assertThat(a.getExpiresAt()).as("check expiresAt").isEqualTo(expected.getExpiresAt()))
+            .satisfies(a -> assertThat(a.getPaidAt()).as("check paidAt").isEqualTo(expected.getPaidAt()))
+            .satisfies(a ->
+                assertThat(a.getAccessDurationValue()).as("check accessDurationValue").isEqualTo(expected.getAccessDurationValue())
+            )
+            .satisfies(a ->
+                assertThat(a.getAccessDurationUnit()).as("check accessDurationUnit").isEqualTo(expected.getAccessDurationUnit())
+            )
+            .satisfies(a ->
+                assertThat(a.getEntitlementStartsAt()).as("check entitlementStartsAt").isEqualTo(expected.getEntitlementStartsAt())
+            )
+            .satisfies(a ->
+                assertThat(a.getEntitlementExpiresAt()).as("check entitlementExpiresAt").isEqualTo(expected.getEntitlementExpiresAt())
+            )
+            .satisfies(a -> assertThat(a.getEntitlementStatus()).as("check entitlementStatus").isEqualTo(expected.getEntitlementStatus()))
+            .satisfies(a -> assertThat(a.getPlanSnapshot()).as("check planSnapshot").isEqualTo(expected.getPlanSnapshot()))
+            .satisfies(a -> assertThat(a.getUpdatedAt()).as("check updatedAt").isEqualTo(expected.getUpdatedAt()))
+            .satisfies(a -> assertThat(a.getPricingSnapshot()).as("check pricingSnapshot").isEqualTo(expected.getPricingSnapshot()));
     }
 
     /**

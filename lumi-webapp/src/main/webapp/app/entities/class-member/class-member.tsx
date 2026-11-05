@@ -123,11 +123,23 @@ export const ClassMember = () => {
                   <Translate contentKey="lumiApp.classMember.joinedAt">Joined At</Translate>{' '}
                   <FontAwesomeIcon icon={getSortIconByFieldName('joinedAt')} />
                 </th>
-                <th>
-                  <Translate contentKey="lumiApp.classMember.student">Student</Translate> <FontAwesomeIcon icon="sort" />
+                <th className="hand" onClick={sort('requestedAt')}>
+                  <Translate contentKey="lumiApp.classMember.requestedAt">Requested At</Translate>{' '}
+                  <FontAwesomeIcon icon={getSortIconByFieldName('requestedAt')} />
+                </th>
+                <th className="hand" onClick={sort('leftAt')}>
+                  <Translate contentKey="lumiApp.classMember.leftAt">Left At</Translate>{' '}
+                  <FontAwesomeIcon icon={getSortIconByFieldName('leftAt')} />
+                </th>
+                <th className="hand" onClick={sort('updatedAt')}>
+                  <Translate contentKey="lumiApp.classMember.updatedAt">Updated At</Translate>{' '}
+                  <FontAwesomeIcon icon={getSortIconByFieldName('updatedAt')} />
                 </th>
                 <th>
                   <Translate contentKey="lumiApp.classMember.studyClass">Study Class</Translate> <FontAwesomeIcon icon="sort" />
+                </th>
+                <th>
+                  <Translate contentKey="lumiApp.classMember.student">Student</Translate> <FontAwesomeIcon icon="sort" />
                 </th>
                 <th />
               </tr>
@@ -142,14 +154,21 @@ export const ClassMember = () => {
                   </td>
                   <td>{classMember.status}</td>
                   <td>{classMember.joinedAt ? <TextFormat type="date" value={classMember.joinedAt} format={APP_DATE_FORMAT} /> : null}</td>
-                  <td>{classMember.student ? classMember.student.login : ''}</td>
+                  <td>
+                    {classMember.requestedAt ? <TextFormat type="date" value={classMember.requestedAt} format={APP_DATE_FORMAT} /> : null}
+                  </td>
+                  <td>{classMember.leftAt ? <TextFormat type="date" value={classMember.leftAt} format={APP_DATE_FORMAT} /> : null}</td>
+                  <td>
+                    {classMember.updatedAt ? <TextFormat type="date" value={classMember.updatedAt} format={APP_DATE_FORMAT} /> : null}
+                  </td>
                   <td>
                     {classMember.studyClass ? (
-                      <Link to={`/study-class/${classMember.studyClass.id}`}>{classMember.studyClass.name}</Link>
+                      <Link to={`/study-class/${classMember.studyClass.id}`}>{classMember.studyClass.id}</Link>
                     ) : (
                       ''
                     )}
                   </td>
+                  <td>{classMember.student ? classMember.student.login : ''}</td>
                   <td className="text-end">
                     <div className="btn-group flex-btn-group-container">
                       <Button

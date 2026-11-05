@@ -43,7 +43,7 @@ import tools.jackson.databind.ObjectMapper;
 @IntegrationTest
 @ExtendWith(MockitoExtension.class)
 @AutoConfigureMockMvc
-@WithMockUser(authorities = "ROLE_ADMIN")
+@WithMockUser
 class TeacherVerificationResourceIT {
 
     private static final String DEFAULT_IDENTITY_DOCUMENT_URL = "AAAAAAAAAA";
@@ -60,6 +60,9 @@ class TeacherVerificationResourceIT {
 
     private static final Instant DEFAULT_APPROVED_AT = Instant.ofEpochMilli(0L);
     private static final Instant UPDATED_APPROVED_AT = Instant.ofEpochMilli(1791835009362L);
+
+    private static final Instant DEFAULT_REVIEWED_AT = Instant.ofEpochMilli(0L);
+    private static final Instant UPDATED_REVIEWED_AT = Instant.ofEpochMilli(1791835009362L);
 
     private static final String ENTITY_API_URL = "/api/teacher-verifications";
     private static final String ENTITY_API_URL_ID = ENTITY_API_URL + "/{id}";
@@ -107,7 +110,8 @@ class TeacherVerificationResourceIT {
             .verificationStatus(DEFAULT_VERIFICATION_STATUS)
             .notes(DEFAULT_NOTES)
             .submittedAt(DEFAULT_SUBMITTED_AT)
-            .approvedAt(DEFAULT_APPROVED_AT);
+            .approvedAt(DEFAULT_APPROVED_AT)
+            .reviewedAt(DEFAULT_REVIEWED_AT);
         // Add required entity
         User user = UserResourceIT.createEntity();
         em.persist(user);
@@ -128,7 +132,8 @@ class TeacherVerificationResourceIT {
             .verificationStatus(UPDATED_VERIFICATION_STATUS)
             .notes(UPDATED_NOTES)
             .submittedAt(UPDATED_SUBMITTED_AT)
-            .approvedAt(UPDATED_APPROVED_AT);
+            .approvedAt(UPDATED_APPROVED_AT)
+            .reviewedAt(UPDATED_REVIEWED_AT);
         // Add required entity
         User user = UserResourceIT.createEntity();
         em.persist(user);
@@ -228,7 +233,8 @@ class TeacherVerificationResourceIT {
             .andExpect(jsonPath("$.[*].verificationStatus").value(hasItem(DEFAULT_VERIFICATION_STATUS)))
             .andExpect(jsonPath("$.[*].notes").value(hasItem(DEFAULT_NOTES)))
             .andExpect(jsonPath("$.[*].submittedAt").value(hasItem(DEFAULT_SUBMITTED_AT.toString())))
-            .andExpect(jsonPath("$.[*].approvedAt").value(hasItem(DEFAULT_APPROVED_AT.toString())));
+            .andExpect(jsonPath("$.[*].approvedAt").value(hasItem(DEFAULT_APPROVED_AT.toString())))
+            .andExpect(jsonPath("$.[*].reviewedAt").value(hasItem(DEFAULT_REVIEWED_AT.toString())));
     }
 
     @SuppressWarnings({ "unchecked" })
@@ -264,7 +270,8 @@ class TeacherVerificationResourceIT {
             .andExpect(jsonPath("$.verificationStatus").value(DEFAULT_VERIFICATION_STATUS))
             .andExpect(jsonPath("$.notes").value(DEFAULT_NOTES))
             .andExpect(jsonPath("$.submittedAt").value(DEFAULT_SUBMITTED_AT.toString()))
-            .andExpect(jsonPath("$.approvedAt").value(DEFAULT_APPROVED_AT.toString()));
+            .andExpect(jsonPath("$.approvedAt").value(DEFAULT_APPROVED_AT.toString()))
+            .andExpect(jsonPath("$.reviewedAt").value(DEFAULT_REVIEWED_AT.toString()));
     }
 
     @Test
@@ -408,56 +415,6 @@ class TeacherVerificationResourceIT {
 
     @Test
     @Transactional
-    void getAllTeacherVerificationsByNotesIsEqualToSomething() throws Exception {
-        // Initialize the database
-        insertedTeacherVerification = teacherVerificationRepository.saveAndFlush(teacherVerification);
-
-        // Get all the teacherVerificationList where notes equals to
-        defaultTeacherVerificationFiltering("notes.equals=" + DEFAULT_NOTES, "notes.equals=" + UPDATED_NOTES);
-    }
-
-    @Test
-    @Transactional
-    void getAllTeacherVerificationsByNotesIsInShouldWork() throws Exception {
-        // Initialize the database
-        insertedTeacherVerification = teacherVerificationRepository.saveAndFlush(teacherVerification);
-
-        // Get all the teacherVerificationList where notes in
-        defaultTeacherVerificationFiltering("notes.in=" + DEFAULT_NOTES + "," + UPDATED_NOTES, "notes.in=" + UPDATED_NOTES);
-    }
-
-    @Test
-    @Transactional
-    void getAllTeacherVerificationsByNotesIsNullOrNotNull() throws Exception {
-        // Initialize the database
-        insertedTeacherVerification = teacherVerificationRepository.saveAndFlush(teacherVerification);
-
-        // Get all the teacherVerificationList where notes is not null
-        defaultTeacherVerificationFiltering("notes.specified=true", "notes.specified=false");
-    }
-
-    @Test
-    @Transactional
-    void getAllTeacherVerificationsByNotesContainsSomething() throws Exception {
-        // Initialize the database
-        insertedTeacherVerification = teacherVerificationRepository.saveAndFlush(teacherVerification);
-
-        // Get all the teacherVerificationList where notes contains
-        defaultTeacherVerificationFiltering("notes.contains=" + DEFAULT_NOTES, "notes.contains=" + UPDATED_NOTES);
-    }
-
-    @Test
-    @Transactional
-    void getAllTeacherVerificationsByNotesNotContainsSomething() throws Exception {
-        // Initialize the database
-        insertedTeacherVerification = teacherVerificationRepository.saveAndFlush(teacherVerification);
-
-        // Get all the teacherVerificationList where notes does not contain
-        defaultTeacherVerificationFiltering("notes.doesNotContain=" + UPDATED_NOTES, "notes.doesNotContain=" + DEFAULT_NOTES);
-    }
-
-    @Test
-    @Transactional
     void getAllTeacherVerificationsBySubmittedAtIsEqualToSomething() throws Exception {
         // Initialize the database
         insertedTeacherVerification = teacherVerificationRepository.saveAndFlush(teacherVerification);
@@ -524,9 +481,50 @@ class TeacherVerificationResourceIT {
 
     @Test
     @Transactional
+    void getAllTeacherVerificationsByReviewedAtIsEqualToSomething() throws Exception {
+        // Initialize the database
+        insertedTeacherVerification = teacherVerificationRepository.saveAndFlush(teacherVerification);
+
+        // Get all the teacherVerificationList where reviewedAt equals to
+        defaultTeacherVerificationFiltering("reviewedAt.equals=" + DEFAULT_REVIEWED_AT, "reviewedAt.equals=" + UPDATED_REVIEWED_AT);
+    }
+
+    @Test
+    @Transactional
+    void getAllTeacherVerificationsByReviewedAtIsInShouldWork() throws Exception {
+        // Initialize the database
+        insertedTeacherVerification = teacherVerificationRepository.saveAndFlush(teacherVerification);
+
+        // Get all the teacherVerificationList where reviewedAt in
+        defaultTeacherVerificationFiltering(
+            "reviewedAt.in=" + DEFAULT_REVIEWED_AT + "," + UPDATED_REVIEWED_AT,
+            "reviewedAt.in=" + UPDATED_REVIEWED_AT
+        );
+    }
+
+    @Test
+    @Transactional
+    void getAllTeacherVerificationsByReviewedAtIsNullOrNotNull() throws Exception {
+        // Initialize the database
+        insertedTeacherVerification = teacherVerificationRepository.saveAndFlush(teacherVerification);
+
+        // Get all the teacherVerificationList where reviewedAt is not null
+        defaultTeacherVerificationFiltering("reviewedAt.specified=true", "reviewedAt.specified=false");
+    }
+
+    @Test
+    @Transactional
     void getAllTeacherVerificationsByUserIsEqualToSomething() throws Exception {
-        // Get already existing entity
-        User user = teacherVerification.getUser();
+        User user;
+        if (TestUtil.findAll(em, User.class).isEmpty()) {
+            teacherVerificationRepository.saveAndFlush(teacherVerification);
+            user = UserResourceIT.createEntity();
+        } else {
+            user = TestUtil.findAll(em, User.class).getFirst();
+        }
+        em.persist(user);
+        em.flush();
+        teacherVerification.setUser(user);
         teacherVerificationRepository.saveAndFlush(teacherVerification);
         Long userId = user.getId();
         // Get all the teacherVerificationList where user equals to userId
@@ -534,6 +532,28 @@ class TeacherVerificationResourceIT {
 
         // Get all the teacherVerificationList where user equals to (userId + 1)
         defaultTeacherVerificationShouldNotBeFound("userId.equals=" + (userId + 1));
+    }
+
+    @Test
+    @Transactional
+    void getAllTeacherVerificationsByReviewedByIsEqualToSomething() throws Exception {
+        User reviewedBy;
+        if (TestUtil.findAll(em, User.class).isEmpty()) {
+            teacherVerificationRepository.saveAndFlush(teacherVerification);
+            reviewedBy = UserResourceIT.createEntity();
+        } else {
+            reviewedBy = TestUtil.findAll(em, User.class).getFirst();
+        }
+        em.persist(reviewedBy);
+        em.flush();
+        teacherVerification.setReviewedBy(reviewedBy);
+        teacherVerificationRepository.saveAndFlush(teacherVerification);
+        Long reviewedById = reviewedBy.getId();
+        // Get all the teacherVerificationList where reviewedBy equals to reviewedById
+        defaultTeacherVerificationShouldBeFound("reviewedById.equals=" + reviewedById);
+
+        // Get all the teacherVerificationList where reviewedBy equals to (reviewedById + 1)
+        defaultTeacherVerificationShouldNotBeFound("reviewedById.equals=" + (reviewedById + 1));
     }
 
     private void defaultTeacherVerificationFiltering(String shouldBeFound, String shouldNotBeFound) throws Exception {
@@ -554,7 +574,8 @@ class TeacherVerificationResourceIT {
             .andExpect(jsonPath("$.[*].verificationStatus").value(hasItem(DEFAULT_VERIFICATION_STATUS)))
             .andExpect(jsonPath("$.[*].notes").value(hasItem(DEFAULT_NOTES)))
             .andExpect(jsonPath("$.[*].submittedAt").value(hasItem(DEFAULT_SUBMITTED_AT.toString())))
-            .andExpect(jsonPath("$.[*].approvedAt").value(hasItem(DEFAULT_APPROVED_AT.toString())));
+            .andExpect(jsonPath("$.[*].approvedAt").value(hasItem(DEFAULT_APPROVED_AT.toString())))
+            .andExpect(jsonPath("$.[*].reviewedAt").value(hasItem(DEFAULT_REVIEWED_AT.toString())));
 
         // Check, that the count call also returns 1
         restTeacherVerificationMockMvc
@@ -607,7 +628,8 @@ class TeacherVerificationResourceIT {
             .verificationStatus(UPDATED_VERIFICATION_STATUS)
             .notes(UPDATED_NOTES)
             .submittedAt(UPDATED_SUBMITTED_AT)
-            .approvedAt(UPDATED_APPROVED_AT);
+            .approvedAt(UPDATED_APPROVED_AT)
+            .reviewedAt(UPDATED_REVIEWED_AT);
         TeacherVerificationDTO teacherVerificationDTO = teacherVerificationMapper.toDto(updatedTeacherVerification);
 
         restTeacherVerificationMockMvc
@@ -700,7 +722,8 @@ class TeacherVerificationResourceIT {
         partialUpdatedTeacherVerification
             .verificationStatus(UPDATED_VERIFICATION_STATUS)
             .submittedAt(UPDATED_SUBMITTED_AT)
-            .approvedAt(UPDATED_APPROVED_AT);
+            .approvedAt(UPDATED_APPROVED_AT)
+            .reviewedAt(UPDATED_REVIEWED_AT);
 
         restTeacherVerificationMockMvc
             .perform(
@@ -736,7 +759,8 @@ class TeacherVerificationResourceIT {
             .verificationStatus(UPDATED_VERIFICATION_STATUS)
             .notes(UPDATED_NOTES)
             .submittedAt(UPDATED_SUBMITTED_AT)
-            .approvedAt(UPDATED_APPROVED_AT);
+            .approvedAt(UPDATED_APPROVED_AT)
+            .reviewedAt(UPDATED_REVIEWED_AT);
 
         restTeacherVerificationMockMvc
             .perform(

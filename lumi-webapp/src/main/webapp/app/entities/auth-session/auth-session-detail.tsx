@@ -68,6 +68,12 @@ export const AuthSessionDetail = () => {
             {authSessionEntity.createdAt ? <TextFormat value={authSessionEntity.createdAt} type="date" format={APP_DATE_FORMAT} /> : null}
           </dd>
           <dt>
+            <span id="refreshTokenHash">
+              <Translate contentKey="lumiApp.authSession.refreshTokenHash">Refresh Token Hash</Translate>
+            </span>
+          </dt>
+          <dd>{authSessionEntity.refreshTokenHash}</dd>
+          <dt>
             <Translate contentKey="lumiApp.authSession.user">User</Translate>
           </dt>
           <dd>{authSessionEntity.user ? authSessionEntity.user.login : ''}</dd>

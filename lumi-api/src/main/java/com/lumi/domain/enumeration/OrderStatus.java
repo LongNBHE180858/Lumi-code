@@ -8,4 +8,5 @@ public enum OrderStatus {
     PAID,
     CANCELLED,
     REFUNDED,
+    EXPIRED,
 }

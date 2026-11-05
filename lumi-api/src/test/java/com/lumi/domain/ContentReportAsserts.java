@@ -51,7 +51,10 @@ public class ContentReportAsserts {
             .satisfies(a -> assertThat(a.getTargetId()).as("check targetId").isEqualTo(expected.getTargetId()))
             .satisfies(a -> assertThat(a.getReason()).as("check reason").isEqualTo(expected.getReason()))
             .satisfies(a -> assertThat(a.getStatus()).as("check status").isEqualTo(expected.getStatus()))
-            .satisfies(a -> assertThat(a.getCreatedAt()).as("check createdAt").isEqualTo(expected.getCreatedAt()));
+            .satisfies(a -> assertThat(a.getCreatedAt()).as("check createdAt").isEqualTo(expected.getCreatedAt()))
+            .satisfies(a -> assertThat(a.getResolvedAt()).as("check resolvedAt").isEqualTo(expected.getResolvedAt()))
+            .satisfies(a -> assertThat(a.getResolutionNote()).as("check resolutionNote").isEqualTo(expected.getResolutionNote()))
+            .satisfies(a -> assertThat(a.getTargetVersion()).as("check targetVersion").isEqualTo(expected.getTargetVersion()));
     }
 
     /**

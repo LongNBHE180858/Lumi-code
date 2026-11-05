@@ -25,7 +25,20 @@
       "shuffleQuestions": "Shuffle Questions",
       "status": "Status",
       "isDeleted": "Is Deleted",
-      "studyClass": "Study Class"
+      "opensAt": "Opens At",
+      "closesAt": "Closes At",
+      "resultReleaseMode": "Result Release Mode",
+      "answerReleaseMode": "Answer Release Mode",
+      "version": "Version",
+      "createdAt": "Created At",
+      "assessmentType": "Assessment Type",
+      "videoTriggerSeconds": "Video Trigger Seconds",
+      "assessmentConfig": "Assessment Config",
+      "securityConfig": "Security Config",
+      "studyClass": "Study Class",
+      "createdBy": "Created By",
+      "lesson": "Lesson",
+      "assignedStudent": "Assigned Student"
     }
   }
 }

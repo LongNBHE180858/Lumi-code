@@ -32,9 +32,27 @@ public class ParentStudentLinkCriteria implements Serializable, Criteria {
 
     private InstantFilter linkedAt;
 
+    private InstantFilter createdAt;
+
+    private InstantFilter codeExpiresAt;
+
+    private InstantFilter confirmedAt;
+
+    private InstantFilter revokedAt;
+
+    private StringFilter relationshipType;
+
+    private StringFilter guardianVerificationStatus;
+
+    private InstantFilter guardianVerifiedAt;
+
     private LongFilter parentId;
 
     private LongFilter studentId;
+
+    private LongFilter confirmedById;
+
+    private LongFilter guardianVerifiedById;
 
     private Boolean distinct;
 
@@ -45,8 +63,17 @@ public class ParentStudentLinkCriteria implements Serializable, Criteria {
         this.linkCode = other.optionalLinkCode().map(StringFilter::copy).orElse(null);
         this.status = other.optionalStatus().map(StringFilter::copy).orElse(null);
         this.linkedAt = other.optionalLinkedAt().map(InstantFilter::copy).orElse(null);
+        this.createdAt = other.optionalCreatedAt().map(InstantFilter::copy).orElse(null);
+        this.codeExpiresAt = other.optionalCodeExpiresAt().map(InstantFilter::copy).orElse(null);
+        this.confirmedAt = other.optionalConfirmedAt().map(InstantFilter::copy).orElse(null);
+        this.revokedAt = other.optionalRevokedAt().map(InstantFilter::copy).orElse(null);
+        this.relationshipType = other.optionalRelationshipType().map(StringFilter::copy).orElse(null);
+        this.guardianVerificationStatus = other.optionalGuardianVerificationStatus().map(StringFilter::copy).orElse(null);
+        this.guardianVerifiedAt = other.optionalGuardianVerifiedAt().map(InstantFilter::copy).orElse(null);
         this.parentId = other.optionalParentId().map(LongFilter::copy).orElse(null);
         this.studentId = other.optionalStudentId().map(LongFilter::copy).orElse(null);
+        this.confirmedById = other.optionalConfirmedById().map(LongFilter::copy).orElse(null);
+        this.guardianVerifiedById = other.optionalGuardianVerifiedById().map(LongFilter::copy).orElse(null);
         this.distinct = other.distinct;
     }
 
@@ -131,6 +158,139 @@ public class ParentStudentLinkCriteria implements Serializable, Criteria {
         this.linkedAt = linkedAt;
     }
 
+    public InstantFilter getCreatedAt() {
+        return createdAt;
+    }
+
+    public Optional<InstantFilter> optionalCreatedAt() {
+        return Optional.ofNullable(createdAt);
+    }
+
+    public InstantFilter createdAt() {
+        if (createdAt == null) {
+            setCreatedAt(new InstantFilter());
+        }
+        return createdAt;
+    }
+
+    public void setCreatedAt(InstantFilter createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public InstantFilter getCodeExpiresAt() {
+        return codeExpiresAt;
+    }
+
+    public Optional<InstantFilter> optionalCodeExpiresAt() {
+        return Optional.ofNullable(codeExpiresAt);
+    }
+
+    public InstantFilter codeExpiresAt() {
+        if (codeExpiresAt == null) {
+            setCodeExpiresAt(new InstantFilter());
+        }
+        return codeExpiresAt;
+    }
+
+    public void setCodeExpiresAt(InstantFilter codeExpiresAt) {
+        this.codeExpiresAt = codeExpiresAt;
+    }
+
+    public InstantFilter getConfirmedAt() {
+        return confirmedAt;
+    }
+
+    public Optional<InstantFilter> optionalConfirmedAt() {
+        return Optional.ofNullable(confirmedAt);
+    }
+
+    public InstantFilter confirmedAt() {
+        if (confirmedAt == null) {
+            setConfirmedAt(new InstantFilter());
+        }
+        return confirmedAt;
+    }
+
+    public void setConfirmedAt(InstantFilter confirmedAt) {
+        this.confirmedAt = confirmedAt;
+    }
+
+    public InstantFilter getRevokedAt() {
+        return revokedAt;
+    }
+
+    public Optional<InstantFilter> optionalRevokedAt() {
+        return Optional.ofNullable(revokedAt);
+    }
+
+    public InstantFilter revokedAt() {
+        if (revokedAt == null) {
+            setRevokedAt(new InstantFilter());
+        }
+        return revokedAt;
+    }
+
+    public void setRevokedAt(InstantFilter revokedAt) {
+        this.revokedAt = revokedAt;
+    }
+
+    public StringFilter getRelationshipType() {
+        return relationshipType;
+    }
+
+    public Optional<StringFilter> optionalRelationshipType() {
+        return Optional.ofNullable(relationshipType);
+    }
+
+    public StringFilter relationshipType() {
+        if (relationshipType == null) {
+            setRelationshipType(new StringFilter());
+        }
+        return relationshipType;
+    }
+
+    public void setRelationshipType(StringFilter relationshipType) {
+        this.relationshipType = relationshipType;
+    }
+
+    public StringFilter getGuardianVerificationStatus() {
+        return guardianVerificationStatus;
+    }
+
+    public Optional<StringFilter> optionalGuardianVerificationStatus() {
+        return Optional.ofNullable(guardianVerificationStatus);
+    }
+
+    public StringFilter guardianVerificationStatus() {
+        if (guardianVerificationStatus == null) {
+            setGuardianVerificationStatus(new StringFilter());
+        }
+        return guardianVerificationStatus;
+    }
+
+    public void setGuardianVerificationStatus(StringFilter guardianVerificationStatus) {
+        this.guardianVerificationStatus = guardianVerificationStatus;
+    }
+
+    public InstantFilter getGuardianVerifiedAt() {
+        return guardianVerifiedAt;
+    }
+
+    public Optional<InstantFilter> optionalGuardianVerifiedAt() {
+        return Optional.ofNullable(guardianVerifiedAt);
+    }
+
+    public InstantFilter guardianVerifiedAt() {
+        if (guardianVerifiedAt == null) {
+            setGuardianVerifiedAt(new InstantFilter());
+        }
+        return guardianVerifiedAt;
+    }
+
+    public void setGuardianVerifiedAt(InstantFilter guardianVerifiedAt) {
+        this.guardianVerifiedAt = guardianVerifiedAt;
+    }
+
     public LongFilter getParentId() {
         return parentId;
     }
@@ -169,6 +329,44 @@ public class ParentStudentLinkCriteria implements Serializable, Criteria {
         this.studentId = studentId;
     }
 
+    public LongFilter getConfirmedById() {
+        return confirmedById;
+    }
+
+    public Optional<LongFilter> optionalConfirmedById() {
+        return Optional.ofNullable(confirmedById);
+    }
+
+    public LongFilter confirmedById() {
+        if (confirmedById == null) {
+            setConfirmedById(new LongFilter());
+        }
+        return confirmedById;
+    }
+
+    public void setConfirmedById(LongFilter confirmedById) {
+        this.confirmedById = confirmedById;
+    }
+
+    public LongFilter getGuardianVerifiedById() {
+        return guardianVerifiedById;
+    }
+
+    public Optional<LongFilter> optionalGuardianVerifiedById() {
+        return Optional.ofNullable(guardianVerifiedById);
+    }
+
+    public LongFilter guardianVerifiedById() {
+        if (guardianVerifiedById == null) {
+            setGuardianVerifiedById(new LongFilter());
+        }
+        return guardianVerifiedById;
+    }
+
+    public void setGuardianVerifiedById(LongFilter guardianVerifiedById) {
+        this.guardianVerifiedById = guardianVerifiedById;
+    }
+
     public Boolean getDistinct() {
         return distinct;
     }
@@ -202,15 +400,41 @@ public class ParentStudentLinkCriteria implements Serializable, Criteria {
             Objects.equals(linkCode, that.linkCode) &&
             Objects.equals(status, that.status) &&
             Objects.equals(linkedAt, that.linkedAt) &&
+            Objects.equals(createdAt, that.createdAt) &&
+            Objects.equals(codeExpiresAt, that.codeExpiresAt) &&
+            Objects.equals(confirmedAt, that.confirmedAt) &&
+            Objects.equals(revokedAt, that.revokedAt) &&
+            Objects.equals(relationshipType, that.relationshipType) &&
+            Objects.equals(guardianVerificationStatus, that.guardianVerificationStatus) &&
+            Objects.equals(guardianVerifiedAt, that.guardianVerifiedAt) &&
             Objects.equals(parentId, that.parentId) &&
             Objects.equals(studentId, that.studentId) &&
+            Objects.equals(confirmedById, that.confirmedById) &&
+            Objects.equals(guardianVerifiedById, that.guardianVerifiedById) &&
             Objects.equals(distinct, that.distinct)
         );
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, linkCode, status, linkedAt, parentId, studentId, distinct);
+        return Objects.hash(
+            id,
+            linkCode,
+            status,
+            linkedAt,
+            createdAt,
+            codeExpiresAt,
+            confirmedAt,
+            revokedAt,
+            relationshipType,
+            guardianVerificationStatus,
+            guardianVerifiedAt,
+            parentId,
+            studentId,
+            confirmedById,
+            guardianVerifiedById,
+            distinct
+        );
     }
 
     // prettier-ignore
@@ -221,8 +445,17 @@ public class ParentStudentLinkCriteria implements Serializable, Criteria {
             optionalLinkCode().map(f -> "linkCode=" + f + ", ").orElse("") +
             optionalStatus().map(f -> "status=" + f + ", ").orElse("") +
             optionalLinkedAt().map(f -> "linkedAt=" + f + ", ").orElse("") +
+            optionalCreatedAt().map(f -> "createdAt=" + f + ", ").orElse("") +
+            optionalCodeExpiresAt().map(f -> "codeExpiresAt=" + f + ", ").orElse("") +
+            optionalConfirmedAt().map(f -> "confirmedAt=" + f + ", ").orElse("") +
+            optionalRevokedAt().map(f -> "revokedAt=" + f + ", ").orElse("") +
+            optionalRelationshipType().map(f -> "relationshipType=" + f + ", ").orElse("") +
+            optionalGuardianVerificationStatus().map(f -> "guardianVerificationStatus=" + f + ", ").orElse("") +
+            optionalGuardianVerifiedAt().map(f -> "guardianVerifiedAt=" + f + ", ").orElse("") +
             optionalParentId().map(f -> "parentId=" + f + ", ").orElse("") +
             optionalStudentId().map(f -> "studentId=" + f + ", ").orElse("") +
+            optionalConfirmedById().map(f -> "confirmedById=" + f + ", ").orElse("") +
+            optionalGuardianVerifiedById().map(f -> "guardianVerifiedById=" + f + ", ").orElse("") +
             optionalDistinct().map(f -> "distinct=" + f + ", ").orElse("") +
         "}";
     }

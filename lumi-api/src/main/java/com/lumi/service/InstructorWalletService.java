@@ -1,8 +1,9 @@
 package com.lumi.service;
 
 import com.lumi.service.dto.InstructorWalletDTO;
-import java.util.List;
 import java.util.Optional;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 /**
  * Service Interface for managing {@link com.lumi.domain.InstructorWallet}.
@@ -35,9 +36,10 @@ public interface InstructorWalletService {
     /**
      * Get all the instructorWallets with eager load of many-to-many relationships.
      *
+     * @param pageable the pagination information.
      * @return the list of entities.
      */
-    List<InstructorWalletDTO> findAllWithEagerRelationships();
+    Page<InstructorWalletDTO> findAllWithEagerRelationships(Pageable pageable);
 
     /**
      * Get the "id" instructorWallet.

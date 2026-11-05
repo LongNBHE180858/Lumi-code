@@ -14,7 +14,9 @@ import org.springframework.stereotype.Repository;
 @SuppressWarnings("unused")
 @Repository
 public interface SystemPlanRepository extends JpaRepository<SystemPlan, Long> {
-    Page<SystemPlan> findByCurrentRevisionTrue(Pageable pageable);
+    Page<SystemPlan> findByStatusNot(String status, Pageable pageable);
+
+    long countByPackageKey(String packageKey);
 
     @Lock(jakarta.persistence.LockModeType.PESSIMISTIC_WRITE)
     @Query("select plan from SystemPlan plan where plan.id = :id")

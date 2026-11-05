@@ -8,10 +8,10 @@ import java.io.Serializable;
 import java.time.Instant;
 
 /**
- * A CourseReview.
+ * Lưu đánh giá sao và nhận xét của học sinh về khóa học.
  */
 @Entity
-@Table(name = "course_review")
+@Table(name = "course_reviews")
 @SuppressWarnings("common-java:DuplicatedBlocks")
 public class CourseReview implements Serializable {
 
@@ -29,21 +29,24 @@ public class CourseReview implements Serializable {
     @Column(name = "rating")
     private Integer rating;
 
-    @Size(max = 5000)
-    @Column(name = "content", length = 5000)
+    @Column(name = "content", columnDefinition = "text")
     private String content;
 
     @Column(name = "created_at")
     private Instant createdAt;
 
-    @ManyToOne(optional = false)
     @NotNull
-    private User student;
+    @Column(name = "updated_at", nullable = false)
+    private Instant updatedAt;
 
     @ManyToOne(optional = false)
     @NotNull
-    @JsonIgnoreProperties(value = { "author", "category", "subject", "grade" }, allowSetters = true)
+    @JsonIgnoreProperties(value = { "author", "subject", "grade" }, allowSetters = true)
     private Course course;
+
+    @ManyToOne(optional = false)
+    @NotNull
+    private User student;
 
     // jhipster-needle-entity-add-field - JHipster will add fields here
 
@@ -99,17 +102,17 @@ public class CourseReview implements Serializable {
         this.createdAt = createdAt;
     }
 
-    public User getStudent() {
-        return this.student;
+    public Instant getUpdatedAt() {
+        return this.updatedAt;
     }
 
-    public void setStudent(User user) {
-        this.student = user;
-    }
-
-    public CourseReview student(User user) {
-        this.setStudent(user);
+    public CourseReview updatedAt(Instant updatedAt) {
+        this.setUpdatedAt(updatedAt);
         return this;
+    }
+
+    public void setUpdatedAt(Instant updatedAt) {
+        this.updatedAt = updatedAt;
     }
 
     public Course getCourse() {
@@ -122,6 +125,19 @@ public class CourseReview implements Serializable {
 
     public CourseReview course(Course course) {
         this.setCourse(course);
+        return this;
+    }
+
+    public User getStudent() {
+        return this.student;
+    }
+
+    public void setStudent(User user) {
+        this.student = user;
+    }
+
+    public CourseReview student(User user) {
+        this.setStudent(user);
         return this;
     }
 
@@ -152,6 +168,7 @@ public class CourseReview implements Serializable {
             ", rating=" + getRating() +
             ", content='" + getContent() + "'" +
             ", createdAt='" + getCreatedAt() + "'" +
+            ", updatedAt='" + getUpdatedAt() + "'" +
             "}";
     }
 }

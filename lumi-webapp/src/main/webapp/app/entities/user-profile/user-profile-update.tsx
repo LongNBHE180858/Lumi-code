@@ -116,16 +116,7 @@ export const UserProfileUpdate = () => {
                   maxLength: { value: 20, message: translate('entity.validation.maxlength', { max: 20 }) },
                 }}
               />
-              <ValidatedField
-                label={translate('lumiApp.userProfile.bio')}
-                id="user-profile-bio"
-                name="bio"
-                data-cy="bio"
-                type="text"
-                validate={{
-                  maxLength: { value: 5000, message: translate('entity.validation.maxlength', { max: 5000 }) },
-                }}
-              />
+              <ValidatedField label={translate('lumiApp.userProfile.bio')} id="user-profile-bio" name="bio" data-cy="bio" type="textarea" />
               <ValidatedField
                 label={translate('lumiApp.userProfile.schoolName')}
                 id="user-profile-schoolName"
@@ -176,6 +167,13 @@ export const UserProfileUpdate = () => {
                 data-cy="updatedAt"
                 type="datetime-local"
                 placeholder="YYYY-MM-DD HH:mm"
+              />
+              <ValidatedField
+                label={translate('lumiApp.userProfile.birthDate')}
+                id="user-profile-birthDate"
+                name="birthDate"
+                data-cy="birthDate"
+                type="date"
               />
               <ValidatedField
                 id="user-profile-user"

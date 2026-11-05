@@ -1,3 +1,5 @@
+import dayjs from 'dayjs';
+
 export interface ISystemPlan {
   id?: number;
   name?: string;
@@ -6,6 +8,12 @@ export interface ISystemPlan {
   storageQuotaMb?: number;
   aiGenerationLimit?: number;
   maxClasses?: number;
+  planType?: string;
+  targetRole?: string;
+  status?: string;
+  aiLimitPeriod?: string;
+  features?: string;
+  updatedAt?: dayjs.Dayjs;
 }
 
 export const defaultValue: Readonly<ISystemPlan> = {};

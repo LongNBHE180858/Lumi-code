@@ -12,11 +12,27 @@ public class ExamTestSamples {
     private static final AtomicInteger intCount = new AtomicInteger(random.nextInt() + 2 * Short.MAX_VALUE);
 
     public static Exam getExamSample1() {
-        return new Exam().id(1L).title("title1").durationMinutes(1).maxAttempts(1);
+        return new Exam()
+            .id(1L)
+            .title("title1")
+            .durationMinutes(1)
+            .maxAttempts(1)
+            .resultReleaseMode("resultReleaseMode1")
+            .answerReleaseMode("answerReleaseMode1")
+            .version(1L)
+            .assessmentType("assessmentType1");
     }
 
     public static Exam getExamSample2() {
-        return new Exam().id(2L).title("title2").durationMinutes(2).maxAttempts(2);
+        return new Exam()
+            .id(2L)
+            .title("title2")
+            .durationMinutes(2)
+            .maxAttempts(2)
+            .resultReleaseMode("resultReleaseMode2")
+            .answerReleaseMode("answerReleaseMode2")
+            .version(2L)
+            .assessmentType("assessmentType2");
     }
 
     public static Exam getExamRandomSampleGenerator() {
@@ -24,6 +40,10 @@ public class ExamTestSamples {
             .id(longCount.incrementAndGet())
             .title(UUID.randomUUID().toString())
             .durationMinutes(intCount.incrementAndGet())
-            .maxAttempts(intCount.incrementAndGet());
+            .maxAttempts(intCount.incrementAndGet())
+            .resultReleaseMode(UUID.randomUUID().toString())
+            .answerReleaseMode(UUID.randomUUID().toString())
+            .version(longCount.incrementAndGet())
+            .assessmentType(UUID.randomUUID().toString());
     }
 }

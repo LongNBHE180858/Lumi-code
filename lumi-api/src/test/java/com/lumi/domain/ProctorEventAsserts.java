@@ -48,8 +48,10 @@ public class ProctorEventAsserts {
         assertThat(actual)
             .as("Verify ProctorEvent relevant properties")
             .satisfies(a -> assertThat(a.getViolationType()).as("check violationType").isEqualTo(expected.getViolationType()))
-            .satisfies(a -> assertThat(a.getPhotoUrl()).as("check photoUrl").isEqualTo(expected.getPhotoUrl()))
-            .satisfies(a -> assertThat(a.getOccurredAt()).as("check occurredAt").isEqualTo(expected.getOccurredAt()));
+            .satisfies(a -> assertThat(a.getOccurredAt()).as("check occurredAt").isEqualTo(expected.getOccurredAt()))
+            .satisfies(a -> assertThat(a.getReviewStatus()).as("check reviewStatus").isEqualTo(expected.getReviewStatus()))
+            .satisfies(a -> assertThat(a.getReviewedAt()).as("check reviewedAt").isEqualTo(expected.getReviewedAt()))
+            .satisfies(a -> assertThat(a.getReviewNote()).as("check reviewNote").isEqualTo(expected.getReviewNote()));
     }
 
     /**
@@ -61,6 +63,6 @@ public class ProctorEventAsserts {
     public static void assertProctorEventUpdatableRelationshipsEquals(ProctorEvent expected, ProctorEvent actual) {
         assertThat(actual)
             .as("Verify ProctorEvent relationships")
-            .satisfies(a -> assertThat(a.getSession()).as("check session").isEqualTo(expected.getSession()));
+            .satisfies(a -> assertThat(a.getAttempt()).as("check attempt").isEqualTo(expected.getAttempt()));
     }
 }

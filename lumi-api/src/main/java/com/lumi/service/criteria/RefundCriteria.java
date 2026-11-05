@@ -28,15 +28,21 @@ public class RefundCriteria implements Serializable, Criteria {
 
     private BigDecimalFilter amount;
 
-    private StringFilter reason;
-
     private StringFilter status;
 
     private InstantFilter createdAt;
 
+    private InstantFilter processedAt;
+
+    private StringFilter refundReference;
+
+    private InstantFilter accessRevokedAt;
+
     private LongFilter orderId;
 
     private LongFilter paymentId;
+
+    private LongFilter processedById;
 
     private Boolean distinct;
 
@@ -45,11 +51,14 @@ public class RefundCriteria implements Serializable, Criteria {
     public RefundCriteria(RefundCriteria other) {
         this.id = other.optionalId().map(LongFilter::copy).orElse(null);
         this.amount = other.optionalAmount().map(BigDecimalFilter::copy).orElse(null);
-        this.reason = other.optionalReason().map(StringFilter::copy).orElse(null);
         this.status = other.optionalStatus().map(StringFilter::copy).orElse(null);
         this.createdAt = other.optionalCreatedAt().map(InstantFilter::copy).orElse(null);
+        this.processedAt = other.optionalProcessedAt().map(InstantFilter::copy).orElse(null);
+        this.refundReference = other.optionalRefundReference().map(StringFilter::copy).orElse(null);
+        this.accessRevokedAt = other.optionalAccessRevokedAt().map(InstantFilter::copy).orElse(null);
         this.orderId = other.optionalOrderId().map(LongFilter::copy).orElse(null);
         this.paymentId = other.optionalPaymentId().map(LongFilter::copy).orElse(null);
+        this.processedById = other.optionalProcessedById().map(LongFilter::copy).orElse(null);
         this.distinct = other.distinct;
     }
 
@@ -96,25 +105,6 @@ public class RefundCriteria implements Serializable, Criteria {
         this.amount = amount;
     }
 
-    public StringFilter getReason() {
-        return reason;
-    }
-
-    public Optional<StringFilter> optionalReason() {
-        return Optional.ofNullable(reason);
-    }
-
-    public StringFilter reason() {
-        if (reason == null) {
-            setReason(new StringFilter());
-        }
-        return reason;
-    }
-
-    public void setReason(StringFilter reason) {
-        this.reason = reason;
-    }
-
     public StringFilter getStatus() {
         return status;
     }
@@ -151,6 +141,63 @@ public class RefundCriteria implements Serializable, Criteria {
 
     public void setCreatedAt(InstantFilter createdAt) {
         this.createdAt = createdAt;
+    }
+
+    public InstantFilter getProcessedAt() {
+        return processedAt;
+    }
+
+    public Optional<InstantFilter> optionalProcessedAt() {
+        return Optional.ofNullable(processedAt);
+    }
+
+    public InstantFilter processedAt() {
+        if (processedAt == null) {
+            setProcessedAt(new InstantFilter());
+        }
+        return processedAt;
+    }
+
+    public void setProcessedAt(InstantFilter processedAt) {
+        this.processedAt = processedAt;
+    }
+
+    public StringFilter getRefundReference() {
+        return refundReference;
+    }
+
+    public Optional<StringFilter> optionalRefundReference() {
+        return Optional.ofNullable(refundReference);
+    }
+
+    public StringFilter refundReference() {
+        if (refundReference == null) {
+            setRefundReference(new StringFilter());
+        }
+        return refundReference;
+    }
+
+    public void setRefundReference(StringFilter refundReference) {
+        this.refundReference = refundReference;
+    }
+
+    public InstantFilter getAccessRevokedAt() {
+        return accessRevokedAt;
+    }
+
+    public Optional<InstantFilter> optionalAccessRevokedAt() {
+        return Optional.ofNullable(accessRevokedAt);
+    }
+
+    public InstantFilter accessRevokedAt() {
+        if (accessRevokedAt == null) {
+            setAccessRevokedAt(new InstantFilter());
+        }
+        return accessRevokedAt;
+    }
+
+    public void setAccessRevokedAt(InstantFilter accessRevokedAt) {
+        this.accessRevokedAt = accessRevokedAt;
     }
 
     public LongFilter getOrderId() {
@@ -191,6 +238,25 @@ public class RefundCriteria implements Serializable, Criteria {
         this.paymentId = paymentId;
     }
 
+    public LongFilter getProcessedById() {
+        return processedById;
+    }
+
+    public Optional<LongFilter> optionalProcessedById() {
+        return Optional.ofNullable(processedById);
+    }
+
+    public LongFilter processedById() {
+        if (processedById == null) {
+            setProcessedById(new LongFilter());
+        }
+        return processedById;
+    }
+
+    public void setProcessedById(LongFilter processedById) {
+        this.processedById = processedById;
+    }
+
     public Boolean getDistinct() {
         return distinct;
     }
@@ -222,18 +288,33 @@ public class RefundCriteria implements Serializable, Criteria {
         return (
             Objects.equals(id, that.id) &&
             Objects.equals(amount, that.amount) &&
-            Objects.equals(reason, that.reason) &&
             Objects.equals(status, that.status) &&
             Objects.equals(createdAt, that.createdAt) &&
+            Objects.equals(processedAt, that.processedAt) &&
+            Objects.equals(refundReference, that.refundReference) &&
+            Objects.equals(accessRevokedAt, that.accessRevokedAt) &&
             Objects.equals(orderId, that.orderId) &&
             Objects.equals(paymentId, that.paymentId) &&
+            Objects.equals(processedById, that.processedById) &&
             Objects.equals(distinct, that.distinct)
         );
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, amount, reason, status, createdAt, orderId, paymentId, distinct);
+        return Objects.hash(
+            id,
+            amount,
+            status,
+            createdAt,
+            processedAt,
+            refundReference,
+            accessRevokedAt,
+            orderId,
+            paymentId,
+            processedById,
+            distinct
+        );
     }
 
     // prettier-ignore
@@ -242,11 +323,14 @@ public class RefundCriteria implements Serializable, Criteria {
         return "RefundCriteria{" +
             optionalId().map(f -> "id=" + f + ", ").orElse("") +
             optionalAmount().map(f -> "amount=" + f + ", ").orElse("") +
-            optionalReason().map(f -> "reason=" + f + ", ").orElse("") +
             optionalStatus().map(f -> "status=" + f + ", ").orElse("") +
             optionalCreatedAt().map(f -> "createdAt=" + f + ", ").orElse("") +
+            optionalProcessedAt().map(f -> "processedAt=" + f + ", ").orElse("") +
+            optionalRefundReference().map(f -> "refundReference=" + f + ", ").orElse("") +
+            optionalAccessRevokedAt().map(f -> "accessRevokedAt=" + f + ", ").orElse("") +
             optionalOrderId().map(f -> "orderId=" + f + ", ").orElse("") +
             optionalPaymentId().map(f -> "paymentId=" + f + ", ").orElse("") +
+            optionalProcessedById().map(f -> "processedById=" + f + ", ").orElse("") +
             optionalDistinct().map(f -> "distinct=" + f + ", ").orElse("") +
         "}";
     }

@@ -28,13 +28,13 @@ public class CourseReviewCriteria implements Serializable, Criteria {
 
     private IntegerFilter rating;
 
-    private StringFilter content;
-
     private InstantFilter createdAt;
 
-    private LongFilter studentId;
+    private InstantFilter updatedAt;
 
     private LongFilter courseId;
+
+    private LongFilter studentId;
 
     private Boolean distinct;
 
@@ -43,10 +43,10 @@ public class CourseReviewCriteria implements Serializable, Criteria {
     public CourseReviewCriteria(CourseReviewCriteria other) {
         this.id = other.optionalId().map(LongFilter::copy).orElse(null);
         this.rating = other.optionalRating().map(IntegerFilter::copy).orElse(null);
-        this.content = other.optionalContent().map(StringFilter::copy).orElse(null);
         this.createdAt = other.optionalCreatedAt().map(InstantFilter::copy).orElse(null);
-        this.studentId = other.optionalStudentId().map(LongFilter::copy).orElse(null);
+        this.updatedAt = other.optionalUpdatedAt().map(InstantFilter::copy).orElse(null);
         this.courseId = other.optionalCourseId().map(LongFilter::copy).orElse(null);
+        this.studentId = other.optionalStudentId().map(LongFilter::copy).orElse(null);
         this.distinct = other.distinct;
     }
 
@@ -93,25 +93,6 @@ public class CourseReviewCriteria implements Serializable, Criteria {
         this.rating = rating;
     }
 
-    public StringFilter getContent() {
-        return content;
-    }
-
-    public Optional<StringFilter> optionalContent() {
-        return Optional.ofNullable(content);
-    }
-
-    public StringFilter content() {
-        if (content == null) {
-            setContent(new StringFilter());
-        }
-        return content;
-    }
-
-    public void setContent(StringFilter content) {
-        this.content = content;
-    }
-
     public InstantFilter getCreatedAt() {
         return createdAt;
     }
@@ -131,23 +112,23 @@ public class CourseReviewCriteria implements Serializable, Criteria {
         this.createdAt = createdAt;
     }
 
-    public LongFilter getStudentId() {
-        return studentId;
+    public InstantFilter getUpdatedAt() {
+        return updatedAt;
     }
 
-    public Optional<LongFilter> optionalStudentId() {
-        return Optional.ofNullable(studentId);
+    public Optional<InstantFilter> optionalUpdatedAt() {
+        return Optional.ofNullable(updatedAt);
     }
 
-    public LongFilter studentId() {
-        if (studentId == null) {
-            setStudentId(new LongFilter());
+    public InstantFilter updatedAt() {
+        if (updatedAt == null) {
+            setUpdatedAt(new InstantFilter());
         }
-        return studentId;
+        return updatedAt;
     }
 
-    public void setStudentId(LongFilter studentId) {
-        this.studentId = studentId;
+    public void setUpdatedAt(InstantFilter updatedAt) {
+        this.updatedAt = updatedAt;
     }
 
     public LongFilter getCourseId() {
@@ -167,6 +148,25 @@ public class CourseReviewCriteria implements Serializable, Criteria {
 
     public void setCourseId(LongFilter courseId) {
         this.courseId = courseId;
+    }
+
+    public LongFilter getStudentId() {
+        return studentId;
+    }
+
+    public Optional<LongFilter> optionalStudentId() {
+        return Optional.ofNullable(studentId);
+    }
+
+    public LongFilter studentId() {
+        if (studentId == null) {
+            setStudentId(new LongFilter());
+        }
+        return studentId;
+    }
+
+    public void setStudentId(LongFilter studentId) {
+        this.studentId = studentId;
     }
 
     public Boolean getDistinct() {
@@ -200,17 +200,17 @@ public class CourseReviewCriteria implements Serializable, Criteria {
         return (
             Objects.equals(id, that.id) &&
             Objects.equals(rating, that.rating) &&
-            Objects.equals(content, that.content) &&
             Objects.equals(createdAt, that.createdAt) &&
-            Objects.equals(studentId, that.studentId) &&
+            Objects.equals(updatedAt, that.updatedAt) &&
             Objects.equals(courseId, that.courseId) &&
+            Objects.equals(studentId, that.studentId) &&
             Objects.equals(distinct, that.distinct)
         );
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, rating, content, createdAt, studentId, courseId, distinct);
+        return Objects.hash(id, rating, createdAt, updatedAt, courseId, studentId, distinct);
     }
 
     // prettier-ignore
@@ -219,10 +219,10 @@ public class CourseReviewCriteria implements Serializable, Criteria {
         return "CourseReviewCriteria{" +
             optionalId().map(f -> "id=" + f + ", ").orElse("") +
             optionalRating().map(f -> "rating=" + f + ", ").orElse("") +
-            optionalContent().map(f -> "content=" + f + ", ").orElse("") +
             optionalCreatedAt().map(f -> "createdAt=" + f + ", ").orElse("") +
-            optionalStudentId().map(f -> "studentId=" + f + ", ").orElse("") +
+            optionalUpdatedAt().map(f -> "updatedAt=" + f + ", ").orElse("") +
             optionalCourseId().map(f -> "courseId=" + f + ", ").orElse("") +
+            optionalStudentId().map(f -> "studentId=" + f + ", ").orElse("") +
             optionalDistinct().map(f -> "distinct=" + f + ", ").orElse("") +
         "}";
     }

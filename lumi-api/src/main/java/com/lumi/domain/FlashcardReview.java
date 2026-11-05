@@ -9,10 +9,10 @@ import java.math.BigDecimal;
 import java.time.Instant;
 
 /**
- * A FlashcardReview.
+ * Lưu trạng thái ôn gần nhất và lịch ôn tiếp theo của học sinh theo flashcard.
  */
 @Entity
-@Table(name = "flashcard_review")
+@Table(name = "flashcard_reviews")
 @SuppressWarnings("common-java:DuplicatedBlocks")
 public class FlashcardReview implements Serializable {
 
@@ -28,9 +28,20 @@ public class FlashcardReview implements Serializable {
     @Column(name = "next_review_at")
     private Instant nextReviewAt;
 
-    @DecimalMin(value = "0")
     @Column(name = "interval_days", precision = 21, scale = 2)
     private BigDecimal intervalDays;
+
+    @Column(name = "last_reviewed_at")
+    private Instant lastReviewedAt;
+
+    @Min(value = 1)
+    @Max(value = 5)
+    @Column(name = "last_rating")
+    private Integer lastRating;
+
+    @NotNull
+    @Column(name = "review_count", nullable = false)
+    private Integer reviewCount;
 
     @ManyToOne(optional = false)
     @NotNull
@@ -38,7 +49,7 @@ public class FlashcardReview implements Serializable {
 
     @ManyToOne(optional = false)
     @NotNull
-    @JsonIgnoreProperties(value = { "deck" }, allowSetters = true)
+    @JsonIgnoreProperties(value = { "deck", "aiContent" }, allowSetters = true)
     private Flashcard flashcard;
 
     // jhipster-needle-entity-add-field - JHipster will add fields here
@@ -80,6 +91,45 @@ public class FlashcardReview implements Serializable {
 
     public void setIntervalDays(BigDecimal intervalDays) {
         this.intervalDays = intervalDays;
+    }
+
+    public Instant getLastReviewedAt() {
+        return this.lastReviewedAt;
+    }
+
+    public FlashcardReview lastReviewedAt(Instant lastReviewedAt) {
+        this.setLastReviewedAt(lastReviewedAt);
+        return this;
+    }
+
+    public void setLastReviewedAt(Instant lastReviewedAt) {
+        this.lastReviewedAt = lastReviewedAt;
+    }
+
+    public Integer getLastRating() {
+        return this.lastRating;
+    }
+
+    public FlashcardReview lastRating(Integer lastRating) {
+        this.setLastRating(lastRating);
+        return this;
+    }
+
+    public void setLastRating(Integer lastRating) {
+        this.lastRating = lastRating;
+    }
+
+    public Integer getReviewCount() {
+        return this.reviewCount;
+    }
+
+    public FlashcardReview reviewCount(Integer reviewCount) {
+        this.setReviewCount(reviewCount);
+        return this;
+    }
+
+    public void setReviewCount(Integer reviewCount) {
+        this.reviewCount = reviewCount;
     }
 
     public User getStudent() {
@@ -134,6 +184,9 @@ public class FlashcardReview implements Serializable {
             "id=" + getId() +
             ", nextReviewAt='" + getNextReviewAt() + "'" +
             ", intervalDays=" + getIntervalDays() +
+            ", lastReviewedAt='" + getLastReviewedAt() + "'" +
+            ", lastRating=" + getLastRating() +
+            ", reviewCount=" + getReviewCount() +
             "}";
     }
 }

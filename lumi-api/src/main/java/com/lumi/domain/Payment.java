@@ -9,10 +9,10 @@ import java.math.BigDecimal;
 import java.time.Instant;
 
 /**
- * A Payment.
+ * Lưu giao dịch thanh toán và thông tin đối chiếu từ cổng thanh toán.
  */
 @Entity
-@Table(name = "payment")
+@Table(name = "payments")
 @SuppressWarnings("common-java:DuplicatedBlocks")
 public class Payment implements Serializable {
 
@@ -35,7 +35,6 @@ public class Payment implements Serializable {
     private String transactionNo;
 
     @NotNull
-    @DecimalMin(value = "0")
     @Column(name = "amount", precision = 21, scale = 2, nullable = false)
     private BigDecimal amount;
 
@@ -45,6 +44,17 @@ public class Payment implements Serializable {
 
     @Column(name = "paid_at")
     private Instant paidAt;
+
+    @Size(max = 255)
+    @Column(name = "payment_reference", length = 255)
+    private String paymentReference;
+
+    @Size(max = 255)
+    @Column(name = "provider_event_id", length = 255)
+    private String providerEventId;
+
+    @Column(name = "received_at")
+    private Instant receivedAt;
 
     @ManyToOne(optional = false)
     @NotNull
@@ -131,6 +141,45 @@ public class Payment implements Serializable {
         this.paidAt = paidAt;
     }
 
+    public String getPaymentReference() {
+        return this.paymentReference;
+    }
+
+    public Payment paymentReference(String paymentReference) {
+        this.setPaymentReference(paymentReference);
+        return this;
+    }
+
+    public void setPaymentReference(String paymentReference) {
+        this.paymentReference = paymentReference;
+    }
+
+    public String getProviderEventId() {
+        return this.providerEventId;
+    }
+
+    public Payment providerEventId(String providerEventId) {
+        this.setProviderEventId(providerEventId);
+        return this;
+    }
+
+    public void setProviderEventId(String providerEventId) {
+        this.providerEventId = providerEventId;
+    }
+
+    public Instant getReceivedAt() {
+        return this.receivedAt;
+    }
+
+    public Payment receivedAt(Instant receivedAt) {
+        this.setReceivedAt(receivedAt);
+        return this;
+    }
+
+    public void setReceivedAt(Instant receivedAt) {
+        this.receivedAt = receivedAt;
+    }
+
     public CourseOrder getOrder() {
         return this.order;
     }
@@ -173,6 +222,9 @@ public class Payment implements Serializable {
             ", amount=" + getAmount() +
             ", status='" + getStatus() + "'" +
             ", paidAt='" + getPaidAt() + "'" +
+            ", paymentReference='" + getPaymentReference() + "'" +
+            ", providerEventId='" + getProviderEventId() + "'" +
+            ", receivedAt='" + getReceivedAt() + "'" +
             "}";
     }
 }

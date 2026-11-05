@@ -11,12 +11,11 @@ import org.mapstruct.*;
  */
 @Mapper(componentModel = "spring")
 public interface ChapterMapper extends EntityMapper<ChapterDTO, Chapter> {
-    @Mapping(target = "course", source = "course", qualifiedByName = "courseTitle")
+    @Mapping(target = "course", source = "course", qualifiedByName = "courseId")
     ChapterDTO toDto(Chapter s);
 
-    @Named("courseTitle")
+    @Named("courseId")
     @BeanMapping(ignoreByDefault = true)
     @Mapping(target = "id", source = "id")
-    @Mapping(target = "title", source = "title")
-    CourseDTO toDtoCourseTitle(Course course);
+    CourseDTO toDtoCourseId(Course course);
 }

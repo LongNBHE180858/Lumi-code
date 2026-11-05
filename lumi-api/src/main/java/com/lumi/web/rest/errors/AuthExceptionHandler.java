@@ -40,6 +40,26 @@ public class AuthExceptionHandler {
         return ResponseEntity.badRequest().body(body);
     }
 
+    @ExceptionHandler(GraphCycleException.class)
+    public ResponseEntity<Map<String, Object>> handleGraphCycleException(GraphCycleException ex) {
+        String cleanMessage =
+            ex.getBody() != null && ex.getBody().getTitle() != null && !ex.getBody().getTitle().isBlank()
+                ? ex.getBody().getTitle()
+                : ex.getMessage();
+
+        LOG.warn("Graph cycle error: {} (path: {})", cleanMessage, ex.getCyclePath());
+
+        Map<String, Object> body = new HashMap<>();
+        body.put("status", HttpStatus.BAD_REQUEST.value());
+        body.put("code", HttpStatus.BAD_REQUEST.value());
+        body.put("message", cleanMessage);
+        body.put("errorKey", ex.getErrorKey());
+        body.put("cyclePath", ex.getCyclePath());
+        body.put("cycleNodeIds", ex.getCycleNodeIds());
+
+        return ResponseEntity.badRequest().body(body);
+    }
+
     /**
      * Bắt lỗi (401, 403, 404 từ Service)
      */

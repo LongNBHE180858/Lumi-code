@@ -4,7 +4,6 @@ import static com.lumi.domain.LessonAsserts.*;
 import static com.lumi.web.rest.TestUtil.createUpdateProxyForBean;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.hasItem;
-import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -13,23 +12,17 @@ import com.lumi.domain.Chapter;
 import com.lumi.domain.Lesson;
 import com.lumi.domain.enumeration.RecordStatus;
 import com.lumi.repository.LessonRepository;
-import com.lumi.service.LessonService;
 import com.lumi.service.dto.LessonDTO;
 import com.lumi.service.mapper.LessonMapper;
 import jakarta.persistence.EntityManager;
-import java.util.ArrayList;
+import java.time.Instant;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicLong;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
@@ -40,30 +33,52 @@ import tools.jackson.databind.ObjectMapper;
  * Integration tests for the {@link LessonResource} REST controller.
  */
 @IntegrationTest
-@ExtendWith(MockitoExtension.class)
 @AutoConfigureMockMvc
-@WithMockUser(authorities = "ROLE_ADMIN")
+@WithMockUser
 class LessonResourceIT {
 
     private static final String DEFAULT_TITLE = "AAAAAAAAAA";
     private static final String UPDATED_TITLE = "BBBBBBBBBB";
 
+    private static final String DEFAULT_DESCRIPTION = "AAAAAAAAAA";
+    private static final String UPDATED_DESCRIPTION = "BBBBBBBBBB";
+
     private static final String DEFAULT_CONTENT_TYPE = "AAAAAAAAAA";
     private static final String UPDATED_CONTENT_TYPE = "BBBBBBBBBB";
 
-    private static final Integer DEFAULT_ORDER_INDEX = 0;
-    private static final Integer UPDATED_ORDER_INDEX = 1;
-    private static final Integer SMALLER_ORDER_INDEX = 0 - 1;
+    private static final String DEFAULT_VIDEO_URL = "AAAAAAAAAA";
+    private static final String UPDATED_VIDEO_URL = "BBBBBBBBBB";
+
+    private static final String DEFAULT_VIDEO_FILE_NAME = "AAAAAAAAAA";
+    private static final String UPDATED_VIDEO_FILE_NAME = "BBBBBBBBBB";
+
+    private static final Long DEFAULT_VIDEO_SIZE_BYTES = 1L;
+    private static final Long UPDATED_VIDEO_SIZE_BYTES = 2L;
+    private static final Long SMALLER_VIDEO_SIZE_BYTES = 1L - 1L;
+
+    private static final Integer DEFAULT_ORDER_INDEX = 1;
+    private static final Integer UPDATED_ORDER_INDEX = 2;
+    private static final Integer SMALLER_ORDER_INDEX = 1 - 1;
 
     private static final Boolean DEFAULT_IS_PREVIEW = false;
     private static final Boolean UPDATED_IS_PREVIEW = true;
 
-    private static final Integer DEFAULT_DURATION_MINUTES = 0;
-    private static final Integer UPDATED_DURATION_MINUTES = 1;
-    private static final Integer SMALLER_DURATION_MINUTES = 0 - 1;
+    private static final Integer DEFAULT_DURATION_MINUTES = 1;
+    private static final Integer UPDATED_DURATION_MINUTES = 2;
+    private static final Integer SMALLER_DURATION_MINUTES = 1 - 1;
 
     private static final RecordStatus DEFAULT_STATUS = RecordStatus.DRAFT;
     private static final RecordStatus UPDATED_STATUS = RecordStatus.PENDING;
+
+    private static final Integer DEFAULT_DURATION_SECONDS = 0;
+    private static final Integer UPDATED_DURATION_SECONDS = 1;
+    private static final Integer SMALLER_DURATION_SECONDS = 0 - 1;
+
+    private static final String DEFAULT_VIDEO_OBJECT_KEY = "AAAAAAAAAA";
+    private static final String UPDATED_VIDEO_OBJECT_KEY = "BBBBBBBBBB";
+
+    private static final Instant DEFAULT_UPDATED_AT = Instant.ofEpochMilli(0L);
+    private static final Instant UPDATED_UPDATED_AT = Instant.ofEpochMilli(1791835009362L);
 
     private static final String ENTITY_API_URL = "/api/lessons";
     private static final String ENTITY_API_URL_ID = ENTITY_API_URL + "/{id}";
@@ -77,14 +92,8 @@ class LessonResourceIT {
     @Autowired
     private LessonRepository lessonRepository;
 
-    @Mock
-    private LessonRepository lessonRepositoryMock;
-
     @Autowired
     private LessonMapper lessonMapper;
-
-    @Mock
-    private LessonService lessonServiceMock;
 
     @Autowired
     private EntityManager em;
@@ -105,11 +114,18 @@ class LessonResourceIT {
     public static Lesson createEntity(EntityManager em) {
         Lesson lesson = new Lesson()
             .title(DEFAULT_TITLE)
+            .description(DEFAULT_DESCRIPTION)
             .contentType(DEFAULT_CONTENT_TYPE)
+            .videoUrl(DEFAULT_VIDEO_URL)
+            .videoFileName(DEFAULT_VIDEO_FILE_NAME)
+            .videoSizeBytes(DEFAULT_VIDEO_SIZE_BYTES)
             .orderIndex(DEFAULT_ORDER_INDEX)
             .isPreview(DEFAULT_IS_PREVIEW)
             .durationMinutes(DEFAULT_DURATION_MINUTES)
-            .status(DEFAULT_STATUS);
+            .status(DEFAULT_STATUS)
+            .durationSeconds(DEFAULT_DURATION_SECONDS)
+            .videoObjectKey(DEFAULT_VIDEO_OBJECT_KEY)
+            .updatedAt(DEFAULT_UPDATED_AT);
         // Add required entity
         Chapter chapter;
         if (TestUtil.findAll(em, Chapter.class).isEmpty()) {
@@ -132,11 +148,18 @@ class LessonResourceIT {
     public static Lesson createUpdatedEntity(EntityManager em) {
         Lesson updatedLesson = new Lesson()
             .title(UPDATED_TITLE)
+            .description(UPDATED_DESCRIPTION)
             .contentType(UPDATED_CONTENT_TYPE)
+            .videoUrl(UPDATED_VIDEO_URL)
+            .videoFileName(UPDATED_VIDEO_FILE_NAME)
+            .videoSizeBytes(UPDATED_VIDEO_SIZE_BYTES)
             .orderIndex(UPDATED_ORDER_INDEX)
             .isPreview(UPDATED_IS_PREVIEW)
             .durationMinutes(UPDATED_DURATION_MINUTES)
-            .status(UPDATED_STATUS);
+            .status(UPDATED_STATUS)
+            .durationSeconds(UPDATED_DURATION_SECONDS)
+            .videoObjectKey(UPDATED_VIDEO_OBJECT_KEY)
+            .updatedAt(UPDATED_UPDATED_AT);
         // Add required entity
         Chapter chapter;
         if (TestUtil.findAll(em, Chapter.class).isEmpty()) {
@@ -258,6 +281,23 @@ class LessonResourceIT {
 
     @Test
     @Transactional
+    void checkUpdatedAtIsRequired() throws Exception {
+        long databaseSizeBeforeTest = getRepositoryCount();
+        // set the field null
+        lesson.setUpdatedAt(null);
+
+        // Create the Lesson, which fails.
+        LessonDTO lessonDTO = lessonMapper.toDto(lesson);
+
+        restLessonMockMvc
+            .perform(post(ENTITY_API_URL).contentType(MediaType.APPLICATION_JSON).content(om.writeValueAsBytes(lessonDTO)))
+            .andExpect(status().isBadRequest());
+
+        assertSameRepositoryCount(databaseSizeBeforeTest);
+    }
+
+    @Test
+    @Transactional
     void getAllLessons() throws Exception {
         // Initialize the database
         insertedLesson = lessonRepository.saveAndFlush(lesson);
@@ -269,28 +309,18 @@ class LessonResourceIT {
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
             .andExpect(jsonPath("$.[*].id").value(hasItem(lesson.getId().intValue())))
             .andExpect(jsonPath("$.[*].title").value(hasItem(DEFAULT_TITLE)))
+            .andExpect(jsonPath("$.[*].description").value(hasItem(DEFAULT_DESCRIPTION)))
             .andExpect(jsonPath("$.[*].contentType").value(hasItem(DEFAULT_CONTENT_TYPE)))
+            .andExpect(jsonPath("$.[*].videoUrl").value(hasItem(DEFAULT_VIDEO_URL)))
+            .andExpect(jsonPath("$.[*].videoFileName").value(hasItem(DEFAULT_VIDEO_FILE_NAME)))
+            .andExpect(jsonPath("$.[*].videoSizeBytes").value(hasItem(DEFAULT_VIDEO_SIZE_BYTES.intValue())))
             .andExpect(jsonPath("$.[*].orderIndex").value(hasItem(DEFAULT_ORDER_INDEX)))
             .andExpect(jsonPath("$.[*].isPreview").value(hasItem(DEFAULT_IS_PREVIEW)))
             .andExpect(jsonPath("$.[*].durationMinutes").value(hasItem(DEFAULT_DURATION_MINUTES)))
-            .andExpect(jsonPath("$.[*].status").value(hasItem(DEFAULT_STATUS.toString())));
-    }
-
-    @SuppressWarnings({ "unchecked" })
-    void getAllLessonsWithEagerRelationshipsIsEnabled() throws Exception {
-        when(lessonServiceMock.findAllWithEagerRelationships(any())).thenReturn(new PageImpl(new ArrayList<>()));
-
-        restLessonMockMvc.perform(get(ENTITY_API_URL + "?eagerload=true")).andExpect(status().isOk());
-
-        verify(lessonServiceMock, times(1)).findAllWithEagerRelationships(any());
-    }
-
-    @SuppressWarnings({ "unchecked" })
-    void getAllLessonsWithEagerRelationshipsIsNotEnabled() throws Exception {
-        when(lessonServiceMock.findAllWithEagerRelationships(any())).thenReturn(new PageImpl(new ArrayList<>()));
-
-        restLessonMockMvc.perform(get(ENTITY_API_URL + "?eagerload=false")).andExpect(status().isOk());
-        verify(lessonRepositoryMock, times(1)).findAll(any(Pageable.class));
+            .andExpect(jsonPath("$.[*].status").value(hasItem(DEFAULT_STATUS.toString())))
+            .andExpect(jsonPath("$.[*].durationSeconds").value(hasItem(DEFAULT_DURATION_SECONDS)))
+            .andExpect(jsonPath("$.[*].videoObjectKey").value(hasItem(DEFAULT_VIDEO_OBJECT_KEY)))
+            .andExpect(jsonPath("$.[*].updatedAt").value(hasItem(DEFAULT_UPDATED_AT.toString())));
     }
 
     @Test
@@ -306,11 +336,18 @@ class LessonResourceIT {
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
             .andExpect(jsonPath("$.id").value(lesson.getId().intValue()))
             .andExpect(jsonPath("$.title").value(DEFAULT_TITLE))
+            .andExpect(jsonPath("$.description").value(DEFAULT_DESCRIPTION))
             .andExpect(jsonPath("$.contentType").value(DEFAULT_CONTENT_TYPE))
+            .andExpect(jsonPath("$.videoUrl").value(DEFAULT_VIDEO_URL))
+            .andExpect(jsonPath("$.videoFileName").value(DEFAULT_VIDEO_FILE_NAME))
+            .andExpect(jsonPath("$.videoSizeBytes").value(DEFAULT_VIDEO_SIZE_BYTES.intValue()))
             .andExpect(jsonPath("$.orderIndex").value(DEFAULT_ORDER_INDEX))
             .andExpect(jsonPath("$.isPreview").value(DEFAULT_IS_PREVIEW))
             .andExpect(jsonPath("$.durationMinutes").value(DEFAULT_DURATION_MINUTES))
-            .andExpect(jsonPath("$.status").value(DEFAULT_STATUS.toString()));
+            .andExpect(jsonPath("$.status").value(DEFAULT_STATUS.toString()))
+            .andExpect(jsonPath("$.durationSeconds").value(DEFAULT_DURATION_SECONDS))
+            .andExpect(jsonPath("$.videoObjectKey").value(DEFAULT_VIDEO_OBJECT_KEY))
+            .andExpect(jsonPath("$.updatedAt").value(DEFAULT_UPDATED_AT.toString()));
     }
 
     @Test
@@ -429,6 +466,197 @@ class LessonResourceIT {
 
         // Get all the lessonList where contentType does not contain
         defaultLessonFiltering("contentType.doesNotContain=" + UPDATED_CONTENT_TYPE, "contentType.doesNotContain=" + DEFAULT_CONTENT_TYPE);
+    }
+
+    @Test
+    @Transactional
+    void getAllLessonsByVideoUrlIsEqualToSomething() throws Exception {
+        // Initialize the database
+        insertedLesson = lessonRepository.saveAndFlush(lesson);
+
+        // Get all the lessonList where videoUrl equals to
+        defaultLessonFiltering("videoUrl.equals=" + DEFAULT_VIDEO_URL, "videoUrl.equals=" + UPDATED_VIDEO_URL);
+    }
+
+    @Test
+    @Transactional
+    void getAllLessonsByVideoUrlIsInShouldWork() throws Exception {
+        // Initialize the database
+        insertedLesson = lessonRepository.saveAndFlush(lesson);
+
+        // Get all the lessonList where videoUrl in
+        defaultLessonFiltering("videoUrl.in=" + DEFAULT_VIDEO_URL + "," + UPDATED_VIDEO_URL, "videoUrl.in=" + UPDATED_VIDEO_URL);
+    }
+
+    @Test
+    @Transactional
+    void getAllLessonsByVideoUrlIsNullOrNotNull() throws Exception {
+        // Initialize the database
+        insertedLesson = lessonRepository.saveAndFlush(lesson);
+
+        // Get all the lessonList where videoUrl is not null
+        defaultLessonFiltering("videoUrl.specified=true", "videoUrl.specified=false");
+    }
+
+    @Test
+    @Transactional
+    void getAllLessonsByVideoUrlContainsSomething() throws Exception {
+        // Initialize the database
+        insertedLesson = lessonRepository.saveAndFlush(lesson);
+
+        // Get all the lessonList where videoUrl contains
+        defaultLessonFiltering("videoUrl.contains=" + DEFAULT_VIDEO_URL, "videoUrl.contains=" + UPDATED_VIDEO_URL);
+    }
+
+    @Test
+    @Transactional
+    void getAllLessonsByVideoUrlNotContainsSomething() throws Exception {
+        // Initialize the database
+        insertedLesson = lessonRepository.saveAndFlush(lesson);
+
+        // Get all the lessonList where videoUrl does not contain
+        defaultLessonFiltering("videoUrl.doesNotContain=" + UPDATED_VIDEO_URL, "videoUrl.doesNotContain=" + DEFAULT_VIDEO_URL);
+    }
+
+    @Test
+    @Transactional
+    void getAllLessonsByVideoFileNameIsEqualToSomething() throws Exception {
+        // Initialize the database
+        insertedLesson = lessonRepository.saveAndFlush(lesson);
+
+        // Get all the lessonList where videoFileName equals to
+        defaultLessonFiltering("videoFileName.equals=" + DEFAULT_VIDEO_FILE_NAME, "videoFileName.equals=" + UPDATED_VIDEO_FILE_NAME);
+    }
+
+    @Test
+    @Transactional
+    void getAllLessonsByVideoFileNameIsInShouldWork() throws Exception {
+        // Initialize the database
+        insertedLesson = lessonRepository.saveAndFlush(lesson);
+
+        // Get all the lessonList where videoFileName in
+        defaultLessonFiltering(
+            "videoFileName.in=" + DEFAULT_VIDEO_FILE_NAME + "," + UPDATED_VIDEO_FILE_NAME,
+            "videoFileName.in=" + UPDATED_VIDEO_FILE_NAME
+        );
+    }
+
+    @Test
+    @Transactional
+    void getAllLessonsByVideoFileNameIsNullOrNotNull() throws Exception {
+        // Initialize the database
+        insertedLesson = lessonRepository.saveAndFlush(lesson);
+
+        // Get all the lessonList where videoFileName is not null
+        defaultLessonFiltering("videoFileName.specified=true", "videoFileName.specified=false");
+    }
+
+    @Test
+    @Transactional
+    void getAllLessonsByVideoFileNameContainsSomething() throws Exception {
+        // Initialize the database
+        insertedLesson = lessonRepository.saveAndFlush(lesson);
+
+        // Get all the lessonList where videoFileName contains
+        defaultLessonFiltering("videoFileName.contains=" + DEFAULT_VIDEO_FILE_NAME, "videoFileName.contains=" + UPDATED_VIDEO_FILE_NAME);
+    }
+
+    @Test
+    @Transactional
+    void getAllLessonsByVideoFileNameNotContainsSomething() throws Exception {
+        // Initialize the database
+        insertedLesson = lessonRepository.saveAndFlush(lesson);
+
+        // Get all the lessonList where videoFileName does not contain
+        defaultLessonFiltering(
+            "videoFileName.doesNotContain=" + UPDATED_VIDEO_FILE_NAME,
+            "videoFileName.doesNotContain=" + DEFAULT_VIDEO_FILE_NAME
+        );
+    }
+
+    @Test
+    @Transactional
+    void getAllLessonsByVideoSizeBytesIsEqualToSomething() throws Exception {
+        // Initialize the database
+        insertedLesson = lessonRepository.saveAndFlush(lesson);
+
+        // Get all the lessonList where videoSizeBytes equals to
+        defaultLessonFiltering("videoSizeBytes.equals=" + DEFAULT_VIDEO_SIZE_BYTES, "videoSizeBytes.equals=" + UPDATED_VIDEO_SIZE_BYTES);
+    }
+
+    @Test
+    @Transactional
+    void getAllLessonsByVideoSizeBytesIsInShouldWork() throws Exception {
+        // Initialize the database
+        insertedLesson = lessonRepository.saveAndFlush(lesson);
+
+        // Get all the lessonList where videoSizeBytes in
+        defaultLessonFiltering(
+            "videoSizeBytes.in=" + DEFAULT_VIDEO_SIZE_BYTES + "," + UPDATED_VIDEO_SIZE_BYTES,
+            "videoSizeBytes.in=" + UPDATED_VIDEO_SIZE_BYTES
+        );
+    }
+
+    @Test
+    @Transactional
+    void getAllLessonsByVideoSizeBytesIsNullOrNotNull() throws Exception {
+        // Initialize the database
+        insertedLesson = lessonRepository.saveAndFlush(lesson);
+
+        // Get all the lessonList where videoSizeBytes is not null
+        defaultLessonFiltering("videoSizeBytes.specified=true", "videoSizeBytes.specified=false");
+    }
+
+    @Test
+    @Transactional
+    void getAllLessonsByVideoSizeBytesIsGreaterThanOrEqualToSomething() throws Exception {
+        // Initialize the database
+        insertedLesson = lessonRepository.saveAndFlush(lesson);
+
+        // Get all the lessonList where videoSizeBytes is greater than or equal to
+        defaultLessonFiltering(
+            "videoSizeBytes.greaterThanOrEqual=" + DEFAULT_VIDEO_SIZE_BYTES,
+            "videoSizeBytes.greaterThanOrEqual=" + UPDATED_VIDEO_SIZE_BYTES
+        );
+    }
+
+    @Test
+    @Transactional
+    void getAllLessonsByVideoSizeBytesIsLessThanOrEqualToSomething() throws Exception {
+        // Initialize the database
+        insertedLesson = lessonRepository.saveAndFlush(lesson);
+
+        // Get all the lessonList where videoSizeBytes is less than or equal to
+        defaultLessonFiltering(
+            "videoSizeBytes.lessThanOrEqual=" + DEFAULT_VIDEO_SIZE_BYTES,
+            "videoSizeBytes.lessThanOrEqual=" + SMALLER_VIDEO_SIZE_BYTES
+        );
+    }
+
+    @Test
+    @Transactional
+    void getAllLessonsByVideoSizeBytesIsLessThanSomething() throws Exception {
+        // Initialize the database
+        insertedLesson = lessonRepository.saveAndFlush(lesson);
+
+        // Get all the lessonList where videoSizeBytes is less than
+        defaultLessonFiltering(
+            "videoSizeBytes.lessThan=" + UPDATED_VIDEO_SIZE_BYTES,
+            "videoSizeBytes.lessThan=" + DEFAULT_VIDEO_SIZE_BYTES
+        );
+    }
+
+    @Test
+    @Transactional
+    void getAllLessonsByVideoSizeBytesIsGreaterThanSomething() throws Exception {
+        // Initialize the database
+        insertedLesson = lessonRepository.saveAndFlush(lesson);
+
+        // Get all the lessonList where videoSizeBytes is greater than
+        defaultLessonFiltering(
+            "videoSizeBytes.greaterThan=" + SMALLER_VIDEO_SIZE_BYTES,
+            "videoSizeBytes.greaterThan=" + DEFAULT_VIDEO_SIZE_BYTES
+        );
     }
 
     @Test
@@ -651,6 +879,180 @@ class LessonResourceIT {
 
     @Test
     @Transactional
+    void getAllLessonsByDurationSecondsIsEqualToSomething() throws Exception {
+        // Initialize the database
+        insertedLesson = lessonRepository.saveAndFlush(lesson);
+
+        // Get all the lessonList where durationSeconds equals to
+        defaultLessonFiltering("durationSeconds.equals=" + DEFAULT_DURATION_SECONDS, "durationSeconds.equals=" + UPDATED_DURATION_SECONDS);
+    }
+
+    @Test
+    @Transactional
+    void getAllLessonsByDurationSecondsIsInShouldWork() throws Exception {
+        // Initialize the database
+        insertedLesson = lessonRepository.saveAndFlush(lesson);
+
+        // Get all the lessonList where durationSeconds in
+        defaultLessonFiltering(
+            "durationSeconds.in=" + DEFAULT_DURATION_SECONDS + "," + UPDATED_DURATION_SECONDS,
+            "durationSeconds.in=" + UPDATED_DURATION_SECONDS
+        );
+    }
+
+    @Test
+    @Transactional
+    void getAllLessonsByDurationSecondsIsNullOrNotNull() throws Exception {
+        // Initialize the database
+        insertedLesson = lessonRepository.saveAndFlush(lesson);
+
+        // Get all the lessonList where durationSeconds is not null
+        defaultLessonFiltering("durationSeconds.specified=true", "durationSeconds.specified=false");
+    }
+
+    @Test
+    @Transactional
+    void getAllLessonsByDurationSecondsIsGreaterThanOrEqualToSomething() throws Exception {
+        // Initialize the database
+        insertedLesson = lessonRepository.saveAndFlush(lesson);
+
+        // Get all the lessonList where durationSeconds is greater than or equal to
+        defaultLessonFiltering(
+            "durationSeconds.greaterThanOrEqual=" + DEFAULT_DURATION_SECONDS,
+            "durationSeconds.greaterThanOrEqual=" + UPDATED_DURATION_SECONDS
+        );
+    }
+
+    @Test
+    @Transactional
+    void getAllLessonsByDurationSecondsIsLessThanOrEqualToSomething() throws Exception {
+        // Initialize the database
+        insertedLesson = lessonRepository.saveAndFlush(lesson);
+
+        // Get all the lessonList where durationSeconds is less than or equal to
+        defaultLessonFiltering(
+            "durationSeconds.lessThanOrEqual=" + DEFAULT_DURATION_SECONDS,
+            "durationSeconds.lessThanOrEqual=" + SMALLER_DURATION_SECONDS
+        );
+    }
+
+    @Test
+    @Transactional
+    void getAllLessonsByDurationSecondsIsLessThanSomething() throws Exception {
+        // Initialize the database
+        insertedLesson = lessonRepository.saveAndFlush(lesson);
+
+        // Get all the lessonList where durationSeconds is less than
+        defaultLessonFiltering(
+            "durationSeconds.lessThan=" + UPDATED_DURATION_SECONDS,
+            "durationSeconds.lessThan=" + DEFAULT_DURATION_SECONDS
+        );
+    }
+
+    @Test
+    @Transactional
+    void getAllLessonsByDurationSecondsIsGreaterThanSomething() throws Exception {
+        // Initialize the database
+        insertedLesson = lessonRepository.saveAndFlush(lesson);
+
+        // Get all the lessonList where durationSeconds is greater than
+        defaultLessonFiltering(
+            "durationSeconds.greaterThan=" + SMALLER_DURATION_SECONDS,
+            "durationSeconds.greaterThan=" + DEFAULT_DURATION_SECONDS
+        );
+    }
+
+    @Test
+    @Transactional
+    void getAllLessonsByVideoObjectKeyIsEqualToSomething() throws Exception {
+        // Initialize the database
+        insertedLesson = lessonRepository.saveAndFlush(lesson);
+
+        // Get all the lessonList where videoObjectKey equals to
+        defaultLessonFiltering("videoObjectKey.equals=" + DEFAULT_VIDEO_OBJECT_KEY, "videoObjectKey.equals=" + UPDATED_VIDEO_OBJECT_KEY);
+    }
+
+    @Test
+    @Transactional
+    void getAllLessonsByVideoObjectKeyIsInShouldWork() throws Exception {
+        // Initialize the database
+        insertedLesson = lessonRepository.saveAndFlush(lesson);
+
+        // Get all the lessonList where videoObjectKey in
+        defaultLessonFiltering(
+            "videoObjectKey.in=" + DEFAULT_VIDEO_OBJECT_KEY + "," + UPDATED_VIDEO_OBJECT_KEY,
+            "videoObjectKey.in=" + UPDATED_VIDEO_OBJECT_KEY
+        );
+    }
+
+    @Test
+    @Transactional
+    void getAllLessonsByVideoObjectKeyIsNullOrNotNull() throws Exception {
+        // Initialize the database
+        insertedLesson = lessonRepository.saveAndFlush(lesson);
+
+        // Get all the lessonList where videoObjectKey is not null
+        defaultLessonFiltering("videoObjectKey.specified=true", "videoObjectKey.specified=false");
+    }
+
+    @Test
+    @Transactional
+    void getAllLessonsByVideoObjectKeyContainsSomething() throws Exception {
+        // Initialize the database
+        insertedLesson = lessonRepository.saveAndFlush(lesson);
+
+        // Get all the lessonList where videoObjectKey contains
+        defaultLessonFiltering(
+            "videoObjectKey.contains=" + DEFAULT_VIDEO_OBJECT_KEY,
+            "videoObjectKey.contains=" + UPDATED_VIDEO_OBJECT_KEY
+        );
+    }
+
+    @Test
+    @Transactional
+    void getAllLessonsByVideoObjectKeyNotContainsSomething() throws Exception {
+        // Initialize the database
+        insertedLesson = lessonRepository.saveAndFlush(lesson);
+
+        // Get all the lessonList where videoObjectKey does not contain
+        defaultLessonFiltering(
+            "videoObjectKey.doesNotContain=" + UPDATED_VIDEO_OBJECT_KEY,
+            "videoObjectKey.doesNotContain=" + DEFAULT_VIDEO_OBJECT_KEY
+        );
+    }
+
+    @Test
+    @Transactional
+    void getAllLessonsByUpdatedAtIsEqualToSomething() throws Exception {
+        // Initialize the database
+        insertedLesson = lessonRepository.saveAndFlush(lesson);
+
+        // Get all the lessonList where updatedAt equals to
+        defaultLessonFiltering("updatedAt.equals=" + DEFAULT_UPDATED_AT, "updatedAt.equals=" + UPDATED_UPDATED_AT);
+    }
+
+    @Test
+    @Transactional
+    void getAllLessonsByUpdatedAtIsInShouldWork() throws Exception {
+        // Initialize the database
+        insertedLesson = lessonRepository.saveAndFlush(lesson);
+
+        // Get all the lessonList where updatedAt in
+        defaultLessonFiltering("updatedAt.in=" + DEFAULT_UPDATED_AT + "," + UPDATED_UPDATED_AT, "updatedAt.in=" + UPDATED_UPDATED_AT);
+    }
+
+    @Test
+    @Transactional
+    void getAllLessonsByUpdatedAtIsNullOrNotNull() throws Exception {
+        // Initialize the database
+        insertedLesson = lessonRepository.saveAndFlush(lesson);
+
+        // Get all the lessonList where updatedAt is not null
+        defaultLessonFiltering("updatedAt.specified=true", "updatedAt.specified=false");
+    }
+
+    @Test
+    @Transactional
     void getAllLessonsByChapterIsEqualToSomething() throws Exception {
         Chapter chapter;
         if (TestUtil.findAll(em, Chapter.class).isEmpty()) {
@@ -686,11 +1088,18 @@ class LessonResourceIT {
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
             .andExpect(jsonPath("$.[*].id").value(hasItem(lesson.getId().intValue())))
             .andExpect(jsonPath("$.[*].title").value(hasItem(DEFAULT_TITLE)))
+            .andExpect(jsonPath("$.[*].description").value(hasItem(DEFAULT_DESCRIPTION)))
             .andExpect(jsonPath("$.[*].contentType").value(hasItem(DEFAULT_CONTENT_TYPE)))
+            .andExpect(jsonPath("$.[*].videoUrl").value(hasItem(DEFAULT_VIDEO_URL)))
+            .andExpect(jsonPath("$.[*].videoFileName").value(hasItem(DEFAULT_VIDEO_FILE_NAME)))
+            .andExpect(jsonPath("$.[*].videoSizeBytes").value(hasItem(DEFAULT_VIDEO_SIZE_BYTES.intValue())))
             .andExpect(jsonPath("$.[*].orderIndex").value(hasItem(DEFAULT_ORDER_INDEX)))
             .andExpect(jsonPath("$.[*].isPreview").value(hasItem(DEFAULT_IS_PREVIEW)))
             .andExpect(jsonPath("$.[*].durationMinutes").value(hasItem(DEFAULT_DURATION_MINUTES)))
-            .andExpect(jsonPath("$.[*].status").value(hasItem(DEFAULT_STATUS.toString())));
+            .andExpect(jsonPath("$.[*].status").value(hasItem(DEFAULT_STATUS.toString())))
+            .andExpect(jsonPath("$.[*].durationSeconds").value(hasItem(DEFAULT_DURATION_SECONDS)))
+            .andExpect(jsonPath("$.[*].videoObjectKey").value(hasItem(DEFAULT_VIDEO_OBJECT_KEY)))
+            .andExpect(jsonPath("$.[*].updatedAt").value(hasItem(DEFAULT_UPDATED_AT.toString())));
 
         // Check, that the count call also returns 1
         restLessonMockMvc
@@ -740,11 +1149,18 @@ class LessonResourceIT {
         em.detach(updatedLesson);
         updatedLesson
             .title(UPDATED_TITLE)
+            .description(UPDATED_DESCRIPTION)
             .contentType(UPDATED_CONTENT_TYPE)
+            .videoUrl(UPDATED_VIDEO_URL)
+            .videoFileName(UPDATED_VIDEO_FILE_NAME)
+            .videoSizeBytes(UPDATED_VIDEO_SIZE_BYTES)
             .orderIndex(UPDATED_ORDER_INDEX)
             .isPreview(UPDATED_IS_PREVIEW)
             .durationMinutes(UPDATED_DURATION_MINUTES)
-            .status(UPDATED_STATUS);
+            .status(UPDATED_STATUS)
+            .durationSeconds(UPDATED_DURATION_SECONDS)
+            .videoObjectKey(UPDATED_VIDEO_OBJECT_KEY)
+            .updatedAt(UPDATED_UPDATED_AT);
         LessonDTO lessonDTO = lessonMapper.toDto(updatedLesson);
 
         restLessonMockMvc
@@ -832,10 +1248,13 @@ class LessonResourceIT {
 
         partialUpdatedLesson
             .title(UPDATED_TITLE)
+            .description(UPDATED_DESCRIPTION)
             .contentType(UPDATED_CONTENT_TYPE)
+            .videoUrl(UPDATED_VIDEO_URL)
+            .videoFileName(UPDATED_VIDEO_FILE_NAME)
             .orderIndex(UPDATED_ORDER_INDEX)
-            .isPreview(UPDATED_IS_PREVIEW)
-            .durationMinutes(UPDATED_DURATION_MINUTES);
+            .status(UPDATED_STATUS)
+            .videoObjectKey(UPDATED_VIDEO_OBJECT_KEY);
 
         restLessonMockMvc
             .perform(
@@ -865,11 +1284,18 @@ class LessonResourceIT {
 
         partialUpdatedLesson
             .title(UPDATED_TITLE)
+            .description(UPDATED_DESCRIPTION)
             .contentType(UPDATED_CONTENT_TYPE)
+            .videoUrl(UPDATED_VIDEO_URL)
+            .videoFileName(UPDATED_VIDEO_FILE_NAME)
+            .videoSizeBytes(UPDATED_VIDEO_SIZE_BYTES)
             .orderIndex(UPDATED_ORDER_INDEX)
             .isPreview(UPDATED_IS_PREVIEW)
             .durationMinutes(UPDATED_DURATION_MINUTES)
-            .status(UPDATED_STATUS);
+            .status(UPDATED_STATUS)
+            .durationSeconds(UPDATED_DURATION_SECONDS)
+            .videoObjectKey(UPDATED_VIDEO_OBJECT_KEY)
+            .updatedAt(UPDATED_UPDATED_AT);
 
         restLessonMockMvc
             .perform(

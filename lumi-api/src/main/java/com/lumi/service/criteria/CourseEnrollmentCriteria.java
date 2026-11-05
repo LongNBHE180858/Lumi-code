@@ -34,9 +34,13 @@ public class CourseEnrollmentCriteria implements Serializable, Criteria {
 
     private InstantFilter expiresAt;
 
-    private LongFilter studentId;
+    private InstantFilter updatedAt;
 
     private LongFilter courseId;
+
+    private LongFilter studentId;
+
+    private LongFilter lastAccessedLessonId;
 
     private Boolean distinct;
 
@@ -48,8 +52,10 @@ public class CourseEnrollmentCriteria implements Serializable, Criteria {
         this.status = other.optionalStatus().map(StringFilter::copy).orElse(null);
         this.enrolledAt = other.optionalEnrolledAt().map(InstantFilter::copy).orElse(null);
         this.expiresAt = other.optionalExpiresAt().map(InstantFilter::copy).orElse(null);
-        this.studentId = other.optionalStudentId().map(LongFilter::copy).orElse(null);
+        this.updatedAt = other.optionalUpdatedAt().map(InstantFilter::copy).orElse(null);
         this.courseId = other.optionalCourseId().map(LongFilter::copy).orElse(null);
+        this.studentId = other.optionalStudentId().map(LongFilter::copy).orElse(null);
+        this.lastAccessedLessonId = other.optionalLastAccessedLessonId().map(LongFilter::copy).orElse(null);
         this.distinct = other.distinct;
     }
 
@@ -153,23 +159,23 @@ public class CourseEnrollmentCriteria implements Serializable, Criteria {
         this.expiresAt = expiresAt;
     }
 
-    public LongFilter getStudentId() {
-        return studentId;
+    public InstantFilter getUpdatedAt() {
+        return updatedAt;
     }
 
-    public Optional<LongFilter> optionalStudentId() {
-        return Optional.ofNullable(studentId);
+    public Optional<InstantFilter> optionalUpdatedAt() {
+        return Optional.ofNullable(updatedAt);
     }
 
-    public LongFilter studentId() {
-        if (studentId == null) {
-            setStudentId(new LongFilter());
+    public InstantFilter updatedAt() {
+        if (updatedAt == null) {
+            setUpdatedAt(new InstantFilter());
         }
-        return studentId;
+        return updatedAt;
     }
 
-    public void setStudentId(LongFilter studentId) {
-        this.studentId = studentId;
+    public void setUpdatedAt(InstantFilter updatedAt) {
+        this.updatedAt = updatedAt;
     }
 
     public LongFilter getCourseId() {
@@ -189,6 +195,44 @@ public class CourseEnrollmentCriteria implements Serializable, Criteria {
 
     public void setCourseId(LongFilter courseId) {
         this.courseId = courseId;
+    }
+
+    public LongFilter getStudentId() {
+        return studentId;
+    }
+
+    public Optional<LongFilter> optionalStudentId() {
+        return Optional.ofNullable(studentId);
+    }
+
+    public LongFilter studentId() {
+        if (studentId == null) {
+            setStudentId(new LongFilter());
+        }
+        return studentId;
+    }
+
+    public void setStudentId(LongFilter studentId) {
+        this.studentId = studentId;
+    }
+
+    public LongFilter getLastAccessedLessonId() {
+        return lastAccessedLessonId;
+    }
+
+    public Optional<LongFilter> optionalLastAccessedLessonId() {
+        return Optional.ofNullable(lastAccessedLessonId);
+    }
+
+    public LongFilter lastAccessedLessonId() {
+        if (lastAccessedLessonId == null) {
+            setLastAccessedLessonId(new LongFilter());
+        }
+        return lastAccessedLessonId;
+    }
+
+    public void setLastAccessedLessonId(LongFilter lastAccessedLessonId) {
+        this.lastAccessedLessonId = lastAccessedLessonId;
     }
 
     public Boolean getDistinct() {
@@ -225,15 +269,28 @@ public class CourseEnrollmentCriteria implements Serializable, Criteria {
             Objects.equals(status, that.status) &&
             Objects.equals(enrolledAt, that.enrolledAt) &&
             Objects.equals(expiresAt, that.expiresAt) &&
-            Objects.equals(studentId, that.studentId) &&
+            Objects.equals(updatedAt, that.updatedAt) &&
             Objects.equals(courseId, that.courseId) &&
+            Objects.equals(studentId, that.studentId) &&
+            Objects.equals(lastAccessedLessonId, that.lastAccessedLessonId) &&
             Objects.equals(distinct, that.distinct)
         );
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, progressPercent, status, enrolledAt, expiresAt, studentId, courseId, distinct);
+        return Objects.hash(
+            id,
+            progressPercent,
+            status,
+            enrolledAt,
+            expiresAt,
+            updatedAt,
+            courseId,
+            studentId,
+            lastAccessedLessonId,
+            distinct
+        );
     }
 
     // prettier-ignore
@@ -245,8 +302,10 @@ public class CourseEnrollmentCriteria implements Serializable, Criteria {
             optionalStatus().map(f -> "status=" + f + ", ").orElse("") +
             optionalEnrolledAt().map(f -> "enrolledAt=" + f + ", ").orElse("") +
             optionalExpiresAt().map(f -> "expiresAt=" + f + ", ").orElse("") +
-            optionalStudentId().map(f -> "studentId=" + f + ", ").orElse("") +
+            optionalUpdatedAt().map(f -> "updatedAt=" + f + ", ").orElse("") +
             optionalCourseId().map(f -> "courseId=" + f + ", ").orElse("") +
+            optionalStudentId().map(f -> "studentId=" + f + ", ").orElse("") +
+            optionalLastAccessedLessonId().map(f -> "lastAccessedLessonId=" + f + ", ").orElse("") +
             optionalDistinct().map(f -> "distinct=" + f + ", ").orElse("") +
         "}";
     }

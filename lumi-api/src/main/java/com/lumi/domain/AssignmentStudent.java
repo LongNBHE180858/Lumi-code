@@ -7,10 +7,10 @@ import java.io.Serial;
 import java.io.Serializable;
 
 /**
- * A AssignmentStudent.
+ * Lưu danh sách học sinh được nhận từng bài giao trong lớp.
  */
 @Entity
-@Table(name = "assignment_student")
+@Table(name = "assignment_students")
 @SuppressWarnings("common-java:DuplicatedBlocks")
 public class AssignmentStudent implements Serializable {
 
@@ -25,12 +25,12 @@ public class AssignmentStudent implements Serializable {
 
     @ManyToOne(optional = false)
     @NotNull
-    private User student;
+    @JsonIgnoreProperties(value = { "studyClass", "assignedBy", "exam" }, allowSetters = true)
+    private Assignment assignment;
 
     @ManyToOne(optional = false)
     @NotNull
-    @JsonIgnoreProperties(value = { "studyClass" }, allowSetters = true)
-    private Assignment assignment;
+    private User student;
 
     // jhipster-needle-entity-add-field - JHipster will add fields here
 
@@ -47,19 +47,6 @@ public class AssignmentStudent implements Serializable {
         this.id = id;
     }
 
-    public User getStudent() {
-        return this.student;
-    }
-
-    public void setStudent(User user) {
-        this.student = user;
-    }
-
-    public AssignmentStudent student(User user) {
-        this.setStudent(user);
-        return this;
-    }
-
     public Assignment getAssignment() {
         return this.assignment;
     }
@@ -70,6 +57,19 @@ public class AssignmentStudent implements Serializable {
 
     public AssignmentStudent assignment(Assignment assignment) {
         this.setAssignment(assignment);
+        return this;
+    }
+
+    public User getStudent() {
+        return this.student;
+    }
+
+    public void setStudent(User user) {
+        this.student = user;
+    }
+
+    public AssignmentStudent student(User user) {
+        this.setStudent(user);
         return this;
     }
 

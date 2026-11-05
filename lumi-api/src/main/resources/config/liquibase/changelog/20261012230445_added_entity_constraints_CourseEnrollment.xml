@@ -10,18 +10,25 @@
     -->
     <changeSet id="20261012230445-2" author="jhipster">
 
+        <addForeignKeyConstraint baseColumnNames="course_id"
+                                 baseTableName="course_enrollments"
+                                 constraintName="fk_course_enrollments__course_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="courses"
+                                 />
+
         <addForeignKeyConstraint baseColumnNames="student_id"
-                                 baseTableName="course_enrollment"
-                                 constraintName="fk_course_enrollment__student_id"
+                                 baseTableName="course_enrollments"
+                                 constraintName="fk_course_enrollments__student_id"
                                  referencedColumnNames="id"
                                  referencedTableName="jhi_user"
                                  />
 
-        <addForeignKeyConstraint baseColumnNames="course_id"
-                                 baseTableName="course_enrollment"
-                                 constraintName="fk_course_enrollment__course_id"
+        <addForeignKeyConstraint baseColumnNames="last_accessed_lesson_id"
+                                 baseTableName="course_enrollments"
+                                 constraintName="fk_course_enrollments__last_accessed_lesson_id"
                                  referencedColumnNames="id"
-                                 referencedTableName="course"
+                                 referencedTableName="lessons"
                                  />
     </changeSet>
 </databaseChangeLog>

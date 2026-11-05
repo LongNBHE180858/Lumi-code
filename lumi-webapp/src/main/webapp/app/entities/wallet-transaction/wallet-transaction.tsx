@@ -158,11 +158,22 @@ export const WalletTransaction = () => {
                     <Translate contentKey="lumiApp.walletTransaction.occurredAt">Occurred At</Translate>{' '}
                     <FontAwesomeIcon icon={getSortIconByFieldName('occurredAt')} />
                   </th>
+                  <th className="hand" onClick={sort('balanceBucket')}>
+                    <Translate contentKey="lumiApp.walletTransaction.balanceBucket">Balance Bucket</Translate>{' '}
+                    <FontAwesomeIcon icon={getSortIconByFieldName('balanceBucket')} />
+                  </th>
                   <th>
                     <Translate contentKey="lumiApp.walletTransaction.wallet">Wallet</Translate> <FontAwesomeIcon icon="sort" />
                   </th>
                   <th>
                     <Translate contentKey="lumiApp.walletTransaction.order">Order</Translate> <FontAwesomeIcon icon="sort" />
+                  </th>
+                  <th>
+                    <Translate contentKey="lumiApp.walletTransaction.payoutRequest">Payout Request</Translate>{' '}
+                    <FontAwesomeIcon icon="sort" />
+                  </th>
+                  <th>
+                    <Translate contentKey="lumiApp.walletTransaction.refund">Refund</Translate> <FontAwesomeIcon icon="sort" />
                   </th>
                   <th />
                 </tr>
@@ -186,6 +197,7 @@ export const WalletTransaction = () => {
                         <TextFormat type="date" value={walletTransaction.occurredAt} format={APP_DATE_FORMAT} />
                       ) : null}
                     </td>
+                    <td>{walletTransaction.balanceBucket}</td>
                     <td>
                       {walletTransaction.wallet ? (
                         <Link to={`/instructor-wallet/${walletTransaction.wallet.id}`}>{walletTransaction.wallet.id}</Link>
@@ -193,9 +205,17 @@ export const WalletTransaction = () => {
                         ''
                       )}
                     </td>
+                    <td>{walletTransaction.order?.id ?? ''}</td>
                     <td>
-                      {walletTransaction.order ? (
-                        <Link to={`/course-order/${walletTransaction.order.id}`}>{walletTransaction.order.id}</Link>
+                      {walletTransaction.payoutRequest ? (
+                        <Link to={`/payout-request/${walletTransaction.payoutRequest.id}`}>{walletTransaction.payoutRequest.id}</Link>
+                      ) : (
+                        ''
+                      )}
+                    </td>
+                    <td>
+                      {walletTransaction.refund ? (
+                        <Link to={`/refund/${walletTransaction.refund.id}`}>{walletTransaction.refund.id}</Link>
                       ) : (
                         ''
                       )}

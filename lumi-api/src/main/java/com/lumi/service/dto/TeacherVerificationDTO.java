@@ -1,5 +1,7 @@
 package com.lumi.service.dto;
 
+import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.persistence.Lob;
 import jakarta.validation.constraints.*;
 import java.io.Serializable;
 import java.time.Instant;
@@ -8,6 +10,7 @@ import java.util.Objects;
 /**
  * A DTO for the {@link com.lumi.domain.TeacherVerification} entity.
  */
+@Schema(description = "Lưu hồ sơ xác minh giáo viên và kết quả xét duyệt.")
 @SuppressWarnings("common-java:DuplicatedBlocks")
 public class TeacherVerificationDTO implements Serializable {
 
@@ -20,15 +23,19 @@ public class TeacherVerificationDTO implements Serializable {
     @Size(max = 20)
     private String verificationStatus;
 
-    @Size(max = 5000)
+    @Lob
     private String notes;
 
     private Instant submittedAt;
 
     private Instant approvedAt;
 
+    private Instant reviewedAt;
+
     @NotNull
     private UserDTO user;
+
+    private UserDTO reviewedBy;
 
     public Long getId() {
         return id;
@@ -78,12 +85,28 @@ public class TeacherVerificationDTO implements Serializable {
         this.approvedAt = approvedAt;
     }
 
+    public Instant getReviewedAt() {
+        return reviewedAt;
+    }
+
+    public void setReviewedAt(Instant reviewedAt) {
+        this.reviewedAt = reviewedAt;
+    }
+
     public UserDTO getUser() {
         return user;
     }
 
     public void setUser(UserDTO user) {
         this.user = user;
+    }
+
+    public UserDTO getReviewedBy() {
+        return reviewedBy;
+    }
+
+    public void setReviewedBy(UserDTO reviewedBy) {
+        this.reviewedBy = reviewedBy;
     }
 
     @Override
@@ -117,7 +140,9 @@ public class TeacherVerificationDTO implements Serializable {
             ", notes='" + getNotes() + "'" +
             ", submittedAt='" + getSubmittedAt() + "'" +
             ", approvedAt='" + getApprovedAt() + "'" +
+            ", reviewedAt='" + getReviewedAt() + "'" +
             ", user=" + getUser() +
+            ", reviewedBy=" + getReviewedBy() +
             "}";
     }
 }

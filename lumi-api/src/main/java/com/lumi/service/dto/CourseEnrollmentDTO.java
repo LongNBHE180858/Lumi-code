@@ -1,5 +1,6 @@
 package com.lumi.service.dto;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.*;
 import java.io.Serializable;
 import java.math.BigDecimal;
@@ -9,13 +10,12 @@ import java.util.Objects;
 /**
  * A DTO for the {@link com.lumi.domain.CourseEnrollment} entity.
  */
+@Schema(description = "Lưu quyền học, thời hạn và tiến độ tổng hợp của học sinh theo khóa.")
 @SuppressWarnings("common-java:DuplicatedBlocks")
 public class CourseEnrollmentDTO implements Serializable {
 
     private Long id;
 
-    @DecimalMin(value = "0")
-    @DecimalMax(value = "100")
     private BigDecimal progressPercent;
 
     @Size(max = 20)
@@ -27,10 +27,15 @@ public class CourseEnrollmentDTO implements Serializable {
     private Instant expiresAt;
 
     @NotNull
-    private UserDTO student;
+    private Instant updatedAt;
 
     @NotNull
     private CourseDTO course;
+
+    @NotNull
+    private UserDTO student;
+
+    private LessonDTO lastAccessedLesson;
 
     public Long getId() {
         return id;
@@ -72,12 +77,12 @@ public class CourseEnrollmentDTO implements Serializable {
         this.expiresAt = expiresAt;
     }
 
-    public UserDTO getStudent() {
-        return student;
+    public Instant getUpdatedAt() {
+        return updatedAt;
     }
 
-    public void setStudent(UserDTO student) {
-        this.student = student;
+    public void setUpdatedAt(Instant updatedAt) {
+        this.updatedAt = updatedAt;
     }
 
     public CourseDTO getCourse() {
@@ -86,6 +91,22 @@ public class CourseEnrollmentDTO implements Serializable {
 
     public void setCourse(CourseDTO course) {
         this.course = course;
+    }
+
+    public UserDTO getStudent() {
+        return student;
+    }
+
+    public void setStudent(UserDTO student) {
+        this.student = student;
+    }
+
+    public LessonDTO getLastAccessedLesson() {
+        return lastAccessedLesson;
+    }
+
+    public void setLastAccessedLesson(LessonDTO lastAccessedLesson) {
+        this.lastAccessedLesson = lastAccessedLesson;
     }
 
     @Override
@@ -118,8 +139,10 @@ public class CourseEnrollmentDTO implements Serializable {
             ", status='" + getStatus() + "'" +
             ", enrolledAt='" + getEnrolledAt() + "'" +
             ", expiresAt='" + getExpiresAt() + "'" +
-            ", student=" + getStudent() +
+            ", updatedAt='" + getUpdatedAt() + "'" +
             ", course=" + getCourse() +
+            ", student=" + getStudent() +
+            ", lastAccessedLesson=" + getLastAccessedLesson() +
             "}";
     }
 }

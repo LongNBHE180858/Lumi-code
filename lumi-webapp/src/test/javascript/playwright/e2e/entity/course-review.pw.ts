@@ -12,7 +12,7 @@ import {
 import { expect, test } from '../../support/fixtures';
 
 const courseReviewPageUrl = '/course-review';
-// const courseReviewSample = {};
+// const courseReviewSample = {"updatedAt":"2026-10-12T15:19:34.397Z"};
 
 const courseReviewApiUrl = '/api/course-reviews';
 
@@ -21,8 +21,8 @@ const entitiesRequest = (page: import('@playwright/test').Page) =>
 
 test.describe('CourseReview e2e test', () => {
   let courseReview;
-  // let user;
   // let course;
+  // let user;
 
   test.beforeEach(async ({ jhi }) => {
     const { username, password } = jhi.credentials();
@@ -32,19 +32,19 @@ test.describe('CourseReview e2e test', () => {
   /* Disabled due to incompatibility
   test.beforeEach(async ({ jhi }) => {
     // create an instance at the required relationship entity:
+    course = await (
+      await jhi.authenticatedRequest({
+        method: 'POST',
+        url: '/api/courses',
+        body: {"title":"that meatloaf","description":"Li4vZmFrZS1kYXRhL2Jsb2IvaGlwc3Rlci50eHQ=","thumbnailUrl":"immediately","price":18416.09,"shortDescription":"stock","bookSeries":"teammate zowie","targetAudience":"midst chip","prerequisites":"morbidity","learningObjectives":"Li4vZmFrZS1kYXRhL2Jsb2IvaGlwc3Rlci50eHQ=","introVideoUrl":"against sneaky why","validDurationDays":31833,"accessDurationValue":3494,"accessDurationUnit":"tired clev","version":24827,"status":"ACTIVE","isDeleted":false,"createdAt":"2026-10-12T05:56:54.372Z","updatedAt":"2026-10-12T10:25:58.128Z","storageLimitBytes":19664},
+      })
+    ).json();
+    // create an instance at the required relationship entity:
     user = await (
       await jhi.authenticatedRequest({
         method: 'POST',
         url: '/api/users',
         body: {"login":"LanTruc_Pham","firstName":"Đức Chính","lastName":"Đinh","email":"QuangTuan.Phung@yahoo.com","langKey":"astride do","imageUrl":"along till serve"},
-      })
-    ).json();
-    // create an instance at the required relationship entity:
-    course = await (
-      await jhi.authenticatedRequest({
-        method: 'POST',
-        url: '/api/courses',
-        body: {"title":"that meatloaf","description":"immediately","thumbnailUrl":"gosh murky","price":1867.36,"validDurationDays":29334,"status":"DRAFT","isDeleted":true,"createdAt":"2026-10-12T09:51:02.417Z","updatedAt":"2026-10-12T04:17:51.125Z"},
       })
     ).json();
   });
@@ -54,14 +54,14 @@ test.describe('CourseReview e2e test', () => {
     // A url predicate rather than a glob: a glob's wildcards would close the "Disabled due to
     // incompatibility" block comment that wraps this section when the create test is skipped.
     await page.route(
-      url => url.pathname === '/api/users',
-      route => route.fulfill({ status: 200, json: [user].filter(Boolean) }),
+      url => url.pathname === '/api/courses',
+      route => route.fulfill({ status: 200, json: [course].filter(Boolean) }),
     );
     // A url predicate rather than a glob: a glob's wildcards would close the "Disabled due to
     // incompatibility" block comment that wraps this section when the create test is skipped.
     await page.route(
-      url => url.pathname === '/api/courses',
-      route => route.fulfill({ status: 200, json: [course].filter(Boolean) }),
+      url => url.pathname === '/api/users',
+      route => route.fulfill({ status: 200, json: [user].filter(Boolean) }),
     );
   });
    */
@@ -78,19 +78,19 @@ test.describe('CourseReview e2e test', () => {
 
   /* Disabled due to incompatibility
   test.afterEach(async ({ jhi }) => {
-    if (user) {
-      await jhi.authenticatedRequest({
-        method: 'DELETE',
-        url: `/api/users/${user.id}`,
-      });
-      user = undefined;
-    }
     if (course) {
       await jhi.authenticatedRequest({
         method: 'DELETE',
         url: `/api/courses/${course.id}`,
       });
       course = undefined;
+    }
+    if (user) {
+      await jhi.authenticatedRequest({
+        method: 'DELETE',
+        url: `/api/users/${user.id}`,
+      });
+      user = undefined;
     }
   });
    */
@@ -148,8 +148,8 @@ test.describe('CourseReview e2e test', () => {
             url: '/api/course-reviews',
             body: {
               ...courseReviewSample,
-              student: user,
               course: course,
+              student: user,
             },
           })
         ).json();
@@ -240,15 +240,19 @@ test.describe('CourseReview e2e test', () => {
       await page.locator(`[data-cy="rating"]`).fill('4');
       await expect(page.locator(`[data-cy="rating"]`)).toHaveValue('4');
 
-      await page.locator(`[data-cy="content"]`).fill('instead');
-      await expect(page.locator(`[data-cy="content"]`)).toHaveValue('instead');
+      await page.locator(`[data-cy="content"]`).fill('../fake-data/blob/hipster.txt');
+      await expect(page.locator(`[data-cy="content"]`)).toHaveValue(new RegExp('../fake-data/blob/hipster.txt'));
 
-      await page.locator(`[data-cy="createdAt"]`).fill('2026-10-11T23:44');
+      await page.locator(`[data-cy="createdAt"]`).fill('2026-10-12T00:17');
       await page.locator(`[data-cy="createdAt"]`).blur();
-      await expect(page.locator(`[data-cy="createdAt"]`)).toHaveValue('2026-10-11T23:44');
+      await expect(page.locator(`[data-cy="createdAt"]`)).toHaveValue('2026-10-12T00:17');
 
-      await page.locator(`[data-cy="student"]`).selectOption({ index: 1 });
+      await page.locator(`[data-cy="updatedAt"]`).fill('2026-10-12T11:15');
+      await page.locator(`[data-cy="updatedAt"]`).blur();
+      await expect(page.locator(`[data-cy="updatedAt"]`)).toHaveValue('2026-10-12T11:15');
+
       await page.locator(`[data-cy="course"]`).selectOption({ index: 1 });
+      await page.locator(`[data-cy="student"]`).selectOption({ index: 1 });
 
       const postRequest = page.waitForResponse(
         response => new URL(response.url()).pathname === courseReviewApiUrl && response.request().method() === 'POST',

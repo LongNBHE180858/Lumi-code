@@ -1,16 +1,18 @@
 package com.lumi.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import java.io.Serial;
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.time.Instant;
 
 /**
- * A Coupon.
+ * Lưu mã giảm giá, điều kiện sử dụng và tỷ lệ giáo viên chịu giảm giá.
  */
 @Entity
-@Table(name = "coupon")
+@Table(name = "coupons")
 @SuppressWarnings("common-java:DuplicatedBlocks")
 public class Coupon implements Serializable {
 
@@ -33,19 +35,42 @@ public class Coupon implements Serializable {
     @Column(name = "discount_percent")
     private Integer discountPercent;
 
-    @Min(value = 1)
     @Column(name = "max_uses")
     private Integer maxUses;
 
-    @Min(value = 0)
     @Column(name = "used_count")
     private Integer usedCount;
 
     @Column(name = "valid_to")
     private Instant validTo;
 
+    @Column(name = "valid_from")
+    private Instant validFrom;
+
+    @NotNull
+    @Column(name = "is_active", nullable = false)
+    private Boolean isActive;
+
+    @NotNull
+    @DecimalMin(value = "0")
+    @Column(name = "min_order_amount", precision = 21, scale = 2, nullable = false)
+    private BigDecimal minOrderAmount;
+
+    @Min(value = 1)
+    @Column(name = "max_uses_per_user")
+    private Integer maxUsesPerUser;
+
+    @DecimalMin(value = "0")
+    @DecimalMax(value = "100")
+    @Column(name = "instructor_discount_share_percent", precision = 21, scale = 2)
+    private BigDecimal instructorDiscountSharePercent;
+
     @ManyToOne(fetch = FetchType.LAZY)
     private User instructor;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JsonIgnoreProperties(value = { "author", "subject", "grade" }, allowSetters = true)
+    private Course course;
 
     // jhipster-needle-entity-add-field - JHipster will add fields here
 
@@ -127,6 +152,71 @@ public class Coupon implements Serializable {
         this.validTo = validTo;
     }
 
+    public Instant getValidFrom() {
+        return this.validFrom;
+    }
+
+    public Coupon validFrom(Instant validFrom) {
+        this.setValidFrom(validFrom);
+        return this;
+    }
+
+    public void setValidFrom(Instant validFrom) {
+        this.validFrom = validFrom;
+    }
+
+    public Boolean getIsActive() {
+        return this.isActive;
+    }
+
+    public Coupon isActive(Boolean isActive) {
+        this.setIsActive(isActive);
+        return this;
+    }
+
+    public void setIsActive(Boolean isActive) {
+        this.isActive = isActive;
+    }
+
+    public BigDecimal getMinOrderAmount() {
+        return this.minOrderAmount;
+    }
+
+    public Coupon minOrderAmount(BigDecimal minOrderAmount) {
+        this.setMinOrderAmount(minOrderAmount);
+        return this;
+    }
+
+    public void setMinOrderAmount(BigDecimal minOrderAmount) {
+        this.minOrderAmount = minOrderAmount;
+    }
+
+    public Integer getMaxUsesPerUser() {
+        return this.maxUsesPerUser;
+    }
+
+    public Coupon maxUsesPerUser(Integer maxUsesPerUser) {
+        this.setMaxUsesPerUser(maxUsesPerUser);
+        return this;
+    }
+
+    public void setMaxUsesPerUser(Integer maxUsesPerUser) {
+        this.maxUsesPerUser = maxUsesPerUser;
+    }
+
+    public BigDecimal getInstructorDiscountSharePercent() {
+        return this.instructorDiscountSharePercent;
+    }
+
+    public Coupon instructorDiscountSharePercent(BigDecimal instructorDiscountSharePercent) {
+        this.setInstructorDiscountSharePercent(instructorDiscountSharePercent);
+        return this;
+    }
+
+    public void setInstructorDiscountSharePercent(BigDecimal instructorDiscountSharePercent) {
+        this.instructorDiscountSharePercent = instructorDiscountSharePercent;
+    }
+
     public User getInstructor() {
         return this.instructor;
     }
@@ -137,6 +227,19 @@ public class Coupon implements Serializable {
 
     public Coupon instructor(User user) {
         this.setInstructor(user);
+        return this;
+    }
+
+    public Course getCourse() {
+        return this.course;
+    }
+
+    public void setCourse(Course course) {
+        this.course = course;
+    }
+
+    public Coupon course(Course course) {
+        this.setCourse(course);
         return this;
     }
 
@@ -169,6 +272,11 @@ public class Coupon implements Serializable {
             ", maxUses=" + getMaxUses() +
             ", usedCount=" + getUsedCount() +
             ", validTo='" + getValidTo() + "'" +
+            ", validFrom='" + getValidFrom() + "'" +
+            ", isActive='" + getIsActive() + "'" +
+            ", minOrderAmount=" + getMinOrderAmount() +
+            ", maxUsesPerUser=" + getMaxUsesPerUser() +
+            ", instructorDiscountSharePercent=" + getInstructorDiscountSharePercent() +
             "}";
     }
 }

@@ -135,6 +135,14 @@ export const ClassMaterial = () => {
                   <Translate contentKey="lumiApp.classMaterial.uploadedAt">Uploaded At</Translate>{' '}
                   <FontAwesomeIcon icon={getSortIconByFieldName('uploadedAt')} />
                 </th>
+                <th className="hand" onClick={sort('fileObjectKey')}>
+                  <Translate contentKey="lumiApp.classMaterial.fileObjectKey">File Object Key</Translate>{' '}
+                  <FontAwesomeIcon icon={getSortIconByFieldName('fileObjectKey')} />
+                </th>
+                <th className="hand" onClick={sort('updatedAt')}>
+                  <Translate contentKey="lumiApp.classMaterial.updatedAt">Updated At</Translate>{' '}
+                  <FontAwesomeIcon icon={getSortIconByFieldName('updatedAt')} />
+                </th>
                 <th>
                   <Translate contentKey="lumiApp.classMaterial.studyClass">Study Class</Translate> <FontAwesomeIcon icon="sort" />
                 </th>
@@ -156,9 +164,13 @@ export const ClassMaterial = () => {
                   <td>
                     {classMaterial.uploadedAt ? <TextFormat type="date" value={classMaterial.uploadedAt} format={APP_DATE_FORMAT} /> : null}
                   </td>
+                  <td>{classMaterial.fileObjectKey}</td>
+                  <td>
+                    {classMaterial.updatedAt ? <TextFormat type="date" value={classMaterial.updatedAt} format={APP_DATE_FORMAT} /> : null}
+                  </td>
                   <td>
                     {classMaterial.studyClass ? (
-                      <Link to={`/study-class/${classMaterial.studyClass.id}`}>{classMaterial.studyClass.name}</Link>
+                      <Link to={`/study-class/${classMaterial.studyClass.id}`}>{classMaterial.studyClass.id}</Link>
                     ) : (
                       ''
                     )}

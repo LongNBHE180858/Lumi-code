@@ -8,10 +8,10 @@ import java.io.Serializable;
 import java.time.Instant;
 
 /**
- * A DiscussionReply.
+ * Lưu phản hồi và chuỗi trả lời trong thảo luận bài học.
  */
 @Entity
-@Table(name = "discussion_reply")
+@Table(name = "discussion_replies")
 @SuppressWarnings("common-java:DuplicatedBlocks")
 public class DiscussionReply implements Serializable {
 
@@ -24,9 +24,7 @@ public class DiscussionReply implements Serializable {
     @Column(name = "id")
     private Long id;
 
-    @NotNull
-    @Size(max = 5000)
-    @Column(name = "content", length = 5000, nullable = false)
+    @Column(name = "content", nullable = false, columnDefinition = "text")
     private String content;
 
     @Column(name = "created_at")
@@ -34,15 +32,15 @@ public class DiscussionReply implements Serializable {
 
     @ManyToOne(optional = false)
     @NotNull
-    private User user;
+    @JsonIgnoreProperties(value = { "lesson", "student", "studyClass" }, allowSetters = true)
+    private Discussion discussion;
 
     @ManyToOne(optional = false)
     @NotNull
-    @JsonIgnoreProperties(value = { "student", "lesson" }, allowSetters = true)
-    private Discussion discussion;
+    private User user;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JsonIgnoreProperties(value = { "user", "discussion", "parent" }, allowSetters = true)
+    @JsonIgnoreProperties(value = { "discussion", "user", "parent" }, allowSetters = true)
     private DiscussionReply parent;
 
     // jhipster-needle-entity-add-field - JHipster will add fields here
@@ -86,19 +84,6 @@ public class DiscussionReply implements Serializable {
         this.createdAt = createdAt;
     }
 
-    public User getUser() {
-        return this.user;
-    }
-
-    public void setUser(User user) {
-        this.user = user;
-    }
-
-    public DiscussionReply user(User user) {
-        this.setUser(user);
-        return this;
-    }
-
     public Discussion getDiscussion() {
         return this.discussion;
     }
@@ -109,6 +94,19 @@ public class DiscussionReply implements Serializable {
 
     public DiscussionReply discussion(Discussion discussion) {
         this.setDiscussion(discussion);
+        return this;
+    }
+
+    public User getUser() {
+        return this.user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
+    }
+
+    public DiscussionReply user(User user) {
+        this.setUser(user);
         return this;
     }
 

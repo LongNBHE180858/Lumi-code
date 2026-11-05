@@ -1,0 +1,33 @@
+{
+  "lumiApp": {
+    "courseReviewRequest": {
+      "home": {
+        "title": "Course Review Requests",
+        "refreshListLabel": "Refresh list",
+        "createLabel": "Create a new Course Review Request",
+        "createOrEditLabel": "Create or edit a Course Review Request",
+        "notFound": "No Course Review Requests found"
+      },
+      "created": "A new Course Review Request is created with identifier {{ param }}",
+      "updated": "A Course Review Request is updated with identifier {{ param }}",
+      "deleted": "A Course Review Request is deleted with identifier {{ param }}",
+      "delete": {
+        "question": "Are you sure you want to delete Course Review Request {{ id }}?"
+      },
+      "detail": {
+        "title": "Course Review Request"
+      },
+      "id": "ID",
+      "courseVersion": "Course Version",
+      "status": "Status",
+      "submissionNote": "Submission Note",
+      "rightsConfirmedAt": "Rights Confirmed At",
+      "submittedAt": "Submitted At",
+      "reviewedAt": "Reviewed At",
+      "reviewerFeedback": "Reviewer Feedback",
+      "course": "Course",
+      "submittedBy": "Submitted By",
+      "reviewedBy": "Reviewed By"
+    }
+  }
+}

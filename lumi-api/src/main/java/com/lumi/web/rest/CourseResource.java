@@ -2,12 +2,12 @@ package com.lumi.web.rest;
 
 import com.lumi.repository.CourseRepository;
 import com.lumi.repository.LessonRepository;
-import com.lumi.service.CourseQueryService;
 import com.lumi.service.CourseService;
 import com.lumi.service.criteria.CourseCriteria;
 import com.lumi.service.dto.CourseDTO;
 import com.lumi.service.dto.LessonDTO;
 import com.lumi.service.mapper.LessonMapper;
+import com.lumi.service.query.CourseQueryService;
 import com.lumi.web.rest.errors.BadRequestAlertException;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
@@ -224,11 +224,7 @@ public class CourseResource {
     @GetMapping("/{courseId}/lessons")
     public ResponseEntity<List<LessonDTO>> getLessonsByCourse(@PathVariable("courseId") Long courseId) {
         LOG.debug("REST request to get Lessons for Course : {}", courseId);
-        List<LessonDTO> lessons = lessonRepository
-            .findByChapterCourseId(courseId)
-            .stream()
-            .map(lessonMapper::toDto)
-            .toList();
+        List<LessonDTO> lessons = lessonRepository.findByChapterCourseId(courseId).stream().map(lessonMapper::toDto).toList();
         return ResponseEntity.ok(lessons);
     }
 }

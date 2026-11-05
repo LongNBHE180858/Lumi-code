@@ -51,7 +51,8 @@ public class AuthSessionAsserts {
             .satisfies(a -> assertThat(a.getRefreshToken()).as("check refreshToken").isEqualTo(expected.getRefreshToken()))
             .satisfies(a -> assertThat(a.getExpiresAt()).as("check expiresAt").isEqualTo(expected.getExpiresAt()))
             .satisfies(a -> assertThat(a.getIsRevoked()).as("check isRevoked").isEqualTo(expected.getIsRevoked()))
-            .satisfies(a -> assertThat(a.getCreatedAt()).as("check createdAt").isEqualTo(expected.getCreatedAt()));
+            .satisfies(a -> assertThat(a.getCreatedAt()).as("check createdAt").isEqualTo(expected.getCreatedAt()))
+            .satisfies(a -> assertThat(a.getRefreshTokenHash()).as("check refreshTokenHash").isEqualTo(expected.getRefreshTokenHash()));
     }
 
     /**

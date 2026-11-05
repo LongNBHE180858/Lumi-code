@@ -73,11 +73,14 @@ class RefundCriteriaTest {
     private static void setAllFilters(RefundCriteria refundCriteria) {
         refundCriteria.id();
         refundCriteria.amount();
-        refundCriteria.reason();
         refundCriteria.status();
         refundCriteria.createdAt();
+        refundCriteria.processedAt();
+        refundCriteria.refundReference();
+        refundCriteria.accessRevokedAt();
         refundCriteria.orderId();
         refundCriteria.paymentId();
+        refundCriteria.processedById();
         refundCriteria.distinct();
     }
 
@@ -86,11 +89,14 @@ class RefundCriteriaTest {
             criteria ->
                 condition.apply(criteria.getId()) &&
                 condition.apply(criteria.getAmount()) &&
-                condition.apply(criteria.getReason()) &&
                 condition.apply(criteria.getStatus()) &&
                 condition.apply(criteria.getCreatedAt()) &&
+                condition.apply(criteria.getProcessedAt()) &&
+                condition.apply(criteria.getRefundReference()) &&
+                condition.apply(criteria.getAccessRevokedAt()) &&
                 condition.apply(criteria.getOrderId()) &&
                 condition.apply(criteria.getPaymentId()) &&
+                condition.apply(criteria.getProcessedById()) &&
                 condition.apply(criteria.getDistinct()),
             "every filter matches"
         );
@@ -101,11 +107,14 @@ class RefundCriteriaTest {
             criteria ->
                 condition.apply(criteria.getId(), copy.getId()) &&
                 condition.apply(criteria.getAmount(), copy.getAmount()) &&
-                condition.apply(criteria.getReason(), copy.getReason()) &&
                 condition.apply(criteria.getStatus(), copy.getStatus()) &&
                 condition.apply(criteria.getCreatedAt(), copy.getCreatedAt()) &&
+                condition.apply(criteria.getProcessedAt(), copy.getProcessedAt()) &&
+                condition.apply(criteria.getRefundReference(), copy.getRefundReference()) &&
+                condition.apply(criteria.getAccessRevokedAt(), copy.getAccessRevokedAt()) &&
                 condition.apply(criteria.getOrderId(), copy.getOrderId()) &&
                 condition.apply(criteria.getPaymentId(), copy.getPaymentId()) &&
+                condition.apply(criteria.getProcessedById(), copy.getProcessedById()) &&
                 condition.apply(criteria.getDistinct(), copy.getDistinct()),
             "every filter matches"
         );

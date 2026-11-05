@@ -52,7 +52,18 @@ public class ExamAttemptAsserts {
             .satisfies(a -> assertThat(a.getEndTime()).as("check endTime").isEqualTo(expected.getEndTime()))
             .satisfies(a -> assertThat(a.getScore()).as("check score").usingComparator(bigDecimalCompareTo).isEqualTo(expected.getScore()))
             .satisfies(a -> assertThat(a.getStatus()).as("check status").isEqualTo(expected.getStatus()))
-            .satisfies(a -> assertThat(a.getRowVersion()).as("check rowVersion").isEqualTo(expected.getRowVersion()));
+            .satisfies(a -> assertThat(a.getRowVersion()).as("check rowVersion").isEqualTo(expected.getRowVersion()))
+            .satisfies(a -> assertThat(a.getDeadlineAt()).as("check deadlineAt").isEqualTo(expected.getDeadlineAt()))
+            .satisfies(a -> assertThat(a.getLastSavedAt()).as("check lastSavedAt").isEqualTo(expected.getLastSavedAt()))
+            .satisfies(a -> assertThat(a.getSubmittedAt()).as("check submittedAt").isEqualTo(expected.getSubmittedAt()))
+            .satisfies(a ->
+                assertThat(a.getPresentationSnapshot()).as("check presentationSnapshot").isEqualTo(expected.getPresentationSnapshot())
+            )
+            .satisfies(a ->
+                assertThat(a.getSecurityConfigSnapshot()).as("check securityConfigSnapshot").isEqualTo(expected.getSecurityConfigSnapshot())
+            )
+            .satisfies(a -> assertThat(a.getAdaptiveState()).as("check adaptiveState").isEqualTo(expected.getAdaptiveState()))
+            .satisfies(a -> assertThat(a.getMonitoringStatus()).as("check monitoringStatus").isEqualTo(expected.getMonitoringStatus()));
     }
 
     /**
@@ -64,6 +75,7 @@ public class ExamAttemptAsserts {
     public static void assertExamAttemptUpdatableRelationshipsEquals(ExamAttempt expected, ExamAttempt actual) {
         assertThat(actual)
             .as("Verify ExamAttempt relationships")
-            .satisfies(a -> assertThat(a.getExam()).as("check exam").isEqualTo(expected.getExam()));
+            .satisfies(a -> assertThat(a.getExam()).as("check exam").isEqualTo(expected.getExam()))
+            .satisfies(a -> assertThat(a.getAssignment()).as("check assignment").isEqualTo(expected.getAssignment()));
     }
 }

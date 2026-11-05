@@ -10,25 +10,35 @@
         Added the entity ProctorEvent.
     -->
     <changeSet id="20261012230510-1" author="jhipster">
-        <createTable tableName="proctor_event">
+        <createTable tableName="proctor_events" remarks="Lưu cảnh báo trình duyệt theo lượt thi và kết quả xem xét; không lưu ảnh hoặc nhận diện khuôn mặt.">
             <column name="id" type="bigint">
                 <constraints primaryKey="true" nullable="false"/>
             </column>
             <column name="violation_type" type="varchar(50)">
                 <constraints nullable="false" />
             </column>
-            <column name="photo_url" type="varchar(1000)">
-                <constraints nullable="true" />
-            </column>
             <column name="occurred_at" type="${datetimeType}">
                 <constraints nullable="true" />
             </column>
-            <column name="session_id" type="bigint">
+            <column name="review_status" type="varchar(20)">
                 <constraints nullable="false" />
+            </column>
+            <column name="reviewed_at" type="${datetimeType}">
+                <constraints nullable="true" />
+            </column>
+            <column name="review_note" type="${clobType}">
+                <constraints nullable="true" />
+            </column>
+            <column name="attempt_id" type="bigint">
+                <constraints nullable="false" />
+            </column>
+            <column name="reviewed_by_id" type="bigint">
+                <constraints nullable="true" />
             </column>
             <!-- jhipster-needle-liquibase-add-column - JHipster will add columns here -->
         </createTable>
-        <dropDefaultValue tableName="proctor_event" columnName="occurred_at" columnDataType="${datetimeType}"/>
+        <dropDefaultValue tableName="proctor_events" columnName="occurred_at" columnDataType="${datetimeType}"/>
+        <dropDefaultValue tableName="proctor_events" columnName="reviewed_at" columnDataType="${datetimeType}"/>
     </changeSet>
 
     <!-- jhipster-needle-liquibase-add-changeset - JHipster will add changesets here -->
@@ -43,16 +53,18 @@
     -->
     <changeSet id="20261012230510-1-data" author="jhipster" context="faker">
         <loadData
-                  file="../fake-data/proctor_event.csv"
+                  file="../fake-data/proctor_events.csv"
                   relativeToChangelogFile="true"
                   separator=";"
-                  tableName="proctor_event"
+                  tableName="proctor_events"
                   usePreparedStatements="true">
             <column name="id" type="numeric"/>
             <column name="violation_type" type="string"/>
-            <column name="photo_url" type="string"/>
             <column name="occurred_at" type="date"/>
-            <column name="session_id" type="numeric"/>
+            <column name="review_status" type="string"/>
+            <column name="reviewed_at" type="date"/>
+            <column name="review_note" type="clob"/>
+            <column name="attempt_id" type="numeric"/>
             <!-- jhipster-needle-liquibase-add-loadcolumn - JHipster (and/or extensions) can add load columns here -->
         </loadData>
     </changeSet>

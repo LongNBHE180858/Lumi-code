@@ -30,16 +30,16 @@ public interface ClassMemberRepository extends JpaRepository<ClassMember, Long>,
     }
 
     @Query(
-        value = "select classMember from ClassMember classMember left join fetch classMember.student left join fetch classMember.studyClass",
+        value = "select classMember from ClassMember classMember left join fetch classMember.student",
         countQuery = "select count(classMember) from ClassMember classMember"
     )
     Page<ClassMember> findAllWithToOneRelationships(Pageable pageable);
 
-    @Query("select classMember from ClassMember classMember left join fetch classMember.student left join fetch classMember.studyClass")
+    @Query("select classMember from ClassMember classMember left join fetch classMember.student")
     List<ClassMember> findAllWithToOneRelationships();
 
-    @Query(
-        "select classMember from ClassMember classMember left join fetch classMember.student left join fetch classMember.studyClass where classMember.id =:id"
-    )
+    @Query("select classMember from ClassMember classMember left join fetch classMember.student where classMember.id =:id")
     Optional<ClassMember> findOneWithToOneRelationships(@Param("id") Long id);
+
+    long countByStudyClassIdAndStatus(long id, String status);
 }

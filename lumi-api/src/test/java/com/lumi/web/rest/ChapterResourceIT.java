@@ -4,7 +4,6 @@ import static com.lumi.domain.ChapterAsserts.*;
 import static com.lumi.web.rest.TestUtil.createUpdateProxyForBean;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.hasItem;
-import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -12,23 +11,16 @@ import com.lumi.IntegrationTest;
 import com.lumi.domain.Chapter;
 import com.lumi.domain.Course;
 import com.lumi.repository.ChapterRepository;
-import com.lumi.service.ChapterService;
 import com.lumi.service.dto.ChapterDTO;
 import com.lumi.service.mapper.ChapterMapper;
 import jakarta.persistence.EntityManager;
-import java.util.ArrayList;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicLong;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
@@ -39,17 +31,16 @@ import tools.jackson.databind.ObjectMapper;
  * Integration tests for the {@link ChapterResource} REST controller.
  */
 @IntegrationTest
-@ExtendWith(MockitoExtension.class)
 @AutoConfigureMockMvc
-@WithMockUser(authorities = "ROLE_ADMIN")
+@WithMockUser
 class ChapterResourceIT {
 
     private static final String DEFAULT_TITLE = "AAAAAAAAAA";
     private static final String UPDATED_TITLE = "BBBBBBBBBB";
 
-    private static final Integer DEFAULT_ORDER_INDEX = 0;
-    private static final Integer UPDATED_ORDER_INDEX = 1;
-    private static final Integer SMALLER_ORDER_INDEX = 0 - 1;
+    private static final Integer DEFAULT_ORDER_INDEX = 1;
+    private static final Integer UPDATED_ORDER_INDEX = 2;
+    private static final Integer SMALLER_ORDER_INDEX = 1 - 1;
 
     private static final String ENTITY_API_URL = "/api/chapters";
     private static final String ENTITY_API_URL_ID = ENTITY_API_URL + "/{id}";
@@ -63,14 +54,8 @@ class ChapterResourceIT {
     @Autowired
     private ChapterRepository chapterRepository;
 
-    @Mock
-    private ChapterRepository chapterRepositoryMock;
-
     @Autowired
     private ChapterMapper chapterMapper;
-
-    @Mock
-    private ChapterService chapterServiceMock;
 
     @Autowired
     private EntityManager em;
@@ -132,7 +117,7 @@ class ChapterResourceIT {
     @AfterEach
     void cleanup() {
         if (insertedChapter != null) {
-            chapterRepository.deleteById(insertedChapter.getId());
+            chapterRepository.delete(insertedChapter);
             insertedChapter = null;
         }
     }
@@ -227,23 +212,6 @@ class ChapterResourceIT {
             .andExpect(jsonPath("$.[*].id").value(hasItem(chapter.getId().intValue())))
             .andExpect(jsonPath("$.[*].title").value(hasItem(DEFAULT_TITLE)))
             .andExpect(jsonPath("$.[*].orderIndex").value(hasItem(DEFAULT_ORDER_INDEX)));
-    }
-
-    @SuppressWarnings({ "unchecked" })
-    void getAllChaptersWithEagerRelationshipsIsEnabled() throws Exception {
-        when(chapterServiceMock.findAllWithEagerRelationships(any())).thenReturn(new PageImpl(new ArrayList<>()));
-
-        restChapterMockMvc.perform(get(ENTITY_API_URL + "?eagerload=true")).andExpect(status().isOk());
-
-        verify(chapterServiceMock, times(1)).findAllWithEagerRelationships(any());
-    }
-
-    @SuppressWarnings({ "unchecked" })
-    void getAllChaptersWithEagerRelationshipsIsNotEnabled() throws Exception {
-        when(chapterServiceMock.findAllWithEagerRelationships(any())).thenReturn(new PageImpl(new ArrayList<>()));
-
-        restChapterMockMvc.perform(get(ENTITY_API_URL + "?eagerload=false")).andExpect(status().isOk());
-        verify(chapterRepositoryMock, times(1)).findAll(any(Pageable.class));
     }
 
     @Test

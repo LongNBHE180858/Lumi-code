@@ -5,7 +5,7 @@ import axios from 'axios';
 import { Pencil, Plus, RefreshCw } from 'lucide-react';
 
 import AdminLayout from '../layout/admin-layout';
-import PremiumPackageForm, { packageTypeLabels } from './premium-package-form';
+import PremiumPackageForm, { aiPeriodLabels, packageTypeLabels } from './premium-package-form';
 import { premiumPackagesApi, type PremiumPackage, type PremiumPackageInput } from './premium-packages-api';
 
 const pageSize = 10;
@@ -152,7 +152,8 @@ const AdminPremiumPackages = () => {
                     <td>{currency.format(item.price)}</td>
                     <td>{item.durationDays} ngày</td>
                     <td>
-                      {item.storageQuotaMb.toLocaleString('vi-VN')} MB · {item.aiGenerationLimit.toLocaleString('vi-VN')} lượt AI
+                      {item.storageQuotaMb.toLocaleString('vi-VN')} MB · {item.aiGenerationLimit.toLocaleString('vi-VN')} lượt AI /{' '}
+                      {aiPeriodLabels[item.aiLimitPeriod as keyof typeof aiPeriodLabels] ?? 'chưa xác định'}
                     </td>
                     <td>{item.maxClasses ?? '—'}</td>
                     <td>{item.revision}</td>

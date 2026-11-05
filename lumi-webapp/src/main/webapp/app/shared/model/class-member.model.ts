@@ -7,8 +7,11 @@ export interface IClassMember {
   id?: number;
   status?: string | null;
   joinedAt?: dayjs.Dayjs | null;
-  student?: IUser;
+  requestedAt?: dayjs.Dayjs;
+  leftAt?: dayjs.Dayjs | null;
+  updatedAt?: dayjs.Dayjs;
   studyClass?: IStudyClass;
+  student?: IUser;
 }
 
 export const defaultValue: Readonly<IClassMember> = {};

@@ -24,7 +24,12 @@
       "maxScore": "Max Score",
       "allowLate": "Allow Late",
       "isDeleted": "Is Deleted",
-      "studyClass": "Study Class"
+      "status": "Status",
+      "createdAt": "Created At",
+      "updatedAt": "Updated At",
+      "studyClass": "Study Class",
+      "assignedBy": "Assigned By",
+      "exam": "Exam"
     }
   }
 }

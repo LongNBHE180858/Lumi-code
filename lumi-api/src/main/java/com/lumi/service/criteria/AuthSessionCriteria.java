@@ -36,6 +36,8 @@ public class AuthSessionCriteria implements Serializable, Criteria {
 
     private InstantFilter createdAt;
 
+    private StringFilter refreshTokenHash;
+
     private LongFilter userId;
 
     private Boolean distinct;
@@ -49,6 +51,7 @@ public class AuthSessionCriteria implements Serializable, Criteria {
         this.expiresAt = other.optionalExpiresAt().map(InstantFilter::copy).orElse(null);
         this.isRevoked = other.optionalIsRevoked().map(BooleanFilter::copy).orElse(null);
         this.createdAt = other.optionalCreatedAt().map(InstantFilter::copy).orElse(null);
+        this.refreshTokenHash = other.optionalRefreshTokenHash().map(StringFilter::copy).orElse(null);
         this.userId = other.optionalUserId().map(LongFilter::copy).orElse(null);
         this.distinct = other.distinct;
     }
@@ -172,6 +175,25 @@ public class AuthSessionCriteria implements Serializable, Criteria {
         this.createdAt = createdAt;
     }
 
+    public StringFilter getRefreshTokenHash() {
+        return refreshTokenHash;
+    }
+
+    public Optional<StringFilter> optionalRefreshTokenHash() {
+        return Optional.ofNullable(refreshTokenHash);
+    }
+
+    public StringFilter refreshTokenHash() {
+        if (refreshTokenHash == null) {
+            setRefreshTokenHash(new StringFilter());
+        }
+        return refreshTokenHash;
+    }
+
+    public void setRefreshTokenHash(StringFilter refreshTokenHash) {
+        this.refreshTokenHash = refreshTokenHash;
+    }
+
     public LongFilter getUserId() {
         return userId;
     }
@@ -226,6 +248,7 @@ public class AuthSessionCriteria implements Serializable, Criteria {
             Objects.equals(expiresAt, that.expiresAt) &&
             Objects.equals(isRevoked, that.isRevoked) &&
             Objects.equals(createdAt, that.createdAt) &&
+            Objects.equals(refreshTokenHash, that.refreshTokenHash) &&
             Objects.equals(userId, that.userId) &&
             Objects.equals(distinct, that.distinct)
         );
@@ -233,7 +256,7 @@ public class AuthSessionCriteria implements Serializable, Criteria {
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, deviceInfo, refreshToken, expiresAt, isRevoked, createdAt, userId, distinct);
+        return Objects.hash(id, deviceInfo, refreshToken, expiresAt, isRevoked, createdAt, refreshTokenHash, userId, distinct);
     }
 
     // prettier-ignore
@@ -246,6 +269,7 @@ public class AuthSessionCriteria implements Serializable, Criteria {
             optionalExpiresAt().map(f -> "expiresAt=" + f + ", ").orElse("") +
             optionalIsRevoked().map(f -> "isRevoked=" + f + ", ").orElse("") +
             optionalCreatedAt().map(f -> "createdAt=" + f + ", ").orElse("") +
+            optionalRefreshTokenHash().map(f -> "refreshTokenHash=" + f + ", ").orElse("") +
             optionalUserId().map(f -> "userId=" + f + ", ").orElse("") +
             optionalDistinct().map(f -> "distinct=" + f + ", ").orElse("") +
         "}";

@@ -10,17 +10,17 @@ public class ProctorEventTestSamples {
     private static final AtomicLong longCount = new AtomicLong(random.nextInt() + 2L * Integer.MAX_VALUE);
 
     public static ProctorEvent getProctorEventSample1() {
-        return new ProctorEvent().id(1L).violationType("violationType1").photoUrl("photoUrl1");
+        return new ProctorEvent().id(1L).violationType("violationType1").reviewStatus("reviewStatus1");
     }
 
     public static ProctorEvent getProctorEventSample2() {
-        return new ProctorEvent().id(2L).violationType("violationType2").photoUrl("photoUrl2");
+        return new ProctorEvent().id(2L).violationType("violationType2").reviewStatus("reviewStatus2");
     }
 
     public static ProctorEvent getProctorEventRandomSampleGenerator() {
         return new ProctorEvent()
             .id(longCount.incrementAndGet())
             .violationType(UUID.randomUUID().toString())
-            .photoUrl(UUID.randomUUID().toString());
+            .reviewStatus(UUID.randomUUID().toString());
     }
 }

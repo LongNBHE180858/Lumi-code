@@ -55,7 +55,10 @@ public class AssignmentAsserts {
                 assertThat(a.getMaxScore()).as("check maxScore").usingComparator(bigDecimalCompareTo).isEqualTo(expected.getMaxScore())
             )
             .satisfies(a -> assertThat(a.getAllowLate()).as("check allowLate").isEqualTo(expected.getAllowLate()))
-            .satisfies(a -> assertThat(a.getIsDeleted()).as("check isDeleted").isEqualTo(expected.getIsDeleted()));
+            .satisfies(a -> assertThat(a.getIsDeleted()).as("check isDeleted").isEqualTo(expected.getIsDeleted()))
+            .satisfies(a -> assertThat(a.getStatus()).as("check status").isEqualTo(expected.getStatus()))
+            .satisfies(a -> assertThat(a.getCreatedAt()).as("check createdAt").isEqualTo(expected.getCreatedAt()))
+            .satisfies(a -> assertThat(a.getUpdatedAt()).as("check updatedAt").isEqualTo(expected.getUpdatedAt()));
     }
 
     /**
@@ -67,6 +70,7 @@ public class AssignmentAsserts {
     public static void assertAssignmentUpdatableRelationshipsEquals(Assignment expected, Assignment actual) {
         assertThat(actual)
             .as("Verify Assignment relationships")
-            .satisfies(a -> assertThat(a.getStudyClass()).as("check studyClass").isEqualTo(expected.getStudyClass()));
+            .satisfies(a -> assertThat(a.getStudyClass()).as("check studyClass").isEqualTo(expected.getStudyClass()))
+            .satisfies(a -> assertThat(a.getExam()).as("check exam").isEqualTo(expected.getExam()));
     }
 }

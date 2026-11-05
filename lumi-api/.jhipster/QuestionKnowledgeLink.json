@@ -1,0 +1,37 @@
+{
+  "annotations": {
+    "changelogDate": "20261101222546"
+  },
+  "applications": ["*"],
+  "documentation": "Lưu liên kết và trọng số giữa câu hỏi với đơn vị kiến thức.",
+  "dto": "mapstruct",
+  "entityTableName": "question_knowledge_links",
+  "fields": [
+    {
+      "fieldName": "weight",
+      "fieldType": "BigDecimal",
+      "fieldValidateRules": ["required"]
+    }
+  ],
+  "jpaMetamodelFiltering": true,
+  "name": "QuestionKnowledgeLink",
+  "pagination": "pagination",
+  "relationships": [
+    {
+      "otherEntityName": "question",
+      "relationshipName": "question",
+      "relationshipSide": "left",
+      "relationshipType": "many-to-one",
+      "relationshipValidateRules": "required"
+    },
+    {
+      "otherEntityName": "knowledgeNode",
+      "relationshipName": "knowledgeNode",
+      "relationshipSide": "left",
+      "relationshipType": "many-to-one",
+      "relationshipValidateRules": "required"
+    }
+  ],
+  "searchEngine": "no",
+  "service": "serviceImpl"
+}

@@ -10,7 +10,7 @@
         Added the entity TeacherVerification.
     -->
     <changeSet id="20261012230435-1" author="jhipster">
-        <createTable tableName="teacher_verification">
+        <createTable tableName="teacher_verifications" remarks="Lưu hồ sơ xác minh giáo viên và kết quả xét duyệt.">
             <column name="id" type="bigint">
                 <constraints primaryKey="true" nullable="false"/>
             </column>
@@ -20,7 +20,7 @@
             <column name="verification_status" type="varchar(20)">
                 <constraints nullable="true" />
             </column>
-            <column name="notes" type="varchar(5000)">
+            <column name="notes" type="${clobType}">
                 <constraints nullable="true" />
             </column>
             <column name="submitted_at" type="${datetimeType}">
@@ -29,13 +29,20 @@
             <column name="approved_at" type="${datetimeType}">
                 <constraints nullable="true" />
             </column>
+            <column name="reviewed_at" type="${datetimeType}">
+                <constraints nullable="true" />
+            </column>
             <column name="user_id" type="bigint">
-                <constraints nullable="false" unique="true" uniqueConstraintName="ux_teacher_verification__user_id" />
+                <constraints nullable="false" />
+            </column>
+            <column name="reviewed_by_id" type="bigint">
+                <constraints nullable="true" />
             </column>
             <!-- jhipster-needle-liquibase-add-column - JHipster will add columns here -->
         </createTable>
-        <dropDefaultValue tableName="teacher_verification" columnName="submitted_at" columnDataType="${datetimeType}"/>
-        <dropDefaultValue tableName="teacher_verification" columnName="approved_at" columnDataType="${datetimeType}"/>
+        <dropDefaultValue tableName="teacher_verifications" columnName="submitted_at" columnDataType="${datetimeType}"/>
+        <dropDefaultValue tableName="teacher_verifications" columnName="approved_at" columnDataType="${datetimeType}"/>
+        <dropDefaultValue tableName="teacher_verifications" columnName="reviewed_at" columnDataType="${datetimeType}"/>
     </changeSet>
 
     <!-- jhipster-needle-liquibase-add-changeset - JHipster will add changesets here -->
@@ -50,17 +57,18 @@
     -->
     <changeSet id="20261012230435-1-data" author="jhipster" context="faker">
         <loadData
-                  file="../fake-data/teacher_verification.csv"
+                  file="../fake-data/teacher_verifications.csv"
                   relativeToChangelogFile="true"
                   separator=";"
-                  tableName="teacher_verification"
+                  tableName="teacher_verifications"
                   usePreparedStatements="true">
             <column name="id" type="numeric"/>
             <column name="identity_document_url" type="string"/>
             <column name="verification_status" type="string"/>
-            <column name="notes" type="string"/>
+            <column name="notes" type="clob"/>
             <column name="submitted_at" type="date"/>
             <column name="approved_at" type="date"/>
+            <column name="reviewed_at" type="date"/>
             <column name="user_id" type="numeric"/>
             <!-- jhipster-needle-liquibase-add-loadcolumn - JHipster (and/or extensions) can add load columns here -->
         </loadData>

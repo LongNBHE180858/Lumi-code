@@ -117,7 +117,6 @@ export const ChapterUpdate = () => {
                 type="text"
                 validate={{
                   required: { value: true, message: translate('entity.validation.required') },
-                  min: { value: 0, message: translate('entity.validation.min', { min: 0 }) },
                   validate: v => isNumber(v) || translate('entity.validation.number'),
                 }}
               />
@@ -133,7 +132,7 @@ export const ChapterUpdate = () => {
                 {courses
                   ? courses.map(otherEntity => (
                       <option value={otherEntity.id} key={otherEntity.id}>
-                        {otherEntity.title}
+                        {otherEntity.id}
                       </option>
                     ))
                   : null}

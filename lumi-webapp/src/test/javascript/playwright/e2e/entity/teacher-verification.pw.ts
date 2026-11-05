@@ -12,7 +12,7 @@ import {
 import { expect, test } from '../../support/fixtures';
 
 const teacherVerificationPageUrl = '/teacher-verification';
-// const teacherVerificationSample = {"identityDocumentUrl":"promise behind"};
+// const teacherVerificationSample = {"identityDocumentUrl":"hammock promise"};
 
 const teacherVerificationApiUrl = '/api/teacher-verifications';
 
@@ -221,16 +221,20 @@ test.describe('TeacherVerification e2e test', () => {
       await page.locator(`[data-cy="verificationStatus"]`).fill('reluctantly apropos ');
       await expect(page.locator(`[data-cy="verificationStatus"]`)).toHaveValue('reluctantly apropos ');
 
-      await page.locator(`[data-cy="notes"]`).fill('excitedly');
-      await expect(page.locator(`[data-cy="notes"]`)).toHaveValue('excitedly');
+      await page.locator(`[data-cy="notes"]`).fill('../fake-data/blob/hipster.txt');
+      await expect(page.locator(`[data-cy="notes"]`)).toHaveValue(new RegExp('../fake-data/blob/hipster.txt'));
 
-      await page.locator(`[data-cy="submittedAt"]`).fill('2026-10-12T01:27');
+      await page.locator(`[data-cy="submittedAt"]`).fill('2026-10-12T05:19');
       await page.locator(`[data-cy="submittedAt"]`).blur();
-      await expect(page.locator(`[data-cy="submittedAt"]`)).toHaveValue('2026-10-12T01:27');
+      await expect(page.locator(`[data-cy="submittedAt"]`)).toHaveValue('2026-10-12T05:19');
 
-      await page.locator(`[data-cy="approvedAt"]`).fill('2026-10-12T04:08');
+      await page.locator(`[data-cy="approvedAt"]`).fill('2026-10-12T17:20');
       await page.locator(`[data-cy="approvedAt"]`).blur();
-      await expect(page.locator(`[data-cy="approvedAt"]`)).toHaveValue('2026-10-12T04:08');
+      await expect(page.locator(`[data-cy="approvedAt"]`)).toHaveValue('2026-10-12T17:20');
+
+      await page.locator(`[data-cy="reviewedAt"]`).fill('2026-10-12T13:07');
+      await page.locator(`[data-cy="reviewedAt"]`).blur();
+      await expect(page.locator(`[data-cy="reviewedAt"]`)).toHaveValue('2026-10-12T13:07');
 
       await page.locator(`[data-cy="user"]`).selectOption({ index: 1 });
 

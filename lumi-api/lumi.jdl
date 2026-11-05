@@ -1,9 +1,27 @@
-enum AccessDurationUnit {
-  DAY, MONTH, YEAR
-}
-enum CourseReviewRequestStatus {
-  PENDING, APPROVED, REJECTED
-}
+/**
+ * LUMI: 59 entities theo LUMI_DB_V1.4_59_tables_keep_coupons_subjects_grades.sql.
+ * Bổ sung UserProfile.birthDate (SQL birth_date date) theo yêu cầu đăng ký học sinh.
+ * Giữ Coupon/Subject/Grade; bỏ Category/Tag/ProctorSession và mọi field webcam.
+ * File này mô tả domain để import JDL; không tự migrate database hoặc regenerate source hiện tại.
+ *
+ * CÁC GIỚI HẠN CẦN GIỮ KHI GENERATE JAVA/LIQUIBASE:
+ * - TextBlob cho JSONB/vector chỉ là placeholder JDL; cần mapping PostgreSQL JSONB/vector(768) thực tế.
+ * - Instant biểu diễn timestamp trong JDL; SQL gốc có cả timestamp và timestamptz, không tự đổi kiểu.
+ * - JDL không biểu diễn đầy đủ DEFAULT, precision/scale, CHECK, unique ghép, composite PK hoặc ON DELETE.
+ *   SQL là nguồn chuẩn cho các ràng buộc đó; không áp schema generator mặc định thay SQL trực tiếp.
+ * - UserProfile(user_id), TeacherQuota(instructor_id), StudentStreak(student_id) dùng shared PK ở SQL.
+ *   Cần mapping @MapsId/@JoinColumn tương ứng; JDL OneToOne không tự bảo đảm tên PK khớp SQL.
+ * - Composite PK: Wishlist(student_id,course_id), AssignmentStudent(assignment_id,student_id),
+ *   KnowledgeEdge(from_node,to_node), StudentKnowledgeProgress(student_id,knowledge_node_id),
+ *   ExamQuestion(exam_id,question_id), QuestionKnowledgeLink(question_id,knowledge_node_id).
+ *   JDL mặc định tạo surrogate id: cần @EmbeddedId/@IdClass và migration đúng nếu giữ SQL hiện tại.
+ * - studyClass relationship phải @JoinColumn(name="class_id"); JDL mặc định có thể tạo study_class_id.
+ * - KnowledgeEdge.fromNode/toNode phải map from_node/to_node, không phải from_node_id/to_node_id.
+ * - UserProfile.is2faEnabled phải map is_2fa_enabled, không phải is_2_fa_enabled.
+ * - Các field version/rowVersion cần cấu hình optimistic locking thực tế, không chỉ field Long.
+ * - Các giá trị CHECK trên varchar, FK chéo và quy tắc duyệt/quyền vẫn cần validation BE/SQL.
+ * - Không có webcam: securityConfig/securityConfigSnapshot chỉ cấu hình giám sát trình duyệt.
+ */
 
 enum RecordStatus {
   DRAFT, PENDING, ACTIVE, HIDDEN, ARCHIVED, BLOCKED
@@ -13,7 +31,7 @@ enum InstructorApplicationStatus {
 }
 
 enum OrderStatus {
-  PENDING, PAID, CANCELLED, REFUNDED
+  PENDING, PAID, CANCELLED, REFUNDED, EXPIRED
 }
 
 enum TransactionType {
@@ -29,9 +47,10 @@ enum PremiumPackageType {
 }
 
 // --- PHẦN HỆ 1: AUTH & USER ---
-entity UserProfile {
+/** Lưu hồ sơ mở rộng, thông tin trường học và trạng thái giáo viên của người dùng. */
+entity UserProfile (user_profiles) {
   phoneNumber String unique maxlength(20)
-  bio String maxlength(5000)
+  bio TextBlob
   schoolName String maxlength(255)
   gradeLevel Integer min(1) max(12)
   is2faEnabled Boolean
@@ -39,101 +58,513 @@ entity UserProfile {
   instructorRejectionReason String maxlength(2000)
   instructorReviewedAt Instant
   updatedAt Instant
+  // Ngày sinh học sinh; BE từ chối ngày tương lai và tính tuổi tại thời điểm sử dụng.
+  birthDate LocalDate
 }
 
-entity TeacherVerification {
+/** Lưu hồ sơ xác minh giáo viên và kết quả xét duyệt. */
+entity TeacherVerification (teacher_verifications) {
   identityDocumentUrl String required maxlength(1000)
   verificationStatus String maxlength(20)
-  notes String maxlength(5000)
+  notes TextBlob
   submittedAt Instant
   approvedAt Instant
+  reviewedAt Instant
 }
 
-entity ParentStudentLink {
+/** Lưu liên kết phụ huynh - học sinh và trạng thái xác minh quan hệ giám hộ. */
+entity ParentStudentLink (parent_student_links) {
+  // SQL UNIQUE (parent_id, student_id); giữ trong Liquibase/validation, JDL không diễn đạt unique ghép.
   linkCode String required unique maxlength(10)
   status String maxlength(20)
   linkedAt Instant
+  createdAt Instant required
+  codeExpiresAt Instant required
+  confirmedAt Instant
+  revokedAt Instant
+  relationshipType String maxlength(30)
+  guardianVerificationStatus String required maxlength(20)
+  guardianVerifiedAt Instant
+  guardianVerificationNote TextBlob
 }
 
-entity AuthSession {
+/** Quản lý phiên đăng nhập, thiết bị và việc thu hồi refresh token. */
+entity AuthSession (auth_sessions) {
   deviceInfo String maxlength(255)
   refreshToken String unique maxlength(255)
   expiresAt Instant required
   isRevoked Boolean
   createdAt Instant
+  refreshTokenHash String unique maxlength(255)
 }
 
-// --- PHẦN HỆ 2: COURSE PUBLIC (Marketplace) ---
-entity Category {
+/** Lưu danh mục môn học của hệ thống. */
+entity Subject (subjects) {
   name String required unique maxlength(100)
-  description String maxlength(5000)
-  active Boolean required
+  description TextBlob
 }
 
-entity Subject {
-  name String required unique maxlength(100)
-  description String maxlength(5000)
-  active Boolean required
-}
-
-entity Grade {
+/** Lưu danh mục khối lớp của hệ thống. */
+entity Grade (grades) {
   level Integer required unique min(1) max(12)
   name String required maxlength(50)
   active Boolean required
 }
 
-entity Course {
+/** Lưu thông tin khóa học, giá, thời hạn truy cập và trạng thái xuất bản. */
+entity Course (courses) {
+  // SQL price numeric(12,2); giữ precision/scale trong JPA/Liquibase.
+  title String required maxlength(255)
+  description TextBlob
+  thumbnailUrl String maxlength(1000)
+  price BigDecimal
   shortDescription String maxlength(1000)
   bookSeries String maxlength(100)
   targetAudience String maxlength(1000)
   prerequisites String maxlength(1000)
+  // SQL JSONB: custom JSON mapping, không dùng TEXT khi generate migration.
   learningObjectives TextBlob
   introVideoUrl String maxlength(1000)
-  accessDurationValue Integer min(1)
-  accessDurationUnit AccessDurationUnit
-  version Long min(0)
-  title String required maxlength(255)
-  description String maxlength(5000)
-  thumbnailUrl String maxlength(1000)
-  price BigDecimal min(0)
-  validDurationDays Integer min(1)
+  validDurationDays Integer
+  accessDurationValue Integer
+  accessDurationUnit String maxlength(10)
+  version Long required
   status RecordStatus
   isDeleted Boolean
   createdAt Instant
   updatedAt Instant
+  storageLimitBytes Long min(0)
 }
 
-entity Chapter {
+/** Lưu chương và thứ tự chương trong khóa học. */
+entity Chapter (chapters) {
   title String required maxlength(255)
-  orderIndex Integer required min(0)
+  orderIndex Integer required
 }
 
-entity Lesson {
+/** Lưu bài học, video và thứ tự bài trong chương. */
+entity Lesson (lessons) {
+  title String required maxlength(255)
   description TextBlob
+  contentType String required maxlength(20)
   videoUrl String maxlength(1000)
   videoFileName String maxlength(255)
-  videoSizeBytes Long min(0)
-  title String required maxlength(255)
-  contentType String required maxlength(20)
-  orderIndex Integer required min(0)
+  videoSizeBytes Long
+  orderIndex Integer required
   isPreview Boolean
-  durationMinutes Integer min(0)
+  durationMinutes Integer
   status RecordStatus
+  durationSeconds Integer min(0)
+  videoObjectKey String maxlength(1000)
+  updatedAt Instant required
 }
 
-entity CourseMaterial {
+/** Lưu tài nguyên và đường dẫn tài liệu đính kèm bài học. */
+entity CourseMaterial (course_materials) {
   fileName String maxlength(255)
   displayName String maxlength(255)
   mimeType String maxlength(100)
-  orderIndex Integer min(0)
+  orderIndex Integer
   fileType String required maxlength(20)
   fileUrl String required maxlength(1000)
-  fileSizeBytes Long min(0)
+  fileSizeBytes Long
+  fileObjectKey String maxlength(1000)
+  updatedAt Instant required
 }
 
+/** Lưu quyền học, thời hạn và tiến độ tổng hợp của học sinh theo khóa. */
+entity CourseEnrollment (course_enrollments) {
+  // SQL UNIQUE (course_id, student_id); giữ trong Liquibase/validation, JDL không diễn đạt unique ghép.
+  // SQL progress_percent numeric(5,2); giữ precision/scale trong JPA/Liquibase.
+  progressPercent BigDecimal
+  status String maxlength(20)
+  enrolledAt Instant
+  expiresAt Instant required
+  updatedAt Instant required
+}
+
+/** Lưu danh sách khóa học yêu thích của học sinh. */
+entity Wishlist (wishlists) {
+  // SQL composite PK: student_id, course_id. JDL cần mapping khóa ghép thủ công; không dùng id tự sinh thay thế khi giữ schema SQL.
+  createdAt Instant
+}
+
+/** Lưu đánh giá sao và nhận xét của học sinh về khóa học. */
+entity CourseReview (course_reviews) {
+  // SQL UNIQUE (course_id, student_id); giữ trong Liquibase/validation, JDL không diễn đạt unique ghép.
+  rating Integer min(1) max(5)
+  content TextBlob
+  createdAt Instant
+  updatedAt Instant required
+}
+
+/** Lưu lớp riêng, giáo viên quản lý, mã tham gia và sĩ số. */
+entity StudyClass (classes) {
+  name String required maxlength(255)
+  description TextBlob
+  joinCode String unique maxlength(10)
+  joinMode ClassJoinMode
+  maxStudents Integer
+  currentStudents Integer
+  status RecordStatus
+  isDeleted Boolean
+  createdAt Instant
+  joinCodeExpiresAt Instant
+  updatedAt Instant required
+}
+
+/** Lưu thành viên lớp, yêu cầu tham gia và trạng thái duyệt. */
+entity ClassMember (class_members) {
+  // SQL UNIQUE (class_id, student_id); giữ trong Liquibase/validation, JDL không diễn đạt unique ghép.
+  status String maxlength(20)
+  joinedAt Instant
+  requestedAt Instant required
+  leftAt Instant
+  updatedAt Instant required
+}
+
+/** Lưu tài liệu được giáo viên chia sẻ trong lớp riêng. */
+entity ClassMaterial (class_materials) {
+  title String required maxlength(255)
+  fileType String required maxlength(20)
+  fileUrl String required maxlength(1000)
+  fileSizeBytes Long required
+  uploadedAt Instant
+  fileObjectKey String maxlength(1000)
+  updatedAt Instant required
+}
+
+/** Lưu gói dịch vụ, giá, thời hạn và hạn mức quyền lợi. */
+entity SystemPlan (system_plans) {
+  // SQL price numeric(12,2); giữ precision/scale trong JPA/Liquibase.
+  name String required maxlength(100)
+  price BigDecimal required
+  durationDays Integer required
+  storageQuotaMb Long required
+  aiGenerationLimit Integer required
+  packageKey String maxlength(36)
+  maxClasses Integer required
+  planType String required maxlength(30)
+  targetRole String required maxlength(20)
+  status String required maxlength(20)
+  aiLimitPeriod String required maxlength(20)
+  // SQL JSONB: custom JSON mapping, không dùng TEXT khi generate migration.
+  features TextBlob required
+  updatedAt Instant required
+}
+
+/** Lưu hạn mức và mức sử dụng tài nguyên của giáo viên. */
+entity TeacherQuota (teacher_quotas) {
+  planExpiresAt Instant
+  usedStorageBytes Long
+  aiUsedCount Integer
+  rowVersion Long
+  effectiveStorageLimitBytes Long required min(0)
+  aiPeriodStartedAt Instant
+  aiPeriodEndsAt Instant
+  updatedAt Instant required
+}
+
+/** Lưu mã giảm giá, điều kiện sử dụng và tỷ lệ giáo viên chịu giảm giá. */
+entity Coupon (coupons) {
+  // SQL min_order_amount numeric(12,2); giữ precision/scale trong JPA/Liquibase.
+  // SQL instructor_discount_share_percent numeric(5,2); giữ precision/scale trong JPA/Liquibase.
+  code String required unique maxlength(50)
+  discountPercent Integer min(1) max(100)
+  maxUses Integer
+  usedCount Integer
+  validTo Instant
+  validFrom Instant
+  isActive Boolean required
+  minOrderAmount BigDecimal required min(0)
+  maxUsesPerUser Integer min(1)
+  instructorDiscountSharePercent BigDecimal min(0) max(100)
+}
+
+/** Lưu đơn mua khóa học hoặc gói dịch vụ cùng quyền lợi và chính sách giá tại lúc mua. */
+entity CourseOrder (orders) {
+  // SQL original_price numeric(12,2); giữ precision/scale trong JPA/Liquibase.
+  // SQL discount_amount numeric(12,2); giữ precision/scale trong JPA/Liquibase.
+  // SQL final_price numeric(12,2); giữ precision/scale trong JPA/Liquibase.
+  // SQL instructor_share_percent numeric(5,2); giữ precision/scale trong JPA/Liquibase.
+  // SQL instructor_amount numeric(12,2); giữ precision/scale trong JPA/Liquibase.
+  // SQL platform_amount numeric(12,2); giữ precision/scale trong JPA/Liquibase.
+  originalPrice BigDecimal required
+  discountAmount BigDecimal
+  finalPrice BigDecimal required
+  revenueSplitRate String maxlength(10)
+  status OrderStatus
+  idempotencyKey String unique maxlength(200)
+  rowVersion Long
+  createdAt Instant
+  instructorSharePercent BigDecimal min(0) max(100)
+  instructorAmount BigDecimal min(0)
+  platformAmount BigDecimal min(0)
+  orderType String required maxlength(20)
+  expiresAt Instant required
+  paidAt Instant
+  accessDurationValue Integer min(1)
+  accessDurationUnit String maxlength(10)
+  entitlementStartsAt Instant
+  entitlementExpiresAt Instant
+  entitlementStatus String maxlength(20)
+  // SQL JSONB: custom JSON mapping, không dùng TEXT khi generate migration.
+  planSnapshot TextBlob
+  updatedAt Instant required
+  // SQL JSONB: custom JSON mapping, không dùng TEXT khi generate migration.
+  pricingSnapshot TextBlob
+}
+
+/** Lưu giao dịch thanh toán và thông tin đối chiếu từ cổng thanh toán. */
+entity Payment (payments) {
+  // SQL UNIQUE (gateway, provider_event_id); giữ trong Liquibase/validation, JDL không diễn đạt unique ghép.
+  // SQL amount numeric(12,2); giữ precision/scale trong JPA/Liquibase.
+  gateway String required maxlength(50)
+  transactionNo String unique maxlength(255)
+  amount BigDecimal required
+  status String maxlength(20)
+  paidAt Instant
+  paymentReference String maxlength(255)
+  providerEventId String maxlength(255)
+  receivedAt Instant
+}
+
+/** Lưu yêu cầu hoàn tiền, kết quả xử lý và việc thu hồi quyền học. */
+entity Refund (refunds) {
+  // SQL amount numeric(12,2); giữ precision/scale trong JPA/Liquibase.
+  amount BigDecimal required
+  reason TextBlob
+  status String maxlength(20)
+  createdAt Instant
+  processedAt Instant
+  reviewNote TextBlob
+  refundReference String maxlength(255)
+  accessRevokedAt Instant
+}
+
+/** Lưu số dư tiền chờ giải phóng và tiền khả dụng của giáo viên. */
+entity InstructorWallet (instructor_wallets) {
+  // SQL pending_amount numeric(12,2); giữ precision/scale trong JPA/Liquibase.
+  // SQL available_amount numeric(12,2); giữ precision/scale trong JPA/Liquibase.
+  pendingAmount BigDecimal
+  availableAmount BigDecimal
+  rowVersion Long
+}
+
+/** Lưu yêu cầu rút tiền và thông tin xử lý chuyển khoản cho giáo viên. */
+entity PayoutRequest (payout_requests) {
+  // SQL amount numeric(12,2); giữ precision/scale trong JPA/Liquibase.
+  amount BigDecimal required
+  bankCode String required maxlength(50)
+  bankAccount String required maxlength(100)
+  status String maxlength(20)
+  createdAt Instant
+  accountHolderName String required maxlength(255)
+  processedAt Instant
+  rejectionReason TextBlob
+  transferReference String maxlength(255)
+  updatedAt Instant required
+}
+
+/** Lưu ngân hàng câu hỏi thuộc giáo viên và phạm vi chia sẻ. */
+entity QuestionBank (question_banks) {
+  name String required maxlength(255)
+  visibility String required maxlength(20)
+  createdAt Instant required
+  updatedAt Instant required
+}
+
+/** Lưu đề đánh giá, bài luyện, checkpoint video và cấu hình tổ chức làm bài. */
+entity Exam (exams) {
+  // SQL pass_score numeric(5,2); giữ precision/scale trong JPA/Liquibase.
+  // SQL video_trigger_seconds numeric(12,3); giữ precision/scale trong JPA/Liquibase.
+  title String required maxlength(255)
+  durationMinutes Integer required
+  passScore BigDecimal required
+  maxAttempts Integer
+  shuffleQuestions Boolean
+  status RecordStatus
+  isDeleted Boolean
+  opensAt Instant
+  closesAt Instant
+  resultReleaseMode String required maxlength(20)
+  answerReleaseMode String required maxlength(20)
+  version Long required
+  createdAt Instant required
+  assessmentType String required maxlength(30)
+  videoTriggerSeconds BigDecimal min(0)
+  // SQL JSONB: custom JSON mapping, không dùng TEXT khi generate migration.
+  assessmentConfig TextBlob required
+  // SQL JSONB: custom JSON mapping, không dùng TEXT khi generate migration.
+  securityConfig TextBlob required
+}
+
+/** Lưu bài tập được giáo viên giao trong lớp và liên kết đề nếu có. */
+entity Assignment (assignments) {
+  // SQL max_score numeric(5,2); giữ precision/scale trong JPA/Liquibase.
+  title String required maxlength(255)
+  instructions TextBlob
+  dueAt Instant
+  maxScore BigDecimal
+  allowLate Boolean
+  isDeleted Boolean
+  status String required maxlength(20)
+  createdAt Instant required
+  updatedAt Instant required
+}
+
+/** Lưu danh sách học sinh được nhận từng bài giao trong lớp. */
+entity AssignmentStudent (assignment_students) {
+  // SQL composite PK: assignment_id, student_id. JDL cần mapping khóa ghép thủ công; không dùng id tự sinh thay thế khi giữ schema SQL.
+}
+
+/** Lưu bài nộp, tệp đính kèm, điểm và phản hồi chấm bài tập. */
+entity AssignmentSubmission (assignment_submissions) {
+  // SQL UNIQUE (assignment_id, student_id); giữ trong Liquibase/validation, JDL không diễn đạt unique ghép.
+  // SQL score numeric(5,2); giữ precision/scale trong JPA/Liquibase.
+  content TextBlob
+  score BigDecimal
+  teacherFeedback TextBlob
+  status String maxlength(20)
+  submittedAt Instant
+  // SQL JSONB: custom JSON mapping, không dùng TEXT khi generate migration.
+  attachments TextBlob required
+  gradedAt Instant
+  updatedAt Instant required
+  rowVersion Long required
+}
+
+/** Lưu lượt làm bài, thời hạn, kết quả và trạng thái luyện tập của học sinh. */
+entity ExamAttempt (exam_attempts) {
+  // SQL score numeric(5,2); giữ precision/scale trong JPA/Liquibase.
+  startTime Instant required
+  endTime Instant
+  score BigDecimal
+  status String maxlength(20)
+  rowVersion Long
+  deadlineAt Instant required
+  lastSavedAt Instant
+  submittedAt Instant
+  // SQL JSONB: custom JSON mapping, không dùng TEXT khi generate migration.
+  presentationSnapshot TextBlob
+  // SQL JSONB: custom JSON mapping, không dùng TEXT khi generate migration.
+  securityConfigSnapshot TextBlob
+  // SQL JSONB: custom JSON mapping, không dùng TEXT khi generate migration.
+  adaptiveState TextBlob
+  monitoringStatus String required maxlength(20)
+}
+
+/** Lưu cảnh báo trình duyệt theo lượt thi và kết quả xem xét; không lưu ảnh hoặc nhận diện khuôn mặt. */
+entity ProctorEvent (proctor_events) {
+  violationType String required maxlength(50)
+  occurredAt Instant
+  reviewStatus String required maxlength(20)
+  reviewedAt Instant
+  reviewNote TextBlob
+}
+
+/** Lưu ghi chú cá nhân của học sinh theo bài học hoặc mốc video. */
+entity StudentNote (student_notes) {
+  videoTimestamp Integer
+  content TextBlob required
+  createdAt Instant
+}
+
+/** Lưu chuỗi ngày học và số dư điểm thưởng tổng hợp của học sinh. */
+entity StudentStreak (student_streaks) {
+  currentStreak Integer
+  longestStreak Integer
+  gemsBalance Integer
+  lastActiveDate LocalDate
+}
+
+/** Lưu bộ flashcard, chủ sở hữu và phạm vi chia sẻ. */
+entity FlashcardDeck (flashcard_decks) {
+  title String required maxlength(255)
+  isPublic Boolean
+}
+
+/** Lưu các đơn vị kiến thức dùng để phân tích năng lực và gợi ý học tập. */
+entity KnowledgeNode (knowledge_nodes) {
+  title String required maxlength(255)
+  type String maxlength(50)
+}
+
+/** Lưu quan hệ giữa các đơn vị kiến thức trong đồ thị. */
+entity KnowledgeEdge (knowledge_edges) {
+  // SQL composite PK: from_node, to_node. JDL cần mapping khóa ghép thủ công; không dùng id tự sinh thay thế khi giữ schema SQL.
+  relationType String required maxlength(50)
+}
+
+/** Lưu hỏi đáp theo bài học và thông tin lớp liên quan nếu có. */
+entity Discussion (discussions) {
+  title String required maxlength(255)
+  content TextBlob required
+  createdAt Instant
+  updatedAt Instant required
+  postType String required maxlength(20)
+}
+
+/** Lưu phản hồi và chuỗi trả lời trong thảo luận bài học. */
+entity DiscussionReply (discussion_replies) {
+  content TextBlob required
+  createdAt Instant
+}
+
+/** Lưu phiếu hỗ trợ, người được phân công và trạng thái xử lý. */
+entity SupportTicket (support_tickets) {
+  type String required maxlength(50)
+  subject String required maxlength(255)
+  status String maxlength(20)
+  createdAt Instant
+  updatedAt Instant required
+  closedAt Instant
+}
+
+/** Lưu trao đổi giữa người gửi phiếu và người xử lý hỗ trợ. */
+entity TicketMessage (ticket_messages) {
+  content TextBlob required
+  createdAt Instant
+}
+
+/** Lưu báo sai nội dung, đối tượng bị báo và kết quả xử lý. */
+entity ContentReport (content_reports) {
+  targetType String required maxlength(50)
+  targetId Long required
+  reason TextBlob required
+  status String maxlength(20)
+  createdAt Instant
+  resolvedAt Instant
+  resolutionNote TextBlob
+  targetVersion String maxlength(100)
+}
+
+/** Lưu thông báo, trạng thái đã đọc và đối tượng điều hướng. */
+entity Notification (notifications) {
+  title String required maxlength(255)
+  content TextBlob required
+  isRead Boolean
+  type String required maxlength(50)
+  createdAt Instant
+  targetType String maxlength(50)
+  targetId Long
+  readAt Instant
+}
+
+/** Lưu dấu vết hành động và thay đổi dữ liệu quan trọng trong hệ thống. */
+entity AuditLog (audit_logs) {
+  action String required maxlength(100)
+  targetEntity String required maxlength(50)
+  targetId String required maxlength(100)
+  ipAddress String maxlength(50)
+  details TextBlob
+  occurredAt Instant
+}
+
+/** Lưu lần gửi duyệt khóa học, phiên bản gửi và phản hồi của Reviewer. */
 entity CourseReviewRequest (course_review_requests) {
   courseVersion Long required
-  status CourseReviewRequestStatus required
+  status String required maxlength(20)
   submissionNote String maxlength(5000)
   rightsConfirmedAt Instant required
   submittedAt Instant required
@@ -141,444 +572,321 @@ entity CourseReviewRequest (course_review_requests) {
   reviewerFeedback String maxlength(5000)
 }
 
-entity CourseEnrollment {
-  progressPercent BigDecimal min(0) max(100)
-  status String maxlength(20)
-  enrolledAt Instant
-  expiresAt Instant required
+/** Lưu tiến độ từng bài và vị trí phát video gần nhất của học sinh. */
+entity LessonProgress (lesson_progress) {
+  // SQL UNIQUE (enrollment_id, lesson_id); giữ trong Liquibase/validation, JDL không diễn đạt unique ghép.
+  // SQL last_position_seconds numeric(12,3); giữ precision/scale trong JPA/Liquibase.
+  status String required maxlength(20)
+  lastPositionSeconds BigDecimal required min(0)
+  lastAccessedAt Instant
+  completedAt Instant
+  rowVersion Long required
 }
 
-entity Wishlist {
-  createdAt Instant
+/** Lưu mức thành thạo tổng hợp của học sinh theo đơn vị kiến thức. */
+entity StudentKnowledgeProgress (student_knowledge_progress) {
+  // SQL composite PK: student_id, knowledge_node_id. JDL cần mapping khóa ghép thủ công; không dùng id tự sinh thay thế khi giữ schema SQL.
+  // SQL mastery_score numeric(5,2); giữ precision/scale trong JPA/Liquibase.
+  masteryScore BigDecimal min(0) max(100)
+  evidenceCount Integer required min(0)
+  calculationVersion String maxlength(50)
+  updatedAt Instant required
 }
 
-entity CourseReview {
-  rating Integer min(1) max(5)
-  content String maxlength(5000)
-  createdAt Instant
-}
-
-// --- PHẦN HỆ 3: CLASS PRIVATE (Lớp học) ---
-entity StudyClass {
-  name String required maxlength(255)
-  description String maxlength(5000)
-  joinCode String unique maxlength(10)
-  joinMode ClassJoinMode
-  maxStudents Integer min(1)
-  currentStudents Integer min(0)
-  status RecordStatus
-  isDeleted Boolean
-  createdAt Instant
-}
-
-entity ClassMember {
-  status String maxlength(20)
-  joinedAt Instant
-}
-
-entity ClassMaterial {
+/** Lưu nguồn tài liệu học tập, metadata sách và trạng thái xử lý lập chỉ mục. */
+entity LearningDocument (learning_documents) {
+  sourceType String required maxlength(20)
   title String required maxlength(255)
-  fileType String required maxlength(20)
-  fileUrl String required maxlength(1000)
-  fileSizeBytes Long required min(0)
-  uploadedAt Instant
+  fileObjectKey String required maxlength(1000)
+  contentHash String maxlength(64)
+  sourceVersion Integer required min(1)
+  processingStatus String required maxlength(20)
+  indexStatus String required maxlength(20)
+  extractedTextObjectKey String maxlength(1000)
+  embeddingModel String maxlength(100)
+  errorMessage TextBlob
+  createdAt Instant required
+  updatedAt Instant required
+  bookSeries String maxlength(100)
+  // SQL JSONB: custom JSON mapping, không dùng TEXT khi generate migration.
+  sourceMetadata TextBlob required
 }
 
-// --- PHẦN HỆ 4: FINANCE & PREMIUM ---
-entity SystemPlan {
-  name String required maxlength(100)
-  price BigDecimal required min(0)
-  durationDays Integer required min(1)
-  storageQuotaMb Long required min(0)
-  aiGenerationLimit Integer required min(0)
-  maxClasses Integer min(1)
-  packageType PremiumPackageType
-  packageKey String maxlength(36)
-  revision Integer required min(1)
-  currentRevision Boolean required
-  available Boolean required
+/** Lưu nội dung do AI tạo, nguồn sinh, phiên bản và trạng thái kiểm duyệt. */
+entity AiGeneratedContent (ai_generated_contents) {
+  contentType String required maxlength(30)
+  requestHash String maxlength(64)
+  // SQL JSONB: custom JSON mapping, không dùng TEXT khi generate migration.
+  generationConfig TextBlob required
+  sourceVersion String maxlength(100)
+  modelName String maxlength(100)
+  promptVersion String maxlength(50)
+  // SQL JSONB: custom JSON mapping, không dùng TEXT khi generate migration.
+  content TextBlob required
+  generationStatus String required maxlength(20)
+  visibility String required maxlength(20)
+  version Long required
+  reviewStatus String required maxlength(20)
+  reviewedAt Instant
+  reviewerFeedback TextBlob
+  createdAt Instant required
+  updatedAt Instant required
+  // SQL nguồn không có FK (vòng phụ thuộc); giữ Long và kiểm tra nguồn/quyền ở BE.
+  sourceQuestionId Long
+  contentHash String maxlength(64)
 }
 
-entity TeacherQuota {
-  planExpiresAt Instant
-  usedStorageBytes Long min(0)
-  aiUsedCount Integer min(0)
-  rowVersion Long min(0)
-}
-
-entity Coupon {
-  code String required unique maxlength(50)
-  discountPercent Integer min(1) max(100)
-  maxUses Integer min(1)
-  usedCount Integer min(0)
-  validTo Instant
-}
-
-entity CourseOrder {
-  originalPrice BigDecimal required min(0)
-  discountAmount BigDecimal min(0)
-  finalPrice BigDecimal required min(0)
-  revenueSplitRate String maxlength(10)
-  status OrderStatus
-  idempotencyKey String unique maxlength(200)
-  rowVersion Long min(0)
-  createdAt Instant
-}
-
-entity Payment {
-  gateway String required maxlength(50)
-  transactionNo String unique maxlength(255)
-  amount BigDecimal required min(0)
-  status String maxlength(20)
-  paidAt Instant
-}
-
-entity Refund {
-  amount BigDecimal required min(0)
-  reason String maxlength(5000)
-  status String maxlength(20)
-  createdAt Instant
-}
-
-entity InstructorWallet {
-  pendingAmount BigDecimal min(0)
-  availableAmount BigDecimal min(0)
-  rowVersion Long min(0)
-}
-
-entity WalletTransaction {
+/** Lưu sổ phát sinh tiền của ví giáo viên để đối soát doanh thu, hoàn và rút tiền. */
+entity WalletTransaction (wallet_transactions) {
+  // SQL amount numeric(12,2); giữ precision/scale trong JPA/Liquibase.
   type TransactionType required
   amount BigDecimal required
   status String required maxlength(20)
   idempotencyKey String unique maxlength(200)
   occurredAt Instant
+  balanceBucket String required maxlength(20)
 }
 
-entity PayoutRequest {
-  amount BigDecimal required min(0.01)
-  bankCode String required maxlength(50)
-  bankAccount String required maxlength(100)
-  status String maxlength(20)
-  createdAt Instant
-}
-
-// --- PHẦN HỆ 5: ASSESSMENTS (Khảo thí & Bài tập) ---
-entity QuestionBank {
-  name String required maxlength(255)
-}
-
-entity Question {
-  content String required maxlength(5000)
+/** Lưu câu hỏi, nguồn tạo, phân loại và liên kết phiên bản trước. */
+entity Question (questions) {
+  content TextBlob required
   type String required maxlength(20)
   difficulty Integer min(1) max(5)
-  explanation String maxlength(5000)
+  explanation TextBlob
   isDeleted Boolean
+  sourceType String required maxlength(20)
+  contentHash String maxlength(64)
+  visibility String required maxlength(20)
+  version Long required
+  createdAt Instant required
+  updatedAt Instant required
 }
 
-entity QuestionOption {
-  content String required maxlength(5000)
+/** Lưu các lựa chọn và đáp án đúng của câu hỏi trắc nghiệm. */
+entity QuestionOption (question_options) {
+  content TextBlob required
   isCorrect Boolean
-}
-
-entity Exam {
-  title String required maxlength(255)
-  durationMinutes Integer required min(1)
-  passScore BigDecimal required min(0)
-  maxAttempts Integer min(1)
-  shuffleQuestions Boolean
-  status RecordStatus
-  isDeleted Boolean
-}
-
-entity ExamQuestion {
   orderIndex Integer required min(0)
-  score BigDecimal required min(0)
 }
 
-entity Assignment {
-  title String required maxlength(255)
-  instructions String maxlength(5000)
-  dueAt Instant
-  maxScore BigDecimal min(0)
-  allowLate Boolean
-  isDeleted Boolean
+/** Lưu câu hỏi được chọn vào đề, thứ tự và điểm tối đa của câu. */
+entity ExamQuestion (exam_questions) {
+  // SQL composite PK: exam_id, question_id. JDL cần mapping khóa ghép thủ công; không dùng id tự sinh thay thế khi giữ schema SQL.
+  // SQL score numeric(5,2); giữ precision/scale trong JPA/Liquibase.
+  orderIndex Integer required
+  score BigDecimal required
 }
 
-// Explicit assignment recipients; this was missing from the previous 54 entities.
-entity AssignmentStudent {
-}
-
-entity AssignmentSubmission {
-  content String maxlength(5000)
-  score BigDecimal min(0)
-  teacherFeedback String maxlength(5000)
-  status String maxlength(20)
-  submittedAt Instant
-}
-
-entity ExamAttempt {
-  startTime Instant required
-  endTime Instant
-  score BigDecimal min(0)
-  status String maxlength(20)
-  rowVersion Long min(0)
-}
-
-entity ExamAnswer {
-  textAnswer String maxlength(5000)
+/** Lưu câu trả lời và điểm của học sinh cho từng câu trong một lượt làm. */
+entity ExamAnswer (exam_answers) {
+  // SQL UNIQUE (attempt_id, question_id); giữ trong Liquibase/validation, JDL không diễn đạt unique ghép.
+  // SQL score numeric(5,2); giữ precision/scale trong JPA/Liquibase.
+  textAnswer TextBlob
   isCorrect Boolean
-  score BigDecimal min(0)
+  score BigDecimal
+  updatedAt Instant required
+  rowVersion Long required
 }
 
-// --- PHẦN HỆ 6: ANTI-CHEAT ---
-entity ProctorSession {
-  faceVerified Boolean
-  warningCount Integer min(0)
-  status String maxlength(20)
+/** Lưu nội dung mặt trước, mặt sau và nguồn AI của từng thẻ. */
+entity Flashcard (flashcards) {
+  frontText TextBlob required
+  backText TextBlob required
+  updatedAt Instant required
 }
 
-entity ProctorEvent {
-  violationType String required maxlength(50)
-  photoUrl String maxlength(1000)
-  occurredAt Instant
-}
-
-// --- PHẦN HỆ 7: ADVANCED LEARNING (AI, Notes, Flashcards) ---
-entity StudentNote {
-  videoTimestamp Integer min(0)
-  content String required maxlength(5000)
-  createdAt Instant
-}
-
-entity StudentStreak {
-  currentStreak Integer min(0)
-  longestStreak Integer min(0)
-  gemsBalance Integer min(0)
-  lastActiveDate LocalDate
-}
-
-entity FlashcardDeck {
-  title String required maxlength(255)
-  isPublic Boolean
-}
-
-entity Flashcard {
-  frontText String required maxlength(5000)
-  backText String required maxlength(5000)
-}
-
-entity FlashcardReview {
+/** Lưu trạng thái ôn gần nhất và lịch ôn tiếp theo của học sinh theo flashcard. */
+entity FlashcardReview (flashcard_reviews) {
+  // SQL UNIQUE (student_id, flashcard_id); giữ trong Liquibase/validation, JDL không diễn đạt unique ghép.
+  // SQL interval_days numeric(10,3); giữ precision/scale trong JPA/Liquibase.
   nextReviewAt Instant
-  intervalDays BigDecimal min(0)
+  intervalDays BigDecimal
+  lastReviewedAt Instant
+  lastRating Integer min(1) max(5)
+  reviewCount Integer required
 }
 
-entity KnowledgeNode {
-  title String required maxlength(255)
-  type String maxlength(50)
+/** Lưu đoạn văn bản và embedding được tách từ nguồn tài liệu. */
+entity PdfChunk (pdf_chunks) {
+  pageNumber Integer
+  chunkText TextBlob required
+  // SQL vector(768): custom pgvector mapping; TextBlob chỉ để JDL parse được.
+  embedding TextBlob
+  chunkIndex Integer required min(0)
+  indexVersion Integer required min(1)
 }
 
-entity KnowledgeEdge {
-  relationType String required maxlength(50)
-}
-
-entity PdfChunk {
-  pageNumber Integer min(1)
-  chunkText String required maxlength(5000)
-  embedding String maxlength(5000)
-}
-
-entity AiConversation {
+/** Lưu phiên hội thoại AI theo người dùng và ngữ cảnh bài hoặc tài liệu. */
+entity AiConversation (ai_conversations) {
   type String required maxlength(50)
   createdAt Instant
+  updatedAt Instant required
 }
 
-entity AiMessage {
+/** Lưu tin nhắn AI, nguồn trích dẫn và đánh giá phản hồi của chủ hội thoại. */
+entity AiMessage (ai_messages) {
   senderRole String required maxlength(20)
-  content String required maxlength(5000)
+  content TextBlob required
   createdAt Instant
+  // SQL JSONB: custom JSON mapping, không dùng TEXT khi generate migration.
+  citations TextBlob required
+  generationStatus String required maxlength(20)
+  modelName String maxlength(100)
+  feedbackRating Integer
+  feedbackNote TextBlob
+  feedbackAt Instant
 }
 
-// --- PHẦN HỆ 8: COMMUNITY, NOTIFICATION & LOGS ---
-entity Discussion {
-  title String required maxlength(255)
-  content String required maxlength(5000)
-  createdAt Instant
+/** Lưu liên kết và trọng số giữa câu hỏi với đơn vị kiến thức. */
+entity QuestionKnowledgeLink (question_knowledge_links) {
+  // SQL composite PK: question_id, knowledge_node_id. JDL cần mapping khóa ghép thủ công; không dùng id tự sinh thay thế khi giữ schema SQL.
+  // SQL weight numeric(6,4); giữ precision/scale trong JPA/Liquibase.
+  weight BigDecimal required
 }
 
-entity DiscussionReply {
-  content String required maxlength(5000)
-  createdAt Instant
-}
-
-entity SupportTicket {
-  type String required maxlength(50)
-  subject String required maxlength(255)
-  status String maxlength(20)
-  createdAt Instant
-}
-
-entity TicketMessage {
-  content String required maxlength(5000)
-  createdAt Instant
-}
-
-entity ContentReport {
-  targetType String required maxlength(50)
-  targetId Long required
-  reason String required maxlength(5000)
-  status String maxlength(20)
-  createdAt Instant
-}
-
-entity Notification {
-  title String required maxlength(255)
-  content String required maxlength(5000)
-  isRead Boolean
-  type String required maxlength(50)
-  createdAt Instant
-}
-
-entity AuditLog {
-  action String required maxlength(100)
-  targetEntity String required maxlength(50)
-  targetId String required maxlength(100)
-  ipAddress String maxlength(50)
-  details String maxlength(5000) // Dùng để lưu chuỗi JSON giá trị cũ/mới
-  occurredAt Instant
-}
-
-// ============================================================================
-// RELATIONSHIPS CONFIGURATION (Mối quan hệ)
-// ============================================================================
-
-// 1. One-to-One nối sang bảng JHI_USER
 relationship OneToOne {
   UserProfile{user(login) required} to User with builtInEntity
-  InstructorWallet{user(login) required} to User with builtInEntity
-  TeacherVerification{user(login) required} to User with builtInEntity
-  TeacherQuota{user(login) required} to User with builtInEntity
-  StudentStreak{user(login) required} to User with builtInEntity
-  ProctorSession{attempt required} to ExamAttempt
+  TeacherQuota{instructor(login) required} to User with builtInEntity
+  InstructorWallet{instructor(login) required} to User with builtInEntity
+  StudentStreak{student(login) required} to User with builtInEntity
+  LearningDocument{courseMaterial} to CourseMaterial
+  LearningDocument{classMaterial} to ClassMaterial
 }
 
-// 2. Many-to-One nối sang bảng JHI_USER
 relationship ManyToOne {
+  TeacherVerification{user(login) required} to User with builtInEntity
+  TeacherVerification{reviewedBy(login)} to User with builtInEntity
   ParentStudentLink{parent(login) required} to User with builtInEntity
   ParentStudentLink{student(login) required} to User with builtInEntity
+  ParentStudentLink{confirmedBy(login)} to User with builtInEntity
+  ParentStudentLink{guardianVerifiedBy(login)} to User with builtInEntity
   AuthSession{user(login) required} to User with builtInEntity
-
   Course{author(login) required} to User with builtInEntity
+  Course{subject} to Subject
+  Course{grade} to Grade
+  Chapter{course required} to Course
+  Lesson{chapter required} to Chapter
+  CourseMaterial{lesson required} to Lesson
+  CourseEnrollment{course required} to Course
   CourseEnrollment{student(login) required} to User with builtInEntity
+  CourseEnrollment{lastAccessedLesson} to Lesson
   Wishlist{student(login) required} to User with builtInEntity
+  Wishlist{course required} to Course
+  CourseReview{course required} to Course
   CourseReview{student(login) required} to User with builtInEntity
-
   StudyClass{instructor(login) required} to User with builtInEntity
+  StudyClass{subject} to Subject
+  StudyClass{grade} to Grade
+  ClassMember{studyClass required} to StudyClass
   ClassMember{student(login) required} to User with builtInEntity
-
+  ClassMaterial{studyClass required} to StudyClass
+  TeacherQuota{currentPlan} to SystemPlan
   Coupon{instructor(login)} to User with builtInEntity
+  Coupon{course} to Course
   CourseOrder{student(login) required} to User with builtInEntity
-
-  QuestionBank{instructor(login) required} to User with builtInEntity
-  AssignmentStudent{student(login) required} to User with builtInEntity
-  AssignmentSubmission{student(login) required} to User with builtInEntity
-  ExamAttempt{student(login) required} to User with builtInEntity
-
-  StudentNote{student(login) required} to User with builtInEntity
-  FlashcardDeck{owner(login) required} to User with builtInEntity
-  FlashcardReview{student(login) required} to User with builtInEntity
-  AiConversation{user(login) required} to User with builtInEntity
-
-  Discussion{student(login) required} to User with builtInEntity
-  DiscussionReply{user(login) required} to User with builtInEntity
-  SupportTicket{user(login) required} to User with builtInEntity
-  TicketMessage{sender(login) required} to User with builtInEntity
-  ContentReport{reporter(login) required} to User with builtInEntity
-  Notification{user(login) required} to User with builtInEntity
-  AuditLog{actor(login)} to User with builtInEntity
-}
-
-// 3. Many-to-One nội bộ giữa các Entity
-relationship ManyToOne {
-  Category{parent(name)} to Category
-  Course{category(name)} to Category
-  Course{subject(name)} to Subject
-  Course{grade(name)} to Grade
-
-  Chapter{course(title) required} to Course
-  Lesson{chapter(title) required} to Chapter
-  CourseMaterial{lesson(title) required} to Lesson
-  CourseEnrollment{course(title) required} to Course
-  Wishlist{course(title) required} to Course
-  CourseReview{course(title) required} to Course
-
-  CourseReviewRequest{course(title) required} to Course
-  CourseReviewRequest{submittedBy(login) required} to User with builtInEntity
-  CourseReviewRequest{reviewedBy(login)} to User with builtInEntity
-
-  StudyClass{subject(name)} to Subject
-  StudyClass{grade(name)} to Grade
-  ClassMember{studyClass(name) required} to StudyClass
-  ClassMaterial{studyClass(name) required} to StudyClass
-
-  TeacherQuota{currentPlan(name)} to SystemPlan
-  CourseOrder{course(title)} to Course
-  CourseOrder{plan(name)} to SystemPlan
-  CourseOrder{coupon(code)} to Coupon
+  CourseOrder{course} to Course
+  CourseOrder{plan} to SystemPlan
+  CourseOrder{coupon} to Coupon
   Payment{order required} to CourseOrder
   Refund{order required} to CourseOrder
   Refund{payment required} to Payment
+  Refund{processedBy(login)} to User with builtInEntity
+  PayoutRequest{wallet required} to InstructorWallet
+  PayoutRequest{processedBy(login)} to User with builtInEntity
+  QuestionBank{instructor(login) required} to User with builtInEntity
+  QuestionBank{subject} to Subject
+  QuestionBank{grade} to Grade
+  Exam{studyClass} to StudyClass
+  Exam{createdBy(login) required} to User with builtInEntity
+  Exam{lesson} to Lesson
+  Exam{assignedStudent(login)} to User with builtInEntity
+  Assignment{studyClass required} to StudyClass
+  Assignment{assignedBy(login) required} to User with builtInEntity
+  Assignment{exam} to Exam
+  AssignmentStudent{assignment required} to Assignment
+  AssignmentStudent{student(login) required} to User with builtInEntity
+  AssignmentSubmission{assignment required} to Assignment
+  AssignmentSubmission{student(login) required} to User with builtInEntity
+  AssignmentSubmission{gradedBy(login)} to User with builtInEntity
+  ExamAttempt{exam required} to Exam
+  ExamAttempt{student(login) required} to User with builtInEntity
+  ExamAttempt{assignment} to Assignment
+  ProctorEvent{attempt required} to ExamAttempt
+  ProctorEvent{reviewedBy(login)} to User with builtInEntity
+  StudentNote{student(login) required} to User with builtInEntity
+  StudentNote{lesson required} to Lesson
+  FlashcardDeck{owner(login) required} to User with builtInEntity
+  FlashcardDeck{subject} to Subject
+  KnowledgeNode{subject} to Subject
+  KnowledgeEdge{fromNode required} to KnowledgeNode
+  KnowledgeEdge{toNode required} to KnowledgeNode
+  Discussion{lesson required} to Lesson
+  Discussion{student(login) required} to User with builtInEntity
+  Discussion{studyClass} to StudyClass
+  DiscussionReply{discussion required} to Discussion
+  DiscussionReply{user(login) required} to User with builtInEntity
+  DiscussionReply{parent} to DiscussionReply
+  SupportTicket{user(login) required} to User with builtInEntity
+  SupportTicket{assignedTo(login)} to User with builtInEntity
+  TicketMessage{ticket required} to SupportTicket
+  TicketMessage{sender(login) required} to User with builtInEntity
+  ContentReport{reporter(login) required} to User with builtInEntity
+  ContentReport{assignedTo(login)} to User with builtInEntity
+  ContentReport{resolvedBy(login)} to User with builtInEntity
+  Notification{user(login) required} to User with builtInEntity
+  AuditLog{actor(login) required} to User with builtInEntity
+  CourseReviewRequest{course required} to Course
+  CourseReviewRequest{submittedBy(login) required} to User with builtInEntity
+  CourseReviewRequest{reviewedBy(login)} to User with builtInEntity
+  LessonProgress{enrollment required} to CourseEnrollment
+  LessonProgress{lesson required} to Lesson
+  StudentKnowledgeProgress{student(login) required} to User with builtInEntity
+  StudentKnowledgeProgress{knowledgeNode required} to KnowledgeNode
+  LearningDocument{uploadedBy(login) required} to User with builtInEntity
+  LearningDocument{subject} to Subject
+  LearningDocument{grade} to Grade
+  AiGeneratedContent{createdBy(login) required} to User with builtInEntity
+  AiGeneratedContent{document} to LearningDocument
+  AiGeneratedContent{lesson} to Lesson
+  AiGeneratedContent{reviewedBy(login)} to User with builtInEntity
+  AiGeneratedContent{course} to Course
   WalletTransaction{wallet required} to InstructorWallet
   WalletTransaction{order} to CourseOrder
-  PayoutRequest{wallet required} to InstructorWallet
-
-  Question{bank(name)} to QuestionBank
+  WalletTransaction{payoutRequest} to PayoutRequest
+  WalletTransaction{refund} to Refund
+  Question{bank} to QuestionBank
+  Question{createdBy(login) required} to User with builtInEntity
+  Question{aiContent} to AiGeneratedContent
+  Question{subject} to Subject
+  Question{grade} to Grade
+  Question{previousQuestion} to Question
   QuestionOption{question required} to Question
-  Exam{studyClass(name)} to StudyClass
-  ExamQuestion{exam(title) required} to Exam
+  ExamQuestion{exam required} to Exam
   ExamQuestion{question required} to Question
-  Assignment{studyClass(name) required} to StudyClass
-  AssignmentStudent{assignment(title) required} to Assignment
-  AssignmentSubmission{assignment(title) required} to Assignment
-  ExamAttempt{exam(title) required} to Exam
   ExamAnswer{attempt required} to ExamAttempt
   ExamAnswer{question required} to Question
   ExamAnswer{option} to QuestionOption
-
-  ProctorEvent{session required} to ProctorSession
-  StudentNote{lesson(title) required} to Lesson
-  Flashcard{deck(title) required} to FlashcardDeck
-  FlashcardDeck{subject(name)} to Subject
+  Flashcard{deck required} to FlashcardDeck
+  Flashcard{aiContent} to AiGeneratedContent
+  FlashcardReview{student(login) required} to User with builtInEntity
   FlashcardReview{flashcard required} to Flashcard
-  KnowledgeNode{subject(name)} to Subject
-  KnowledgeEdge{fromNode(title) required} to KnowledgeNode
-  KnowledgeEdge{toNode(title) required} to KnowledgeNode
-  PdfChunk{material required} to CourseMaterial
-  AiConversation{lesson(title)} to Lesson
+  PdfChunk{material required} to LearningDocument
+  AiConversation{user(login) required} to User with builtInEntity
+  AiConversation{lesson} to Lesson
+  AiConversation{document} to LearningDocument
   AiMessage{conversation required} to AiConversation
-
-  Discussion{lesson(title) required} to Lesson
-  DiscussionReply{discussion(title) required} to Discussion
-  DiscussionReply{parent} to DiscussionReply
-  TicketMessage{ticket(subject) required} to SupportTicket
+  QuestionKnowledgeLink{question required} to Question
+  QuestionKnowledgeLink{knowledgeNode required} to KnowledgeNode
 }
 
-// ============================================================================
-// GLOBAL ARCHITECTURE OPTIONS (Cấu hình MapStruct, Service, Pagination)
-// ============================================================================
-
+// Giữ cấu hình kiến trúc của repo; không tạo ManyToMany ngầm gây thêm bảng join ngoài SQL.
 dto * with mapstruct
 service * with serviceImpl
 filter *
 
-// --- Cấu hình Phân trang Infinite-Scroll (Cuộn vô hạn) ---
 paginate AuthSession, ProctorEvent, AiMessage, WalletTransaction, ExamAnswer, DiscussionReply, TicketMessage, ContentReport, Notification, AuditLog with infinite-scroll
-
-// --- Cấu hình Phân trang Chuẩn (Phân trang danh sách) ---
-paginate UserProfile, Category, Subject, Grade, Course, CourseEnrollment, CourseReview, StudyClass, ClassMember, TeacherVerification with pagination
-paginate SystemPlan, Coupon, CourseOrder, Payment, Refund, PayoutRequest, QuestionBank, Question, Exam, ExamAttempt, Assignment, AssignmentSubmission with pagination
-paginate StudentNote, FlashcardDeck, Flashcard, KnowledgeNode, AiConversation, Discussion, SupportTicket, Lesson, Chapter, CourseMaterial, ClassMaterial with pagination
-paginate AssignmentStudent with pagination
-
-// Custom persistence: Course.learningObjectives is List<String> mapped to PostgreSQL JSONB.
-// JDL TextBlob is only a generator placeholder; preserve the custom mapping.
-// Course.version uses JPA @Version; preserve it when regenerating.
+paginate UserProfile, TeacherVerification, ParentStudentLink, Subject, Grade, Course, Chapter, Lesson, CourseMaterial, CourseEnrollment, Wishlist, CourseReview with pagination
+paginate StudyClass, ClassMember, ClassMaterial, SystemPlan, TeacherQuota, Coupon, CourseOrder, Payment, Refund, InstructorWallet, PayoutRequest, QuestionBank with pagination
+paginate Exam, Assignment, AssignmentStudent, AssignmentSubmission, ExamAttempt, StudentNote, StudentStreak, FlashcardDeck, KnowledgeNode, KnowledgeEdge, Discussion, SupportTicket with pagination
+paginate CourseReviewRequest, LessonProgress, StudentKnowledgeProgress, LearningDocument, AiGeneratedContent, Question, QuestionOption, ExamQuestion, Flashcard, FlashcardReview, PdfChunk, AiConversation with pagination
+paginate QuestionKnowledgeLink with pagination

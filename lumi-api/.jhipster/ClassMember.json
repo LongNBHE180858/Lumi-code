@@ -3,7 +3,9 @@
     "changelogDate": "20261012230449"
   },
   "applications": ["*"],
+  "documentation": "Lưu thành viên lớp, yêu cầu tham gia và trạng thái duyệt.",
   "dto": "mapstruct",
+  "entityTableName": "class_members",
   "fields": [
     {
       "fieldName": "status",
@@ -14,12 +16,33 @@
     {
       "fieldName": "joinedAt",
       "fieldType": "Instant"
+    },
+    {
+      "fieldName": "requestedAt",
+      "fieldType": "Instant",
+      "fieldValidateRules": ["required"]
+    },
+    {
+      "fieldName": "leftAt",
+      "fieldType": "Instant"
+    },
+    {
+      "fieldName": "updatedAt",
+      "fieldType": "Instant",
+      "fieldValidateRules": ["required"]
     }
   ],
   "jpaMetamodelFiltering": true,
   "name": "ClassMember",
   "pagination": "pagination",
   "relationships": [
+    {
+      "otherEntityName": "studyClass",
+      "relationshipName": "studyClass",
+      "relationshipSide": "left",
+      "relationshipType": "many-to-one",
+      "relationshipValidateRules": "required"
+    },
     {
       "otherEntityField": "login",
       "otherEntityName": "user",
@@ -28,14 +51,6 @@
       "relationshipType": "many-to-one",
       "relationshipValidateRules": "required",
       "relationshipWithBuiltInEntity": true
-    },
-    {
-      "otherEntityField": "name",
-      "otherEntityName": "studyClass",
-      "relationshipName": "studyClass",
-      "relationshipSide": "left",
-      "relationshipType": "many-to-one",
-      "relationshipValidateRules": "required"
     }
   ],
   "searchEngine": "no",

@@ -25,6 +25,7 @@
       "is2faEnabled": "Is 2 Fa Enabled",
       "instructorStatus": "Instructor Status",
       "updatedAt": "Updated At",
+      "birthDate": "Birth Date",
       "user": "User"
     }
   }

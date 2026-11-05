@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Button, Table } from 'react-bootstrap';
-import { TextFormat, Translate, getSortState } from 'react-jhipster';
+import { JhiItemCount, JhiPagination, TextFormat, Translate, getPaginationState } from 'react-jhipster';
 import { Link, useLocation, useNavigate } from 'react-router';
 
 import { faSort, faSortDown, faSortUp } from '@fortawesome/free-solid-svg-icons';
@@ -8,8 +8,8 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import { APP_DATE_FORMAT } from 'app/config/constants';
 import { useAppDispatch, useAppSelector } from 'app/config/store';
-import { overrideSortStateWithQueryParams } from 'app/shared/util/entity-utils';
-import { ASC, DESC } from 'app/shared/util/pagination.constants';
+import { overridePaginationStateWithQueryParams } from 'app/shared/util/entity-utils';
+import { ASC, DESC, ITEMS_PER_PAGE, SORT } from 'app/shared/util/pagination.constants';
 
 import { getEntities } from './parent-student-link.reducer';
 
@@ -19,22 +19,27 @@ export const ParentStudentLink = () => {
   const pageLocation = useLocation();
   const navigate = useNavigate();
 
-  const [sortState, setSortState] = useState(overrideSortStateWithQueryParams(getSortState(pageLocation, 'id'), pageLocation.search));
+  const [paginationState, setPaginationState] = useState(
+    overridePaginationStateWithQueryParams(getPaginationState(pageLocation, ITEMS_PER_PAGE, 'id'), pageLocation.search),
+  );
 
   const parentStudentLinkList = useAppSelector(state => state.parentStudentLink.entities);
   const loading = useAppSelector(state => state.parentStudentLink.loading);
+  const totalItems = useAppSelector(state => state.parentStudentLink.totalItems);
 
   const getAllEntities = () => {
     dispatch(
       getEntities({
-        sort: `${sortState.sort},${sortState.order}`,
+        page: paginationState.activePage - 1,
+        size: paginationState.itemsPerPage,
+        sort: `${paginationState.sort},${paginationState.order}`,
       }),
     );
   };
 
   const sortEntities = () => {
     getAllEntities();
-    const endURL = `?sort=${sortState.sort},${sortState.order}`;
+    const endURL = `?page=${paginationState.activePage}&sort=${paginationState.sort},${paginationState.order}`;
     if (pageLocation.search !== endURL) {
       navigate(`${pageLocation.pathname}${endURL}`);
     }
@@ -42,23 +47,44 @@ export const ParentStudentLink = () => {
 
   useEffect(() => {
     sortEntities();
-  }, [sortState.order, sortState.sort]);
+  }, [paginationState.activePage, paginationState.order, paginationState.sort]);
+
+  useEffect(() => {
+    const params = new URLSearchParams(pageLocation.search);
+    const page = params.get('page');
+    const sort = params.get(SORT);
+    if (page && sort) {
+      const sortSplit = sort.split(',');
+      setPaginationState({
+        ...paginationState,
+        activePage: +page,
+        sort: sortSplit[0],
+        order: sortSplit[1],
+      });
+    }
+  }, [pageLocation.search]);
 
   const sort = p => () => {
-    setSortState({
-      ...sortState,
-      order: sortState.order === ASC ? DESC : ASC,
+    setPaginationState({
+      ...paginationState,
+      order: paginationState.order === ASC ? DESC : ASC,
       sort: p,
     });
   };
+
+  const handlePagination = currentPage =>
+    setPaginationState({
+      ...paginationState,
+      activePage: currentPage,
+    });
 
   const handleSyncList = () => {
     sortEntities();
   };
 
   const getSortIconByFieldName = (fieldName: string) => {
-    const sortFieldName = sortState.sort;
-    const { order } = sortState;
+    const sortFieldName = paginationState.sort;
+    const { order } = paginationState;
     if (sortFieldName !== fieldName) {
       return faSort;
     }
@@ -107,11 +133,50 @@ export const ParentStudentLink = () => {
                   <Translate contentKey="lumiApp.parentStudentLink.linkedAt">Linked At</Translate>{' '}
                   <FontAwesomeIcon icon={getSortIconByFieldName('linkedAt')} />
                 </th>
+                <th className="hand" onClick={sort('createdAt')}>
+                  <Translate contentKey="lumiApp.parentStudentLink.createdAt">Created At</Translate>{' '}
+                  <FontAwesomeIcon icon={getSortIconByFieldName('createdAt')} />
+                </th>
+                <th className="hand" onClick={sort('codeExpiresAt')}>
+                  <Translate contentKey="lumiApp.parentStudentLink.codeExpiresAt">Code Expires At</Translate>{' '}
+                  <FontAwesomeIcon icon={getSortIconByFieldName('codeExpiresAt')} />
+                </th>
+                <th className="hand" onClick={sort('confirmedAt')}>
+                  <Translate contentKey="lumiApp.parentStudentLink.confirmedAt">Confirmed At</Translate>{' '}
+                  <FontAwesomeIcon icon={getSortIconByFieldName('confirmedAt')} />
+                </th>
+                <th className="hand" onClick={sort('revokedAt')}>
+                  <Translate contentKey="lumiApp.parentStudentLink.revokedAt">Revoked At</Translate>{' '}
+                  <FontAwesomeIcon icon={getSortIconByFieldName('revokedAt')} />
+                </th>
+                <th className="hand" onClick={sort('relationshipType')}>
+                  <Translate contentKey="lumiApp.parentStudentLink.relationshipType">Relationship Type</Translate>{' '}
+                  <FontAwesomeIcon icon={getSortIconByFieldName('relationshipType')} />
+                </th>
+                <th className="hand" onClick={sort('guardianVerificationStatus')}>
+                  <Translate contentKey="lumiApp.parentStudentLink.guardianVerificationStatus">Guardian Verification Status</Translate>{' '}
+                  <FontAwesomeIcon icon={getSortIconByFieldName('guardianVerificationStatus')} />
+                </th>
+                <th className="hand" onClick={sort('guardianVerifiedAt')}>
+                  <Translate contentKey="lumiApp.parentStudentLink.guardianVerifiedAt">Guardian Verified At</Translate>{' '}
+                  <FontAwesomeIcon icon={getSortIconByFieldName('guardianVerifiedAt')} />
+                </th>
+                <th className="hand" onClick={sort('guardianVerificationNote')}>
+                  <Translate contentKey="lumiApp.parentStudentLink.guardianVerificationNote">Guardian Verification Note</Translate>{' '}
+                  <FontAwesomeIcon icon={getSortIconByFieldName('guardianVerificationNote')} />
+                </th>
                 <th>
                   <Translate contentKey="lumiApp.parentStudentLink.parent">Parent</Translate> <FontAwesomeIcon icon="sort" />
                 </th>
                 <th>
                   <Translate contentKey="lumiApp.parentStudentLink.student">Student</Translate> <FontAwesomeIcon icon="sort" />
+                </th>
+                <th>
+                  <Translate contentKey="lumiApp.parentStudentLink.confirmedBy">Confirmed By</Translate> <FontAwesomeIcon icon="sort" />
+                </th>
+                <th>
+                  <Translate contentKey="lumiApp.parentStudentLink.guardianVerifiedBy">Guardian Verified By</Translate>{' '}
+                  <FontAwesomeIcon icon="sort" />
                 </th>
                 <th />
               </tr>
@@ -131,8 +196,38 @@ export const ParentStudentLink = () => {
                       <TextFormat type="date" value={parentStudentLink.linkedAt} format={APP_DATE_FORMAT} />
                     ) : null}
                   </td>
+                  <td>
+                    {parentStudentLink.createdAt ? (
+                      <TextFormat type="date" value={parentStudentLink.createdAt} format={APP_DATE_FORMAT} />
+                    ) : null}
+                  </td>
+                  <td>
+                    {parentStudentLink.codeExpiresAt ? (
+                      <TextFormat type="date" value={parentStudentLink.codeExpiresAt} format={APP_DATE_FORMAT} />
+                    ) : null}
+                  </td>
+                  <td>
+                    {parentStudentLink.confirmedAt ? (
+                      <TextFormat type="date" value={parentStudentLink.confirmedAt} format={APP_DATE_FORMAT} />
+                    ) : null}
+                  </td>
+                  <td>
+                    {parentStudentLink.revokedAt ? (
+                      <TextFormat type="date" value={parentStudentLink.revokedAt} format={APP_DATE_FORMAT} />
+                    ) : null}
+                  </td>
+                  <td>{parentStudentLink.relationshipType}</td>
+                  <td>{parentStudentLink.guardianVerificationStatus}</td>
+                  <td>
+                    {parentStudentLink.guardianVerifiedAt ? (
+                      <TextFormat type="date" value={parentStudentLink.guardianVerifiedAt} format={APP_DATE_FORMAT} />
+                    ) : null}
+                  </td>
+                  <td>{parentStudentLink.guardianVerificationNote}</td>
                   <td>{parentStudentLink.parent ? parentStudentLink.parent.login : ''}</td>
                   <td>{parentStudentLink.student ? parentStudentLink.student.login : ''}</td>
+                  <td>{parentStudentLink.confirmedBy ? parentStudentLink.confirmedBy.login : ''}</td>
+                  <td>{parentStudentLink.guardianVerifiedBy ? parentStudentLink.guardianVerifiedBy.login : ''}</td>
                   <td className="text-end">
                     <div className="btn-group flex-btn-group-container">
                       <Button
@@ -149,7 +244,7 @@ export const ParentStudentLink = () => {
                       </Button>
                       <Button
                         as={Link as any}
-                        to={`/parent-student-link/${parentStudentLink.id}/edit`}
+                        to={`/parent-student-link/${parentStudentLink.id}/edit?page=${paginationState.activePage}&sort=${paginationState.sort},${paginationState.order}`}
                         variant="primary"
                         size="sm"
                         data-cy="entityEditButton"
@@ -160,7 +255,9 @@ export const ParentStudentLink = () => {
                         </span>
                       </Button>
                       <Button
-                        onClick={() => (globalThis.location.href = `/parent-student-link/${parentStudentLink.id}/delete`)}
+                        onClick={() =>
+                          (globalThis.location.href = `/parent-student-link/${parentStudentLink.id}/delete?page=${paginationState.activePage}&sort=${paginationState.sort},${paginationState.order}`)
+                        }
                         variant="danger"
                         size="sm"
                         data-cy="entityDeleteButton"
@@ -184,6 +281,24 @@ export const ParentStudentLink = () => {
           )
         )}
       </div>
+      {totalItems ? (
+        <div className={parentStudentLinkList && parentStudentLinkList.length > 0 ? '' : 'd-none'}>
+          <div className="justify-content-center d-flex">
+            <JhiItemCount page={paginationState.activePage} total={totalItems} itemsPerPage={paginationState.itemsPerPage} i18nEnabled />
+          </div>
+          <div className="justify-content-center d-flex">
+            <JhiPagination
+              activePage={paginationState.activePage}
+              onSelect={handlePagination}
+              maxButtons={5}
+              itemsPerPage={paginationState.itemsPerPage}
+              totalItems={totalItems}
+            />
+          </div>
+        </div>
+      ) : (
+        ''
+      )}
     </div>
   );
 };

@@ -51,11 +51,13 @@ export const TeacherVerificationUpdate = () => {
     }
     values.submittedAt = convertDateTimeToServer(values.submittedAt);
     values.approvedAt = convertDateTimeToServer(values.approvedAt);
+    values.reviewedAt = convertDateTimeToServer(values.reviewedAt);
 
     const entity = {
       ...teacherVerificationEntity,
       ...values,
       user: users.find(it => it.id.toString() === values.user?.toString()),
+      reviewedBy: users.find(it => it.id.toString() === values.reviewedBy?.toString()),
     };
 
     if (isNew) {
@@ -70,12 +72,15 @@ export const TeacherVerificationUpdate = () => {
       ? {
           submittedAt: displayDefaultDateTime(),
           approvedAt: displayDefaultDateTime(),
+          reviewedAt: displayDefaultDateTime(),
         }
       : {
           ...teacherVerificationEntity,
           submittedAt: convertDateTimeFromServer(teacherVerificationEntity.submittedAt),
           approvedAt: convertDateTimeFromServer(teacherVerificationEntity.approvedAt),
+          reviewedAt: convertDateTimeFromServer(teacherVerificationEntity.reviewedAt),
           user: teacherVerificationEntity?.user?.id,
+          reviewedBy: teacherVerificationEntity?.reviewedBy?.id,
         };
 
   return (
@@ -129,10 +134,7 @@ export const TeacherVerificationUpdate = () => {
                 id="teacher-verification-notes"
                 name="notes"
                 data-cy="notes"
-                type="text"
-                validate={{
-                  maxLength: { value: 5000, message: translate('entity.validation.maxlength', { max: 5000 }) },
-                }}
+                type="textarea"
               />
               <ValidatedField
                 label={translate('lumiApp.teacherVerification.submittedAt')}
@@ -147,6 +149,14 @@ export const TeacherVerificationUpdate = () => {
                 id="teacher-verification-approvedAt"
                 name="approvedAt"
                 data-cy="approvedAt"
+                type="datetime-local"
+                placeholder="YYYY-MM-DD HH:mm"
+              />
+              <ValidatedField
+                label={translate('lumiApp.teacherVerification.reviewedAt')}
+                id="teacher-verification-reviewedAt"
+                name="reviewedAt"
+                data-cy="reviewedAt"
                 type="datetime-local"
                 placeholder="YYYY-MM-DD HH:mm"
               />
@@ -170,6 +180,22 @@ export const TeacherVerificationUpdate = () => {
               <FormText>
                 <Translate contentKey="entity.validation.required">This field is required.</Translate>
               </FormText>
+              <ValidatedField
+                id="teacher-verification-reviewedBy"
+                name="reviewedBy"
+                data-cy="reviewedBy"
+                label={translate('lumiApp.teacherVerification.reviewedBy')}
+                type="select"
+              >
+                <option value="" key="0" />
+                {users
+                  ? users.map(otherEntity => (
+                      <option value={otherEntity.id} key={otherEntity.id}>
+                        {otherEntity.login}
+                      </option>
+                    ))
+                  : null}
+              </ValidatedField>
               <Button
                 as={Link as any}
                 id="cancel-save"

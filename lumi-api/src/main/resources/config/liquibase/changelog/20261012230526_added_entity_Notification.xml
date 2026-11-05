@@ -10,14 +10,14 @@
         Added the entity Notification.
     -->
     <changeSet id="20261012230526-1" author="jhipster">
-        <createTable tableName="notification">
+        <createTable tableName="notifications" remarks="Lưu thông báo, trạng thái đã đọc và đối tượng điều hướng.">
             <column name="id" type="bigint">
                 <constraints primaryKey="true" nullable="false"/>
             </column>
             <column name="title" type="varchar(255)">
                 <constraints nullable="false" />
             </column>
-            <column name="content" type="varchar(5000)">
+            <column name="content" type="${clobType}">
                 <constraints nullable="false" />
             </column>
             <column name="is_read" type="boolean">
@@ -29,12 +29,22 @@
             <column name="created_at" type="${datetimeType}">
                 <constraints nullable="true" />
             </column>
+            <column name="target_type" type="varchar(50)">
+                <constraints nullable="true" />
+            </column>
+            <column name="target_id" type="bigint">
+                <constraints nullable="true" />
+            </column>
+            <column name="read_at" type="${datetimeType}">
+                <constraints nullable="true" />
+            </column>
             <column name="user_id" type="bigint">
                 <constraints nullable="false" />
             </column>
             <!-- jhipster-needle-liquibase-add-column - JHipster will add columns here -->
         </createTable>
-        <dropDefaultValue tableName="notification" columnName="created_at" columnDataType="${datetimeType}"/>
+        <dropDefaultValue tableName="notifications" columnName="created_at" columnDataType="${datetimeType}"/>
+        <dropDefaultValue tableName="notifications" columnName="read_at" columnDataType="${datetimeType}"/>
     </changeSet>
 
     <!-- jhipster-needle-liquibase-add-changeset - JHipster will add changesets here -->
@@ -49,17 +59,20 @@
     -->
     <changeSet id="20261012230526-1-data" author="jhipster" context="faker">
         <loadData
-                  file="../fake-data/notification.csv"
+                  file="../fake-data/notifications.csv"
                   relativeToChangelogFile="true"
                   separator=";"
-                  tableName="notification"
+                  tableName="notifications"
                   usePreparedStatements="true">
             <column name="id" type="numeric"/>
             <column name="title" type="string"/>
-            <column name="content" type="string"/>
+            <column name="content" type="clob"/>
             <column name="is_read" type="boolean"/>
             <column name="type" type="string"/>
             <column name="created_at" type="date"/>
+            <column name="target_type" type="string"/>
+            <column name="target_id" type="numeric"/>
+            <column name="read_at" type="date"/>
             <column name="user_id" type="numeric"/>
             <!-- jhipster-needle-liquibase-add-loadcolumn - JHipster (and/or extensions) can add load columns here -->
         </loadData>

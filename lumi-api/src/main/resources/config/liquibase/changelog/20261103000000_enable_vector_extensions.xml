@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog https://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <!-- Runs for every PostgreSQL database, whether or not AI is enabled. -->
+    <changeSet id="20261103000000-1" author="lumi" dbms="postgresql">
+        <sql>CREATE EXTENSION IF NOT EXISTS vector;</sql>
+        <sql>CREATE EXTENSION IF NOT EXISTS hstore;</sql>
+        <sql>CREATE EXTENSION IF NOT EXISTS "uuid-ossp";</sql>
+        <!-- Shared extensions may already be in use; preserve them on rollback. -->
+        <rollback/>
+    </changeSet>
+</databaseChangeLog>

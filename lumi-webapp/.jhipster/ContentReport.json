@@ -3,7 +3,9 @@
     "changelogDate": "20261012231730"
   },
   "applications": ["*"],
+  "documentation": "Lưu báo sai nội dung, đối tượng bị báo và kết quả xử lý.",
   "dto": "mapstruct",
+  "entityTableName": "content_reports",
   "fields": [
     {
       "fieldName": "targetType",
@@ -18,9 +20,8 @@
     },
     {
       "fieldName": "reason",
-      "fieldType": "String",
-      "fieldValidateRules": ["required", "maxlength"],
-      "fieldValidateRulesMaxlength": "5000"
+      "fieldType": "TextBlob",
+      "fieldValidateRules": ["required"]
     },
     {
       "fieldName": "status",
@@ -31,6 +32,20 @@
     {
       "fieldName": "createdAt",
       "fieldType": "Instant"
+    },
+    {
+      "fieldName": "resolvedAt",
+      "fieldType": "Instant"
+    },
+    {
+      "fieldName": "resolutionNote",
+      "fieldType": "TextBlob"
+    },
+    {
+      "fieldName": "targetVersion",
+      "fieldType": "String",
+      "fieldValidateRules": ["maxlength"],
+      "fieldValidateRulesMaxlength": "100"
     }
   ],
   "jpaMetamodelFiltering": true,
@@ -44,6 +59,22 @@
       "relationshipSide": "left",
       "relationshipType": "many-to-one",
       "relationshipValidateRules": "required",
+      "relationshipWithBuiltInEntity": true
+    },
+    {
+      "otherEntityField": "login",
+      "otherEntityName": "user",
+      "relationshipName": "assignedTo",
+      "relationshipSide": "left",
+      "relationshipType": "many-to-one",
+      "relationshipWithBuiltInEntity": true
+    },
+    {
+      "otherEntityField": "login",
+      "otherEntityName": "user",
+      "relationshipName": "resolvedBy",
+      "relationshipSide": "left",
+      "relationshipType": "many-to-one",
       "relationshipWithBuiltInEntity": true
     }
   ],

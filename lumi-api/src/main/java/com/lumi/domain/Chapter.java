@@ -7,10 +7,10 @@ import java.io.Serial;
 import java.io.Serializable;
 
 /**
- * A Chapter.
+ * Lưu chương và thứ tự chương trong khóa học.
  */
 @Entity
-@Table(name = "chapter")
+@Table(name = "chapters")
 @SuppressWarnings("common-java:DuplicatedBlocks")
 public class Chapter implements Serializable {
 
@@ -29,13 +29,12 @@ public class Chapter implements Serializable {
     private String title;
 
     @NotNull
-    @Min(value = 0)
     @Column(name = "order_index", nullable = false)
     private Integer orderIndex;
 
     @ManyToOne(optional = false)
     @NotNull
-    @JsonIgnoreProperties(value = { "author", "category", "subject", "grade" }, allowSetters = true)
+    @JsonIgnoreProperties(value = { "author", "subject", "grade" }, allowSetters = true)
     private Course course;
 
     // jhipster-needle-entity-add-field - JHipster will add fields here

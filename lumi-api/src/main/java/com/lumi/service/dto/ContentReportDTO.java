@@ -1,5 +1,7 @@
 package com.lumi.service.dto;
 
+import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.persistence.Lob;
 import jakarta.validation.constraints.*;
 import java.io.Serializable;
 import java.time.Instant;
@@ -8,6 +10,7 @@ import java.util.Objects;
 /**
  * A DTO for the {@link com.lumi.domain.ContentReport} entity.
  */
+@Schema(description = "Lưu báo sai nội dung, đối tượng bị báo và kết quả xử lý.")
 @SuppressWarnings("common-java:DuplicatedBlocks")
 public class ContentReportDTO implements Serializable {
 
@@ -20,8 +23,7 @@ public class ContentReportDTO implements Serializable {
     @NotNull
     private Long targetId;
 
-    @NotNull
-    @Size(max = 5000)
+    @Lob
     private String reason;
 
     @Size(max = 20)
@@ -29,8 +31,20 @@ public class ContentReportDTO implements Serializable {
 
     private Instant createdAt;
 
+    private Instant resolvedAt;
+
+    @Lob
+    private String resolutionNote;
+
+    @Size(max = 100)
+    private String targetVersion;
+
     @NotNull
     private UserDTO reporter;
+
+    private UserDTO assignedTo;
+
+    private UserDTO resolvedBy;
 
     public Long getId() {
         return id;
@@ -80,12 +94,52 @@ public class ContentReportDTO implements Serializable {
         this.createdAt = createdAt;
     }
 
+    public Instant getResolvedAt() {
+        return resolvedAt;
+    }
+
+    public void setResolvedAt(Instant resolvedAt) {
+        this.resolvedAt = resolvedAt;
+    }
+
+    public String getResolutionNote() {
+        return resolutionNote;
+    }
+
+    public void setResolutionNote(String resolutionNote) {
+        this.resolutionNote = resolutionNote;
+    }
+
+    public String getTargetVersion() {
+        return targetVersion;
+    }
+
+    public void setTargetVersion(String targetVersion) {
+        this.targetVersion = targetVersion;
+    }
+
     public UserDTO getReporter() {
         return reporter;
     }
 
     public void setReporter(UserDTO reporter) {
         this.reporter = reporter;
+    }
+
+    public UserDTO getAssignedTo() {
+        return assignedTo;
+    }
+
+    public void setAssignedTo(UserDTO assignedTo) {
+        this.assignedTo = assignedTo;
+    }
+
+    public UserDTO getResolvedBy() {
+        return resolvedBy;
+    }
+
+    public void setResolvedBy(UserDTO resolvedBy) {
+        this.resolvedBy = resolvedBy;
     }
 
     @Override
@@ -119,7 +173,12 @@ public class ContentReportDTO implements Serializable {
             ", reason='" + getReason() + "'" +
             ", status='" + getStatus() + "'" +
             ", createdAt='" + getCreatedAt() + "'" +
+            ", resolvedAt='" + getResolvedAt() + "'" +
+            ", resolutionNote='" + getResolutionNote() + "'" +
+            ", targetVersion='" + getTargetVersion() + "'" +
             ", reporter=" + getReporter() +
+            ", assignedTo=" + getAssignedTo() +
+            ", resolvedBy=" + getResolvedBy() +
             "}";
     }
 }

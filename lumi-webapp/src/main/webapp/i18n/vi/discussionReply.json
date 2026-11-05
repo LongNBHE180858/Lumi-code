@@ -20,8 +20,8 @@
       "id": "ID",
       "content": "Content",
       "createdAt": "Created At",
-      "user": "User",
       "discussion": "Discussion",
+      "user": "User",
       "parent": "Parent"
     }
   }

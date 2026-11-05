@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd
+                        http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
+    <!--
+        Added the constraints for entity CourseReviewRequest.
+    -->
+    <changeSet id="20261019000000-2" author="jhipster">
+
+        <addForeignKeyConstraint baseColumnNames="course_id"
+                                 baseTableName="course_review_requests"
+                                 constraintName="fk_course_review_requests__course_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="courses"
+                                 />
+
+        <addForeignKeyConstraint baseColumnNames="submitted_by_id"
+                                 baseTableName="course_review_requests"
+                                 constraintName="fk_course_review_requests__submitted_by_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="jhi_user"
+                                 />
+
+        <addForeignKeyConstraint baseColumnNames="reviewed_by_id"
+                                 baseTableName="course_review_requests"
+                                 constraintName="fk_course_review_requests__reviewed_by_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="jhi_user"
+                                 />
+    </changeSet>
+</databaseChangeLog>

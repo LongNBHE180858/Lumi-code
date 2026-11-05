@@ -25,7 +25,7 @@ export const WishlistUpdate = () => {
   const updateSuccess = useAppSelector(state => state.wishlist.updateSuccess);
 
   const handleClose = () => {
-    navigate('/wishlist');
+    navigate(`/wishlist${location.search}`);
   };
 
   useEffect(() => {
@@ -109,7 +109,7 @@ export const WishlistUpdate = () => {
                 {courses
                   ? courses.map(otherEntity => (
                       <option value={otherEntity.id} key={otherEntity.id}>
-                        {otherEntity.title}
+                        {otherEntity.id}
                       </option>
                     ))
                   : null}

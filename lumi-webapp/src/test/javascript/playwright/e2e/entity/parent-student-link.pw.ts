@@ -12,7 +12,7 @@ import {
 import { expect, test } from '../../support/fixtures';
 
 const parentStudentLinkPageUrl = '/parent-student-link';
-// const parentStudentLinkSample = {"linkCode":"masticate "};
+// const parentStudentLinkSample = {"linkCode":"mechanical","createdAt":"2026-10-12T06:12:57.289Z","codeExpiresAt":"2026-10-12T15:13:24.804Z","guardianVerificationStatus":"reproachfully snoop "};
 
 const parentStudentLinkApiUrl = '/api/parent-student-links';
 
@@ -137,6 +137,9 @@ test.describe('ParentStudentLink e2e test', () => {
           route =>
             route.fulfill({
               status: 200,
+              headers: {
+                link: '<http://localhost/api/parent-student-links?page=0&size=20>; rel="last",<http://localhost/api/parent-student-links?page=0&size=20>; rel="first"',
+              },
               json: [parentStudentLink],
             }),
           { times: 1 },
@@ -222,6 +225,35 @@ test.describe('ParentStudentLink e2e test', () => {
       await page.locator(`[data-cy="linkedAt"]`).fill('2026-10-12T00:38');
       await page.locator(`[data-cy="linkedAt"]`).blur();
       await expect(page.locator(`[data-cy="linkedAt"]`)).toHaveValue('2026-10-12T00:38');
+
+      await page.locator(`[data-cy="createdAt"]`).fill('2026-10-12T16:43');
+      await page.locator(`[data-cy="createdAt"]`).blur();
+      await expect(page.locator(`[data-cy="createdAt"]`)).toHaveValue('2026-10-12T16:43');
+
+      await page.locator(`[data-cy="codeExpiresAt"]`).fill('2026-10-12T13:53');
+      await page.locator(`[data-cy="codeExpiresAt"]`).blur();
+      await expect(page.locator(`[data-cy="codeExpiresAt"]`)).toHaveValue('2026-10-12T13:53');
+
+      await page.locator(`[data-cy="confirmedAt"]`).fill('2026-10-12T04:38');
+      await page.locator(`[data-cy="confirmedAt"]`).blur();
+      await expect(page.locator(`[data-cy="confirmedAt"]`)).toHaveValue('2026-10-12T04:38');
+
+      await page.locator(`[data-cy="revokedAt"]`).fill('2026-10-12T09:41');
+      await page.locator(`[data-cy="revokedAt"]`).blur();
+      await expect(page.locator(`[data-cy="revokedAt"]`)).toHaveValue('2026-10-12T09:41');
+
+      await page.locator(`[data-cy="relationshipType"]`).fill('inferior scenario optimistical');
+      await expect(page.locator(`[data-cy="relationshipType"]`)).toHaveValue('inferior scenario optimistical');
+
+      await page.locator(`[data-cy="guardianVerificationStatus"]`).fill('formamide while');
+      await expect(page.locator(`[data-cy="guardianVerificationStatus"]`)).toHaveValue('formamide while');
+
+      await page.locator(`[data-cy="guardianVerifiedAt"]`).fill('2026-10-12T16:19');
+      await page.locator(`[data-cy="guardianVerifiedAt"]`).blur();
+      await expect(page.locator(`[data-cy="guardianVerifiedAt"]`)).toHaveValue('2026-10-12T16:19');
+
+      await page.locator(`[data-cy="guardianVerificationNote"]`).fill('../fake-data/blob/hipster.txt');
+      await expect(page.locator(`[data-cy="guardianVerificationNote"]`)).toHaveValue(new RegExp('../fake-data/blob/hipster.txt'));
 
       await page.locator(`[data-cy="parent"]`).selectOption({ index: 1 });
       await page.locator(`[data-cy="student"]`).selectOption({ index: 1 });

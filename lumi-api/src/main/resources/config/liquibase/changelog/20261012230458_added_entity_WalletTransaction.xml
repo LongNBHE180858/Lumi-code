@@ -10,7 +10,7 @@
         Added the entity WalletTransaction.
     -->
     <changeSet id="20261012230458-1" author="jhipster">
-        <createTable tableName="wallet_transaction">
+        <createTable tableName="wallet_transactions" remarks="Lưu sổ phát sinh tiền của ví giáo viên để đối soát doanh thu, hoàn và rút tiền.">
             <column name="id" type="bigint">
                 <constraints primaryKey="true" nullable="false"/>
             </column>
@@ -24,10 +24,13 @@
                 <constraints nullable="false" />
             </column>
             <column name="idempotency_key" type="varchar(200)">
-                <constraints nullable="true" unique="true" uniqueConstraintName="ux_wallet_transaction__idempotency_key" />
+                <constraints nullable="true" unique="true" uniqueConstraintName="ux_wallet_transactions__idempotency_key" />
             </column>
             <column name="occurred_at" type="${datetimeType}">
                 <constraints nullable="true" />
+            </column>
+            <column name="balance_bucket" type="varchar(20)">
+                <constraints nullable="false" />
             </column>
             <column name="wallet_id" type="bigint">
                 <constraints nullable="false" />
@@ -35,9 +38,15 @@
             <column name="order_id" type="bigint">
                 <constraints nullable="true" />
             </column>
+            <column name="payout_request_id" type="bigint">
+                <constraints nullable="true" />
+            </column>
+            <column name="refund_id" type="bigint">
+                <constraints nullable="true" />
+            </column>
             <!-- jhipster-needle-liquibase-add-column - JHipster will add columns here -->
         </createTable>
-        <dropDefaultValue tableName="wallet_transaction" columnName="occurred_at" columnDataType="${datetimeType}"/>
+        <dropDefaultValue tableName="wallet_transactions" columnName="occurred_at" columnDataType="${datetimeType}"/>
     </changeSet>
 
     <!-- jhipster-needle-liquibase-add-changeset - JHipster will add changesets here -->
@@ -52,10 +61,10 @@
     -->
     <changeSet id="20261012230458-1-data" author="jhipster" context="faker">
         <loadData
-                  file="../fake-data/wallet_transaction.csv"
+                  file="../fake-data/wallet_transactions.csv"
                   relativeToChangelogFile="true"
                   separator=";"
-                  tableName="wallet_transaction"
+                  tableName="wallet_transactions"
                   usePreparedStatements="true">
             <column name="id" type="numeric"/>
             <column name="type" type="string"/>
@@ -63,6 +72,7 @@
             <column name="status" type="string"/>
             <column name="idempotency_key" type="string"/>
             <column name="occurred_at" type="date"/>
+            <column name="balance_bucket" type="string"/>
             <column name="wallet_id" type="numeric"/>
             <!-- jhipster-needle-liquibase-add-loadcolumn - JHipster (and/or extensions) can add load columns here -->
         </loadData>

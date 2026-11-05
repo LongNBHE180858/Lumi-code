@@ -3,7 +3,9 @@
     "changelogDate": "20261012231724"
   },
   "applications": ["*"],
+  "documentation": "Lưu phiên hội thoại AI theo người dùng và ngữ cảnh bài hoặc tài liệu.",
   "dto": "mapstruct",
+  "entityTableName": "ai_conversations",
   "fields": [
     {
       "fieldName": "type",
@@ -14,6 +16,11 @@
     {
       "fieldName": "createdAt",
       "fieldType": "Instant"
+    },
+    {
+      "fieldName": "updatedAt",
+      "fieldType": "Instant",
+      "fieldValidateRules": ["required"]
     }
   ],
   "jpaMetamodelFiltering": true,
@@ -30,9 +37,14 @@
       "relationshipWithBuiltInEntity": true
     },
     {
-      "otherEntityField": "title",
       "otherEntityName": "lesson",
       "relationshipName": "lesson",
+      "relationshipSide": "left",
+      "relationshipType": "many-to-one"
+    },
+    {
+      "otherEntityName": "learningDocument",
+      "relationshipName": "document",
       "relationshipSide": "left",
       "relationshipType": "many-to-one"
     }

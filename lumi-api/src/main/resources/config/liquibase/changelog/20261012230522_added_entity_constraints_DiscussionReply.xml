@@ -10,25 +10,25 @@
     -->
     <changeSet id="20261012230522-2" author="jhipster">
 
+        <addForeignKeyConstraint baseColumnNames="discussion_id"
+                                 baseTableName="discussion_replies"
+                                 constraintName="fk_discussion_replies__discussion_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="discussions"
+                                 />
+
         <addForeignKeyConstraint baseColumnNames="user_id"
-                                 baseTableName="discussion_reply"
-                                 constraintName="fk_discussion_reply__user_id"
+                                 baseTableName="discussion_replies"
+                                 constraintName="fk_discussion_replies__user_id"
                                  referencedColumnNames="id"
                                  referencedTableName="jhi_user"
                                  />
 
-        <addForeignKeyConstraint baseColumnNames="discussion_id"
-                                 baseTableName="discussion_reply"
-                                 constraintName="fk_discussion_reply__discussion_id"
-                                 referencedColumnNames="id"
-                                 referencedTableName="discussion"
-                                 />
-
         <addForeignKeyConstraint baseColumnNames="parent_id"
-                                 baseTableName="discussion_reply"
-                                 constraintName="fk_discussion_reply__parent_id"
+                                 baseTableName="discussion_replies"
+                                 constraintName="fk_discussion_replies__parent_id"
                                  referencedColumnNames="id"
-                                 referencedTableName="discussion_reply"
+                                 referencedTableName="discussion_replies"
                                  />
     </changeSet>
 </databaseChangeLog>

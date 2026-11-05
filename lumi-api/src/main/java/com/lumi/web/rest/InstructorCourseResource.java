@@ -1,14 +1,20 @@
 package com.lumi.web.rest;
 
-import com.lumi.service.InstructorCourseService;
+import com.lumi.service.criteria.CourseCriteria;
 import com.lumi.service.dto.InstructorCourseDTOs.*;
+import com.lumi.service.impl.InstructorCourseService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 import java.net.URI;
 import java.util.List;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+import tech.jhipster.web.util.PaginationUtil;
 
 @RestController
 @Validated
@@ -19,6 +25,27 @@ public class InstructorCourseResource {
 
     public InstructorCourseResource(InstructorCourseService service) {
         this.service = service;
+    }
+
+    @GetMapping
+    public ResponseEntity<List<ManageCourse>> list(
+        CourseCriteria criteria,
+        @org.springdoc.core.annotations.ParameterObject @PageableDefault(
+            size = 20,
+            sort = { "updatedAt", "id" },
+            direction = Sort.Direction.DESC
+        ) Pageable pageable
+    ) {
+        var page = service.list(criteria, pageable);
+        return ResponseEntity.ok()
+            .headers(PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page))
+            .body(page.getContent());
+    }
+
+    @DeleteMapping("/{courseId}")
+    public ResponseEntity<Void> delete(@PathVariable Long courseId, @RequestParam @Min(0) Long version) {
+        service.delete(courseId, version);
+        return ResponseEntity.noContent().build();
     }
 
     @PostMapping
@@ -35,11 +62,6 @@ public class InstructorCourseResource {
     @PutMapping("/{courseId}/basic-info")
     public Builder basicInfo(@PathVariable Long courseId, @Valid @RequestBody BasicInfo input) {
         return service.basicInfo(courseId, input);
-    }
-
-    @PutMapping("/{courseId}/category")
-    public Builder category(@PathVariable Long courseId, @Valid @RequestBody CategoryInput input) {
-        return service.category(courseId, input);
     }
 
     @GetMapping("/{courseId}/review")

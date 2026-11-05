@@ -50,7 +50,15 @@ public class TeacherQuotaAsserts {
             .satisfies(a -> assertThat(a.getPlanExpiresAt()).as("check planExpiresAt").isEqualTo(expected.getPlanExpiresAt()))
             .satisfies(a -> assertThat(a.getUsedStorageBytes()).as("check usedStorageBytes").isEqualTo(expected.getUsedStorageBytes()))
             .satisfies(a -> assertThat(a.getAiUsedCount()).as("check aiUsedCount").isEqualTo(expected.getAiUsedCount()))
-            .satisfies(a -> assertThat(a.getRowVersion()).as("check rowVersion").isEqualTo(expected.getRowVersion()));
+            .satisfies(a -> assertThat(a.getRowVersion()).as("check rowVersion").isEqualTo(expected.getRowVersion()))
+            .satisfies(a ->
+                assertThat(a.getEffectiveStorageLimitBytes())
+                    .as("check effectiveStorageLimitBytes")
+                    .isEqualTo(expected.getEffectiveStorageLimitBytes())
+            )
+            .satisfies(a -> assertThat(a.getAiPeriodStartedAt()).as("check aiPeriodStartedAt").isEqualTo(expected.getAiPeriodStartedAt()))
+            .satisfies(a -> assertThat(a.getAiPeriodEndsAt()).as("check aiPeriodEndsAt").isEqualTo(expected.getAiPeriodEndsAt()))
+            .satisfies(a -> assertThat(a.getUpdatedAt()).as("check updatedAt").isEqualTo(expected.getUpdatedAt()));
     }
 
     /**

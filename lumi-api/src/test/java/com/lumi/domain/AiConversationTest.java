@@ -1,6 +1,7 @@
 package com.lumi.domain;
 
 import static com.lumi.domain.AiConversationTestSamples.*;
+import static com.lumi.domain.LearningDocumentTestSamples.*;
 import static com.lumi.domain.LessonTestSamples.*;
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -33,5 +34,17 @@ class AiConversationTest {
 
         aiConversation.lesson(null);
         assertThat(aiConversation.getLesson()).isNull();
+    }
+
+    @Test
+    void documentTest() {
+        AiConversation aiConversation = getAiConversationRandomSampleGenerator();
+        LearningDocument learningDocumentBack = getLearningDocumentRandomSampleGenerator();
+
+        aiConversation.setDocument(learningDocumentBack);
+        assertThat(aiConversation.getDocument()).isEqualTo(learningDocumentBack);
+
+        aiConversation.document(null);
+        assertThat(aiConversation.getDocument()).isNull();
     }
 }

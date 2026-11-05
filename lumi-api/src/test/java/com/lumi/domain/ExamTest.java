@@ -1,6 +1,7 @@
 package com.lumi.domain;
 
 import static com.lumi.domain.ExamTestSamples.*;
+import static com.lumi.domain.LessonTestSamples.*;
 import static com.lumi.domain.StudyClassTestSamples.*;
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -33,5 +34,17 @@ class ExamTest {
 
         exam.studyClass(null);
         assertThat(exam.getStudyClass()).isNull();
+    }
+
+    @Test
+    void lessonTest() {
+        Exam exam = getExamRandomSampleGenerator();
+        Lesson lessonBack = getLessonRandomSampleGenerator();
+
+        exam.setLesson(lessonBack);
+        assertThat(exam.getLesson()).isEqualTo(lessonBack);
+
+        exam.lesson(null);
+        assertThat(exam.getLesson()).isNull();
     }
 }

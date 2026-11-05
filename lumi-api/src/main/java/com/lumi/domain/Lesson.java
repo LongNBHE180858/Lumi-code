@@ -6,12 +6,13 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import java.io.Serial;
 import java.io.Serializable;
+import java.time.Instant;
 
 /**
- * A Lesson.
+ * Lưu bài học, video và thứ tự bài trong chương.
  */
 @Entity
-@Table(name = "lesson")
+@Table(name = "lessons")
 @SuppressWarnings("common-java:DuplicatedBlocks")
 public class Lesson implements Serializable {
 
@@ -29,46 +30,13 @@ public class Lesson implements Serializable {
     @Column(name = "title", length = 255, nullable = false)
     private String title;
 
+    @Column(name = "description", columnDefinition = "text")
+    private String description;
+
     @NotNull
     @Size(max = 20)
     @Column(name = "content_type", length = 20, nullable = false)
     private String contentType;
-
-    @NotNull
-    @Min(value = 0)
-    @Column(name = "order_index", nullable = false)
-    private Integer orderIndex;
-
-    @Column(name = "is_preview")
-    private Boolean isPreview;
-
-    @Min(value = 0)
-    @Column(name = "duration_minutes")
-    private Integer durationMinutes;
-
-    @Min(value = 0)
-    @Column(name = "duration_seconds")
-    private Integer durationSeconds;
-
-    public Integer getDurationSeconds() {
-        return durationSeconds;
-    }
-
-    public void setDurationSeconds(Integer durationSeconds) {
-        this.durationSeconds = durationSeconds;
-    }
-
-    @Enumerated(EnumType.STRING)
-    @Column(name = "status")
-    private RecordStatus status;
-
-    @ManyToOne(optional = false)
-    @NotNull
-    @JsonIgnoreProperties(value = { "course" }, allowSetters = true)
-    private Chapter chapter;
-
-    @Column(name = "description", columnDefinition = "text")
-    private String description;
 
     @Size(max = 1000)
     @Column(name = "video_url", length = 1000)
@@ -78,9 +46,39 @@ public class Lesson implements Serializable {
     @Column(name = "video_file_name", length = 255)
     private String videoFileName;
 
-    @Min(0)
     @Column(name = "video_size_bytes")
     private Long videoSizeBytes;
+
+    @NotNull
+    @Column(name = "order_index", nullable = false)
+    private Integer orderIndex;
+
+    @Column(name = "is_preview")
+    private Boolean isPreview;
+
+    @Column(name = "duration_minutes")
+    private Integer durationMinutes;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status")
+    private RecordStatus status;
+
+    @Min(value = 0)
+    @Column(name = "duration_seconds")
+    private Integer durationSeconds;
+
+    @Size(max = 1000)
+    @Column(name = "video_object_key", length = 1000)
+    private String videoObjectKey;
+
+    @NotNull
+    @Column(name = "updated_at", nullable = false)
+    private Instant updatedAt;
+
+    @ManyToOne(optional = false)
+    @NotNull
+    @JsonIgnoreProperties(value = { "course" }, allowSetters = true)
+    private Chapter chapter;
 
     // jhipster-needle-entity-add-field - JHipster will add fields here
 
@@ -110,6 +108,19 @@ public class Lesson implements Serializable {
         this.title = title;
     }
 
+    public String getDescription() {
+        return this.description;
+    }
+
+    public Lesson description(String description) {
+        this.setDescription(description);
+        return this;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
     public String getContentType() {
         return this.contentType;
     }
@@ -121,6 +132,45 @@ public class Lesson implements Serializable {
 
     public void setContentType(String contentType) {
         this.contentType = contentType;
+    }
+
+    public String getVideoUrl() {
+        return this.videoUrl;
+    }
+
+    public Lesson videoUrl(String videoUrl) {
+        this.setVideoUrl(videoUrl);
+        return this;
+    }
+
+    public void setVideoUrl(String videoUrl) {
+        this.videoUrl = videoUrl;
+    }
+
+    public String getVideoFileName() {
+        return this.videoFileName;
+    }
+
+    public Lesson videoFileName(String videoFileName) {
+        this.setVideoFileName(videoFileName);
+        return this;
+    }
+
+    public void setVideoFileName(String videoFileName) {
+        this.videoFileName = videoFileName;
+    }
+
+    public Long getVideoSizeBytes() {
+        return this.videoSizeBytes;
+    }
+
+    public Lesson videoSizeBytes(Long videoSizeBytes) {
+        this.setVideoSizeBytes(videoSizeBytes);
+        return this;
+    }
+
+    public void setVideoSizeBytes(Long videoSizeBytes) {
+        this.videoSizeBytes = videoSizeBytes;
     }
 
     public Integer getOrderIndex() {
@@ -175,6 +225,45 @@ public class Lesson implements Serializable {
         this.status = status;
     }
 
+    public Integer getDurationSeconds() {
+        return this.durationSeconds;
+    }
+
+    public Lesson durationSeconds(Integer durationSeconds) {
+        this.setDurationSeconds(durationSeconds);
+        return this;
+    }
+
+    public void setDurationSeconds(Integer durationSeconds) {
+        this.durationSeconds = durationSeconds;
+    }
+
+    public String getVideoObjectKey() {
+        return this.videoObjectKey;
+    }
+
+    public Lesson videoObjectKey(String videoObjectKey) {
+        this.setVideoObjectKey(videoObjectKey);
+        return this;
+    }
+
+    public void setVideoObjectKey(String videoObjectKey) {
+        this.videoObjectKey = videoObjectKey;
+    }
+
+    public Instant getUpdatedAt() {
+        return this.updatedAt;
+    }
+
+    public Lesson updatedAt(Instant updatedAt) {
+        this.setUpdatedAt(updatedAt);
+        return this;
+    }
+
+    public void setUpdatedAt(Instant updatedAt) {
+        this.updatedAt = updatedAt;
+    }
+
     public Chapter getChapter() {
         return this.chapter;
     }
@@ -189,58 +278,6 @@ public class Lesson implements Serializable {
     }
 
     // jhipster-needle-entity-add-getters-setters - JHipster will add getters and setters here
-
-    public String getDescription() {
-        return this.description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    public Lesson description(String description) {
-        this.description = description;
-        return this;
-    }
-
-    public String getVideoUrl() {
-        return this.videoUrl;
-    }
-
-    public void setVideoUrl(String videoUrl) {
-        this.videoUrl = videoUrl;
-    }
-
-    public Lesson videoUrl(String videoUrl) {
-        this.videoUrl = videoUrl;
-        return this;
-    }
-
-    public String getVideoFileName() {
-        return this.videoFileName;
-    }
-
-    public void setVideoFileName(String videoFileName) {
-        this.videoFileName = videoFileName;
-    }
-
-    public Lesson videoFileName(String videoFileName) {
-        this.videoFileName = videoFileName;
-        return this;
-    }
-
-    public Long getVideoSizeBytes() {
-        return this.videoSizeBytes;
-    }
-
-    public void setVideoSizeBytes(Long videoSizeBytes) {
-        this.videoSizeBytes = videoSizeBytes;
-    }
-
-    public Lesson videoSizeBytes(Long videoSizeBytes) {
-        this.videoSizeBytes = videoSizeBytes;
-        return this;
-    }
 
     @Override
     public boolean equals(Object o) {
@@ -265,11 +302,18 @@ public class Lesson implements Serializable {
         return "Lesson{" +
             "id=" + getId() +
             ", title='" + getTitle() + "'" +
+            ", description='" + getDescription() + "'" +
             ", contentType='" + getContentType() + "'" +
+            ", videoUrl='" + getVideoUrl() + "'" +
+            ", videoFileName='" + getVideoFileName() + "'" +
+            ", videoSizeBytes=" + getVideoSizeBytes() +
             ", orderIndex=" + getOrderIndex() +
             ", isPreview='" + getIsPreview() + "'" +
             ", durationMinutes=" + getDurationMinutes() +
             ", status='" + getStatus() + "'" +
+            ", durationSeconds=" + getDurationSeconds() +
+            ", videoObjectKey='" + getVideoObjectKey() + "'" +
+            ", updatedAt='" + getUpdatedAt() + "'" +
             "}";
     }
 }

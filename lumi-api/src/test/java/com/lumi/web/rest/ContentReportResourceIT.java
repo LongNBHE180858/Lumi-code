@@ -62,6 +62,15 @@ class ContentReportResourceIT {
     private static final Instant DEFAULT_CREATED_AT = Instant.ofEpochMilli(0L);
     private static final Instant UPDATED_CREATED_AT = Instant.ofEpochMilli(1791835009362L);
 
+    private static final Instant DEFAULT_RESOLVED_AT = Instant.ofEpochMilli(0L);
+    private static final Instant UPDATED_RESOLVED_AT = Instant.ofEpochMilli(1791835009362L);
+
+    private static final String DEFAULT_RESOLUTION_NOTE = "AAAAAAAAAA";
+    private static final String UPDATED_RESOLUTION_NOTE = "BBBBBBBBBB";
+
+    private static final String DEFAULT_TARGET_VERSION = "AAAAAAAAAA";
+    private static final String UPDATED_TARGET_VERSION = "BBBBBBBBBB";
+
     private static final String ENTITY_API_URL = "/api/content-reports";
     private static final String ENTITY_API_URL_ID = ENTITY_API_URL + "/{id}";
 
@@ -108,7 +117,10 @@ class ContentReportResourceIT {
             .targetId(DEFAULT_TARGET_ID)
             .reason(DEFAULT_REASON)
             .status(DEFAULT_STATUS)
-            .createdAt(DEFAULT_CREATED_AT);
+            .createdAt(DEFAULT_CREATED_AT)
+            .resolvedAt(DEFAULT_RESOLVED_AT)
+            .resolutionNote(DEFAULT_RESOLUTION_NOTE)
+            .targetVersion(DEFAULT_TARGET_VERSION);
         // Add required entity
         User user = UserResourceIT.createEntity();
         em.persist(user);
@@ -129,7 +141,10 @@ class ContentReportResourceIT {
             .targetId(UPDATED_TARGET_ID)
             .reason(UPDATED_REASON)
             .status(UPDATED_STATUS)
-            .createdAt(UPDATED_CREATED_AT);
+            .createdAt(UPDATED_CREATED_AT)
+            .resolvedAt(UPDATED_RESOLVED_AT)
+            .resolutionNote(UPDATED_RESOLUTION_NOTE)
+            .targetVersion(UPDATED_TARGET_VERSION);
         // Add required entity
         User user = UserResourceIT.createEntity();
         em.persist(user);
@@ -229,23 +244,6 @@ class ContentReportResourceIT {
 
     @Test
     @Transactional
-    void checkReasonIsRequired() throws Exception {
-        long databaseSizeBeforeTest = getRepositoryCount();
-        // set the field null
-        contentReport.setReason(null);
-
-        // Create the ContentReport, which fails.
-        ContentReportDTO contentReportDTO = contentReportMapper.toDto(contentReport);
-
-        restContentReportMockMvc
-            .perform(post(ENTITY_API_URL).contentType(MediaType.APPLICATION_JSON).content(om.writeValueAsBytes(contentReportDTO)))
-            .andExpect(status().isBadRequest());
-
-        assertSameRepositoryCount(databaseSizeBeforeTest);
-    }
-
-    @Test
-    @Transactional
     void getAllContentReports() throws Exception {
         // Initialize the database
         insertedContentReport = contentReportRepository.saveAndFlush(contentReport);
@@ -260,7 +258,10 @@ class ContentReportResourceIT {
             .andExpect(jsonPath("$.[*].targetId").value(hasItem(DEFAULT_TARGET_ID.intValue())))
             .andExpect(jsonPath("$.[*].reason").value(hasItem(DEFAULT_REASON)))
             .andExpect(jsonPath("$.[*].status").value(hasItem(DEFAULT_STATUS)))
-            .andExpect(jsonPath("$.[*].createdAt").value(hasItem(DEFAULT_CREATED_AT.toString())));
+            .andExpect(jsonPath("$.[*].createdAt").value(hasItem(DEFAULT_CREATED_AT.toString())))
+            .andExpect(jsonPath("$.[*].resolvedAt").value(hasItem(DEFAULT_RESOLVED_AT.toString())))
+            .andExpect(jsonPath("$.[*].resolutionNote").value(hasItem(DEFAULT_RESOLUTION_NOTE)))
+            .andExpect(jsonPath("$.[*].targetVersion").value(hasItem(DEFAULT_TARGET_VERSION)));
     }
 
     @SuppressWarnings({ "unchecked" })
@@ -296,7 +297,10 @@ class ContentReportResourceIT {
             .andExpect(jsonPath("$.targetId").value(DEFAULT_TARGET_ID.intValue()))
             .andExpect(jsonPath("$.reason").value(DEFAULT_REASON))
             .andExpect(jsonPath("$.status").value(DEFAULT_STATUS))
-            .andExpect(jsonPath("$.createdAt").value(DEFAULT_CREATED_AT.toString()));
+            .andExpect(jsonPath("$.createdAt").value(DEFAULT_CREATED_AT.toString()))
+            .andExpect(jsonPath("$.resolvedAt").value(DEFAULT_RESOLVED_AT.toString()))
+            .andExpect(jsonPath("$.resolutionNote").value(DEFAULT_RESOLUTION_NOTE))
+            .andExpect(jsonPath("$.targetVersion").value(DEFAULT_TARGET_VERSION));
     }
 
     @Test
@@ -445,56 +449,6 @@ class ContentReportResourceIT {
 
     @Test
     @Transactional
-    void getAllContentReportsByReasonIsEqualToSomething() throws Exception {
-        // Initialize the database
-        insertedContentReport = contentReportRepository.saveAndFlush(contentReport);
-
-        // Get all the contentReportList where reason equals to
-        defaultContentReportFiltering("reason.equals=" + DEFAULT_REASON, "reason.equals=" + UPDATED_REASON);
-    }
-
-    @Test
-    @Transactional
-    void getAllContentReportsByReasonIsInShouldWork() throws Exception {
-        // Initialize the database
-        insertedContentReport = contentReportRepository.saveAndFlush(contentReport);
-
-        // Get all the contentReportList where reason in
-        defaultContentReportFiltering("reason.in=" + DEFAULT_REASON + "," + UPDATED_REASON, "reason.in=" + UPDATED_REASON);
-    }
-
-    @Test
-    @Transactional
-    void getAllContentReportsByReasonIsNullOrNotNull() throws Exception {
-        // Initialize the database
-        insertedContentReport = contentReportRepository.saveAndFlush(contentReport);
-
-        // Get all the contentReportList where reason is not null
-        defaultContentReportFiltering("reason.specified=true", "reason.specified=false");
-    }
-
-    @Test
-    @Transactional
-    void getAllContentReportsByReasonContainsSomething() throws Exception {
-        // Initialize the database
-        insertedContentReport = contentReportRepository.saveAndFlush(contentReport);
-
-        // Get all the contentReportList where reason contains
-        defaultContentReportFiltering("reason.contains=" + DEFAULT_REASON, "reason.contains=" + UPDATED_REASON);
-    }
-
-    @Test
-    @Transactional
-    void getAllContentReportsByReasonNotContainsSomething() throws Exception {
-        // Initialize the database
-        insertedContentReport = contentReportRepository.saveAndFlush(contentReport);
-
-        // Get all the contentReportList where reason does not contain
-        defaultContentReportFiltering("reason.doesNotContain=" + UPDATED_REASON, "reason.doesNotContain=" + DEFAULT_REASON);
-    }
-
-    @Test
-    @Transactional
     void getAllContentReportsByStatusIsEqualToSomething() throws Exception {
         // Initialize the database
         insertedContentReport = contentReportRepository.saveAndFlush(contentReport);
@@ -578,6 +532,98 @@ class ContentReportResourceIT {
 
     @Test
     @Transactional
+    void getAllContentReportsByResolvedAtIsEqualToSomething() throws Exception {
+        // Initialize the database
+        insertedContentReport = contentReportRepository.saveAndFlush(contentReport);
+
+        // Get all the contentReportList where resolvedAt equals to
+        defaultContentReportFiltering("resolvedAt.equals=" + DEFAULT_RESOLVED_AT, "resolvedAt.equals=" + UPDATED_RESOLVED_AT);
+    }
+
+    @Test
+    @Transactional
+    void getAllContentReportsByResolvedAtIsInShouldWork() throws Exception {
+        // Initialize the database
+        insertedContentReport = contentReportRepository.saveAndFlush(contentReport);
+
+        // Get all the contentReportList where resolvedAt in
+        defaultContentReportFiltering(
+            "resolvedAt.in=" + DEFAULT_RESOLVED_AT + "," + UPDATED_RESOLVED_AT,
+            "resolvedAt.in=" + UPDATED_RESOLVED_AT
+        );
+    }
+
+    @Test
+    @Transactional
+    void getAllContentReportsByResolvedAtIsNullOrNotNull() throws Exception {
+        // Initialize the database
+        insertedContentReport = contentReportRepository.saveAndFlush(contentReport);
+
+        // Get all the contentReportList where resolvedAt is not null
+        defaultContentReportFiltering("resolvedAt.specified=true", "resolvedAt.specified=false");
+    }
+
+    @Test
+    @Transactional
+    void getAllContentReportsByTargetVersionIsEqualToSomething() throws Exception {
+        // Initialize the database
+        insertedContentReport = contentReportRepository.saveAndFlush(contentReport);
+
+        // Get all the contentReportList where targetVersion equals to
+        defaultContentReportFiltering("targetVersion.equals=" + DEFAULT_TARGET_VERSION, "targetVersion.equals=" + UPDATED_TARGET_VERSION);
+    }
+
+    @Test
+    @Transactional
+    void getAllContentReportsByTargetVersionIsInShouldWork() throws Exception {
+        // Initialize the database
+        insertedContentReport = contentReportRepository.saveAndFlush(contentReport);
+
+        // Get all the contentReportList where targetVersion in
+        defaultContentReportFiltering(
+            "targetVersion.in=" + DEFAULT_TARGET_VERSION + "," + UPDATED_TARGET_VERSION,
+            "targetVersion.in=" + UPDATED_TARGET_VERSION
+        );
+    }
+
+    @Test
+    @Transactional
+    void getAllContentReportsByTargetVersionIsNullOrNotNull() throws Exception {
+        // Initialize the database
+        insertedContentReport = contentReportRepository.saveAndFlush(contentReport);
+
+        // Get all the contentReportList where targetVersion is not null
+        defaultContentReportFiltering("targetVersion.specified=true", "targetVersion.specified=false");
+    }
+
+    @Test
+    @Transactional
+    void getAllContentReportsByTargetVersionContainsSomething() throws Exception {
+        // Initialize the database
+        insertedContentReport = contentReportRepository.saveAndFlush(contentReport);
+
+        // Get all the contentReportList where targetVersion contains
+        defaultContentReportFiltering(
+            "targetVersion.contains=" + DEFAULT_TARGET_VERSION,
+            "targetVersion.contains=" + UPDATED_TARGET_VERSION
+        );
+    }
+
+    @Test
+    @Transactional
+    void getAllContentReportsByTargetVersionNotContainsSomething() throws Exception {
+        // Initialize the database
+        insertedContentReport = contentReportRepository.saveAndFlush(contentReport);
+
+        // Get all the contentReportList where targetVersion does not contain
+        defaultContentReportFiltering(
+            "targetVersion.doesNotContain=" + UPDATED_TARGET_VERSION,
+            "targetVersion.doesNotContain=" + DEFAULT_TARGET_VERSION
+        );
+    }
+
+    @Test
+    @Transactional
     void getAllContentReportsByReporterIsEqualToSomething() throws Exception {
         User reporter;
         if (TestUtil.findAll(em, User.class).isEmpty()) {
@@ -598,6 +644,50 @@ class ContentReportResourceIT {
         defaultContentReportShouldNotBeFound("reporterId.equals=" + (reporterId + 1));
     }
 
+    @Test
+    @Transactional
+    void getAllContentReportsByAssignedToIsEqualToSomething() throws Exception {
+        User assignedTo;
+        if (TestUtil.findAll(em, User.class).isEmpty()) {
+            contentReportRepository.saveAndFlush(contentReport);
+            assignedTo = UserResourceIT.createEntity();
+        } else {
+            assignedTo = TestUtil.findAll(em, User.class).getFirst();
+        }
+        em.persist(assignedTo);
+        em.flush();
+        contentReport.setAssignedTo(assignedTo);
+        contentReportRepository.saveAndFlush(contentReport);
+        Long assignedToId = assignedTo.getId();
+        // Get all the contentReportList where assignedTo equals to assignedToId
+        defaultContentReportShouldBeFound("assignedToId.equals=" + assignedToId);
+
+        // Get all the contentReportList where assignedTo equals to (assignedToId + 1)
+        defaultContentReportShouldNotBeFound("assignedToId.equals=" + (assignedToId + 1));
+    }
+
+    @Test
+    @Transactional
+    void getAllContentReportsByResolvedByIsEqualToSomething() throws Exception {
+        User resolvedBy;
+        if (TestUtil.findAll(em, User.class).isEmpty()) {
+            contentReportRepository.saveAndFlush(contentReport);
+            resolvedBy = UserResourceIT.createEntity();
+        } else {
+            resolvedBy = TestUtil.findAll(em, User.class).getFirst();
+        }
+        em.persist(resolvedBy);
+        em.flush();
+        contentReport.setResolvedBy(resolvedBy);
+        contentReportRepository.saveAndFlush(contentReport);
+        Long resolvedById = resolvedBy.getId();
+        // Get all the contentReportList where resolvedBy equals to resolvedById
+        defaultContentReportShouldBeFound("resolvedById.equals=" + resolvedById);
+
+        // Get all the contentReportList where resolvedBy equals to (resolvedById + 1)
+        defaultContentReportShouldNotBeFound("resolvedById.equals=" + (resolvedById + 1));
+    }
+
     private void defaultContentReportFiltering(String shouldBeFound, String shouldNotBeFound) throws Exception {
         defaultContentReportShouldBeFound(shouldBeFound);
         defaultContentReportShouldNotBeFound(shouldNotBeFound);
@@ -616,7 +706,10 @@ class ContentReportResourceIT {
             .andExpect(jsonPath("$.[*].targetId").value(hasItem(DEFAULT_TARGET_ID.intValue())))
             .andExpect(jsonPath("$.[*].reason").value(hasItem(DEFAULT_REASON)))
             .andExpect(jsonPath("$.[*].status").value(hasItem(DEFAULT_STATUS)))
-            .andExpect(jsonPath("$.[*].createdAt").value(hasItem(DEFAULT_CREATED_AT.toString())));
+            .andExpect(jsonPath("$.[*].createdAt").value(hasItem(DEFAULT_CREATED_AT.toString())))
+            .andExpect(jsonPath("$.[*].resolvedAt").value(hasItem(DEFAULT_RESOLVED_AT.toString())))
+            .andExpect(jsonPath("$.[*].resolutionNote").value(hasItem(DEFAULT_RESOLUTION_NOTE)))
+            .andExpect(jsonPath("$.[*].targetVersion").value(hasItem(DEFAULT_TARGET_VERSION)));
 
         // Check, that the count call also returns 1
         restContentReportMockMvc
@@ -669,7 +762,10 @@ class ContentReportResourceIT {
             .targetId(UPDATED_TARGET_ID)
             .reason(UPDATED_REASON)
             .status(UPDATED_STATUS)
-            .createdAt(UPDATED_CREATED_AT);
+            .createdAt(UPDATED_CREATED_AT)
+            .resolvedAt(UPDATED_RESOLVED_AT)
+            .resolutionNote(UPDATED_RESOLUTION_NOTE)
+            .targetVersion(UPDATED_TARGET_VERSION);
         ContentReportDTO contentReportDTO = contentReportMapper.toDto(updatedContentReport);
 
         restContentReportMockMvc
@@ -759,7 +855,7 @@ class ContentReportResourceIT {
         ContentReport partialUpdatedContentReport = new ContentReport();
         partialUpdatedContentReport.setId(contentReport.getId());
 
-        partialUpdatedContentReport.targetType(UPDATED_TARGET_TYPE).createdAt(UPDATED_CREATED_AT);
+        partialUpdatedContentReport.targetType(UPDATED_TARGET_TYPE).createdAt(UPDATED_CREATED_AT).resolvedAt(UPDATED_RESOLVED_AT);
 
         restContentReportMockMvc
             .perform(
@@ -795,7 +891,10 @@ class ContentReportResourceIT {
             .targetId(UPDATED_TARGET_ID)
             .reason(UPDATED_REASON)
             .status(UPDATED_STATUS)
-            .createdAt(UPDATED_CREATED_AT);
+            .createdAt(UPDATED_CREATED_AT)
+            .resolvedAt(UPDATED_RESOLVED_AT)
+            .resolutionNote(UPDATED_RESOLUTION_NOTE)
+            .targetVersion(UPDATED_TARGET_VERSION);
 
         restContentReportMockMvc
             .perform(

@@ -19,16 +19,19 @@
       },
       "id": "ID",
       "title": "Title",
+      "description": "Description",
       "contentType": "Content Type",
+      "videoUrl": "Video Url",
+      "videoFileName": "Video File Name",
+      "videoSizeBytes": "Video Size Bytes",
       "orderIndex": "Order Index",
       "isPreview": "Is Preview",
       "durationMinutes": "Duration Minutes",
       "status": "Status",
-      "chapter": "Chapter",
-      "description": "Description",
-      "videoUrl": "Optional video URL",
-      "videoFileName": "Video file name",
-      "videoSizeBytes": "Video size (bytes)"
+      "durationSeconds": "Duration Seconds",
+      "videoObjectKey": "Video Object Key",
+      "updatedAt": "Updated At",
+      "chapter": "Chapter"
     }
   }
 }

@@ -3,7 +3,9 @@
     "changelogDate": "20261012231651"
   },
   "applications": ["*"],
+  "documentation": "Lưu danh sách khóa học yêu thích của học sinh.",
   "dto": "mapstruct",
+  "entityTableName": "wishlists",
   "fields": [
     {
       "fieldName": "createdAt",
@@ -12,6 +14,7 @@
   ],
   "jpaMetamodelFiltering": true,
   "name": "Wishlist",
+  "pagination": "pagination",
   "relationships": [
     {
       "otherEntityField": "login",
@@ -23,7 +26,6 @@
       "relationshipWithBuiltInEntity": true
     },
     {
-      "otherEntityField": "title",
       "otherEntityName": "course",
       "relationshipName": "course",
       "relationshipSide": "left",

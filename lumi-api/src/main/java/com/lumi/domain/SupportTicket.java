@@ -7,10 +7,10 @@ import java.io.Serializable;
 import java.time.Instant;
 
 /**
- * A SupportTicket.
+ * Lưu phiếu hỗ trợ, người được phân công và trạng thái xử lý.
  */
 @Entity
-@Table(name = "support_ticket")
+@Table(name = "support_tickets")
 @SuppressWarnings("common-java:DuplicatedBlocks")
 public class SupportTicket implements Serializable {
 
@@ -40,9 +40,19 @@ public class SupportTicket implements Serializable {
     @Column(name = "created_at")
     private Instant createdAt;
 
+    @NotNull
+    @Column(name = "updated_at", nullable = false)
+    private Instant updatedAt;
+
+    @Column(name = "closed_at")
+    private Instant closedAt;
+
     @ManyToOne(optional = false)
     @NotNull
     private User user;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    private User assignedTo;
 
     // jhipster-needle-entity-add-field - JHipster will add fields here
 
@@ -111,6 +121,32 @@ public class SupportTicket implements Serializable {
         this.createdAt = createdAt;
     }
 
+    public Instant getUpdatedAt() {
+        return this.updatedAt;
+    }
+
+    public SupportTicket updatedAt(Instant updatedAt) {
+        this.setUpdatedAt(updatedAt);
+        return this;
+    }
+
+    public void setUpdatedAt(Instant updatedAt) {
+        this.updatedAt = updatedAt;
+    }
+
+    public Instant getClosedAt() {
+        return this.closedAt;
+    }
+
+    public SupportTicket closedAt(Instant closedAt) {
+        this.setClosedAt(closedAt);
+        return this;
+    }
+
+    public void setClosedAt(Instant closedAt) {
+        this.closedAt = closedAt;
+    }
+
     public User getUser() {
         return this.user;
     }
@@ -121,6 +157,19 @@ public class SupportTicket implements Serializable {
 
     public SupportTicket user(User user) {
         this.setUser(user);
+        return this;
+    }
+
+    public User getAssignedTo() {
+        return this.assignedTo;
+    }
+
+    public void setAssignedTo(User user) {
+        this.assignedTo = user;
+    }
+
+    public SupportTicket assignedTo(User user) {
+        this.setAssignedTo(user);
         return this;
     }
 
@@ -152,6 +201,8 @@ public class SupportTicket implements Serializable {
             ", subject='" + getSubject() + "'" +
             ", status='" + getStatus() + "'" +
             ", createdAt='" + getCreatedAt() + "'" +
+            ", updatedAt='" + getUpdatedAt() + "'" +
+            ", closedAt='" + getClosedAt() + "'" +
             "}";
     }
 }

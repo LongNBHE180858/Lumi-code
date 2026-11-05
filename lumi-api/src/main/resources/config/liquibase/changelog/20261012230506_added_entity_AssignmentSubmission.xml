@@ -10,17 +10,17 @@
         Added the entity AssignmentSubmission.
     -->
     <changeSet id="20261012230506-1" author="jhipster">
-        <createTable tableName="assignment_submission">
+        <createTable tableName="assignment_submissions" remarks="Lưu bài nộp, tệp đính kèm, điểm và phản hồi chấm bài tập.">
             <column name="id" type="bigint">
                 <constraints primaryKey="true" nullable="false"/>
             </column>
-            <column name="content" type="varchar(5000)">
+            <column name="content" type="${clobType}">
                 <constraints nullable="true" />
             </column>
             <column name="score" type="decimal(21,2)">
                 <constraints nullable="true" />
             </column>
-            <column name="teacher_feedback" type="varchar(5000)">
+            <column name="teacher_feedback" type="${clobType}">
                 <constraints nullable="true" />
             </column>
             <column name="status" type="varchar(20)">
@@ -29,15 +29,32 @@
             <column name="submitted_at" type="${datetimeType}">
                 <constraints nullable="true" />
             </column>
-            <column name="student_id" type="bigint">
+            <column name="attachments" type="${clobType}">
+                <constraints nullable="false" />
+            </column>
+            <column name="graded_at" type="${datetimeType}">
+                <constraints nullable="true" />
+            </column>
+            <column name="updated_at" type="${datetimeType}">
+                <constraints nullable="false" />
+            </column>
+            <column name="row_version" type="bigint">
                 <constraints nullable="false" />
             </column>
             <column name="assignment_id" type="bigint">
                 <constraints nullable="false" />
             </column>
+            <column name="student_id" type="bigint">
+                <constraints nullable="false" />
+            </column>
+            <column name="graded_by_id" type="bigint">
+                <constraints nullable="true" />
+            </column>
             <!-- jhipster-needle-liquibase-add-column - JHipster will add columns here -->
         </createTable>
-        <dropDefaultValue tableName="assignment_submission" columnName="submitted_at" columnDataType="${datetimeType}"/>
+        <dropDefaultValue tableName="assignment_submissions" columnName="submitted_at" columnDataType="${datetimeType}"/>
+        <dropDefaultValue tableName="assignment_submissions" columnName="graded_at" columnDataType="${datetimeType}"/>
+        <dropDefaultValue tableName="assignment_submissions" columnName="updated_at" columnDataType="${datetimeType}"/>
     </changeSet>
 
     <!-- jhipster-needle-liquibase-add-changeset - JHipster will add changesets here -->
@@ -52,19 +69,23 @@
     -->
     <changeSet id="20261012230506-1-data" author="jhipster" context="faker">
         <loadData
-                  file="../fake-data/assignment_submission.csv"
+                  file="../fake-data/assignment_submissions.csv"
                   relativeToChangelogFile="true"
                   separator=";"
-                  tableName="assignment_submission"
+                  tableName="assignment_submissions"
                   usePreparedStatements="true">
             <column name="id" type="numeric"/>
-            <column name="content" type="string"/>
+            <column name="content" type="clob"/>
             <column name="score" type="numeric"/>
-            <column name="teacher_feedback" type="string"/>
+            <column name="teacher_feedback" type="clob"/>
             <column name="status" type="string"/>
             <column name="submitted_at" type="date"/>
-            <column name="student_id" type="numeric"/>
+            <column name="attachments" type="clob"/>
+            <column name="graded_at" type="date"/>
+            <column name="updated_at" type="date"/>
+            <column name="row_version" type="numeric"/>
             <column name="assignment_id" type="numeric"/>
+            <column name="student_id" type="numeric"/>
             <!-- jhipster-needle-liquibase-add-loadcolumn - JHipster (and/or extensions) can add load columns here -->
         </loadData>
     </changeSet>

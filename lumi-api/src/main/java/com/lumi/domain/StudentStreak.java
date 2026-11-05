@@ -7,10 +7,10 @@ import java.io.Serializable;
 import java.time.LocalDate;
 
 /**
- * A StudentStreak.
+ * Lưu chuỗi ngày học và số dư điểm thưởng tổng hợp của học sinh.
  */
 @Entity
-@Table(name = "student_streak")
+@Table(name = "student_streaks")
 @SuppressWarnings("common-java:DuplicatedBlocks")
 public class StudentStreak implements Serializable {
 
@@ -23,15 +23,12 @@ public class StudentStreak implements Serializable {
     @Column(name = "id")
     private Long id;
 
-    @Min(value = 0)
     @Column(name = "current_streak")
     private Integer currentStreak;
 
-    @Min(value = 0)
     @Column(name = "longest_streak")
     private Integer longestStreak;
 
-    @Min(value = 0)
     @Column(name = "gems_balance")
     private Integer gemsBalance;
 
@@ -41,7 +38,7 @@ public class StudentStreak implements Serializable {
     @OneToOne(fetch = FetchType.LAZY, optional = false)
     @NotNull
     @JoinColumn(unique = true)
-    private User user;
+    private User student;
 
     // jhipster-needle-entity-add-field - JHipster will add fields here
 
@@ -110,16 +107,16 @@ public class StudentStreak implements Serializable {
         this.lastActiveDate = lastActiveDate;
     }
 
-    public User getUser() {
-        return this.user;
+    public User getStudent() {
+        return this.student;
     }
 
-    public void setUser(User user) {
-        this.user = user;
+    public void setStudent(User user) {
+        this.student = user;
     }
 
-    public StudentStreak user(User user) {
-        this.setUser(user);
+    public StudentStreak student(User user) {
+        this.setStudent(user);
         return this;
     }
 

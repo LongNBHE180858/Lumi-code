@@ -3,7 +3,9 @@
     "changelogDate": "20261012231658"
   },
   "applications": ["*"],
+  "documentation": "Lưu mã giảm giá, điều kiện sử dụng và tỷ lệ giáo viên chịu giảm giá.",
   "dto": "mapstruct",
+  "entityTableName": "coupons",
   "fields": [
     {
       "fieldName": "code",
@@ -20,19 +22,43 @@
     },
     {
       "fieldName": "maxUses",
+      "fieldType": "Integer"
+    },
+    {
+      "fieldName": "usedCount",
+      "fieldType": "Integer"
+    },
+    {
+      "fieldName": "validTo",
+      "fieldType": "Instant"
+    },
+    {
+      "fieldName": "validFrom",
+      "fieldType": "Instant"
+    },
+    {
+      "fieldName": "isActive",
+      "fieldType": "Boolean",
+      "fieldValidateRules": ["required"]
+    },
+    {
+      "fieldName": "minOrderAmount",
+      "fieldType": "BigDecimal",
+      "fieldValidateRules": ["required", "min"],
+      "fieldValidateRulesMin": "0"
+    },
+    {
+      "fieldName": "maxUsesPerUser",
       "fieldType": "Integer",
       "fieldValidateRules": ["min"],
       "fieldValidateRulesMin": "1"
     },
     {
-      "fieldName": "usedCount",
-      "fieldType": "Integer",
-      "fieldValidateRules": ["min"],
+      "fieldName": "instructorDiscountSharePercent",
+      "fieldType": "BigDecimal",
+      "fieldValidateRules": ["min", "max"],
+      "fieldValidateRulesMax": "100",
       "fieldValidateRulesMin": "0"
-    },
-    {
-      "fieldName": "validTo",
-      "fieldType": "Instant"
     }
   ],
   "jpaMetamodelFiltering": true,
@@ -46,6 +72,12 @@
       "relationshipSide": "left",
       "relationshipType": "many-to-one",
       "relationshipWithBuiltInEntity": true
+    },
+    {
+      "otherEntityName": "course",
+      "relationshipName": "course",
+      "relationshipSide": "left",
+      "relationshipType": "many-to-one"
     }
   ],
   "service": "serviceImpl"

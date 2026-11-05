@@ -1,10 +1,10 @@
 package com.lumi.web.rest;
 
 import com.lumi.repository.TeacherVerificationRepository;
-import com.lumi.service.TeacherVerificationQueryService;
 import com.lumi.service.TeacherVerificationService;
 import com.lumi.service.criteria.TeacherVerificationCriteria;
 import com.lumi.service.dto.TeacherVerificationDTO;
+import com.lumi.service.query.TeacherVerificationQueryService;
 import com.lumi.web.rest.errors.BadRequestAlertException;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
@@ -29,7 +29,6 @@ import tech.jhipster.web.util.ResponseUtil;
 /**
  * REST controller for managing {@link com.lumi.domain.TeacherVerification}.
  */
-@org.springframework.security.access.prepost.PreAuthorize("hasAuthority('ROLE_ADMIN')")
 @RestController
 @RequestMapping("/api/teacher-verifications")
 public class TeacherVerificationResource {

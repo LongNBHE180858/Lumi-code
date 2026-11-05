@@ -28,9 +28,15 @@ public class AiMessageCriteria implements Serializable, Criteria {
 
     private StringFilter senderRole;
 
-    private StringFilter content;
-
     private InstantFilter createdAt;
+
+    private StringFilter generationStatus;
+
+    private StringFilter modelName;
+
+    private IntegerFilter feedbackRating;
+
+    private InstantFilter feedbackAt;
 
     private LongFilter conversationId;
 
@@ -41,8 +47,11 @@ public class AiMessageCriteria implements Serializable, Criteria {
     public AiMessageCriteria(AiMessageCriteria other) {
         this.id = other.optionalId().map(LongFilter::copy).orElse(null);
         this.senderRole = other.optionalSenderRole().map(StringFilter::copy).orElse(null);
-        this.content = other.optionalContent().map(StringFilter::copy).orElse(null);
         this.createdAt = other.optionalCreatedAt().map(InstantFilter::copy).orElse(null);
+        this.generationStatus = other.optionalGenerationStatus().map(StringFilter::copy).orElse(null);
+        this.modelName = other.optionalModelName().map(StringFilter::copy).orElse(null);
+        this.feedbackRating = other.optionalFeedbackRating().map(IntegerFilter::copy).orElse(null);
+        this.feedbackAt = other.optionalFeedbackAt().map(InstantFilter::copy).orElse(null);
         this.conversationId = other.optionalConversationId().map(LongFilter::copy).orElse(null);
         this.distinct = other.distinct;
     }
@@ -90,25 +99,6 @@ public class AiMessageCriteria implements Serializable, Criteria {
         this.senderRole = senderRole;
     }
 
-    public StringFilter getContent() {
-        return content;
-    }
-
-    public Optional<StringFilter> optionalContent() {
-        return Optional.ofNullable(content);
-    }
-
-    public StringFilter content() {
-        if (content == null) {
-            setContent(new StringFilter());
-        }
-        return content;
-    }
-
-    public void setContent(StringFilter content) {
-        this.content = content;
-    }
-
     public InstantFilter getCreatedAt() {
         return createdAt;
     }
@@ -126,6 +116,82 @@ public class AiMessageCriteria implements Serializable, Criteria {
 
     public void setCreatedAt(InstantFilter createdAt) {
         this.createdAt = createdAt;
+    }
+
+    public StringFilter getGenerationStatus() {
+        return generationStatus;
+    }
+
+    public Optional<StringFilter> optionalGenerationStatus() {
+        return Optional.ofNullable(generationStatus);
+    }
+
+    public StringFilter generationStatus() {
+        if (generationStatus == null) {
+            setGenerationStatus(new StringFilter());
+        }
+        return generationStatus;
+    }
+
+    public void setGenerationStatus(StringFilter generationStatus) {
+        this.generationStatus = generationStatus;
+    }
+
+    public StringFilter getModelName() {
+        return modelName;
+    }
+
+    public Optional<StringFilter> optionalModelName() {
+        return Optional.ofNullable(modelName);
+    }
+
+    public StringFilter modelName() {
+        if (modelName == null) {
+            setModelName(new StringFilter());
+        }
+        return modelName;
+    }
+
+    public void setModelName(StringFilter modelName) {
+        this.modelName = modelName;
+    }
+
+    public IntegerFilter getFeedbackRating() {
+        return feedbackRating;
+    }
+
+    public Optional<IntegerFilter> optionalFeedbackRating() {
+        return Optional.ofNullable(feedbackRating);
+    }
+
+    public IntegerFilter feedbackRating() {
+        if (feedbackRating == null) {
+            setFeedbackRating(new IntegerFilter());
+        }
+        return feedbackRating;
+    }
+
+    public void setFeedbackRating(IntegerFilter feedbackRating) {
+        this.feedbackRating = feedbackRating;
+    }
+
+    public InstantFilter getFeedbackAt() {
+        return feedbackAt;
+    }
+
+    public Optional<InstantFilter> optionalFeedbackAt() {
+        return Optional.ofNullable(feedbackAt);
+    }
+
+    public InstantFilter feedbackAt() {
+        if (feedbackAt == null) {
+            setFeedbackAt(new InstantFilter());
+        }
+        return feedbackAt;
+    }
+
+    public void setFeedbackAt(InstantFilter feedbackAt) {
+        this.feedbackAt = feedbackAt;
     }
 
     public LongFilter getConversationId() {
@@ -178,8 +244,11 @@ public class AiMessageCriteria implements Serializable, Criteria {
         return (
             Objects.equals(id, that.id) &&
             Objects.equals(senderRole, that.senderRole) &&
-            Objects.equals(content, that.content) &&
             Objects.equals(createdAt, that.createdAt) &&
+            Objects.equals(generationStatus, that.generationStatus) &&
+            Objects.equals(modelName, that.modelName) &&
+            Objects.equals(feedbackRating, that.feedbackRating) &&
+            Objects.equals(feedbackAt, that.feedbackAt) &&
             Objects.equals(conversationId, that.conversationId) &&
             Objects.equals(distinct, that.distinct)
         );
@@ -187,7 +256,7 @@ public class AiMessageCriteria implements Serializable, Criteria {
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, senderRole, content, createdAt, conversationId, distinct);
+        return Objects.hash(id, senderRole, createdAt, generationStatus, modelName, feedbackRating, feedbackAt, conversationId, distinct);
     }
 
     // prettier-ignore
@@ -196,8 +265,11 @@ public class AiMessageCriteria implements Serializable, Criteria {
         return "AiMessageCriteria{" +
             optionalId().map(f -> "id=" + f + ", ").orElse("") +
             optionalSenderRole().map(f -> "senderRole=" + f + ", ").orElse("") +
-            optionalContent().map(f -> "content=" + f + ", ").orElse("") +
             optionalCreatedAt().map(f -> "createdAt=" + f + ", ").orElse("") +
+            optionalGenerationStatus().map(f -> "generationStatus=" + f + ", ").orElse("") +
+            optionalModelName().map(f -> "modelName=" + f + ", ").orElse("") +
+            optionalFeedbackRating().map(f -> "feedbackRating=" + f + ", ").orElse("") +
+            optionalFeedbackAt().map(f -> "feedbackAt=" + f + ", ").orElse("") +
             optionalConversationId().map(f -> "conversationId=" + f + ", ").orElse("") +
             optionalDistinct().map(f -> "distinct=" + f + ", ").orElse("") +
         "}";

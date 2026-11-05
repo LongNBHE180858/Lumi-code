@@ -20,8 +20,8 @@ export const CourseReviewUpdate = () => {
   const { id } = useParams<'id'>();
   const isNew = id === undefined;
 
-  const users = useAppSelector(state => state.userManagement.users);
   const courses = useAppSelector(state => state.course.entities);
+  const users = useAppSelector(state => state.userManagement.users);
   const courseReviewEntity = useAppSelector(state => state.courseReview.entity);
   const loading = useAppSelector(state => state.courseReview.loading);
   const updating = useAppSelector(state => state.courseReview.updating);
@@ -38,8 +38,8 @@ export const CourseReviewUpdate = () => {
       dispatch(getEntity(id));
     }
 
-    dispatch(getUsers({}));
     dispatch(getCourses({}));
+    dispatch(getUsers({}));
   }, []);
 
   useEffect(() => {
@@ -56,12 +56,13 @@ export const CourseReviewUpdate = () => {
       values.rating = Number(values.rating);
     }
     values.createdAt = convertDateTimeToServer(values.createdAt);
+    values.updatedAt = convertDateTimeToServer(values.updatedAt);
 
     const entity = {
       ...courseReviewEntity,
       ...values,
-      student: users.find(it => it.id.toString() === values.student?.toString()),
       course: courses.find(it => it.id.toString() === values.course?.toString()),
+      student: users.find(it => it.id.toString() === values.student?.toString()),
     };
 
     if (isNew) {
@@ -75,12 +76,14 @@ export const CourseReviewUpdate = () => {
     isNew
       ? {
           createdAt: displayDefaultDateTime(),
+          updatedAt: displayDefaultDateTime(),
         }
       : {
           ...courseReviewEntity,
           createdAt: convertDateTimeFromServer(courseReviewEntity.createdAt),
-          student: courseReviewEntity?.student?.id,
+          updatedAt: convertDateTimeFromServer(courseReviewEntity.updatedAt),
           course: courseReviewEntity?.course?.id,
+          student: courseReviewEntity?.student?.id,
         };
 
   return (
@@ -125,10 +128,7 @@ export const CourseReviewUpdate = () => {
                 id="course-review-content"
                 name="content"
                 data-cy="content"
-                type="text"
-                validate={{
-                  maxLength: { value: 5000, message: translate('entity.validation.maxlength', { max: 5000 }) },
-                }}
+                type="textarea"
               />
               <ValidatedField
                 label={translate('lumiApp.courseReview.createdAt')}
@@ -138,6 +138,37 @@ export const CourseReviewUpdate = () => {
                 type="datetime-local"
                 placeholder="YYYY-MM-DD HH:mm"
               />
+              <ValidatedField
+                label={translate('lumiApp.courseReview.updatedAt')}
+                id="course-review-updatedAt"
+                name="updatedAt"
+                data-cy="updatedAt"
+                type="datetime-local"
+                placeholder="YYYY-MM-DD HH:mm"
+                validate={{
+                  required: { value: true, message: translate('entity.validation.required') },
+                }}
+              />
+              <ValidatedField
+                id="course-review-course"
+                name="course"
+                data-cy="course"
+                label={translate('lumiApp.courseReview.course')}
+                type="select"
+                required
+              >
+                <option value="" key="0" />
+                {courses
+                  ? courses.map(otherEntity => (
+                      <option value={otherEntity.id} key={otherEntity.id}>
+                        {otherEntity.id}
+                      </option>
+                    ))
+                  : null}
+              </ValidatedField>
+              <FormText>
+                <Translate contentKey="entity.validation.required">This field is required.</Translate>
+              </FormText>
               <ValidatedField
                 id="course-review-student"
                 name="student"
@@ -151,26 +182,6 @@ export const CourseReviewUpdate = () => {
                   ? users.map(otherEntity => (
                       <option value={otherEntity.id} key={otherEntity.id}>
                         {otherEntity.login}
-                      </option>
-                    ))
-                  : null}
-              </ValidatedField>
-              <FormText>
-                <Translate contentKey="entity.validation.required">This field is required.</Translate>
-              </FormText>
-              <ValidatedField
-                id="course-review-course"
-                name="course"
-                data-cy="course"
-                label={translate('lumiApp.courseReview.course')}
-                type="select"
-                required
-              >
-                <option value="" key="0" />
-                {courses
-                  ? courses.map(otherEntity => (
-                      <option value={otherEntity.id} key={otherEntity.id}>
-                        {otherEntity.title}
                       </option>
                     ))
                   : null}

@@ -3,19 +3,18 @@
     "changelogDate": "20261012231716"
   },
   "applications": ["*"],
+  "documentation": "Lưu ghi chú cá nhân của học sinh theo bài học hoặc mốc video.",
   "dto": "mapstruct",
+  "entityTableName": "student_notes",
   "fields": [
     {
       "fieldName": "videoTimestamp",
-      "fieldType": "Integer",
-      "fieldValidateRules": ["min"],
-      "fieldValidateRulesMin": "0"
+      "fieldType": "Integer"
     },
     {
       "fieldName": "content",
-      "fieldType": "String",
-      "fieldValidateRules": ["required", "maxlength"],
-      "fieldValidateRulesMaxlength": "5000"
+      "fieldType": "TextBlob",
+      "fieldValidateRules": ["required"]
     },
     {
       "fieldName": "createdAt",
@@ -36,7 +35,6 @@
       "relationshipWithBuiltInEntity": true
     },
     {
-      "otherEntityField": "title",
       "otherEntityName": "lesson",
       "relationshipName": "lesson",
       "relationshipSide": "left",

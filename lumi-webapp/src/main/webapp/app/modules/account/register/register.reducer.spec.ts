@@ -11,6 +11,7 @@ describe('Creating account tests', () => {
     loading: false,
     registrationSuccess: false,
     registrationFailure: false,
+    registeredEmail: '',
     errorMessage: null,
     successMessage: null,
   };
@@ -34,7 +35,17 @@ describe('Creating account tests', () => {
 
   it('should handle RESET', () => {
     expect(
-      register({ loading: true, registrationSuccess: true, registrationFailure: true, errorMessage: '', successMessage: '' }, reset()),
+      register(
+        {
+          loading: true,
+          registrationSuccess: true,
+          registrationFailure: true,
+          registeredEmail: 'test@lumi.edu.vn',
+          errorMessage: '',
+          successMessage: '',
+        },
+        reset(),
+      ),
     ).toEqual({
       ...initialState,
     });
@@ -44,12 +55,13 @@ describe('Creating account tests', () => {
     expect(
       register(undefined, {
         type: handleRegister.fulfilled.type,
-        payload: 'fake payload',
+        payload: { data: 'fake payload', email: 'test@lumi.edu.vn' },
       }),
     ).toEqual({
       ...initialState,
       registrationSuccess: true,
-      successMessage: 'register.messages.success',
+      registeredEmail: 'test@lumi.edu.vn',
+      successMessage: 'Đăng ký thành công! Vui lòng xác thực tài khoản.',
     });
   });
 
@@ -78,11 +90,11 @@ describe('Creating account tests', () => {
       store = configureStore({
         reducer: (state = [], action) => [...state, action],
       });
-      axios.post = vi.fn().mockResolvedValue(resolvedObject);
+      axios.post = vi.fn().mockResolvedValue({ data: resolvedObject });
     });
 
     it('dispatches CREATE_ACCOUNT_PENDING and CREATE_ACCOUNT_FULFILLED actions', async () => {
-      const arg = { login: '', email: '', password: '' };
+      const arg = { username: 'testuser', email: 'test@lumi.edu.vn', password: 'Password123!' };
 
       const result = await handleRegister(arg)(dispatch, getState, extra);
 
@@ -93,7 +105,7 @@ describe('Creating account tests', () => {
         }),
       );
       expect(handleRegister.fulfilled.match(result)).toBe(true);
-      expect(result.payload).toBe(resolvedObject);
+      expect(result.payload).toEqual({ data: resolvedObject, email: 'test@lumi.edu.vn' });
     });
     it('dispatches RESET actions', async () => {
       await store.dispatch(reset());

@@ -10,9 +10,9 @@
     -->
     <changeSet id="20261012230457-2" author="jhipster">
 
-        <addForeignKeyConstraint baseColumnNames="user_id"
-                                 baseTableName="instructor_wallet"
-                                 constraintName="fk_instructor_wallet__user_id"
+        <addForeignKeyConstraint baseColumnNames="instructor_id"
+                                 baseTableName="instructor_wallets"
+                                 constraintName="fk_instructor_wallets__instructor_id"
                                  referencedColumnNames="id"
                                  referencedTableName="jhi_user"
                                  />

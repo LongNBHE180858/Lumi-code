@@ -53,6 +53,7 @@ export const ClassMaterialUpdate = () => {
       values.fileSizeBytes = Number(values.fileSizeBytes);
     }
     values.uploadedAt = convertDateTimeToServer(values.uploadedAt);
+    values.updatedAt = convertDateTimeToServer(values.updatedAt);
 
     const entity = {
       ...classMaterialEntity,
@@ -71,10 +72,12 @@ export const ClassMaterialUpdate = () => {
     isNew
       ? {
           uploadedAt: displayDefaultDateTime(),
+          updatedAt: displayDefaultDateTime(),
         }
       : {
           ...classMaterialEntity,
           uploadedAt: convertDateTimeFromServer(classMaterialEntity.uploadedAt),
+          updatedAt: convertDateTimeFromServer(classMaterialEntity.updatedAt),
           studyClass: classMaterialEntity?.studyClass?.id,
         };
 
@@ -144,7 +147,6 @@ export const ClassMaterialUpdate = () => {
                 type="text"
                 validate={{
                   required: { value: true, message: translate('entity.validation.required') },
-                  min: { value: 0, message: translate('entity.validation.min', { min: 0 }) },
                   validate: v => isNumber(v) || translate('entity.validation.number'),
                 }}
               />
@@ -155,6 +157,27 @@ export const ClassMaterialUpdate = () => {
                 data-cy="uploadedAt"
                 type="datetime-local"
                 placeholder="YYYY-MM-DD HH:mm"
+              />
+              <ValidatedField
+                label={translate('lumiApp.classMaterial.fileObjectKey')}
+                id="class-material-fileObjectKey"
+                name="fileObjectKey"
+                data-cy="fileObjectKey"
+                type="text"
+                validate={{
+                  maxLength: { value: 1000, message: translate('entity.validation.maxlength', { max: 1000 }) },
+                }}
+              />
+              <ValidatedField
+                label={translate('lumiApp.classMaterial.updatedAt')}
+                id="class-material-updatedAt"
+                name="updatedAt"
+                data-cy="updatedAt"
+                type="datetime-local"
+                placeholder="YYYY-MM-DD HH:mm"
+                validate={{
+                  required: { value: true, message: translate('entity.validation.required') },
+                }}
               />
               <ValidatedField
                 id="class-material-studyClass"
@@ -168,7 +191,7 @@ export const ClassMaterialUpdate = () => {
                 {studyClasses
                   ? studyClasses.map(otherEntity => (
                       <option value={otherEntity.id} key={otherEntity.id}>
-                        {otherEntity.name}
+                        {otherEntity.id}
                       </option>
                     ))
                   : null}

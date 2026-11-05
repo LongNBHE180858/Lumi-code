@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd
+                        http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
+    <!--
+        Added the constraints for entity StudentKnowledgeProgress.
+    -->
+    <changeSet id="20261101222543-2" author="jhipster">
+
+        <addForeignKeyConstraint baseColumnNames="student_id"
+                                 baseTableName="student_knowledge_progress"
+                                 constraintName="fk_student_knowledge_progress__student_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="jhi_user"
+                                 />
+
+        <addForeignKeyConstraint baseColumnNames="knowledge_node_id"
+                                 baseTableName="student_knowledge_progress"
+                                 constraintName="fk_student_knowledge_progress__knowledge_node_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="knowledge_nodes"
+                                 />
+    </changeSet>
+</databaseChangeLog>

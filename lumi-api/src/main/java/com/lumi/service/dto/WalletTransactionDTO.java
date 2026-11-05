@@ -1,6 +1,7 @@
 package com.lumi.service.dto;
 
 import com.lumi.domain.enumeration.TransactionType;
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.*;
 import java.io.Serializable;
 import java.math.BigDecimal;
@@ -10,6 +11,7 @@ import java.util.Objects;
 /**
  * A DTO for the {@link com.lumi.domain.WalletTransaction} entity.
  */
+@Schema(description = "Lưu sổ phát sinh tiền của ví giáo viên để đối soát doanh thu, hoàn và rút tiền.")
 @SuppressWarnings("common-java:DuplicatedBlocks")
 public class WalletTransactionDTO implements Serializable {
 
@@ -31,9 +33,17 @@ public class WalletTransactionDTO implements Serializable {
     private Instant occurredAt;
 
     @NotNull
+    @Size(max = 20)
+    private String balanceBucket;
+
+    @NotNull
     private InstructorWalletDTO wallet;
 
     private CourseOrderDTO order;
+
+    private PayoutRequestDTO payoutRequest;
+
+    private RefundDTO refund;
 
     public Long getId() {
         return id;
@@ -83,6 +93,14 @@ public class WalletTransactionDTO implements Serializable {
         this.occurredAt = occurredAt;
     }
 
+    public String getBalanceBucket() {
+        return balanceBucket;
+    }
+
+    public void setBalanceBucket(String balanceBucket) {
+        this.balanceBucket = balanceBucket;
+    }
+
     public InstructorWalletDTO getWallet() {
         return wallet;
     }
@@ -97,6 +115,22 @@ public class WalletTransactionDTO implements Serializable {
 
     public void setOrder(CourseOrderDTO order) {
         this.order = order;
+    }
+
+    public PayoutRequestDTO getPayoutRequest() {
+        return payoutRequest;
+    }
+
+    public void setPayoutRequest(PayoutRequestDTO payoutRequest) {
+        this.payoutRequest = payoutRequest;
+    }
+
+    public RefundDTO getRefund() {
+        return refund;
+    }
+
+    public void setRefund(RefundDTO refund) {
+        this.refund = refund;
     }
 
     @Override
@@ -130,8 +164,11 @@ public class WalletTransactionDTO implements Serializable {
             ", status='" + getStatus() + "'" +
             ", idempotencyKey='" + getIdempotencyKey() + "'" +
             ", occurredAt='" + getOccurredAt() + "'" +
+            ", balanceBucket='" + getBalanceBucket() + "'" +
             ", wallet=" + getWallet() +
             ", order=" + getOrder() +
+            ", payoutRequest=" + getPayoutRequest() +
+            ", refund=" + getRefund() +
             "}";
     }
 }

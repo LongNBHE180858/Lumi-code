@@ -21,6 +21,11 @@ public interface AssignmentSubmissionRepository
     )
     List<AssignmentSubmission> findByStudentIsCurrentUser();
 
+    @Query(
+        "select assignmentSubmission from AssignmentSubmission assignmentSubmission where assignmentSubmission.gradedBy.login = ?#{authentication.name}"
+    )
+    List<AssignmentSubmission> findByGradedByIsCurrentUser();
+
     default Optional<AssignmentSubmission> findOneWithEagerRelationships(Long id) {
         return this.findOneWithToOneRelationships(id);
     }
@@ -34,18 +39,18 @@ public interface AssignmentSubmissionRepository
     }
 
     @Query(
-        value = "select assignmentSubmission from AssignmentSubmission assignmentSubmission left join fetch assignmentSubmission.student left join fetch assignmentSubmission.assignment",
+        value = "select assignmentSubmission from AssignmentSubmission assignmentSubmission left join fetch assignmentSubmission.student left join fetch assignmentSubmission.gradedBy",
         countQuery = "select count(assignmentSubmission) from AssignmentSubmission assignmentSubmission"
     )
     Page<AssignmentSubmission> findAllWithToOneRelationships(Pageable pageable);
 
     @Query(
-        "select assignmentSubmission from AssignmentSubmission assignmentSubmission left join fetch assignmentSubmission.student left join fetch assignmentSubmission.assignment"
+        "select assignmentSubmission from AssignmentSubmission assignmentSubmission left join fetch assignmentSubmission.student left join fetch assignmentSubmission.gradedBy"
     )
     List<AssignmentSubmission> findAllWithToOneRelationships();
 
     @Query(
-        "select assignmentSubmission from AssignmentSubmission assignmentSubmission left join fetch assignmentSubmission.student left join fetch assignmentSubmission.assignment where assignmentSubmission.id =:id"
+        "select assignmentSubmission from AssignmentSubmission assignmentSubmission left join fetch assignmentSubmission.student left join fetch assignmentSubmission.gradedBy where assignmentSubmission.id =:id"
     )
     Optional<AssignmentSubmission> findOneWithToOneRelationships(@Param("id") Long id);
 }

@@ -12,7 +12,7 @@ import {
 import { expect, test } from '../../support/fixtures';
 
 const classMemberPageUrl = '/class-member';
-// const classMemberSample = {};
+// const classMemberSample = {"requestedAt":"2026-10-12T12:13:42.621Z","updatedAt":"2026-10-12T19:45:04.297Z"};
 
 const classMemberApiUrl = '/api/class-members';
 
@@ -21,8 +21,8 @@ const entitiesRequest = (page: import('@playwright/test').Page) =>
 
 test.describe('ClassMember e2e test', () => {
   let classMember;
-  // let user;
   // let studyClass;
+  // let user;
 
   test.beforeEach(async ({ jhi }) => {
     const { username, password } = jhi.credentials();
@@ -32,19 +32,19 @@ test.describe('ClassMember e2e test', () => {
   /* Disabled due to incompatibility
   test.beforeEach(async ({ jhi }) => {
     // create an instance at the required relationship entity:
+    studyClass = await (
+      await jhi.authenticatedRequest({
+        method: 'POST',
+        url: '/api/study-classes',
+        body: {"name":"hence","description":"Li4vZmFrZS1kYXRhL2Jsb2IvaGlwc3Rlci50eHQ=","joinCode":"yum","joinMode":"CODE_APPROVAL","maxStudents":23945,"currentStudents":29898,"status":"ARCHIVED","isDeleted":false,"createdAt":"2026-10-12T07:56:45.106Z","joinCodeExpiresAt":"2026-10-12T02:33:00.365Z","updatedAt":"2026-10-12T15:16:14.684Z"},
+      })
+    ).json();
+    // create an instance at the required relationship entity:
     user = await (
       await jhi.authenticatedRequest({
         method: 'POST',
         url: '/api/users',
         body: {"login":"UyenMy84","firstName":"Đoan Trang","lastName":"Trịnh","email":"NhatPhuong_Tang@yahoo.com","langKey":"gadzooks h","imageUrl":"westernise"},
-      })
-    ).json();
-    // create an instance at the required relationship entity:
-    studyClass = await (
-      await jhi.authenticatedRequest({
-        method: 'POST',
-        url: '/api/study-classes',
-        body: {"name":"hence","description":"yum","joinCode":"though whe","joinMode":"CODE_APPROVAL","maxStudents":12748,"currentStudents":6164,"status":"ARCHIVED","isDeleted":false,"createdAt":"2026-10-12T01:49:36.669Z"},
       })
     ).json();
   });
@@ -54,14 +54,14 @@ test.describe('ClassMember e2e test', () => {
     // A url predicate rather than a glob: a glob's wildcards would close the "Disabled due to
     // incompatibility" block comment that wraps this section when the create test is skipped.
     await page.route(
-      url => url.pathname === '/api/users',
-      route => route.fulfill({ status: 200, json: [user].filter(Boolean) }),
+      url => url.pathname === '/api/study-classes',
+      route => route.fulfill({ status: 200, json: [studyClass].filter(Boolean) }),
     );
     // A url predicate rather than a glob: a glob's wildcards would close the "Disabled due to
     // incompatibility" block comment that wraps this section when the create test is skipped.
     await page.route(
-      url => url.pathname === '/api/study-classes',
-      route => route.fulfill({ status: 200, json: [studyClass].filter(Boolean) }),
+      url => url.pathname === '/api/users',
+      route => route.fulfill({ status: 200, json: [user].filter(Boolean) }),
     );
   });
    */
@@ -78,19 +78,19 @@ test.describe('ClassMember e2e test', () => {
 
   /* Disabled due to incompatibility
   test.afterEach(async ({ jhi }) => {
-    if (user) {
-      await jhi.authenticatedRequest({
-        method: 'DELETE',
-        url: `/api/users/${user.id}`,
-      });
-      user = undefined;
-    }
     if (studyClass) {
       await jhi.authenticatedRequest({
         method: 'DELETE',
         url: `/api/study-classes/${studyClass.id}`,
       });
       studyClass = undefined;
+    }
+    if (user) {
+      await jhi.authenticatedRequest({
+        method: 'DELETE',
+        url: `/api/users/${user.id}`,
+      });
+      user = undefined;
     }
   });
    */
@@ -148,8 +148,8 @@ test.describe('ClassMember e2e test', () => {
             url: '/api/class-members',
             body: {
               ...classMemberSample,
-              student: user,
               studyClass: studyClass,
+              student: user,
             },
           })
         ).json();
@@ -244,8 +244,20 @@ test.describe('ClassMember e2e test', () => {
       await page.locator(`[data-cy="joinedAt"]`).blur();
       await expect(page.locator(`[data-cy="joinedAt"]`)).toHaveValue('2026-10-12T12:30');
 
-      await page.locator(`[data-cy="student"]`).selectOption({ index: 1 });
+      await page.locator(`[data-cy="requestedAt"]`).fill('2026-10-12T04:37');
+      await page.locator(`[data-cy="requestedAt"]`).blur();
+      await expect(page.locator(`[data-cy="requestedAt"]`)).toHaveValue('2026-10-12T04:37');
+
+      await page.locator(`[data-cy="leftAt"]`).fill('2026-10-12T15:19');
+      await page.locator(`[data-cy="leftAt"]`).blur();
+      await expect(page.locator(`[data-cy="leftAt"]`)).toHaveValue('2026-10-12T15:19');
+
+      await page.locator(`[data-cy="updatedAt"]`).fill('2026-10-12T01:16');
+      await page.locator(`[data-cy="updatedAt"]`).blur();
+      await expect(page.locator(`[data-cy="updatedAt"]`)).toHaveValue('2026-10-12T01:16');
+
       await page.locator(`[data-cy="studyClass"]`).selectOption({ index: 1 });
+      await page.locator(`[data-cy="student"]`).selectOption({ index: 1 });
 
       const postRequest = page.waitForResponse(
         response => new URL(response.url()).pathname === classMemberApiUrl && response.request().method() === 'POST',

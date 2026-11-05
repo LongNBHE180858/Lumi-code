@@ -7,7 +7,8 @@
 - Không thêm ghi chú vào mã nguồn dưới bất kỳ hình thức nào (comment dòng, comment khối, TODO, Javadoc hoặc chú thích JSX/TSX), trừ khi người dùng yêu cầu rõ.
 - Support Ticket là kênh trao đổi riêng, tách khỏi Feedback. Mọi tài khoản đã đăng nhập có role hợp lệ trong hệ thống đều được tạo ticket; `ROLE_USER` là quyền nền hợp lệ, không bắt buộc thêm role nghiệp vụ. Chỉ người tạo ticket và admin được xem, gửi tin nhắn; không cho xóa ticket hoặc tin nhắn qua UI/API nghiệp vụ.
 - Support Ticket dùng ba trạng thái `OPEN`, `IN_PROGRESS`, `RESOLVED`. Người tạo và admin đều được mở lại ticket từ `RESOLVED`; tin nhắn mới trên ticket `RESOLVED` tự chuyển trạng thái sang `IN_PROGRESS`.
-- Chỉ coi `categories`, `subjects`, `grades` là danh mục hiện hành; Tag khóa học đã bị gỡ khỏi code và API.
+- `support_tickets.updated_at` là thời điểm hoạt động gần nhất: bằng `created_at` khi tạo, cập nhật khi có tin nhắn mới hoặc trạng thái thực sự thay đổi, kể cả khi tin nhắn mở lại ticket đã xử lý.
+- Chỉ quản lý Môn học (`subjects`) và Khối lớp (`grades`) trong trang admin `/admin/catalog`; mở trang ở Môn học trước. Hai loại này không có trạng thái kích hoạt/tạm ngưng. Sidebar hiển thị "Môn học & Khối lớp".
 - Phân biệt file đang có, mã nền JHipster và file mới dự kiến khi mô tả cấu trúc; đừng trình bày file dự kiến như đã tồn tại.
 - Đồng bộ hai `lumi.jdl` khi đổi mô hình; đừng chạy sinh lại JHipster tùy tiện vì có mã đã tùy biến.
 - Giữ dữ liệu mẫu do nhóm/JHipster có sẵn; đừng thêm seed hoặc sửa dữ liệu người khác nếu chưa được yêu cầu.

@@ -1,10 +1,10 @@
 package com.lumi.web.rest;
 
 import com.lumi.repository.LessonRepository;
-import com.lumi.service.LessonQueryService;
 import com.lumi.service.LessonService;
 import com.lumi.service.criteria.LessonCriteria;
 import com.lumi.service.dto.LessonDTO;
+import com.lumi.service.query.LessonQueryService;
 import com.lumi.web.rest.errors.BadRequestAlertException;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;

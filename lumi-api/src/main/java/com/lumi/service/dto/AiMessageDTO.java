@@ -1,5 +1,7 @@
 package com.lumi.service.dto;
 
+import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.persistence.Lob;
 import jakarta.validation.constraints.*;
 import java.io.Serializable;
 import java.time.Instant;
@@ -8,6 +10,7 @@ import java.util.Objects;
 /**
  * A DTO for the {@link com.lumi.domain.AiMessage} entity.
  */
+@Schema(description = "Lưu tin nhắn AI, nguồn trích dẫn và đánh giá phản hồi của chủ hội thoại.")
 @SuppressWarnings("common-java:DuplicatedBlocks")
 public class AiMessageDTO implements Serializable {
 
@@ -17,11 +20,27 @@ public class AiMessageDTO implements Serializable {
     @Size(max = 20)
     private String senderRole;
 
-    @NotNull
-    @Size(max = 5000)
+    @Lob
     private String content;
 
     private Instant createdAt;
+
+    @Lob
+    private String citations;
+
+    @NotNull
+    @Size(max = 20)
+    private String generationStatus;
+
+    @Size(max = 100)
+    private String modelName;
+
+    private Integer feedbackRating;
+
+    @Lob
+    private String feedbackNote;
+
+    private Instant feedbackAt;
 
     @NotNull
     private AiConversationDTO conversation;
@@ -56,6 +75,54 @@ public class AiMessageDTO implements Serializable {
 
     public void setCreatedAt(Instant createdAt) {
         this.createdAt = createdAt;
+    }
+
+    public String getCitations() {
+        return citations;
+    }
+
+    public void setCitations(String citations) {
+        this.citations = citations;
+    }
+
+    public String getGenerationStatus() {
+        return generationStatus;
+    }
+
+    public void setGenerationStatus(String generationStatus) {
+        this.generationStatus = generationStatus;
+    }
+
+    public String getModelName() {
+        return modelName;
+    }
+
+    public void setModelName(String modelName) {
+        this.modelName = modelName;
+    }
+
+    public Integer getFeedbackRating() {
+        return feedbackRating;
+    }
+
+    public void setFeedbackRating(Integer feedbackRating) {
+        this.feedbackRating = feedbackRating;
+    }
+
+    public String getFeedbackNote() {
+        return feedbackNote;
+    }
+
+    public void setFeedbackNote(String feedbackNote) {
+        this.feedbackNote = feedbackNote;
+    }
+
+    public Instant getFeedbackAt() {
+        return feedbackAt;
+    }
+
+    public void setFeedbackAt(Instant feedbackAt) {
+        this.feedbackAt = feedbackAt;
     }
 
     public AiConversationDTO getConversation() {
@@ -95,6 +162,12 @@ public class AiMessageDTO implements Serializable {
             ", senderRole='" + getSenderRole() + "'" +
             ", content='" + getContent() + "'" +
             ", createdAt='" + getCreatedAt() + "'" +
+            ", citations='" + getCitations() + "'" +
+            ", generationStatus='" + getGenerationStatus() + "'" +
+            ", modelName='" + getModelName() + "'" +
+            ", feedbackRating=" + getFeedbackRating() +
+            ", feedbackNote='" + getFeedbackNote() + "'" +
+            ", feedbackAt='" + getFeedbackAt() + "'" +
             ", conversation=" + getConversation() +
             "}";
     }

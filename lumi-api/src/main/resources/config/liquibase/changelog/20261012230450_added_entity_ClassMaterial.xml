@@ -10,7 +10,7 @@
         Added the entity ClassMaterial.
     -->
     <changeSet id="20261012230450-1" author="jhipster">
-        <createTable tableName="class_material">
+        <createTable tableName="class_materials" remarks="Lưu tài liệu được giáo viên chia sẻ trong lớp riêng.">
             <column name="id" type="bigint">
                 <constraints primaryKey="true" nullable="false"/>
             </column>
@@ -29,12 +29,19 @@
             <column name="uploaded_at" type="${datetimeType}">
                 <constraints nullable="true" />
             </column>
+            <column name="file_object_key" type="varchar(1000)">
+                <constraints nullable="true" />
+            </column>
+            <column name="updated_at" type="${datetimeType}">
+                <constraints nullable="false" />
+            </column>
             <column name="study_class_id" type="bigint">
                 <constraints nullable="false" />
             </column>
             <!-- jhipster-needle-liquibase-add-column - JHipster will add columns here -->
         </createTable>
-        <dropDefaultValue tableName="class_material" columnName="uploaded_at" columnDataType="${datetimeType}"/>
+        <dropDefaultValue tableName="class_materials" columnName="uploaded_at" columnDataType="${datetimeType}"/>
+        <dropDefaultValue tableName="class_materials" columnName="updated_at" columnDataType="${datetimeType}"/>
     </changeSet>
 
     <!-- jhipster-needle-liquibase-add-changeset - JHipster will add changesets here -->
@@ -49,10 +56,10 @@
     -->
     <changeSet id="20261012230450-1-data" author="jhipster" context="faker">
         <loadData
-                  file="../fake-data/class_material.csv"
+                  file="../fake-data/class_materials.csv"
                   relativeToChangelogFile="true"
                   separator=";"
-                  tableName="class_material"
+                  tableName="class_materials"
                   usePreparedStatements="true">
             <column name="id" type="numeric"/>
             <column name="title" type="string"/>
@@ -60,6 +67,8 @@
             <column name="file_url" type="string"/>
             <column name="file_size_bytes" type="numeric"/>
             <column name="uploaded_at" type="date"/>
+            <column name="file_object_key" type="string"/>
+            <column name="updated_at" type="date"/>
             <column name="study_class_id" type="numeric"/>
             <!-- jhipster-needle-liquibase-add-loadcolumn - JHipster (and/or extensions) can add load columns here -->
         </loadData>

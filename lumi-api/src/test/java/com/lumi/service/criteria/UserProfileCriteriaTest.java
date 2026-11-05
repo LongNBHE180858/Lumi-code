@@ -73,12 +73,12 @@ class UserProfileCriteriaTest {
     private static void setAllFilters(UserProfileCriteria userProfileCriteria) {
         userProfileCriteria.id();
         userProfileCriteria.phoneNumber();
-        userProfileCriteria.bio();
         userProfileCriteria.schoolName();
         userProfileCriteria.gradeLevel();
         userProfileCriteria.is2faEnabled();
         userProfileCriteria.instructorStatus();
         userProfileCriteria.updatedAt();
+        userProfileCriteria.birthDate();
         userProfileCriteria.userId();
         userProfileCriteria.distinct();
     }
@@ -88,12 +88,12 @@ class UserProfileCriteriaTest {
             criteria ->
                 condition.apply(criteria.getId()) &&
                 condition.apply(criteria.getPhoneNumber()) &&
-                condition.apply(criteria.getBio()) &&
                 condition.apply(criteria.getSchoolName()) &&
                 condition.apply(criteria.getGradeLevel()) &&
                 condition.apply(criteria.getIs2faEnabled()) &&
                 condition.apply(criteria.getInstructorStatus()) &&
                 condition.apply(criteria.getUpdatedAt()) &&
+                condition.apply(criteria.getBirthDate()) &&
                 condition.apply(criteria.getUserId()) &&
                 condition.apply(criteria.getDistinct()),
             "every filter matches"
@@ -105,12 +105,12 @@ class UserProfileCriteriaTest {
             criteria ->
                 condition.apply(criteria.getId(), copy.getId()) &&
                 condition.apply(criteria.getPhoneNumber(), copy.getPhoneNumber()) &&
-                condition.apply(criteria.getBio(), copy.getBio()) &&
                 condition.apply(criteria.getSchoolName(), copy.getSchoolName()) &&
                 condition.apply(criteria.getGradeLevel(), copy.getGradeLevel()) &&
                 condition.apply(criteria.getIs2faEnabled(), copy.getIs2faEnabled()) &&
                 condition.apply(criteria.getInstructorStatus(), copy.getInstructorStatus()) &&
                 condition.apply(criteria.getUpdatedAt(), copy.getUpdatedAt()) &&
+                condition.apply(criteria.getBirthDate(), copy.getBirthDate()) &&
                 condition.apply(criteria.getUserId(), copy.getUserId()) &&
                 condition.apply(criteria.getDistinct(), copy.getDistinct()),
             "every filter matches"

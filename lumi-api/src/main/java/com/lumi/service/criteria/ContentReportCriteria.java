@@ -30,13 +30,19 @@ public class ContentReportCriteria implements Serializable, Criteria {
 
     private LongFilter targetId;
 
-    private StringFilter reason;
-
     private StringFilter status;
 
     private InstantFilter createdAt;
 
+    private InstantFilter resolvedAt;
+
+    private StringFilter targetVersion;
+
     private LongFilter reporterId;
+
+    private LongFilter assignedToId;
+
+    private LongFilter resolvedById;
 
     private Boolean distinct;
 
@@ -46,10 +52,13 @@ public class ContentReportCriteria implements Serializable, Criteria {
         this.id = other.optionalId().map(LongFilter::copy).orElse(null);
         this.targetType = other.optionalTargetType().map(StringFilter::copy).orElse(null);
         this.targetId = other.optionalTargetId().map(LongFilter::copy).orElse(null);
-        this.reason = other.optionalReason().map(StringFilter::copy).orElse(null);
         this.status = other.optionalStatus().map(StringFilter::copy).orElse(null);
         this.createdAt = other.optionalCreatedAt().map(InstantFilter::copy).orElse(null);
+        this.resolvedAt = other.optionalResolvedAt().map(InstantFilter::copy).orElse(null);
+        this.targetVersion = other.optionalTargetVersion().map(StringFilter::copy).orElse(null);
         this.reporterId = other.optionalReporterId().map(LongFilter::copy).orElse(null);
+        this.assignedToId = other.optionalAssignedToId().map(LongFilter::copy).orElse(null);
+        this.resolvedById = other.optionalResolvedById().map(LongFilter::copy).orElse(null);
         this.distinct = other.distinct;
     }
 
@@ -115,25 +124,6 @@ public class ContentReportCriteria implements Serializable, Criteria {
         this.targetId = targetId;
     }
 
-    public StringFilter getReason() {
-        return reason;
-    }
-
-    public Optional<StringFilter> optionalReason() {
-        return Optional.ofNullable(reason);
-    }
-
-    public StringFilter reason() {
-        if (reason == null) {
-            setReason(new StringFilter());
-        }
-        return reason;
-    }
-
-    public void setReason(StringFilter reason) {
-        this.reason = reason;
-    }
-
     public StringFilter getStatus() {
         return status;
     }
@@ -172,6 +162,44 @@ public class ContentReportCriteria implements Serializable, Criteria {
         this.createdAt = createdAt;
     }
 
+    public InstantFilter getResolvedAt() {
+        return resolvedAt;
+    }
+
+    public Optional<InstantFilter> optionalResolvedAt() {
+        return Optional.ofNullable(resolvedAt);
+    }
+
+    public InstantFilter resolvedAt() {
+        if (resolvedAt == null) {
+            setResolvedAt(new InstantFilter());
+        }
+        return resolvedAt;
+    }
+
+    public void setResolvedAt(InstantFilter resolvedAt) {
+        this.resolvedAt = resolvedAt;
+    }
+
+    public StringFilter getTargetVersion() {
+        return targetVersion;
+    }
+
+    public Optional<StringFilter> optionalTargetVersion() {
+        return Optional.ofNullable(targetVersion);
+    }
+
+    public StringFilter targetVersion() {
+        if (targetVersion == null) {
+            setTargetVersion(new StringFilter());
+        }
+        return targetVersion;
+    }
+
+    public void setTargetVersion(StringFilter targetVersion) {
+        this.targetVersion = targetVersion;
+    }
+
     public LongFilter getReporterId() {
         return reporterId;
     }
@@ -189,6 +217,44 @@ public class ContentReportCriteria implements Serializable, Criteria {
 
     public void setReporterId(LongFilter reporterId) {
         this.reporterId = reporterId;
+    }
+
+    public LongFilter getAssignedToId() {
+        return assignedToId;
+    }
+
+    public Optional<LongFilter> optionalAssignedToId() {
+        return Optional.ofNullable(assignedToId);
+    }
+
+    public LongFilter assignedToId() {
+        if (assignedToId == null) {
+            setAssignedToId(new LongFilter());
+        }
+        return assignedToId;
+    }
+
+    public void setAssignedToId(LongFilter assignedToId) {
+        this.assignedToId = assignedToId;
+    }
+
+    public LongFilter getResolvedById() {
+        return resolvedById;
+    }
+
+    public Optional<LongFilter> optionalResolvedById() {
+        return Optional.ofNullable(resolvedById);
+    }
+
+    public LongFilter resolvedById() {
+        if (resolvedById == null) {
+            setResolvedById(new LongFilter());
+        }
+        return resolvedById;
+    }
+
+    public void setResolvedById(LongFilter resolvedById) {
+        this.resolvedById = resolvedById;
     }
 
     public Boolean getDistinct() {
@@ -223,17 +289,32 @@ public class ContentReportCriteria implements Serializable, Criteria {
             Objects.equals(id, that.id) &&
             Objects.equals(targetType, that.targetType) &&
             Objects.equals(targetId, that.targetId) &&
-            Objects.equals(reason, that.reason) &&
             Objects.equals(status, that.status) &&
             Objects.equals(createdAt, that.createdAt) &&
+            Objects.equals(resolvedAt, that.resolvedAt) &&
+            Objects.equals(targetVersion, that.targetVersion) &&
             Objects.equals(reporterId, that.reporterId) &&
+            Objects.equals(assignedToId, that.assignedToId) &&
+            Objects.equals(resolvedById, that.resolvedById) &&
             Objects.equals(distinct, that.distinct)
         );
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, targetType, targetId, reason, status, createdAt, reporterId, distinct);
+        return Objects.hash(
+            id,
+            targetType,
+            targetId,
+            status,
+            createdAt,
+            resolvedAt,
+            targetVersion,
+            reporterId,
+            assignedToId,
+            resolvedById,
+            distinct
+        );
     }
 
     // prettier-ignore
@@ -243,10 +324,13 @@ public class ContentReportCriteria implements Serializable, Criteria {
             optionalId().map(f -> "id=" + f + ", ").orElse("") +
             optionalTargetType().map(f -> "targetType=" + f + ", ").orElse("") +
             optionalTargetId().map(f -> "targetId=" + f + ", ").orElse("") +
-            optionalReason().map(f -> "reason=" + f + ", ").orElse("") +
             optionalStatus().map(f -> "status=" + f + ", ").orElse("") +
             optionalCreatedAt().map(f -> "createdAt=" + f + ", ").orElse("") +
+            optionalResolvedAt().map(f -> "resolvedAt=" + f + ", ").orElse("") +
+            optionalTargetVersion().map(f -> "targetVersion=" + f + ", ").orElse("") +
             optionalReporterId().map(f -> "reporterId=" + f + ", ").orElse("") +
+            optionalAssignedToId().map(f -> "assignedToId=" + f + ", ").orElse("") +
+            optionalResolvedById().map(f -> "resolvedById=" + f + ", ").orElse("") +
             optionalDistinct().map(f -> "distinct=" + f + ", ").orElse("") +
         "}";
     }

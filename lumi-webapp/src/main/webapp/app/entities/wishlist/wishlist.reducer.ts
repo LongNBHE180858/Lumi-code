@@ -4,7 +4,6 @@ import axios from 'axios';
 import { IWishlist, defaultValue } from 'app/shared/model/wishlist.model';
 import { EntityState, IQueryParams, createEntitySlice, serializeAxiosError } from 'app/shared/reducers/reducer.utils';
 import { cleanEntity } from 'app/shared/util/entity-utils';
-import { ASC } from 'app/shared/util/pagination.constants';
 
 const initialState: EntityState<IWishlist> = {
   loading: false,
@@ -12,6 +11,7 @@ const initialState: EntityState<IWishlist> = {
   entities: [],
   entity: defaultValue,
   updating: false,
+  totalItems: 0,
   updateSuccess: false,
 };
 
@@ -21,8 +21,13 @@ const apiUrl = 'api/wishlists';
 
 export const getEntities = createAsyncThunk(
   'wishlist/fetch_entity_list',
-  async ({ sort }: IQueryParams) => {
-    const requestUrl = `${apiUrl}?${sort ? `sort=${sort}&` : ''}cacheBuster=${Date.now()}`;
+  async ({ page, size, sort }: IQueryParams) => {
+    const params = new URLSearchParams();
+    if (page !== undefined) params.set('page', String(page));
+    if (size !== undefined) params.set('size', String(size));
+    if (sort) params.set('sort', sort);
+    params.set('cacheBuster', String(Date.now()));
+    const requestUrl = `${apiUrl}?${params}`;
     return axios.get<IWishlist[]>(requestUrl);
   },
   { serializeError: serializeAxiosError },
@@ -95,18 +100,13 @@ export const WishlistSlice = createEntitySlice({
         state.entity = {};
       })
       .addMatcher(isFulfilled(getEntities), (state, action) => {
-        const { data } = action.payload;
+        const { data, headers } = action.payload;
 
         return {
           ...state,
           loading: false,
-          entities: data.sort((a, b) => {
-            if (!action.meta?.arg?.sort) {
-              return 1;
-            }
-            const [predicate, order] = action.meta.arg.sort.split(',');
-            return order === ASC ? (a[predicate] < b[predicate] ? -1 : 1) : b[predicate] < a[predicate] ? -1 : 1;
-          }),
+          entities: data,
+          totalItems: Number.parseInt(headers?.['x-total-count'], 10) || data.length,
         };
       })
       .addMatcher(isFulfilled(createEntity, updateEntity, partialUpdateEntity), (state, action) => {

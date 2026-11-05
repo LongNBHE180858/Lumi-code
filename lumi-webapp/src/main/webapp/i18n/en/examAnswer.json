@@ -21,6 +21,8 @@
       "textAnswer": "Text Answer",
       "isCorrect": "Is Correct",
       "score": "Score",
+      "updatedAt": "Updated At",
+      "rowVersion": "Row Version",
       "attempt": "Attempt",
       "question": "Question",
       "option": "Option"

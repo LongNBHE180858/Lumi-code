@@ -68,9 +68,25 @@ export const ClassMaterialDetail = () => {
             ) : null}
           </dd>
           <dt>
+            <span id="fileObjectKey">
+              <Translate contentKey="lumiApp.classMaterial.fileObjectKey">File Object Key</Translate>
+            </span>
+          </dt>
+          <dd>{classMaterialEntity.fileObjectKey}</dd>
+          <dt>
+            <span id="updatedAt">
+              <Translate contentKey="lumiApp.classMaterial.updatedAt">Updated At</Translate>
+            </span>
+          </dt>
+          <dd>
+            {classMaterialEntity.updatedAt ? (
+              <TextFormat value={classMaterialEntity.updatedAt} type="date" format={APP_DATE_FORMAT} />
+            ) : null}
+          </dd>
+          <dt>
             <Translate contentKey="lumiApp.classMaterial.studyClass">Study Class</Translate>
           </dt>
-          <dd>{classMaterialEntity.studyClass ? classMaterialEntity.studyClass.name : ''}</dd>
+          <dd>{classMaterialEntity.studyClass ? classMaterialEntity.studyClass.id : ''}</dd>
         </dl>
         <Button as={Link as any} to="/class-material" replace variant="info" data-cy="entityDetailsBackButton">
           <FontAwesomeIcon icon="arrow-left" />{' '}

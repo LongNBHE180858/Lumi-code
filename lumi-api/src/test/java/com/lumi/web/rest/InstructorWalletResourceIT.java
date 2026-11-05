@@ -30,6 +30,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
@@ -46,17 +47,17 @@ import tools.jackson.databind.ObjectMapper;
 @WithMockUser
 class InstructorWalletResourceIT {
 
-    private static final BigDecimal DEFAULT_PENDING_AMOUNT = new BigDecimal(0);
-    private static final BigDecimal UPDATED_PENDING_AMOUNT = new BigDecimal(1);
-    private static final BigDecimal SMALLER_PENDING_AMOUNT = new BigDecimal(0 - 1);
+    private static final BigDecimal DEFAULT_PENDING_AMOUNT = new BigDecimal(1);
+    private static final BigDecimal UPDATED_PENDING_AMOUNT = new BigDecimal(2);
+    private static final BigDecimal SMALLER_PENDING_AMOUNT = new BigDecimal(1 - 1);
 
-    private static final BigDecimal DEFAULT_AVAILABLE_AMOUNT = new BigDecimal(0);
-    private static final BigDecimal UPDATED_AVAILABLE_AMOUNT = new BigDecimal(1);
-    private static final BigDecimal SMALLER_AVAILABLE_AMOUNT = new BigDecimal(0 - 1);
+    private static final BigDecimal DEFAULT_AVAILABLE_AMOUNT = new BigDecimal(1);
+    private static final BigDecimal UPDATED_AVAILABLE_AMOUNT = new BigDecimal(2);
+    private static final BigDecimal SMALLER_AVAILABLE_AMOUNT = new BigDecimal(1 - 1);
 
-    private static final Long DEFAULT_ROW_VERSION = 0L;
-    private static final Long UPDATED_ROW_VERSION = 1L;
-    private static final Long SMALLER_ROW_VERSION = 0L - 1L;
+    private static final Long DEFAULT_ROW_VERSION = 1L;
+    private static final Long UPDATED_ROW_VERSION = 2L;
+    private static final Long SMALLER_ROW_VERSION = 1L - 1L;
 
     private static final String ENTITY_API_URL = "/api/instructor-wallets";
     private static final String ENTITY_API_URL_ID = ENTITY_API_URL + "/{id}";
@@ -107,7 +108,7 @@ class InstructorWalletResourceIT {
         User user = UserResourceIT.createEntity();
         em.persist(user);
         em.flush();
-        instructorWallet.setUser(user);
+        instructorWallet.setInstructor(user);
         return instructorWallet;
     }
 
@@ -126,7 +127,7 @@ class InstructorWalletResourceIT {
         User user = UserResourceIT.createEntity();
         em.persist(user);
         em.flush();
-        updatedInstructorWallet.setUser(user);
+        updatedInstructorWallet.setInstructor(user);
         return updatedInstructorWallet;
     }
 
@@ -204,16 +205,16 @@ class InstructorWalletResourceIT {
 
     @SuppressWarnings({ "unchecked" })
     void getAllInstructorWalletsWithEagerRelationshipsIsEnabled() throws Exception {
-        when(instructorWalletServiceMock.findAllWithEagerRelationships()).thenReturn(new ArrayList<>());
+        when(instructorWalletServiceMock.findAllWithEagerRelationships(any())).thenReturn(new PageImpl(new ArrayList<>()));
 
         restInstructorWalletMockMvc.perform(get(ENTITY_API_URL + "?eagerload=true")).andExpect(status().isOk());
 
-        verify(instructorWalletServiceMock, times(1)).findAllWithEagerRelationships();
+        verify(instructorWalletServiceMock, times(1)).findAllWithEagerRelationships(any());
     }
 
     @SuppressWarnings({ "unchecked" })
     void getAllInstructorWalletsWithEagerRelationshipsIsNotEnabled() throws Exception {
-        when(instructorWalletServiceMock.findAllWithEagerRelationships()).thenReturn(new ArrayList<>());
+        when(instructorWalletServiceMock.findAllWithEagerRelationships(any())).thenReturn(new PageImpl(new ArrayList<>()));
 
         restInstructorWalletMockMvc.perform(get(ENTITY_API_URL + "?eagerload=false")).andExpect(status().isOk());
         verify(instructorWalletRepositoryMock, times(1)).findAll(any(Pageable.class));
@@ -508,16 +509,16 @@ class InstructorWalletResourceIT {
 
     @Test
     @Transactional
-    void getAllInstructorWalletsByUserIsEqualToSomething() throws Exception {
+    void getAllInstructorWalletsByInstructorIsEqualToSomething() throws Exception {
         // Get already existing entity
-        User user = instructorWallet.getUser();
+        User instructor = instructorWallet.getInstructor();
         instructorWalletRepository.saveAndFlush(instructorWallet);
-        Long userId = user.getId();
-        // Get all the instructorWalletList where user equals to userId
-        defaultInstructorWalletShouldBeFound("userId.equals=" + userId);
+        Long instructorId = instructor.getId();
+        // Get all the instructorWalletList where instructor equals to instructorId
+        defaultInstructorWalletShouldBeFound("instructorId.equals=" + instructorId);
 
-        // Get all the instructorWalletList where user equals to (userId + 1)
-        defaultInstructorWalletShouldNotBeFound("userId.equals=" + (userId + 1));
+        // Get all the instructorWalletList where instructor equals to (instructorId + 1)
+        defaultInstructorWalletShouldNotBeFound("instructorId.equals=" + (instructorId + 1));
     }
 
     private void defaultInstructorWalletFiltering(String shouldBeFound, String shouldNotBeFound) throws Exception {

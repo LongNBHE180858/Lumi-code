@@ -77,7 +77,12 @@ class PayoutRequestCriteriaTest {
         payoutRequestCriteria.bankAccount();
         payoutRequestCriteria.status();
         payoutRequestCriteria.createdAt();
+        payoutRequestCriteria.accountHolderName();
+        payoutRequestCriteria.processedAt();
+        payoutRequestCriteria.transferReference();
+        payoutRequestCriteria.updatedAt();
         payoutRequestCriteria.walletId();
+        payoutRequestCriteria.processedById();
         payoutRequestCriteria.distinct();
     }
 
@@ -90,7 +95,12 @@ class PayoutRequestCriteriaTest {
                 condition.apply(criteria.getBankAccount()) &&
                 condition.apply(criteria.getStatus()) &&
                 condition.apply(criteria.getCreatedAt()) &&
+                condition.apply(criteria.getAccountHolderName()) &&
+                condition.apply(criteria.getProcessedAt()) &&
+                condition.apply(criteria.getTransferReference()) &&
+                condition.apply(criteria.getUpdatedAt()) &&
                 condition.apply(criteria.getWalletId()) &&
+                condition.apply(criteria.getProcessedById()) &&
                 condition.apply(criteria.getDistinct()),
             "every filter matches"
         );
@@ -108,7 +118,12 @@ class PayoutRequestCriteriaTest {
                 condition.apply(criteria.getBankAccount(), copy.getBankAccount()) &&
                 condition.apply(criteria.getStatus(), copy.getStatus()) &&
                 condition.apply(criteria.getCreatedAt(), copy.getCreatedAt()) &&
+                condition.apply(criteria.getAccountHolderName(), copy.getAccountHolderName()) &&
+                condition.apply(criteria.getProcessedAt(), copy.getProcessedAt()) &&
+                condition.apply(criteria.getTransferReference(), copy.getTransferReference()) &&
+                condition.apply(criteria.getUpdatedAt(), copy.getUpdatedAt()) &&
                 condition.apply(criteria.getWalletId(), copy.getWalletId()) &&
+                condition.apply(criteria.getProcessedById(), copy.getProcessedById()) &&
                 condition.apply(criteria.getDistinct(), copy.getDistinct()),
             "every filter matches"
         );

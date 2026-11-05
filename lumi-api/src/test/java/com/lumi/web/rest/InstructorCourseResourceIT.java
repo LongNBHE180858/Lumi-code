@@ -10,8 +10,8 @@ import com.lumi.IntegrationTest;
 import com.lumi.domain.*;
 import com.lumi.domain.enumeration.*;
 import com.lumi.repository.*;
-import com.lumi.service.InstructorCourseService;
 import com.lumi.service.dto.InstructorCourseDTOs.*;
+import com.lumi.service.impl.InstructorCourseService;
 import com.lumi.service.storage.*;
 import jakarta.persistence.EntityManager;
 import java.nio.file.Files;
@@ -137,6 +137,128 @@ class InstructorCourseResourceIT {
             .andReturn();
         asTeacher();
         return json.readValue(response.getResponse().getContentAsString(), Builder.class);
+    }
+
+    @Test
+    void listIsScopedAndReturnsCurriculumStats() throws Exception {
+        Builder draft = create();
+        draft = chapter(draft, "Chapter one");
+        draft = chapter(draft, "Empty chapter");
+        draft = lesson(draft, draft.chapters().getFirst().chapter().getId(), "Video");
+        Lesson video = em.find(Lesson.class, draft.chapters().getFirst().lessons().getFirst().lesson().getId());
+        video.setVideoUrl("https://cloud.example/video");
+        video.setDurationSeconds(5400);
+        Course legacy = new Course().title("Legacy draft").author(teacher).status(RecordStatus.DRAFT).isDeleted(null);
+        em.persist(legacy);
+        em.persist(new Course().title("Deleted draft").author(teacher).status(RecordStatus.DRAFT).isDeleted(true));
+        User other = new User();
+        other.setLogin("list-other");
+        other.setPassword("x".repeat(60));
+        other.setActivated(true);
+        em.persist(other);
+        em.persist(new Course().title("Foreign draft").author(other).status(RecordStatus.DRAFT).isDeleted(false));
+        em.flush();
+
+        mvc.perform(
+            get("/api/instructor/courses")
+                .param("sort", "id,asc")
+                .param("authorId.equals", other.getId().toString())
+                .param("isDeleted.equals", "true")
+        )
+            .andExpect(status().isOk())
+            .andExpect(header().string("X-Total-Count", "2"))
+            .andExpect(jsonPath("$.length()").value(2))
+            .andExpect(jsonPath("$[0].id").value(draft.course().getId()))
+            .andExpect(jsonPath("$[0].chapterCount").value(2))
+            .andExpect(jsonPath("$[0].lessonCount").value(1))
+            .andExpect(jsonPath("$[0].videoCount").value(1))
+            .andExpect(jsonPath("$[0].totalDurationSeconds").value(5400))
+            .andExpect(jsonPath("$[0].totalDurationHours").value(1.5))
+            .andExpect(jsonPath("$[0].version").value(draft.course().getVersion()));
+    }
+
+    @Test
+    void listSupportsFiltersPaginationAndEmptyResults() throws Exception {
+        create();
+        create();
+        mvc.perform(get("/api/instructor/courses").param("size", "1").param("page", "0").param("title.contains", "draft"))
+            .andExpect(status().isOk())
+            .andExpect(header().string("X-Total-Count", "2"))
+            .andExpect(jsonPath("$.length()").value(1));
+        mvc.perform(get("/api/instructor/courses").param("size", "1").param("page", "5"))
+            .andExpect(status().isOk())
+            .andExpect(header().string("X-Total-Count", "2"))
+            .andExpect(content().json("[]"));
+        mvc.perform(get("/api/instructor/courses").param("status.equals", "ACTIVE"))
+            .andExpect(status().isOk())
+            .andExpect(header().string("X-Total-Count", "0"))
+            .andExpect(content().json("[]"));
+    }
+
+    @Test
+    void deleteSoftDeletesDraftAndHidesItFromBuilderAndList() throws Exception {
+        Builder draft = create();
+        draft = chapter(draft, "Preserved chapter");
+        String path = "/api/instructor/courses/" + draft.course().getId();
+        mvc.perform(delete(path).param("version", draft.course().getVersion().toString())).andExpect(status().isNoContent());
+        asTeacher();
+        Course deleted = courses.findById(draft.course().getId()).orElseThrow();
+        assertThat(deleted.getIsDeleted()).isTrue();
+        assertThat(deleted.getVersion()).isGreaterThan(draft.course().getVersion());
+        assertThat(em.find(Chapter.class, draft.chapters().getFirst().chapter().getId())).isNotNull();
+        mvc.perform(get(path + "/builder")).andExpect(status().isNotFound());
+        mvc.perform(get("/api/instructor/courses")).andExpect(status().isOk()).andExpect(content().json("[]"));
+        mvc.perform(delete(path).param("version", deleted.getVersion().toString())).andExpect(status().isNotFound());
+        verify(storage, never()).delete(anyString());
+    }
+
+    @Test
+    void deleteRejectsMissingInvalidAndStaleVersion() throws Exception {
+        Builder draft = create();
+        String path = "/api/instructor/courses/" + draft.course().getId();
+        mvc.perform(delete(path)).andExpect(status().isBadRequest());
+        mvc.perform(delete(path).param("version", "-1")).andExpect(status().isBadRequest());
+        mvc.perform(delete(path).param("version", "999999")).andExpect(status().isConflict());
+        assertThat(courses.findById(draft.course().getId()).orElseThrow().getIsDeleted()).isFalse();
+    }
+
+    @Test
+    void deleteRejectsForeignMissingAndNonDraftCourses() throws Exception {
+        Builder draft = create();
+        Course course = courses.findById(draft.course().getId()).orElseThrow();
+        String path = "/api/instructor/courses/" + course.getId();
+        for (RecordStatus state : List.of(RecordStatus.PENDING, RecordStatus.ACTIVE, RecordStatus.ARCHIVED)) {
+            asTeacher();
+            course.setStatus(state);
+            em.flush();
+            mvc.perform(delete(path).param("version", course.getVersion().toString())).andExpect(status().isConflict());
+        }
+        asTeacher();
+        course.setStatus(RecordStatus.DRAFT);
+        // Persist a real foreign owner to exercise the ownership check before version validation.
+        User other = new User();
+        other.setLogin("delete-other");
+        other.setPassword("x".repeat(60));
+        other.setActivated(true);
+        em.persist(other);
+        course.setAuthor(other);
+        em.flush();
+        mvc.perform(delete(path).param("version", course.getVersion().toString())).andExpect(status().isNotFound());
+        mvc.perform(delete("/api/instructor/courses/999999999").param("version", "0")).andExpect(status().isNotFound());
+    }
+
+    @Test
+    void inactiveInstructorCannotListOrDelete() throws Exception {
+        Builder draft = create();
+        em.createQuery("update UserProfile p set p.instructorStatus = :state where p.user.id = :id")
+            .setParameter("state", RecordStatus.BLOCKED)
+            .setParameter("id", teacher.getId())
+            .executeUpdate();
+        em.clear();
+        mvc.perform(get("/api/instructor/courses")).andExpect(status().isForbidden());
+        mvc.perform(
+            delete("/api/instructor/courses/" + draft.course().getId()).param("version", draft.course().getVersion().toString())
+        ).andExpect(status().isForbidden());
     }
 
     @Test
@@ -792,6 +914,9 @@ class InstructorCourseResourceIT {
         em.persist(request);
         em.flush();
         mvc.perform(
+            delete("/api/instructor/courses/" + draft.course().getId()).param("version", draft.course().getVersion().toString())
+        ).andExpect(status().isConflict());
+        mvc.perform(
             post("/api/instructor/courses/" + draft.course().getId() + "/chapters")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(json.writeValueAsBytes(new ChapterInput(draft.course().getVersion(), "Illegal")))
@@ -801,6 +926,8 @@ class InstructorCourseResourceIT {
     @Test
     @org.springframework.security.test.context.support.WithAnonymousUser
     void anonymousCallerMustAuthenticate() throws Exception {
+        mvc.perform(get("/api/instructor/courses")).andExpect(status().isUnauthorized());
+        mvc.perform(delete("/api/instructor/courses/1").param("version", "0")).andExpect(status().isUnauthorized());
         mvc.perform(post("/api/instructor/courses").contentType(MediaType.APPLICATION_JSON).content("{}")).andExpect(
             status().isUnauthorized()
         );

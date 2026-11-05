@@ -3,7 +3,9 @@
     "changelogDate": "20261012230440"
   },
   "applications": ["*"],
+  "documentation": "Lưu danh mục khối lớp của hệ thống.",
   "dto": "mapstruct",
+  "entityTableName": "grades",
   "fields": [
     {
       "fieldName": "level",

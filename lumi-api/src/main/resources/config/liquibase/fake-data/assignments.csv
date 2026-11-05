@@ -1,0 +1,31 @@
+id;title;instructions;due_at;max_score;allow_late;is_deleted;status;created_at;updated_at;study_class_id;assigned_by_id
+1;annual zowie;../fake-data/blob/hipster.txt;2026-10-12T07:50:46;10766.31;true;true;save gee honestly;2026-10-12T06:35:36;2026-10-12T02:45:05;1;1
+2;phooey idealistic;../fake-data/blob/hipster.txt;2026-10-12T12:00:53;13614.67;true;true;whoa;2026-10-12T09:25:47;2026-10-12T22:21:28;2;2
+3;communicate sit;../fake-data/blob/hipster.txt;2026-10-12T07:37:06;18517.46;false;true;upwardly distinction;2026-10-12T06:20:54;2026-10-12T14:04:21;3;2
+4;shell instantly;../fake-data/blob/hipster.txt;2026-10-12T02:56:08;29260.51;false;true;aboard serenade;2026-10-12T09:19:17;2026-10-12T04:18:44;4;1
+5;zowie blaspheme stranger;../fake-data/blob/hipster.txt;2026-10-12T20:33:55;19120.07;true;false;tighten;2026-10-12T12:00:47;2026-10-12T03:15:37;5;1
+6;fat rigidly;../fake-data/blob/hipster.txt;2026-10-12T19:56:17;17064.52;true;false;institutionalize foo;2026-10-12T01:26:35;2026-10-12T17:19:23;6;2
+7;wrongly sticker;../fake-data/blob/hipster.txt;2026-10-12T02:52:07;13934.41;true;true;sermon overconfident;2026-10-12T03:41:18;2026-10-12T06:48:21;7;1
+8;adaptation;../fake-data/blob/hipster.txt;2026-10-12T10:25:06;20509.28;false;false;defiantly quickly;2026-10-12T09:08:10;2026-10-12T04:38:04;8;1
+9;ha aw;../fake-data/blob/hipster.txt;2026-10-12T17:36:55;31425.94;true;true;than during gah;2026-10-12T09:41:45;2026-10-12T16:46:36;9;2
+10;apropos anenst;../fake-data/blob/hipster.txt;2026-10-11T23:34:16;13755.72;true;true;pearl;2026-10-12T15:12:28;2026-10-12T11:05:02;10;1
+11;restfully nimble oof;../fake-data/blob/hipster.txt;2026-10-12T19:35:46;21506.58;true;true;shadowbox stack or;2026-10-12T07:14:12;2026-10-12T01:18:14;11;1
+12;huzzah;../fake-data/blob/hipster.txt;2026-10-12T04:45:47;6755.54;true;true;mystify as;2026-10-12T12:50:01;2026-10-12T19:47:52;12;1
+13;without upbeat;../fake-data/blob/hipster.txt;2026-10-12T16:11:07;28922.14;false;false;porter;2026-10-12T16:10:59;2026-10-12T15:28:40;13;1
+14;calculus ugh convalesce;../fake-data/blob/hipster.txt;2026-10-12T15:27:27;2142.21;false;true;commonly devil;2026-10-12T04:42:11;2026-10-12T06:37:33;14;1
+15;equally;../fake-data/blob/hipster.txt;2026-10-12T13:48:30;19988.21;true;false;alongside manner;2026-10-12T05:24:55;2026-10-11T23:29:08;15;1
+16;hospitalization poppy irritably;../fake-data/blob/hipster.txt;2026-10-12T19:08:25;22476.82;false;false;extra-large;2026-10-12T17:41:03;2026-10-12T10:46:37;16;1
+17;even ridge;../fake-data/blob/hipster.txt;2026-10-12T21:52:09;18225.72;true;true;scamper;2026-10-12T05:20:57;2026-10-11T23:50:54;17;2
+18;aw reapply;../fake-data/blob/hipster.txt;2026-10-12T05:36:57;17336.34;true;false;except;2026-10-12T06:11:57;2026-10-12T01:33:25;18;1
+19;next including;../fake-data/blob/hipster.txt;2026-10-12T11:57:51;22378.51;false;true;delectable anenst;2026-10-12T09:29:22;2026-10-12T03:10:21;19;1
+20;extension rigidly dimly;../fake-data/blob/hipster.txt;2026-10-12T00:09:50;29294.52;false;true;nervously legal;2026-10-12T17:43:12;2026-10-11T23:56:48;20;2
+21;delightfully duh inasmuch;../fake-data/blob/hipster.txt;2026-10-12T18:35:58;847.53;true;true;following hovercraft;2026-10-12T12:05:09;2026-10-12T06:44:51;21;1
+22;huzzah;../fake-data/blob/hipster.txt;2026-10-12T00:39:22;24057.86;false;false;chubby cemetery;2026-10-12T19:50:58;2026-10-12T01:44:32;22;1
+23;nervously following;../fake-data/blob/hipster.txt;2026-10-12T07:41:55;30296.52;false;true;knowledgeably;2026-10-12T17:12:25;2026-10-12T07:21:59;23;1
+24;fake judgementally versus;../fake-data/blob/hipster.txt;2026-10-12T03:14:24;16905.79;true;true;rebuff powerfully;2026-10-12T02:39:15;2026-10-12T15:39:29;24;1
+25;whether;../fake-data/blob/hipster.txt;2026-10-12T01:45:34;28523.38;false;false;taxicab now plus;2026-10-12T08:38:18;2026-10-12T10:07:58;25;2
+26;tentacle;../fake-data/blob/hipster.txt;2026-10-12T05:54:24;20176.29;true;false;furthermore mundane ;2026-10-12T04:49:28;2026-10-12T14:25:45;26;1
+27;er distorted;../fake-data/blob/hipster.txt;2026-10-12T21:42:40;20540.04;true;false;ring between notwith;2026-10-12T20:18:14;2026-10-12T07:40:49;27;2
+28;catalyze kick unabashedly;../fake-data/blob/hipster.txt;2026-10-12T08:36:09;7579.02;true;true;captain sashay;2026-10-12T17:45:43;2026-10-12T01:54:19;28;2
+29;abnormally obesity;../fake-data/blob/hipster.txt;2026-10-12T02:16:06;22965.69;false;false;jazz blissfully part;2026-10-12T21:16:13;2026-10-12T06:27:42;29;1
+30;knavishly;../fake-data/blob/hipster.txt;2026-10-12T03:04:30;7645.54;false;true;throughout whenever;2026-10-12T10:04:25;2026-10-12T01:27:37;30;2

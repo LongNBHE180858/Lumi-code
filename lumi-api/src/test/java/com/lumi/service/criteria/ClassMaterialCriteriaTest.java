@@ -77,7 +77,10 @@ class ClassMaterialCriteriaTest {
         classMaterialCriteria.fileUrl();
         classMaterialCriteria.fileSizeBytes();
         classMaterialCriteria.uploadedAt();
+        classMaterialCriteria.fileObjectKey();
+        classMaterialCriteria.updatedAt();
         classMaterialCriteria.studyClassId();
+        classMaterialCriteria.learningDocumentId();
         classMaterialCriteria.distinct();
     }
 
@@ -90,7 +93,10 @@ class ClassMaterialCriteriaTest {
                 condition.apply(criteria.getFileUrl()) &&
                 condition.apply(criteria.getFileSizeBytes()) &&
                 condition.apply(criteria.getUploadedAt()) &&
+                condition.apply(criteria.getFileObjectKey()) &&
+                condition.apply(criteria.getUpdatedAt()) &&
                 condition.apply(criteria.getStudyClassId()) &&
+                condition.apply(criteria.getLearningDocumentId()) &&
                 condition.apply(criteria.getDistinct()),
             "every filter matches"
         );
@@ -108,7 +114,10 @@ class ClassMaterialCriteriaTest {
                 condition.apply(criteria.getFileUrl(), copy.getFileUrl()) &&
                 condition.apply(criteria.getFileSizeBytes(), copy.getFileSizeBytes()) &&
                 condition.apply(criteria.getUploadedAt(), copy.getUploadedAt()) &&
+                condition.apply(criteria.getFileObjectKey(), copy.getFileObjectKey()) &&
+                condition.apply(criteria.getUpdatedAt(), copy.getUpdatedAt()) &&
                 condition.apply(criteria.getStudyClassId(), copy.getStudyClassId()) &&
+                condition.apply(criteria.getLearningDocumentId(), copy.getLearningDocumentId()) &&
                 condition.apply(criteria.getDistinct(), copy.getDistinct()),
             "every filter matches"
         );

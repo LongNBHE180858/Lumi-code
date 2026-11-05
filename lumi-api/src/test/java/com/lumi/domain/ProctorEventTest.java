@@ -1,7 +1,7 @@
 package com.lumi.domain;
 
+import static com.lumi.domain.ExamAttemptTestSamples.*;
 import static com.lumi.domain.ProctorEventTestSamples.*;
-import static com.lumi.domain.ProctorSessionTestSamples.*;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.lumi.web.rest.TestUtil;
@@ -24,14 +24,14 @@ class ProctorEventTest {
     }
 
     @Test
-    void sessionTest() {
+    void attemptTest() {
         ProctorEvent proctorEvent = getProctorEventRandomSampleGenerator();
-        ProctorSession proctorSessionBack = getProctorSessionRandomSampleGenerator();
+        ExamAttempt examAttemptBack = getExamAttemptRandomSampleGenerator();
 
-        proctorEvent.setSession(proctorSessionBack);
-        assertThat(proctorEvent.getSession()).isEqualTo(proctorSessionBack);
+        proctorEvent.setAttempt(examAttemptBack);
+        assertThat(proctorEvent.getAttempt()).isEqualTo(examAttemptBack);
 
-        proctorEvent.session(null);
-        assertThat(proctorEvent.getSession()).isNull();
+        proctorEvent.attempt(null);
+        assertThat(proctorEvent.getAttempt()).isNull();
     }
 }

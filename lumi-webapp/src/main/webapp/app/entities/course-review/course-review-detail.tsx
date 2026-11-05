@@ -54,13 +54,21 @@ export const CourseReviewDetail = () => {
             {courseReviewEntity.createdAt ? <TextFormat value={courseReviewEntity.createdAt} type="date" format={APP_DATE_FORMAT} /> : null}
           </dd>
           <dt>
-            <Translate contentKey="lumiApp.courseReview.student">Student</Translate>
+            <span id="updatedAt">
+              <Translate contentKey="lumiApp.courseReview.updatedAt">Updated At</Translate>
+            </span>
           </dt>
-          <dd>{courseReviewEntity.student ? courseReviewEntity.student.login : ''}</dd>
+          <dd>
+            {courseReviewEntity.updatedAt ? <TextFormat value={courseReviewEntity.updatedAt} type="date" format={APP_DATE_FORMAT} /> : null}
+          </dd>
           <dt>
             <Translate contentKey="lumiApp.courseReview.course">Course</Translate>
           </dt>
-          <dd>{courseReviewEntity.course ? courseReviewEntity.course.title : ''}</dd>
+          <dd>{courseReviewEntity.course ? courseReviewEntity.course.id : ''}</dd>
+          <dt>
+            <Translate contentKey="lumiApp.courseReview.student">Student</Translate>
+          </dt>
+          <dd>{courseReviewEntity.student ? courseReviewEntity.student.login : ''}</dd>
         </dl>
         <Button as={Link as any} to="/course-review" replace variant="info" data-cy="entityDetailsBackButton">
           <FontAwesomeIcon icon="arrow-left" />{' '}

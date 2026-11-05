@@ -23,8 +23,13 @@
       "teacherFeedback": "Teacher Feedback",
       "status": "Status",
       "submittedAt": "Submitted At",
+      "attachments": "Attachments",
+      "gradedAt": "Graded At",
+      "updatedAt": "Updated At",
+      "rowVersion": "Row Version",
+      "assignment": "Assignment",
       "student": "Student",
-      "assignment": "Assignment"
+      "gradedBy": "Graded By"
     }
   }
 }

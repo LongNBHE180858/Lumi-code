@@ -10,28 +10,32 @@
         Added the entity CourseReview.
     -->
     <changeSet id="20261012230447-1" author="jhipster">
-        <createTable tableName="course_review">
+        <createTable tableName="course_reviews" remarks="Lưu đánh giá sao và nhận xét của học sinh về khóa học.">
             <column name="id" type="bigint">
                 <constraints primaryKey="true" nullable="false"/>
             </column>
             <column name="rating" type="integer">
                 <constraints nullable="true" />
             </column>
-            <column name="content" type="varchar(5000)">
+            <column name="content" type="${clobType}">
                 <constraints nullable="true" />
             </column>
             <column name="created_at" type="${datetimeType}">
                 <constraints nullable="true" />
             </column>
-            <column name="student_id" type="bigint">
+            <column name="updated_at" type="${datetimeType}">
                 <constraints nullable="false" />
             </column>
             <column name="course_id" type="bigint">
                 <constraints nullable="false" />
             </column>
+            <column name="student_id" type="bigint">
+                <constraints nullable="false" />
+            </column>
             <!-- jhipster-needle-liquibase-add-column - JHipster will add columns here -->
         </createTable>
-        <dropDefaultValue tableName="course_review" columnName="created_at" columnDataType="${datetimeType}"/>
+        <dropDefaultValue tableName="course_reviews" columnName="created_at" columnDataType="${datetimeType}"/>
+        <dropDefaultValue tableName="course_reviews" columnName="updated_at" columnDataType="${datetimeType}"/>
     </changeSet>
 
     <!-- jhipster-needle-liquibase-add-changeset - JHipster will add changesets here -->
@@ -46,17 +50,18 @@
     -->
     <changeSet id="20261012230447-1-data" author="jhipster" context="faker">
         <loadData
-                  file="../fake-data/course_review.csv"
+                  file="../fake-data/course_reviews.csv"
                   relativeToChangelogFile="true"
                   separator=";"
-                  tableName="course_review"
+                  tableName="course_reviews"
                   usePreparedStatements="true">
             <column name="id" type="numeric"/>
             <column name="rating" type="numeric"/>
-            <column name="content" type="string"/>
+            <column name="content" type="clob"/>
             <column name="created_at" type="date"/>
-            <column name="student_id" type="numeric"/>
+            <column name="updated_at" type="date"/>
             <column name="course_id" type="numeric"/>
+            <column name="student_id" type="numeric"/>
             <!-- jhipster-needle-liquibase-add-loadcolumn - JHipster (and/or extensions) can add load columns here -->
         </loadData>
     </changeSet>

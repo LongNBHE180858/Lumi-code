@@ -11,24 +11,24 @@
     <changeSet id="20261012230508-2" author="jhipster">
 
         <addForeignKeyConstraint baseColumnNames="attempt_id"
-                                 baseTableName="exam_answer"
-                                 constraintName="fk_exam_answer__attempt_id"
+                                 baseTableName="exam_answers"
+                                 constraintName="fk_exam_answers__attempt_id"
                                  referencedColumnNames="id"
-                                 referencedTableName="exam_attempt"
+                                 referencedTableName="exam_attempts"
                                  />
 
         <addForeignKeyConstraint baseColumnNames="question_id"
-                                 baseTableName="exam_answer"
-                                 constraintName="fk_exam_answer__question_id"
+                                 baseTableName="exam_answers"
+                                 constraintName="fk_exam_answers__question_id"
                                  referencedColumnNames="id"
-                                 referencedTableName="question"
+                                 referencedTableName="questions"
                                  />
 
         <addForeignKeyConstraint baseColumnNames="option_id"
-                                 baseTableName="exam_answer"
-                                 constraintName="fk_exam_answer__option_id"
+                                 baseTableName="exam_answers"
+                                 constraintName="fk_exam_answers__option_id"
                                  referencedColumnNames="id"
-                                 referencedTableName="question_option"
+                                 referencedTableName="question_options"
                                  />
     </changeSet>
 </databaseChangeLog>

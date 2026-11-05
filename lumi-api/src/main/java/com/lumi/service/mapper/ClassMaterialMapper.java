@@ -11,12 +11,11 @@ import org.mapstruct.*;
  */
 @Mapper(componentModel = "spring")
 public interface ClassMaterialMapper extends EntityMapper<ClassMaterialDTO, ClassMaterial> {
-    @Mapping(target = "studyClass", source = "studyClass", qualifiedByName = "studyClassName")
+    @Mapping(target = "studyClass", source = "studyClass", qualifiedByName = "studyClassId")
     ClassMaterialDTO toDto(ClassMaterial s);
 
-    @Named("studyClassName")
+    @Named("studyClassId")
     @BeanMapping(ignoreByDefault = true)
     @Mapping(target = "id", source = "id")
-    @Mapping(target = "name", source = "name")
-    StudyClassDTO toDtoStudyClassName(StudyClass studyClass);
+    StudyClassDTO toDtoStudyClassId(StudyClass studyClass);
 }

@@ -16,6 +16,16 @@ import org.springframework.stereotype.Repository;
 public interface TeacherVerificationRepository
     extends JpaRepository<TeacherVerification, Long>, JpaSpecificationExecutor<TeacherVerification>
 {
+    @Query(
+        "select teacherVerification from TeacherVerification teacherVerification where teacherVerification.user.login = ?#{authentication.name}"
+    )
+    List<TeacherVerification> findByUserIsCurrentUser();
+
+    @Query(
+        "select teacherVerification from TeacherVerification teacherVerification where teacherVerification.reviewedBy.login = ?#{authentication.name}"
+    )
+    List<TeacherVerification> findByReviewedByIsCurrentUser();
+
     default Optional<TeacherVerification> findOneWithEagerRelationships(Long id) {
         return this.findOneWithToOneRelationships(id);
     }
@@ -29,16 +39,18 @@ public interface TeacherVerificationRepository
     }
 
     @Query(
-        value = "select teacherVerification from TeacherVerification teacherVerification left join fetch teacherVerification.user",
+        value = "select teacherVerification from TeacherVerification teacherVerification left join fetch teacherVerification.user left join fetch teacherVerification.reviewedBy",
         countQuery = "select count(teacherVerification) from TeacherVerification teacherVerification"
     )
     Page<TeacherVerification> findAllWithToOneRelationships(Pageable pageable);
 
-    @Query("select teacherVerification from TeacherVerification teacherVerification left join fetch teacherVerification.user")
+    @Query(
+        "select teacherVerification from TeacherVerification teacherVerification left join fetch teacherVerification.user left join fetch teacherVerification.reviewedBy"
+    )
     List<TeacherVerification> findAllWithToOneRelationships();
 
     @Query(
-        "select teacherVerification from TeacherVerification teacherVerification left join fetch teacherVerification.user where teacherVerification.id =:id"
+        "select teacherVerification from TeacherVerification teacherVerification left join fetch teacherVerification.user left join fetch teacherVerification.reviewedBy where teacherVerification.id =:id"
     )
     Optional<TeacherVerification> findOneWithToOneRelationships(@Param("id") Long id);
 

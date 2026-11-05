@@ -7,10 +7,10 @@ import java.io.Serializable;
 import java.time.Instant;
 
 /**
- * A TeacherQuota.
+ * Lưu hạn mức và mức sử dụng tài nguyên của giáo viên.
  */
 @Entity
-@Table(name = "teacher_quota")
+@Table(name = "teacher_quotas")
 @SuppressWarnings("common-java:DuplicatedBlocks")
 public class TeacherQuota implements Serializable {
 
@@ -26,22 +26,34 @@ public class TeacherQuota implements Serializable {
     @Column(name = "plan_expires_at")
     private Instant planExpiresAt;
 
-    @Min(value = 0L)
     @Column(name = "used_storage_bytes")
     private Long usedStorageBytes;
 
-    @Min(value = 0)
     @Column(name = "ai_used_count")
     private Integer aiUsedCount;
 
-    @Min(value = 0L)
     @Column(name = "row_version")
     private Long rowVersion;
+
+    @NotNull
+    @Min(value = 0L)
+    @Column(name = "effective_storage_limit_bytes", nullable = false)
+    private Long effectiveStorageLimitBytes;
+
+    @Column(name = "ai_period_started_at")
+    private Instant aiPeriodStartedAt;
+
+    @Column(name = "ai_period_ends_at")
+    private Instant aiPeriodEndsAt;
+
+    @NotNull
+    @Column(name = "updated_at", nullable = false)
+    private Instant updatedAt;
 
     @OneToOne(fetch = FetchType.LAZY, optional = false)
     @NotNull
     @JoinColumn(unique = true)
-    private User user;
+    private User instructor;
 
     @ManyToOne(fetch = FetchType.LAZY)
     private SystemPlan currentPlan;
@@ -113,16 +125,68 @@ public class TeacherQuota implements Serializable {
         this.rowVersion = rowVersion;
     }
 
-    public User getUser() {
-        return this.user;
+    public Long getEffectiveStorageLimitBytes() {
+        return this.effectiveStorageLimitBytes;
     }
 
-    public void setUser(User user) {
-        this.user = user;
+    public TeacherQuota effectiveStorageLimitBytes(Long effectiveStorageLimitBytes) {
+        this.setEffectiveStorageLimitBytes(effectiveStorageLimitBytes);
+        return this;
     }
 
-    public TeacherQuota user(User user) {
-        this.setUser(user);
+    public void setEffectiveStorageLimitBytes(Long effectiveStorageLimitBytes) {
+        this.effectiveStorageLimitBytes = effectiveStorageLimitBytes;
+    }
+
+    public Instant getAiPeriodStartedAt() {
+        return this.aiPeriodStartedAt;
+    }
+
+    public TeacherQuota aiPeriodStartedAt(Instant aiPeriodStartedAt) {
+        this.setAiPeriodStartedAt(aiPeriodStartedAt);
+        return this;
+    }
+
+    public void setAiPeriodStartedAt(Instant aiPeriodStartedAt) {
+        this.aiPeriodStartedAt = aiPeriodStartedAt;
+    }
+
+    public Instant getAiPeriodEndsAt() {
+        return this.aiPeriodEndsAt;
+    }
+
+    public TeacherQuota aiPeriodEndsAt(Instant aiPeriodEndsAt) {
+        this.setAiPeriodEndsAt(aiPeriodEndsAt);
+        return this;
+    }
+
+    public void setAiPeriodEndsAt(Instant aiPeriodEndsAt) {
+        this.aiPeriodEndsAt = aiPeriodEndsAt;
+    }
+
+    public Instant getUpdatedAt() {
+        return this.updatedAt;
+    }
+
+    public TeacherQuota updatedAt(Instant updatedAt) {
+        this.setUpdatedAt(updatedAt);
+        return this;
+    }
+
+    public void setUpdatedAt(Instant updatedAt) {
+        this.updatedAt = updatedAt;
+    }
+
+    public User getInstructor() {
+        return this.instructor;
+    }
+
+    public void setInstructor(User user) {
+        this.instructor = user;
+    }
+
+    public TeacherQuota instructor(User user) {
+        this.setInstructor(user);
         return this;
     }
 
@@ -167,6 +231,10 @@ public class TeacherQuota implements Serializable {
             ", usedStorageBytes=" + getUsedStorageBytes() +
             ", aiUsedCount=" + getAiUsedCount() +
             ", rowVersion=" + getRowVersion() +
+            ", effectiveStorageLimitBytes=" + getEffectiveStorageLimitBytes() +
+            ", aiPeriodStartedAt='" + getAiPeriodStartedAt() + "'" +
+            ", aiPeriodEndsAt='" + getAiPeriodEndsAt() + "'" +
+            ", updatedAt='" + getUpdatedAt() + "'" +
             "}";
     }
 }

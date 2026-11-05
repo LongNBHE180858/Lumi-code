@@ -1,12 +1,10 @@
 package com.lumi.web.rest;
 
-import com.lumi.service.AuthService;
+import com.lumi.service.IAuthService;
 import com.lumi.service.OtpService;
 import com.lumi.service.dto.APIResponse;
 import com.lumi.service.dto.PasswordChangeDTO;
-import com.lumi.service.dto.auth.AuthResponseDTO;
-import com.lumi.service.dto.auth.RefreshTokenRequestVM;
-import com.lumi.service.dto.auth.RegisterVM;
+import com.lumi.service.dto.auth.*;
 import com.lumi.service.dto.auth.otp.OtpResponseDTO;
 import com.lumi.service.dto.auth.otp.SendOtpRequestDTO;
 import com.lumi.service.dto.auth.otp.VerifyOtpRequestDTO;
@@ -34,10 +32,10 @@ public class AuthController {
 
     private static final Logger LOG = LoggerFactory.getLogger(AuthController.class);
 
-    private final AuthService authService;
+    private final IAuthService authService;
     private final OtpService otpService;
 
-    public AuthController(AuthService authService, OtpService otpService) {
+    public AuthController(IAuthService authService, OtpService otpService) {
         this.authService = authService;
         this.otpService = otpService;
     }
@@ -129,12 +127,12 @@ public class AuthController {
     @ResponseStatus(HttpStatus.CREATED)
     @Operation(summary = "Đăng ký tài khoản dành cho Student")
     public ResponseEntity<APIResponse<AuthResponseDTO>> registerStudent(
-        @Valid @RequestBody RegisterVM registerVM,
+        @Valid @RequestBody StudentRegisterRequestDTO registerRequestDTO,
         HttpServletRequest request
     ) {
-        LOG.debug("REST request to register student: {}", registerVM.getUsername());
+        LOG.debug("REST request to register student: {}", registerRequestDTO.getUsername());
         String clientDeviceInfo = extractDeviceInfo(request);
-        AuthResponseDTO response = authService.registerStudent(registerVM, clientDeviceInfo);
+        AuthResponseDTO response = authService.registerStudent(registerRequestDTO, clientDeviceInfo);
 
         var httpHeaders = new HttpHeaders();
         if (response.getAccessToken() != null) {
@@ -152,16 +150,43 @@ public class AuthController {
             );
     }
 
-    @PostMapping("/teacher/register")
+    @PostMapping("/instructor/register")
     @ResponseStatus(HttpStatus.CREATED)
-    @Operation(summary = "Đăng ký tài khoản dành cho Teacher")
-    public ResponseEntity<APIResponse<AuthResponseDTO>> registerTeacher(
-        @Valid @RequestBody RegisterVM registerVM,
+    @Operation(summary = "Đăng ký tài khoản dành cho Instructor")
+    public ResponseEntity<APIResponse<AuthResponseDTO>> registerInstructor(
+        @Valid @RequestBody InstructorRegisterRequestDTO registerRequestDTO,
         HttpServletRequest request
     ) {
-        LOG.debug("REST request to register teacher: {}", registerVM.getUsername());
+        LOG.debug("REST request to register instructor: {}", registerRequestDTO.getUsername());
         String clientDeviceInfo = extractDeviceInfo(request);
-        AuthResponseDTO response = authService.registerTeacher(registerVM, clientDeviceInfo);
+        AuthResponseDTO response = authService.registerInstructor(registerRequestDTO, clientDeviceInfo);
+
+        var httpHeaders = new HttpHeaders();
+        if (response.getAccessToken() != null) {
+            httpHeaders.setBearerAuth(response.getAccessToken());
+        }
+        return ResponseEntity.status(HttpStatus.CREATED)
+            .headers(httpHeaders)
+            .body(
+                APIResponse.<AuthResponseDTO>builder()
+                    .status(HttpStatus.CREATED.value())
+                    .code(1000)
+                    .message("Đăng ký tài khoản Giáo viên thành công. Vui lòng xác thực mã OTP gửi về email để kích hoạt tài khoản.")
+                    .data(response)
+                    .build()
+            );
+    }
+
+    @PostMapping("/parents/register")
+    @ResponseStatus(HttpStatus.CREATED)
+    @Operation(summary = "Đăng ký tài khoản dành cho Parents")
+    public ResponseEntity<APIResponse<AuthResponseDTO>> registerParents(
+        @Valid @RequestBody ParentRegisterRequestDTO registerRequestDTO,
+        HttpServletRequest request
+    ) {
+        LOG.debug("REST request to register parents: {}", registerRequestDTO.getUsername());
+        String clientDeviceInfo = extractDeviceInfo(request);
+        AuthResponseDTO response = authService.registerParents(registerRequestDTO, clientDeviceInfo);
 
         var httpHeaders = new HttpHeaders();
         if (response.getAccessToken() != null) {
@@ -182,10 +207,13 @@ public class AuthController {
     @PostMapping("/register")
     @ResponseStatus(HttpStatus.CREATED)
     @Operation(summary = "Đăng ký tài khoản chung (mặc định Student hoặc truyền role trong body)")
-    public ResponseEntity<APIResponse<AuthResponseDTO>> register(@Valid @RequestBody RegisterVM registerVM, HttpServletRequest request) {
-        LOG.debug("REST request to register: {}", registerVM.getUsername());
+    public ResponseEntity<APIResponse<AuthResponseDTO>> register(
+        @Valid @RequestBody RegisterRequestDTO registerRequestDTO,
+        HttpServletRequest request
+    ) {
+        LOG.debug("REST request to register: {}", registerRequestDTO.getUsername());
         String clientDeviceInfo = extractDeviceInfo(request);
-        AuthResponseDTO response = authService.register(registerVM, clientDeviceInfo);
+        AuthResponseDTO response = authService.register(registerRequestDTO, clientDeviceInfo);
 
         var httpHeaders = new HttpHeaders();
         if (response.getAccessToken() != null) {

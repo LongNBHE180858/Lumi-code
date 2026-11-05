@@ -66,6 +66,26 @@ export const NotificationDetail = () => {
             {notificationEntity.createdAt ? <TextFormat value={notificationEntity.createdAt} type="date" format={APP_DATE_FORMAT} /> : null}
           </dd>
           <dt>
+            <span id="targetType">
+              <Translate contentKey="lumiApp.notification.targetType">Target Type</Translate>
+            </span>
+          </dt>
+          <dd>{notificationEntity.targetType}</dd>
+          <dt>
+            <span id="targetId">
+              <Translate contentKey="lumiApp.notification.targetId">Target Id</Translate>
+            </span>
+          </dt>
+          <dd>{notificationEntity.targetId}</dd>
+          <dt>
+            <span id="readAt">
+              <Translate contentKey="lumiApp.notification.readAt">Read At</Translate>
+            </span>
+          </dt>
+          <dd>
+            {notificationEntity.readAt ? <TextFormat value={notificationEntity.readAt} type="date" format={APP_DATE_FORMAT} /> : null}
+          </dd>
+          <dt>
             <Translate contentKey="lumiApp.notification.user">User</Translate>
           </dt>
           <dd>{notificationEntity.user ? notificationEntity.user.login : ''}</dd>

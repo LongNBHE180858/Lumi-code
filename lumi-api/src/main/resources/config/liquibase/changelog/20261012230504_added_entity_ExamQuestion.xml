@@ -10,7 +10,7 @@
         Added the entity ExamQuestion.
     -->
     <changeSet id="20261012230504-1" author="jhipster">
-        <createTable tableName="exam_question">
+        <createTable tableName="exam_questions" remarks="Lưu câu hỏi được chọn vào đề, thứ tự và điểm tối đa của câu.">
             <column name="id" type="bigint">
                 <constraints primaryKey="true" nullable="false"/>
             </column>
@@ -42,10 +42,10 @@
     -->
     <changeSet id="20261012230504-1-data" author="jhipster" context="faker">
         <loadData
-                  file="../fake-data/exam_question.csv"
+                  file="../fake-data/exam_questions.csv"
                   relativeToChangelogFile="true"
                   separator=";"
-                  tableName="exam_question"
+                  tableName="exam_questions"
                   usePreparedStatements="true">
             <column name="id" type="numeric"/>
             <column name="order_index" type="numeric"/>

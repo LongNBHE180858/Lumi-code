@@ -12,7 +12,7 @@ import {
 import { expect, test } from '../../support/fixtures';
 
 const aiConversationPageUrl = '/ai-conversation';
-// const aiConversationSample = {"type":"bungalow next"};
+// const aiConversationSample = {"type":"supposing appreciate allocation","updatedAt":"2026-10-12T23:10:07.122Z"};
 
 const aiConversationApiUrl = '/api/ai-conversations';
 
@@ -52,6 +52,12 @@ test.describe('AiConversation e2e test', () => {
     // incompatibility" block comment that wraps this section when the create test is skipped.
     await page.route(
       url => url.pathname === '/api/lessons',
+      route => route.fulfill({ status: 200, json: [].filter(Boolean) }),
+    );
+    // A url predicate rather than a glob: a glob's wildcards would close the "Disabled due to
+    // incompatibility" block comment that wraps this section when the create test is skipped.
+    await page.route(
+      url => url.pathname === '/api/learning-documents',
       route => route.fulfill({ status: 200, json: [].filter(Boolean) }),
     );
   });
@@ -226,6 +232,10 @@ test.describe('AiConversation e2e test', () => {
       await page.locator(`[data-cy="createdAt"]`).fill('2026-10-12T08:56');
       await page.locator(`[data-cy="createdAt"]`).blur();
       await expect(page.locator(`[data-cy="createdAt"]`)).toHaveValue('2026-10-12T08:56');
+
+      await page.locator(`[data-cy="updatedAt"]`).fill('2026-10-12T08:11');
+      await page.locator(`[data-cy="updatedAt"]`).blur();
+      await expect(page.locator(`[data-cy="updatedAt"]`)).toHaveValue('2026-10-12T08:11');
 
       await page.locator(`[data-cy="user"]`).selectOption({ index: 1 });
 

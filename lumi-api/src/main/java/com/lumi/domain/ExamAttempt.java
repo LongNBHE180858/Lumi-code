@@ -9,10 +9,10 @@ import java.math.BigDecimal;
 import java.time.Instant;
 
 /**
- * A ExamAttempt.
+ * Lưu lượt làm bài, thời hạn, kết quả và trạng thái luyện tập của học sinh.
  */
 @Entity
-@Table(name = "exam_attempt")
+@Table(name = "exam_attempts")
 @SuppressWarnings("common-java:DuplicatedBlocks")
 public class ExamAttempt implements Serializable {
 
@@ -32,7 +32,6 @@ public class ExamAttempt implements Serializable {
     @Column(name = "end_time")
     private Instant endTime;
 
-    @DecimalMin(value = "0")
     @Column(name = "score", precision = 21, scale = 2)
     private BigDecimal score;
 
@@ -40,22 +39,45 @@ public class ExamAttempt implements Serializable {
     @Column(name = "status", length = 20)
     private String status;
 
-    @Min(value = 0L)
     @Column(name = "row_version")
     private Long rowVersion;
+
+    @NotNull
+    @Column(name = "deadline_at", nullable = false)
+    private Instant deadlineAt;
+
+    @Column(name = "last_saved_at")
+    private Instant lastSavedAt;
+
+    @Column(name = "submitted_at")
+    private Instant submittedAt;
+
+    @Column(name = "presentation_snapshot", columnDefinition = "text")
+    private String presentationSnapshot;
+
+    @Column(name = "security_config_snapshot", columnDefinition = "text")
+    private String securityConfigSnapshot;
+
+    @Column(name = "adaptive_state", columnDefinition = "text")
+    private String adaptiveState;
+
+    @NotNull
+    @Size(max = 20)
+    @Column(name = "monitoring_status", length = 20, nullable = false)
+    private String monitoringStatus;
+
+    @ManyToOne(optional = false)
+    @NotNull
+    @JsonIgnoreProperties(value = { "studyClass", "createdBy", "lesson", "assignedStudent" }, allowSetters = true)
+    private Exam exam;
 
     @ManyToOne(optional = false)
     @NotNull
     private User student;
 
-    @ManyToOne(optional = false)
-    @NotNull
-    @JsonIgnoreProperties(value = { "studyClass" }, allowSetters = true)
-    private Exam exam;
-
-    @JsonIgnoreProperties(value = { "attempt" }, allowSetters = true)
-    @OneToOne(fetch = FetchType.LAZY, mappedBy = "attempt")
-    private ProctorSession proctorSession;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JsonIgnoreProperties(value = { "studyClass", "assignedBy", "exam" }, allowSetters = true)
+    private Assignment assignment;
 
     // jhipster-needle-entity-add-field - JHipster will add fields here
 
@@ -137,17 +159,95 @@ public class ExamAttempt implements Serializable {
         this.rowVersion = rowVersion;
     }
 
-    public User getStudent() {
-        return this.student;
+    public Instant getDeadlineAt() {
+        return this.deadlineAt;
     }
 
-    public void setStudent(User user) {
-        this.student = user;
-    }
-
-    public ExamAttempt student(User user) {
-        this.setStudent(user);
+    public ExamAttempt deadlineAt(Instant deadlineAt) {
+        this.setDeadlineAt(deadlineAt);
         return this;
+    }
+
+    public void setDeadlineAt(Instant deadlineAt) {
+        this.deadlineAt = deadlineAt;
+    }
+
+    public Instant getLastSavedAt() {
+        return this.lastSavedAt;
+    }
+
+    public ExamAttempt lastSavedAt(Instant lastSavedAt) {
+        this.setLastSavedAt(lastSavedAt);
+        return this;
+    }
+
+    public void setLastSavedAt(Instant lastSavedAt) {
+        this.lastSavedAt = lastSavedAt;
+    }
+
+    public Instant getSubmittedAt() {
+        return this.submittedAt;
+    }
+
+    public ExamAttempt submittedAt(Instant submittedAt) {
+        this.setSubmittedAt(submittedAt);
+        return this;
+    }
+
+    public void setSubmittedAt(Instant submittedAt) {
+        this.submittedAt = submittedAt;
+    }
+
+    public String getPresentationSnapshot() {
+        return this.presentationSnapshot;
+    }
+
+    public ExamAttempt presentationSnapshot(String presentationSnapshot) {
+        this.setPresentationSnapshot(presentationSnapshot);
+        return this;
+    }
+
+    public void setPresentationSnapshot(String presentationSnapshot) {
+        this.presentationSnapshot = presentationSnapshot;
+    }
+
+    public String getSecurityConfigSnapshot() {
+        return this.securityConfigSnapshot;
+    }
+
+    public ExamAttempt securityConfigSnapshot(String securityConfigSnapshot) {
+        this.setSecurityConfigSnapshot(securityConfigSnapshot);
+        return this;
+    }
+
+    public void setSecurityConfigSnapshot(String securityConfigSnapshot) {
+        this.securityConfigSnapshot = securityConfigSnapshot;
+    }
+
+    public String getAdaptiveState() {
+        return this.adaptiveState;
+    }
+
+    public ExamAttempt adaptiveState(String adaptiveState) {
+        this.setAdaptiveState(adaptiveState);
+        return this;
+    }
+
+    public void setAdaptiveState(String adaptiveState) {
+        this.adaptiveState = adaptiveState;
+    }
+
+    public String getMonitoringStatus() {
+        return this.monitoringStatus;
+    }
+
+    public ExamAttempt monitoringStatus(String monitoringStatus) {
+        this.setMonitoringStatus(monitoringStatus);
+        return this;
+    }
+
+    public void setMonitoringStatus(String monitoringStatus) {
+        this.monitoringStatus = monitoringStatus;
     }
 
     public Exam getExam() {
@@ -163,22 +263,29 @@ public class ExamAttempt implements Serializable {
         return this;
     }
 
-    public ProctorSession getProctorSession() {
-        return this.proctorSession;
+    public User getStudent() {
+        return this.student;
     }
 
-    public void setProctorSession(ProctorSession proctorSession) {
-        if (this.proctorSession != null) {
-            this.proctorSession.setAttempt(null);
-        }
-        if (proctorSession != null) {
-            proctorSession.setAttempt(this);
-        }
-        this.proctorSession = proctorSession;
+    public void setStudent(User user) {
+        this.student = user;
     }
 
-    public ExamAttempt proctorSession(ProctorSession proctorSession) {
-        this.setProctorSession(proctorSession);
+    public ExamAttempt student(User user) {
+        this.setStudent(user);
+        return this;
+    }
+
+    public Assignment getAssignment() {
+        return this.assignment;
+    }
+
+    public void setAssignment(Assignment assignment) {
+        this.assignment = assignment;
+    }
+
+    public ExamAttempt assignment(Assignment assignment) {
+        this.setAssignment(assignment);
         return this;
     }
 
@@ -211,6 +318,13 @@ public class ExamAttempt implements Serializable {
             ", score=" + getScore() +
             ", status='" + getStatus() + "'" +
             ", rowVersion=" + getRowVersion() +
+            ", deadlineAt='" + getDeadlineAt() + "'" +
+            ", lastSavedAt='" + getLastSavedAt() + "'" +
+            ", submittedAt='" + getSubmittedAt() + "'" +
+            ", presentationSnapshot='" + getPresentationSnapshot() + "'" +
+            ", securityConfigSnapshot='" + getSecurityConfigSnapshot() + "'" +
+            ", adaptiveState='" + getAdaptiveState() + "'" +
+            ", monitoringStatus='" + getMonitoringStatus() + "'" +
             "}";
     }
 }

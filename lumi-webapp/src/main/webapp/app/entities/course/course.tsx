@@ -129,9 +129,45 @@ export const Course = () => {
                 <th className="hand" onClick={sort('price')}>
                   <Translate contentKey="lumiApp.course.price">Price</Translate> <FontAwesomeIcon icon={getSortIconByFieldName('price')} />
                 </th>
+                <th className="hand" onClick={sort('shortDescription')}>
+                  <Translate contentKey="lumiApp.course.shortDescription">Short Description</Translate>{' '}
+                  <FontAwesomeIcon icon={getSortIconByFieldName('shortDescription')} />
+                </th>
+                <th className="hand" onClick={sort('bookSeries')}>
+                  <Translate contentKey="lumiApp.course.bookSeries">Book Series</Translate>{' '}
+                  <FontAwesomeIcon icon={getSortIconByFieldName('bookSeries')} />
+                </th>
+                <th className="hand" onClick={sort('targetAudience')}>
+                  <Translate contentKey="lumiApp.course.targetAudience">Target Audience</Translate>{' '}
+                  <FontAwesomeIcon icon={getSortIconByFieldName('targetAudience')} />
+                </th>
+                <th className="hand" onClick={sort('prerequisites')}>
+                  <Translate contentKey="lumiApp.course.prerequisites">Prerequisites</Translate>{' '}
+                  <FontAwesomeIcon icon={getSortIconByFieldName('prerequisites')} />
+                </th>
+                <th className="hand" onClick={sort('learningObjectives')}>
+                  <Translate contentKey="lumiApp.course.learningObjectives">Learning Objectives</Translate>{' '}
+                  <FontAwesomeIcon icon={getSortIconByFieldName('learningObjectives')} />
+                </th>
+                <th className="hand" onClick={sort('introVideoUrl')}>
+                  <Translate contentKey="lumiApp.course.introVideoUrl">Intro Video Url</Translate>{' '}
+                  <FontAwesomeIcon icon={getSortIconByFieldName('introVideoUrl')} />
+                </th>
                 <th className="hand" onClick={sort('validDurationDays')}>
                   <Translate contentKey="lumiApp.course.validDurationDays">Valid Duration Days</Translate>{' '}
                   <FontAwesomeIcon icon={getSortIconByFieldName('validDurationDays')} />
+                </th>
+                <th className="hand" onClick={sort('accessDurationValue')}>
+                  <Translate contentKey="lumiApp.course.accessDurationValue">Access Duration Value</Translate>{' '}
+                  <FontAwesomeIcon icon={getSortIconByFieldName('accessDurationValue')} />
+                </th>
+                <th className="hand" onClick={sort('accessDurationUnit')}>
+                  <Translate contentKey="lumiApp.course.accessDurationUnit">Access Duration Unit</Translate>{' '}
+                  <FontAwesomeIcon icon={getSortIconByFieldName('accessDurationUnit')} />
+                </th>
+                <th className="hand" onClick={sort('version')}>
+                  <Translate contentKey="lumiApp.course.version">Version</Translate>{' '}
+                  <FontAwesomeIcon icon={getSortIconByFieldName('version')} />
                 </th>
                 <th className="hand" onClick={sort('status')}>
                   <Translate contentKey="lumiApp.course.status">Status</Translate>{' '}
@@ -149,44 +185,18 @@ export const Course = () => {
                   <Translate contentKey="lumiApp.course.updatedAt">Updated At</Translate>{' '}
                   <FontAwesomeIcon icon={getSortIconByFieldName('updatedAt')} />
                 </th>
-                <th>
-                  <Translate contentKey="lumiApp.course.author">Author</Translate> <FontAwesomeIcon icon="sort" />
+                <th className="hand" onClick={sort('storageLimitBytes')}>
+                  <Translate contentKey="lumiApp.course.storageLimitBytes">Storage Limit Bytes</Translate>{' '}
+                  <FontAwesomeIcon icon={getSortIconByFieldName('storageLimitBytes')} />
                 </th>
                 <th>
-                  <Translate contentKey="lumiApp.course.category">Category</Translate> <FontAwesomeIcon icon="sort" />
+                  <Translate contentKey="lumiApp.course.author">Author</Translate> <FontAwesomeIcon icon="sort" />
                 </th>
                 <th>
                   <Translate contentKey="lumiApp.course.subject">Subject</Translate> <FontAwesomeIcon icon="sort" />
                 </th>
                 <th>
                   <Translate contentKey="lumiApp.course.grade">Grade</Translate> <FontAwesomeIcon icon="sort" />
-                </th>
-                <th>
-                  <Translate contentKey="lumiApp.course.shortDescription" />
-                </th>
-                <th>
-                  <Translate contentKey="lumiApp.course.bookSeries" />
-                </th>
-                <th>
-                  <Translate contentKey="lumiApp.course.targetAudience" />
-                </th>
-                <th>
-                  <Translate contentKey="lumiApp.course.prerequisites" />
-                </th>
-                <th>
-                  <Translate contentKey="lumiApp.course.learningObjectives" />
-                </th>
-                <th>
-                  <Translate contentKey="lumiApp.course.introVideoUrl" />
-                </th>
-                <th>
-                  <Translate contentKey="lumiApp.course.accessDurationValue" />
-                </th>
-                <th>
-                  <Translate contentKey="lumiApp.course.accessDurationUnit" />
-                </th>
-                <th>
-                  <Translate contentKey="lumiApp.course.version" />
                 </th>
                 <th />
               </tr>
@@ -203,30 +213,26 @@ export const Course = () => {
                   <td>{course.description}</td>
                   <td>{course.thumbnailUrl}</td>
                   <td>{course.price}</td>
+                  <td>{course.shortDescription}</td>
+                  <td>{course.bookSeries}</td>
+                  <td>{course.targetAudience}</td>
+                  <td>{course.prerequisites}</td>
+                  <td>{course.learningObjectives}</td>
+                  <td>{course.introVideoUrl}</td>
                   <td>{course.validDurationDays}</td>
+                  <td>{course.accessDurationValue}</td>
+                  <td>{course.accessDurationUnit}</td>
+                  <td>{course.version}</td>
                   <td>
                     <Translate contentKey={`lumiApp.RecordStatus.${course.status}`} />
                   </td>
                   <td>{course.isDeleted ? 'true' : 'false'}</td>
                   <td>{course.createdAt ? <TextFormat type="date" value={course.createdAt} format={APP_DATE_FORMAT} /> : null}</td>
                   <td>{course.updatedAt ? <TextFormat type="date" value={course.updatedAt} format={APP_DATE_FORMAT} /> : null}</td>
+                  <td>{course.storageLimitBytes}</td>
                   <td>{course.author ? course.author.login : ''}</td>
-                  <td>{course.category ? <Link to={`/category/${course.category.id}`}>{course.category.name}</Link> : ''}</td>
-                  <td>{course.subject ? <Link to={`/subject/${course.subject.id}`}>{course.subject.name}</Link> : ''}</td>
-                  <td>{course.grade ? <Link to={`/grade/${course.grade.id}`}>{course.grade.name}</Link> : ''}</td>
-                  <td>{course.shortDescription}</td>
-                  <td>{course.bookSeries}</td>
-                  <td>{course.targetAudience}</td>
-                  <td>{course.prerequisites}</td>
-                  <td>{course.learningObjectives?.join('; ')}</td>
-                  <td>{course.introVideoUrl}</td>
-                  <td>{course.accessDurationValue}</td>
-                  <td>
-                    {course.accessDurationUnit ? (
-                      <Translate contentKey={`lumiApp.AccessDurationUnit.${course.accessDurationUnit}`} />
-                    ) : null}
-                  </td>
-                  <td>{course.version}</td>
+                  <td>{course.subject ? <Link to={`/subject/${course.subject.id}`}>{course.subject.id}</Link> : ''}</td>
+                  <td>{course.grade ? <Link to={`/grade/${course.grade.id}`}>{course.grade.id}</Link> : ''}</td>
                   <td className="text-end">
                     <div className="btn-group flex-btn-group-container">
                       <Button as={Link as any} to={`/course/${course.id}`} variant="info" size="sm" data-cy="entityDetailsButton">

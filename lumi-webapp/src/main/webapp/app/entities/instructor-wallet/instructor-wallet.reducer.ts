@@ -4,7 +4,6 @@ import axios from 'axios';
 import { IInstructorWallet, defaultValue } from 'app/shared/model/instructor-wallet.model';
 import { EntityState, IQueryParams, createEntitySlice, serializeAxiosError } from 'app/shared/reducers/reducer.utils';
 import { cleanEntity } from 'app/shared/util/entity-utils';
-import { ASC } from 'app/shared/util/pagination.constants';
 
 const initialState: EntityState<IInstructorWallet> = {
   loading: false,
@@ -12,6 +11,7 @@ const initialState: EntityState<IInstructorWallet> = {
   entities: [],
   entity: defaultValue,
   updating: false,
+  totalItems: 0,
   updateSuccess: false,
 };
 
@@ -21,8 +21,8 @@ const apiUrl = 'api/instructor-wallets';
 
 export const getEntities = createAsyncThunk(
   'instructorWallet/fetch_entity_list',
-  async ({ sort }: IQueryParams) => {
-    const requestUrl = `${apiUrl}?${sort ? `sort=${sort}&` : ''}cacheBuster=${Date.now()}`;
+  async ({ page, size, sort }: IQueryParams) => {
+    const requestUrl = `${apiUrl}?${sort ? `page=${page}&size=${size}&sort=${sort}&` : ''}cacheBuster=${Date.now()}`;
     return axios.get<IInstructorWallet[]>(requestUrl);
   },
   { serializeError: serializeAxiosError },
@@ -95,18 +95,13 @@ export const InstructorWalletSlice = createEntitySlice({
         state.entity = {};
       })
       .addMatcher(isFulfilled(getEntities), (state, action) => {
-        const { data } = action.payload;
+        const { data, headers } = action.payload;
 
         return {
           ...state,
           loading: false,
-          entities: data.sort((a, b) => {
-            if (!action.meta?.arg?.sort) {
-              return 1;
-            }
-            const [predicate, order] = action.meta.arg.sort.split(',');
-            return order === ASC ? (a[predicate] < b[predicate] ? -1 : 1) : b[predicate] < a[predicate] ? -1 : 1;
-          }),
+          entities: data,
+          totalItems: parseInt(headers['x-total-count'], 10),
         };
       })
       .addMatcher(isFulfilled(createEntity, updateEntity, partialUpdateEntity), (state, action) => {

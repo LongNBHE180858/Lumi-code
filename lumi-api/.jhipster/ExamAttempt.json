@@ -3,7 +3,9 @@
     "changelogDate": "20261012230507"
   },
   "applications": ["*"],
+  "documentation": "Lưu lượt làm bài, thời hạn, kết quả và trạng thái luyện tập của học sinh.",
   "dto": "mapstruct",
+  "entityTableName": "exam_attempts",
   "fields": [
     {
       "fieldName": "startTime",
@@ -16,9 +18,7 @@
     },
     {
       "fieldName": "score",
-      "fieldType": "BigDecimal",
-      "fieldValidateRules": ["min"],
-      "fieldValidateRulesMin": "0"
+      "fieldType": "BigDecimal"
     },
     {
       "fieldName": "status",
@@ -28,15 +28,51 @@
     },
     {
       "fieldName": "rowVersion",
-      "fieldType": "Long",
-      "fieldValidateRules": ["min"],
-      "fieldValidateRulesMin": "0"
+      "fieldType": "Long"
+    },
+    {
+      "fieldName": "deadlineAt",
+      "fieldType": "Instant",
+      "fieldValidateRules": ["required"]
+    },
+    {
+      "fieldName": "lastSavedAt",
+      "fieldType": "Instant"
+    },
+    {
+      "fieldName": "submittedAt",
+      "fieldType": "Instant"
+    },
+    {
+      "fieldName": "presentationSnapshot",
+      "fieldType": "TextBlob"
+    },
+    {
+      "fieldName": "securityConfigSnapshot",
+      "fieldType": "TextBlob"
+    },
+    {
+      "fieldName": "adaptiveState",
+      "fieldType": "TextBlob"
+    },
+    {
+      "fieldName": "monitoringStatus",
+      "fieldType": "String",
+      "fieldValidateRules": ["required", "maxlength"],
+      "fieldValidateRulesMaxlength": "20"
     }
   ],
   "jpaMetamodelFiltering": true,
   "name": "ExamAttempt",
   "pagination": "pagination",
   "relationships": [
+    {
+      "otherEntityName": "exam",
+      "relationshipName": "exam",
+      "relationshipSide": "left",
+      "relationshipType": "many-to-one",
+      "relationshipValidateRules": "required"
+    },
     {
       "otherEntityField": "login",
       "otherEntityName": "user",
@@ -47,12 +83,10 @@
       "relationshipWithBuiltInEntity": true
     },
     {
-      "otherEntityField": "title",
-      "otherEntityName": "exam",
-      "relationshipName": "exam",
+      "otherEntityName": "assignment",
+      "relationshipName": "assignment",
       "relationshipSide": "left",
-      "relationshipType": "many-to-one",
-      "relationshipValidateRules": "required"
+      "relationshipType": "many-to-one"
     }
   ],
   "searchEngine": "no",

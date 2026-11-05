@@ -12,7 +12,7 @@ import {
 import { expect, test } from '../../support/fixtures';
 
 const coursePageUrl = '/course';
-// const courseSample = {"title":"to sarcastic","validDurationDays":599};
+// const courseSample = {"title":"cricket","version":1506};
 
 const courseApiUrl = '/api/courses';
 
@@ -47,12 +47,6 @@ test.describe('Course e2e test', () => {
     await page.route(
       url => url.pathname === '/api/users',
       route => route.fulfill({ status: 200, json: [user].filter(Boolean) }),
-    );
-    // A url predicate rather than a glob: a glob's wildcards would close the "Disabled due to
-    // incompatibility" block comment that wraps this section when the create test is skipped.
-    await page.route(
-      url => url.pathname === '/api/categories',
-      route => route.fulfill({ status: 200, json: [].filter(Boolean) }),
     );
     // A url predicate rather than a glob: a glob's wildcards would close the "Disabled due to
     // incompatibility" block comment that wraps this section when the create test is skipped.
@@ -235,31 +229,61 @@ test.describe('Course e2e test', () => {
       await page.locator(`[data-cy="title"]`).fill('celebrate near morbidity');
       await expect(page.locator(`[data-cy="title"]`)).toHaveValue('celebrate near morbidity');
 
-      await page.locator(`[data-cy="description"]`).fill('apropos');
-      await expect(page.locator(`[data-cy="description"]`)).toHaveValue('apropos');
+      await page.locator(`[data-cy="description"]`).fill('../fake-data/blob/hipster.txt');
+      await expect(page.locator(`[data-cy="description"]`)).toHaveValue(new RegExp('../fake-data/blob/hipster.txt'));
 
-      await page.locator(`[data-cy="thumbnailUrl"]`).fill('aside bestride');
-      await expect(page.locator(`[data-cy="thumbnailUrl"]`)).toHaveValue('aside bestride');
+      await page.locator(`[data-cy="thumbnailUrl"]`).fill('apropos');
+      await expect(page.locator(`[data-cy="thumbnailUrl"]`)).toHaveValue('apropos');
 
-      await page.locator(`[data-cy="price"]`).fill('5947.7');
-      await expect(page.locator(`[data-cy="price"]`)).toHaveValue('5947.7');
+      await page.locator(`[data-cy="price"]`).fill('14825.89');
+      await expect(page.locator(`[data-cy="price"]`)).toHaveValue('14825.89');
 
-      await page.locator(`[data-cy="validDurationDays"]`).fill('17637');
-      await expect(page.locator(`[data-cy="validDurationDays"]`)).toHaveValue('17637');
+      await page.locator(`[data-cy="shortDescription"]`).fill('mount doubtfully unaware');
+      await expect(page.locator(`[data-cy="shortDescription"]`)).toHaveValue('mount doubtfully unaware');
 
-      await page.locator(`[data-cy="status"]`).selectOption('PENDING');
+      await page.locator(`[data-cy="bookSeries"]`).fill('weird unabashedly consequently');
+      await expect(page.locator(`[data-cy="bookSeries"]`)).toHaveValue('weird unabashedly consequently');
+
+      await page.locator(`[data-cy="targetAudience"]`).fill('unlearn');
+      await expect(page.locator(`[data-cy="targetAudience"]`)).toHaveValue('unlearn');
+
+      await page.locator(`[data-cy="prerequisites"]`).fill('victoriously');
+      await expect(page.locator(`[data-cy="prerequisites"]`)).toHaveValue('victoriously');
+
+      await page.locator(`[data-cy="learningObjectives"]`).fill('../fake-data/blob/hipster.txt');
+      await expect(page.locator(`[data-cy="learningObjectives"]`)).toHaveValue(new RegExp('../fake-data/blob/hipster.txt'));
+
+      await page.locator(`[data-cy="introVideoUrl"]`).fill('fair eek deprave');
+      await expect(page.locator(`[data-cy="introVideoUrl"]`)).toHaveValue('fair eek deprave');
+
+      await page.locator(`[data-cy="validDurationDays"]`).fill('2226');
+      await expect(page.locator(`[data-cy="validDurationDays"]`)).toHaveValue('2226');
+
+      await page.locator(`[data-cy="accessDurationValue"]`).fill('9064');
+      await expect(page.locator(`[data-cy="accessDurationValue"]`)).toHaveValue('9064');
+
+      await page.locator(`[data-cy="accessDurationUnit"]`).fill('whispered');
+      await expect(page.locator(`[data-cy="accessDurationUnit"]`)).toHaveValue('whispered');
+
+      await page.locator(`[data-cy="version"]`).fill('15611');
+      await expect(page.locator(`[data-cy="version"]`)).toHaveValue('15611');
+
+      await page.locator(`[data-cy="status"]`).selectOption('DRAFT');
 
       await expect(page.locator(`[data-cy="isDeleted"]`)).not.toBeChecked();
       await page.locator(`[data-cy="isDeleted"]`).click();
       await expect(page.locator(`[data-cy="isDeleted"]`)).toBeChecked();
 
-      await page.locator(`[data-cy="createdAt"]`).fill('2026-10-12T21:33');
+      await page.locator(`[data-cy="createdAt"]`).fill('2026-10-12T09:48');
       await page.locator(`[data-cy="createdAt"]`).blur();
-      await expect(page.locator(`[data-cy="createdAt"]`)).toHaveValue('2026-10-12T21:33');
+      await expect(page.locator(`[data-cy="createdAt"]`)).toHaveValue('2026-10-12T09:48');
 
-      await page.locator(`[data-cy="updatedAt"]`).fill('2026-10-12T09:56');
+      await page.locator(`[data-cy="updatedAt"]`).fill('2026-10-12T05:33');
       await page.locator(`[data-cy="updatedAt"]`).blur();
-      await expect(page.locator(`[data-cy="updatedAt"]`)).toHaveValue('2026-10-12T09:56');
+      await expect(page.locator(`[data-cy="updatedAt"]`)).toHaveValue('2026-10-12T05:33');
+
+      await page.locator(`[data-cy="storageLimitBytes"]`).fill('15512');
+      await expect(page.locator(`[data-cy="storageLimitBytes"]`)).toHaveValue('15512');
 
       await page.locator(`[data-cy="author"]`).selectOption({ index: 1 });
 

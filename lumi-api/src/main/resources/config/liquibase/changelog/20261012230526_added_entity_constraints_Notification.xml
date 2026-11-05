@@ -11,8 +11,8 @@
     <changeSet id="20261012230526-2" author="jhipster">
 
         <addForeignKeyConstraint baseColumnNames="user_id"
-                                 baseTableName="notification"
-                                 constraintName="fk_notification__user_id"
+                                 baseTableName="notifications"
+                                 constraintName="fk_notifications__user_id"
                                  referencedColumnNames="id"
                                  referencedTableName="jhi_user"
                                  />

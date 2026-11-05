@@ -53,7 +53,11 @@ public class RefundAsserts {
             )
             .satisfies(a -> assertThat(a.getReason()).as("check reason").isEqualTo(expected.getReason()))
             .satisfies(a -> assertThat(a.getStatus()).as("check status").isEqualTo(expected.getStatus()))
-            .satisfies(a -> assertThat(a.getCreatedAt()).as("check createdAt").isEqualTo(expected.getCreatedAt()));
+            .satisfies(a -> assertThat(a.getCreatedAt()).as("check createdAt").isEqualTo(expected.getCreatedAt()))
+            .satisfies(a -> assertThat(a.getProcessedAt()).as("check processedAt").isEqualTo(expected.getProcessedAt()))
+            .satisfies(a -> assertThat(a.getReviewNote()).as("check reviewNote").isEqualTo(expected.getReviewNote()))
+            .satisfies(a -> assertThat(a.getRefundReference()).as("check refundReference").isEqualTo(expected.getRefundReference()))
+            .satisfies(a -> assertThat(a.getAccessRevokedAt()).as("check accessRevokedAt").isEqualTo(expected.getAccessRevokedAt()));
     }
 
     /**

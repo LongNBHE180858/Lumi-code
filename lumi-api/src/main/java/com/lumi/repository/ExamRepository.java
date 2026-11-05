@@ -14,6 +14,12 @@ import org.springframework.stereotype.Repository;
  */
 @Repository
 public interface ExamRepository extends JpaRepository<Exam, Long>, JpaSpecificationExecutor<Exam> {
+    @Query("select exam from Exam exam where exam.createdBy.login = ?#{authentication.name}")
+    List<Exam> findByCreatedByIsCurrentUser();
+
+    @Query("select exam from Exam exam where exam.assignedStudent.login = ?#{authentication.name}")
+    List<Exam> findByAssignedStudentIsCurrentUser();
+
     default Optional<Exam> findOneWithEagerRelationships(Long id) {
         return this.findOneWithToOneRelationships(id);
     }
@@ -26,12 +32,15 @@ public interface ExamRepository extends JpaRepository<Exam, Long>, JpaSpecificat
         return this.findAllWithToOneRelationships(pageable);
     }
 
-    @Query(value = "select exam from Exam exam left join fetch exam.studyClass", countQuery = "select count(exam) from Exam exam")
+    @Query(
+        value = "select exam from Exam exam left join fetch exam.createdBy left join fetch exam.assignedStudent",
+        countQuery = "select count(exam) from Exam exam"
+    )
     Page<Exam> findAllWithToOneRelationships(Pageable pageable);
 
-    @Query("select exam from Exam exam left join fetch exam.studyClass")
+    @Query("select exam from Exam exam left join fetch exam.createdBy left join fetch exam.assignedStudent")
     List<Exam> findAllWithToOneRelationships();
 
-    @Query("select exam from Exam exam left join fetch exam.studyClass where exam.id =:id")
+    @Query("select exam from Exam exam left join fetch exam.createdBy left join fetch exam.assignedStudent where exam.id =:id")
     Optional<Exam> findOneWithToOneRelationships(@Param("id") Long id);
 }

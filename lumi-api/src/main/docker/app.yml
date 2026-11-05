@@ -7,10 +7,10 @@ services:
       - _JAVA_OPTIONS=-Xmx512m -Xms256m
       - SPRING_PROFILES_ACTIVE=prod,api-docs,secret-samples
       - MANAGEMENT_PROMETHEUS_METRICS_EXPORT_ENABLED=true
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgresql:5432/lumi
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgresql:5432/lumig46
       - SPRING_DATASOURCE_USERNAME=lumig46
       - SPRING_DATASOURCE_PASSWORD=lumig46
-      - SPRING_LIQUIBASE_URL=jdbc:postgresql://postgresql:5432/lumi
+      - SPRING_LIQUIBASE_URL=jdbc:postgresql://postgresql:5432/lumig46
     ports:
       - 127.0.0.1:8080:8080
     healthcheck:

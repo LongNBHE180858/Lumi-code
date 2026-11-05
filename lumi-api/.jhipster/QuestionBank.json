@@ -3,13 +3,31 @@
     "changelogDate": "20261012230500"
   },
   "applications": ["*"],
+  "documentation": "Lưu ngân hàng câu hỏi thuộc giáo viên và phạm vi chia sẻ.",
   "dto": "mapstruct",
+  "entityTableName": "question_banks",
   "fields": [
     {
       "fieldName": "name",
       "fieldType": "String",
       "fieldValidateRules": ["required", "maxlength"],
       "fieldValidateRulesMaxlength": "255"
+    },
+    {
+      "fieldName": "visibility",
+      "fieldType": "String",
+      "fieldValidateRules": ["required", "maxlength"],
+      "fieldValidateRulesMaxlength": "20"
+    },
+    {
+      "fieldName": "createdAt",
+      "fieldType": "Instant",
+      "fieldValidateRules": ["required"]
+    },
+    {
+      "fieldName": "updatedAt",
+      "fieldType": "Instant",
+      "fieldValidateRules": ["required"]
     }
   ],
   "jpaMetamodelFiltering": true,
@@ -24,6 +42,18 @@
       "relationshipType": "many-to-one",
       "relationshipValidateRules": "required",
       "relationshipWithBuiltInEntity": true
+    },
+    {
+      "otherEntityName": "subject",
+      "relationshipName": "subject",
+      "relationshipSide": "left",
+      "relationshipType": "many-to-one"
+    },
+    {
+      "otherEntityName": "grade",
+      "relationshipName": "grade",
+      "relationshipSide": "left",
+      "relationshipType": "many-to-one"
     }
   ],
   "searchEngine": "no",

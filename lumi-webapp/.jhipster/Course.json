@@ -3,7 +3,9 @@
     "changelogDate": "20261012231646"
   },
   "applications": ["*"],
+  "documentation": "Lưu thông tin khóa học, giá, thời hạn truy cập và trạng thái xuất bản.",
   "dto": "mapstruct",
+  "entityTableName": "courses",
   "fields": [
     {
       "fieldName": "title",
@@ -13,9 +15,7 @@
     },
     {
       "fieldName": "description",
-      "fieldType": "String",
-      "fieldValidateRules": ["maxlength"],
-      "fieldValidateRulesMaxlength": "5000"
+      "fieldType": "TextBlob"
     },
     {
       "fieldName": "thumbnailUrl",
@@ -25,32 +25,7 @@
     },
     {
       "fieldName": "price",
-      "fieldType": "BigDecimal",
-      "fieldValidateRules": ["min"],
-      "fieldValidateRulesMin": "0"
-    },
-    {
-      "fieldName": "validDurationDays",
-      "fieldType": "Integer",
-      "fieldValidateRules": ["min"],
-      "fieldValidateRulesMin": "1"
-    },
-    {
-      "fieldName": "status",
-      "fieldType": "RecordStatus",
-      "fieldValues": "DRAFT,PENDING,ACTIVE,HIDDEN,ARCHIVED,BLOCKED"
-    },
-    {
-      "fieldName": "isDeleted",
-      "fieldType": "Boolean"
-    },
-    {
-      "fieldName": "createdAt",
-      "fieldType": "Instant"
-    },
-    {
-      "fieldName": "updatedAt",
-      "fieldType": "Instant"
+      "fieldType": "BigDecimal"
     },
     {
       "fieldName": "shortDescription",
@@ -87,18 +62,44 @@
       "fieldValidateRulesMaxlength": "1000"
     },
     {
+      "fieldName": "validDurationDays",
+      "fieldType": "Integer"
+    },
+    {
       "fieldName": "accessDurationValue",
-      "fieldType": "Integer",
-      "fieldValidateRules": ["min"],
-      "fieldValidateRulesMin": "1"
+      "fieldType": "Integer"
     },
     {
       "fieldName": "accessDurationUnit",
-      "fieldType": "AccessDurationUnit",
-      "fieldValues": "DAY,MONTH,YEAR"
+      "fieldType": "String",
+      "fieldValidateRules": ["maxlength"],
+      "fieldValidateRulesMaxlength": "10"
     },
     {
       "fieldName": "version",
+      "fieldType": "Long",
+      "fieldValidateRules": ["required"]
+    },
+    {
+      "fieldName": "status",
+      "fieldType": "RecordStatus",
+      "fieldTypeDocumentation": "LUMI: 59 entities theo LUMI_DB_V1.4_59_tables_keep_coupons_subjects_grades.sql.\\nBổ sung UserProfile.birthDate (SQL birth_date date) theo yêu cầu đăng ký học sinh.\\nGiữ Coupon/Subject/Grade; bỏ Tag/ProctorSession và mọi field webcam.\\nFile này mô tả domain để import JDL; không tự migrate database hoặc regenerate source hiện tại.\\n\\nCÁC GIỚI HẠN CẦN GIỮ KHI GENERATE JAVA/LIQUIBASE:\\n- TextBlob cho JSONB/vector chỉ là placeholder JDL; cần mapping PostgreSQL JSONB/vector(768) thực tế.\\n- Instant biểu diễn timestamp trong JDL; SQL gốc có cả timestamp và timestamptz, không tự đổi kiểu.\\n- JDL không biểu diễn đầy đủ DEFAULT, precision/scale, CHECK, unique ghép, composite PK hoặc ON DELETE.\\nSQL là nguồn chuẩn cho các ràng buộc đó; không áp schema generator mặc định thay SQL trực tiếp.\\n- UserProfile(user_id), TeacherQuota(instructor_id), StudentStreak(student_id) dùng shared PK ở SQL.\\nCần mapping @MapsId/@JoinColumn tương ứng; JDL OneToOne không tự bảo đảm tên PK khớp SQL.\\n- Composite PK: Wishlist(student_id,course_id), AssignmentStudent(assignment_id,student_id),\\nKnowledgeEdge(from_node,to_node), StudentKnowledgeProgress(student_id,knowledge_node_id),\\nExamQuestion(exam_id,question_id), QuestionKnowledgeLink(question_id,knowledge_node_id).\\nJDL mặc định tạo surrogate id: cần @EmbeddedId/@IdClass và migration đúng nếu giữ SQL hiện tại.\\n- studyClass relationship phải @JoinColumn(name=\"class_id\"); JDL mặc định có thể tạo study_class_id.\\n- KnowledgeEdge.fromNode/toNode phải map from_node/to_node, không phải from_node_id/to_node_id.\\n- UserProfile.is2faEnabled phải map is_2fa_enabled, không phải is_2_fa_enabled.\\n- Các field version/rowVersion cần cấu hình optimistic locking thực tế, không chỉ field Long.\\n- Các giá trị CHECK trên varchar, FK chéo và quy tắc duyệt/quyền vẫn cần validation BE/SQL.\\n- Không có webcam: securityConfig/securityConfigSnapshot chỉ cấu hình giám sát trình duyệt.",
+      "fieldValues": "DRAFT,PENDING,ACTIVE,HIDDEN,ARCHIVED,BLOCKED"
+    },
+    {
+      "fieldName": "isDeleted",
+      "fieldType": "Boolean"
+    },
+    {
+      "fieldName": "createdAt",
+      "fieldType": "Instant"
+    },
+    {
+      "fieldName": "updatedAt",
+      "fieldType": "Instant"
+    },
+    {
+      "fieldName": "storageLimitBytes",
       "fieldType": "Long",
       "fieldValidateRules": ["min"],
       "fieldValidateRulesMin": "0"
@@ -118,21 +119,12 @@
       "relationshipWithBuiltInEntity": true
     },
     {
-      "otherEntityField": "name",
-      "otherEntityName": "category",
-      "relationshipName": "category",
-      "relationshipSide": "left",
-      "relationshipType": "many-to-one"
-    },
-    {
-      "otherEntityField": "name",
       "otherEntityName": "subject",
       "relationshipName": "subject",
       "relationshipSide": "left",
       "relationshipType": "many-to-one"
     },
     {
-      "otherEntityField": "name",
       "otherEntityName": "grade",
       "relationshipName": "grade",
       "relationshipSide": "left",

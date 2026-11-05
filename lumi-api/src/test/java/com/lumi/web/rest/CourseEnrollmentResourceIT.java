@@ -12,6 +12,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import com.lumi.IntegrationTest;
 import com.lumi.domain.Course;
 import com.lumi.domain.CourseEnrollment;
+import com.lumi.domain.Lesson;
 import com.lumi.domain.User;
 import com.lumi.repository.CourseEnrollmentRepository;
 import com.lumi.repository.UserRepository;
@@ -49,9 +50,9 @@ import tools.jackson.databind.ObjectMapper;
 @WithMockUser
 class CourseEnrollmentResourceIT {
 
-    private static final BigDecimal DEFAULT_PROGRESS_PERCENT = new BigDecimal(0);
-    private static final BigDecimal UPDATED_PROGRESS_PERCENT = new BigDecimal(1);
-    private static final BigDecimal SMALLER_PROGRESS_PERCENT = new BigDecimal(0 - 1);
+    private static final BigDecimal DEFAULT_PROGRESS_PERCENT = new BigDecimal(1);
+    private static final BigDecimal UPDATED_PROGRESS_PERCENT = new BigDecimal(2);
+    private static final BigDecimal SMALLER_PROGRESS_PERCENT = new BigDecimal(1 - 1);
 
     private static final String DEFAULT_STATUS = "AAAAAAAAAA";
     private static final String UPDATED_STATUS = "BBBBBBBBBB";
@@ -61,6 +62,9 @@ class CourseEnrollmentResourceIT {
 
     private static final Instant DEFAULT_EXPIRES_AT = Instant.ofEpochMilli(0L);
     private static final Instant UPDATED_EXPIRES_AT = Instant.ofEpochMilli(1791835009362L);
+
+    private static final Instant DEFAULT_UPDATED_AT = Instant.ofEpochMilli(0L);
+    private static final Instant UPDATED_UPDATED_AT = Instant.ofEpochMilli(1791835009362L);
 
     private static final String ENTITY_API_URL = "/api/course-enrollments";
     private static final String ENTITY_API_URL_ID = ENTITY_API_URL + "/{id}";
@@ -107,12 +111,8 @@ class CourseEnrollmentResourceIT {
             .progressPercent(DEFAULT_PROGRESS_PERCENT)
             .status(DEFAULT_STATUS)
             .enrolledAt(DEFAULT_ENROLLED_AT)
-            .expiresAt(DEFAULT_EXPIRES_AT);
-        // Add required entity
-        User user = UserResourceIT.createEntity();
-        em.persist(user);
-        em.flush();
-        courseEnrollment.setStudent(user);
+            .expiresAt(DEFAULT_EXPIRES_AT)
+            .updatedAt(DEFAULT_UPDATED_AT);
         // Add required entity
         Course course;
         if (TestUtil.findAll(em, Course.class).isEmpty()) {
@@ -123,6 +123,11 @@ class CourseEnrollmentResourceIT {
             course = TestUtil.findAll(em, Course.class).getFirst();
         }
         courseEnrollment.setCourse(course);
+        // Add required entity
+        User user = UserResourceIT.createEntity();
+        em.persist(user);
+        em.flush();
+        courseEnrollment.setStudent(user);
         return courseEnrollment;
     }
 
@@ -137,12 +142,8 @@ class CourseEnrollmentResourceIT {
             .progressPercent(UPDATED_PROGRESS_PERCENT)
             .status(UPDATED_STATUS)
             .enrolledAt(UPDATED_ENROLLED_AT)
-            .expiresAt(UPDATED_EXPIRES_AT);
-        // Add required entity
-        User user = UserResourceIT.createEntity();
-        em.persist(user);
-        em.flush();
-        updatedCourseEnrollment.setStudent(user);
+            .expiresAt(UPDATED_EXPIRES_AT)
+            .updatedAt(UPDATED_UPDATED_AT);
         // Add required entity
         Course course;
         if (TestUtil.findAll(em, Course.class).isEmpty()) {
@@ -153,6 +154,11 @@ class CourseEnrollmentResourceIT {
             course = TestUtil.findAll(em, Course.class).getFirst();
         }
         updatedCourseEnrollment.setCourse(course);
+        // Add required entity
+        User user = UserResourceIT.createEntity();
+        em.persist(user);
+        em.flush();
+        updatedCourseEnrollment.setStudent(user);
         return updatedCourseEnrollment;
     }
 
@@ -164,7 +170,7 @@ class CourseEnrollmentResourceIT {
     @AfterEach
     void cleanup() {
         if (insertedCourseEnrollment != null) {
-            courseEnrollmentRepository.deleteById(insertedCourseEnrollment.getId());
+            courseEnrollmentRepository.delete(insertedCourseEnrollment);
             insertedCourseEnrollment = null;
         }
     }
@@ -230,6 +236,23 @@ class CourseEnrollmentResourceIT {
 
     @Test
     @Transactional
+    void checkUpdatedAtIsRequired() throws Exception {
+        long databaseSizeBeforeTest = getRepositoryCount();
+        // set the field null
+        courseEnrollment.setUpdatedAt(null);
+
+        // Create the CourseEnrollment, which fails.
+        CourseEnrollmentDTO courseEnrollmentDTO = courseEnrollmentMapper.toDto(courseEnrollment);
+
+        restCourseEnrollmentMockMvc
+            .perform(post(ENTITY_API_URL).contentType(MediaType.APPLICATION_JSON).content(om.writeValueAsBytes(courseEnrollmentDTO)))
+            .andExpect(status().isBadRequest());
+
+        assertSameRepositoryCount(databaseSizeBeforeTest);
+    }
+
+    @Test
+    @Transactional
     void getAllCourseEnrollments() throws Exception {
         // Initialize the database
         insertedCourseEnrollment = courseEnrollmentRepository.saveAndFlush(courseEnrollment);
@@ -243,7 +266,8 @@ class CourseEnrollmentResourceIT {
             .andExpect(jsonPath("$.[*].progressPercent").value(hasItem(sameNumber(DEFAULT_PROGRESS_PERCENT))))
             .andExpect(jsonPath("$.[*].status").value(hasItem(DEFAULT_STATUS)))
             .andExpect(jsonPath("$.[*].enrolledAt").value(hasItem(DEFAULT_ENROLLED_AT.toString())))
-            .andExpect(jsonPath("$.[*].expiresAt").value(hasItem(DEFAULT_EXPIRES_AT.toString())));
+            .andExpect(jsonPath("$.[*].expiresAt").value(hasItem(DEFAULT_EXPIRES_AT.toString())))
+            .andExpect(jsonPath("$.[*].updatedAt").value(hasItem(DEFAULT_UPDATED_AT.toString())));
     }
 
     @SuppressWarnings({ "unchecked" })
@@ -278,7 +302,8 @@ class CourseEnrollmentResourceIT {
             .andExpect(jsonPath("$.progressPercent").value(sameNumber(DEFAULT_PROGRESS_PERCENT)))
             .andExpect(jsonPath("$.status").value(DEFAULT_STATUS))
             .andExpect(jsonPath("$.enrolledAt").value(DEFAULT_ENROLLED_AT.toString()))
-            .andExpect(jsonPath("$.expiresAt").value(DEFAULT_EXPIRES_AT.toString()));
+            .andExpect(jsonPath("$.expiresAt").value(DEFAULT_EXPIRES_AT.toString()))
+            .andExpect(jsonPath("$.updatedAt").value(DEFAULT_UPDATED_AT.toString()));
     }
 
     @Test
@@ -341,7 +366,7 @@ class CourseEnrollmentResourceIT {
         // Get all the courseEnrollmentList where progressPercent is greater than or equal to
         defaultCourseEnrollmentFiltering(
             "progressPercent.greaterThanOrEqual=" + DEFAULT_PROGRESS_PERCENT,
-            "progressPercent.greaterThanOrEqual=" + DEFAULT_PROGRESS_PERCENT.add(BigDecimal.ONE)
+            "progressPercent.greaterThanOrEqual=" + UPDATED_PROGRESS_PERCENT
         );
     }
 
@@ -366,7 +391,7 @@ class CourseEnrollmentResourceIT {
 
         // Get all the courseEnrollmentList where progressPercent is less than
         defaultCourseEnrollmentFiltering(
-            "progressPercent.lessThan=" + DEFAULT_PROGRESS_PERCENT.add(BigDecimal.ONE),
+            "progressPercent.lessThan=" + UPDATED_PROGRESS_PERCENT,
             "progressPercent.lessThan=" + DEFAULT_PROGRESS_PERCENT
         );
     }
@@ -502,24 +527,35 @@ class CourseEnrollmentResourceIT {
 
     @Test
     @Transactional
-    void getAllCourseEnrollmentsByStudentIsEqualToSomething() throws Exception {
-        User student;
-        if (TestUtil.findAll(em, User.class).isEmpty()) {
-            courseEnrollmentRepository.saveAndFlush(courseEnrollment);
-            student = UserResourceIT.createEntity();
-        } else {
-            student = TestUtil.findAll(em, User.class).getFirst();
-        }
-        em.persist(student);
-        em.flush();
-        courseEnrollment.setStudent(student);
-        courseEnrollmentRepository.saveAndFlush(courseEnrollment);
-        Long studentId = student.getId();
-        // Get all the courseEnrollmentList where student equals to studentId
-        defaultCourseEnrollmentShouldBeFound("studentId.equals=" + studentId);
+    void getAllCourseEnrollmentsByUpdatedAtIsEqualToSomething() throws Exception {
+        // Initialize the database
+        insertedCourseEnrollment = courseEnrollmentRepository.saveAndFlush(courseEnrollment);
 
-        // Get all the courseEnrollmentList where student equals to (studentId + 1)
-        defaultCourseEnrollmentShouldNotBeFound("studentId.equals=" + (studentId + 1));
+        // Get all the courseEnrollmentList where updatedAt equals to
+        defaultCourseEnrollmentFiltering("updatedAt.equals=" + DEFAULT_UPDATED_AT, "updatedAt.equals=" + UPDATED_UPDATED_AT);
+    }
+
+    @Test
+    @Transactional
+    void getAllCourseEnrollmentsByUpdatedAtIsInShouldWork() throws Exception {
+        // Initialize the database
+        insertedCourseEnrollment = courseEnrollmentRepository.saveAndFlush(courseEnrollment);
+
+        // Get all the courseEnrollmentList where updatedAt in
+        defaultCourseEnrollmentFiltering(
+            "updatedAt.in=" + DEFAULT_UPDATED_AT + "," + UPDATED_UPDATED_AT,
+            "updatedAt.in=" + UPDATED_UPDATED_AT
+        );
+    }
+
+    @Test
+    @Transactional
+    void getAllCourseEnrollmentsByUpdatedAtIsNullOrNotNull() throws Exception {
+        // Initialize the database
+        insertedCourseEnrollment = courseEnrollmentRepository.saveAndFlush(courseEnrollment);
+
+        // Get all the courseEnrollmentList where updatedAt is not null
+        defaultCourseEnrollmentFiltering("updatedAt.specified=true", "updatedAt.specified=false");
     }
 
     @Test
@@ -544,6 +580,50 @@ class CourseEnrollmentResourceIT {
         defaultCourseEnrollmentShouldNotBeFound("courseId.equals=" + (courseId + 1));
     }
 
+    @Test
+    @Transactional
+    void getAllCourseEnrollmentsByStudentIsEqualToSomething() throws Exception {
+        User student;
+        if (TestUtil.findAll(em, User.class).isEmpty()) {
+            courseEnrollmentRepository.saveAndFlush(courseEnrollment);
+            student = UserResourceIT.createEntity();
+        } else {
+            student = TestUtil.findAll(em, User.class).getFirst();
+        }
+        em.persist(student);
+        em.flush();
+        courseEnrollment.setStudent(student);
+        courseEnrollmentRepository.saveAndFlush(courseEnrollment);
+        Long studentId = student.getId();
+        // Get all the courseEnrollmentList where student equals to studentId
+        defaultCourseEnrollmentShouldBeFound("studentId.equals=" + studentId);
+
+        // Get all the courseEnrollmentList where student equals to (studentId + 1)
+        defaultCourseEnrollmentShouldNotBeFound("studentId.equals=" + (studentId + 1));
+    }
+
+    @Test
+    @Transactional
+    void getAllCourseEnrollmentsByLastAccessedLessonIsEqualToSomething() throws Exception {
+        Lesson lastAccessedLesson;
+        if (TestUtil.findAll(em, Lesson.class).isEmpty()) {
+            courseEnrollmentRepository.saveAndFlush(courseEnrollment);
+            lastAccessedLesson = LessonResourceIT.createEntity(em);
+        } else {
+            lastAccessedLesson = TestUtil.findAll(em, Lesson.class).getFirst();
+        }
+        em.persist(lastAccessedLesson);
+        em.flush();
+        courseEnrollment.setLastAccessedLesson(lastAccessedLesson);
+        courseEnrollmentRepository.saveAndFlush(courseEnrollment);
+        Long lastAccessedLessonId = lastAccessedLesson.getId();
+        // Get all the courseEnrollmentList where lastAccessedLesson equals to lastAccessedLessonId
+        defaultCourseEnrollmentShouldBeFound("lastAccessedLessonId.equals=" + lastAccessedLessonId);
+
+        // Get all the courseEnrollmentList where lastAccessedLesson equals to (lastAccessedLessonId + 1)
+        defaultCourseEnrollmentShouldNotBeFound("lastAccessedLessonId.equals=" + (lastAccessedLessonId + 1));
+    }
+
     private void defaultCourseEnrollmentFiltering(String shouldBeFound, String shouldNotBeFound) throws Exception {
         defaultCourseEnrollmentShouldBeFound(shouldBeFound);
         defaultCourseEnrollmentShouldNotBeFound(shouldNotBeFound);
@@ -561,7 +641,8 @@ class CourseEnrollmentResourceIT {
             .andExpect(jsonPath("$.[*].progressPercent").value(hasItem(sameNumber(DEFAULT_PROGRESS_PERCENT))))
             .andExpect(jsonPath("$.[*].status").value(hasItem(DEFAULT_STATUS)))
             .andExpect(jsonPath("$.[*].enrolledAt").value(hasItem(DEFAULT_ENROLLED_AT.toString())))
-            .andExpect(jsonPath("$.[*].expiresAt").value(hasItem(DEFAULT_EXPIRES_AT.toString())));
+            .andExpect(jsonPath("$.[*].expiresAt").value(hasItem(DEFAULT_EXPIRES_AT.toString())))
+            .andExpect(jsonPath("$.[*].updatedAt").value(hasItem(DEFAULT_UPDATED_AT.toString())));
 
         // Check, that the count call also returns 1
         restCourseEnrollmentMockMvc
@@ -613,7 +694,8 @@ class CourseEnrollmentResourceIT {
             .progressPercent(UPDATED_PROGRESS_PERCENT)
             .status(UPDATED_STATUS)
             .enrolledAt(UPDATED_ENROLLED_AT)
-            .expiresAt(UPDATED_EXPIRES_AT);
+            .expiresAt(UPDATED_EXPIRES_AT)
+            .updatedAt(UPDATED_UPDATED_AT);
         CourseEnrollmentDTO courseEnrollmentDTO = courseEnrollmentMapper.toDto(updatedCourseEnrollment);
 
         restCourseEnrollmentMockMvc
@@ -738,7 +820,8 @@ class CourseEnrollmentResourceIT {
             .progressPercent(UPDATED_PROGRESS_PERCENT)
             .status(UPDATED_STATUS)
             .enrolledAt(UPDATED_ENROLLED_AT)
-            .expiresAt(UPDATED_EXPIRES_AT);
+            .expiresAt(UPDATED_EXPIRES_AT)
+            .updatedAt(UPDATED_UPDATED_AT);
 
         restCourseEnrollmentMockMvc
             .perform(

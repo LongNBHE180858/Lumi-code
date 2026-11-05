@@ -13,6 +13,8 @@ import org.mapstruct.*;
 public interface ParentStudentLinkMapper extends EntityMapper<ParentStudentLinkDTO, ParentStudentLink> {
     @Mapping(target = "parent", source = "parent", qualifiedByName = "userLogin")
     @Mapping(target = "student", source = "student", qualifiedByName = "userLogin")
+    @Mapping(target = "confirmedBy", source = "confirmedBy", qualifiedByName = "userLogin")
+    @Mapping(target = "guardianVerifiedBy", source = "guardianVerifiedBy", qualifiedByName = "userLogin")
     ParentStudentLinkDTO toDto(ParentStudentLink s);
 
     @Named("userLogin")

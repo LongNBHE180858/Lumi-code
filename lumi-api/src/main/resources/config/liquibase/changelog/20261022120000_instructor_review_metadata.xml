@@ -8,10 +8,10 @@
     <changeSet id="20261022120000-1" author="lumi">
         <preConditions onFail="MARK_RAN">
             <not>
-                <columnExists tableName="user_profile" columnName="instructor_rejection_reason"/>
+                <columnExists tableName="user_profiles" columnName="instructor_rejection_reason"/>
             </not>
         </preConditions>
-        <addColumn tableName="user_profile">
+        <addColumn tableName="user_profiles">
             <column name="instructor_rejection_reason" type="varchar(2000)">
                 <constraints nullable="true"/>
             </column>
@@ -21,10 +21,10 @@
     <changeSet id="20261022120000-2" author="lumi">
         <preConditions onFail="MARK_RAN">
             <not>
-                <columnExists tableName="user_profile" columnName="instructor_reviewed_at"/>
+                <columnExists tableName="user_profiles" columnName="instructor_reviewed_at"/>
             </not>
         </preConditions>
-        <addColumn tableName="user_profile">
+        <addColumn tableName="user_profiles">
             <column name="instructor_reviewed_at" type="timestamp">
                 <constraints nullable="true"/>
             </column>
@@ -34,10 +34,10 @@
     <changeSet id="20261022120000-3" author="lumi">
         <preConditions onFail="MARK_RAN">
             <not>
-                <columnExists tableName="user_profile" columnName="instructor_reviewed_by"/>
+                <columnExists tableName="user_profiles" columnName="instructor_reviewed_by"/>
             </not>
         </preConditions>
-        <addColumn tableName="user_profile">
+        <addColumn tableName="user_profiles">
             <column name="instructor_reviewed_by" type="varchar(50)">
                 <constraints nullable="true"/>
             </column>

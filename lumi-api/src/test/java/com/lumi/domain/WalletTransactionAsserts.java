@@ -54,7 +54,8 @@ public class WalletTransactionAsserts {
             )
             .satisfies(a -> assertThat(a.getStatus()).as("check status").isEqualTo(expected.getStatus()))
             .satisfies(a -> assertThat(a.getIdempotencyKey()).as("check idempotencyKey").isEqualTo(expected.getIdempotencyKey()))
-            .satisfies(a -> assertThat(a.getOccurredAt()).as("check occurredAt").isEqualTo(expected.getOccurredAt()));
+            .satisfies(a -> assertThat(a.getOccurredAt()).as("check occurredAt").isEqualTo(expected.getOccurredAt()))
+            .satisfies(a -> assertThat(a.getBalanceBucket()).as("check balanceBucket").isEqualTo(expected.getBalanceBucket()));
     }
 
     /**
@@ -67,6 +68,8 @@ public class WalletTransactionAsserts {
         assertThat(actual)
             .as("Verify WalletTransaction relationships")
             .satisfies(a -> assertThat(a.getWallet()).as("check wallet").isEqualTo(expected.getWallet()))
-            .satisfies(a -> assertThat(a.getOrder()).as("check order").isEqualTo(expected.getOrder()));
+            .satisfies(a -> assertThat(a.getOrder()).as("check order").isEqualTo(expected.getOrder()))
+            .satisfies(a -> assertThat(a.getPayoutRequest()).as("check payoutRequest").isEqualTo(expected.getPayoutRequest()))
+            .satisfies(a -> assertThat(a.getRefund()).as("check refund").isEqualTo(expected.getRefund()));
     }
 }

@@ -217,24 +217,28 @@ test.describe('UserProfile e2e test', () => {
       await page.locator(`[data-cy="phoneNumber"]`).fill('since thankfully bla');
       await expect(page.locator(`[data-cy="phoneNumber"]`)).toHaveValue('since thankfully bla');
 
-      await page.locator(`[data-cy="bio"]`).fill('odd opposite');
-      await expect(page.locator(`[data-cy="bio"]`)).toHaveValue('odd opposite');
+      await page.locator(`[data-cy="bio"]`).fill('../fake-data/blob/hipster.txt');
+      await expect(page.locator(`[data-cy="bio"]`)).toHaveValue(new RegExp('../fake-data/blob/hipster.txt'));
 
-      await page.locator(`[data-cy="schoolName"]`).fill('er sheepishly');
-      await expect(page.locator(`[data-cy="schoolName"]`)).toHaveValue('er sheepishly');
+      await page.locator(`[data-cy="schoolName"]`).fill('odd opposite');
+      await expect(page.locator(`[data-cy="schoolName"]`)).toHaveValue('odd opposite');
 
-      await page.locator(`[data-cy="gradeLevel"]`).fill('11');
-      await expect(page.locator(`[data-cy="gradeLevel"]`)).toHaveValue('11');
+      await page.locator(`[data-cy="gradeLevel"]`).fill('7');
+      await expect(page.locator(`[data-cy="gradeLevel"]`)).toHaveValue('7');
 
       await expect(page.locator(`[data-cy="is2faEnabled"]`)).not.toBeChecked();
       await page.locator(`[data-cy="is2faEnabled"]`).click();
       await expect(page.locator(`[data-cy="is2faEnabled"]`)).toBeChecked();
 
-      await page.locator(`[data-cy="instructorStatus"]`).selectOption('BLOCKED');
+      await page.locator(`[data-cy="instructorStatus"]`).selectOption('DRAFT');
 
-      await page.locator(`[data-cy="updatedAt"]`).fill('2026-10-12T10:19');
+      await page.locator(`[data-cy="updatedAt"]`).fill('2026-10-12T05:19');
       await page.locator(`[data-cy="updatedAt"]`).blur();
-      await expect(page.locator(`[data-cy="updatedAt"]`)).toHaveValue('2026-10-12T10:19');
+      await expect(page.locator(`[data-cy="updatedAt"]`)).toHaveValue('2026-10-12T05:19');
+
+      await page.locator(`[data-cy="birthDate"]`).fill('2026-10-11');
+      await page.locator(`[data-cy="birthDate"]`).blur();
+      await expect(page.locator(`[data-cy="birthDate"]`)).toHaveValue('2026-10-11');
 
       await page.locator(`[data-cy="user"]`).selectOption({ index: 1 });
 

@@ -9,6 +9,8 @@ export interface IClassMaterial {
   fileUrl?: string;
   fileSizeBytes?: number;
   uploadedAt?: dayjs.Dayjs | null;
+  fileObjectKey?: string | null;
+  updatedAt?: dayjs.Dayjs;
   studyClass?: IStudyClass;
 }
 

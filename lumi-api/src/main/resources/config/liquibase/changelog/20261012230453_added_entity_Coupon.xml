@@ -10,12 +10,12 @@
         Added the entity Coupon.
     -->
     <changeSet id="20261012230453-1" author="jhipster">
-        <createTable tableName="coupon">
+        <createTable tableName="coupons" remarks="Lưu mã giảm giá, điều kiện sử dụng và tỷ lệ giáo viên chịu giảm giá.">
             <column name="id" type="bigint">
                 <constraints primaryKey="true" nullable="false"/>
             </column>
             <column name="code" type="varchar(50)">
-                <constraints nullable="false" unique="true" uniqueConstraintName="ux_coupon__code" />
+                <constraints nullable="false" unique="true" uniqueConstraintName="ux_coupons__code" />
             </column>
             <column name="discount_percent" type="integer">
                 <constraints nullable="true" />
@@ -29,12 +29,31 @@
             <column name="valid_to" type="${datetimeType}">
                 <constraints nullable="true" />
             </column>
+            <column name="valid_from" type="${datetimeType}">
+                <constraints nullable="true" />
+            </column>
+            <column name="is_active" type="boolean">
+                <constraints nullable="false" />
+            </column>
+            <column name="min_order_amount" type="decimal(21,2)">
+                <constraints nullable="false" />
+            </column>
+            <column name="max_uses_per_user" type="integer">
+                <constraints nullable="true" />
+            </column>
+            <column name="instructor_discount_share_percent" type="decimal(21,2)">
+                <constraints nullable="true" />
+            </column>
             <column name="instructor_id" type="bigint">
+                <constraints nullable="true" />
+            </column>
+            <column name="course_id" type="bigint">
                 <constraints nullable="true" />
             </column>
             <!-- jhipster-needle-liquibase-add-column - JHipster will add columns here -->
         </createTable>
-        <dropDefaultValue tableName="coupon" columnName="valid_to" columnDataType="${datetimeType}"/>
+        <dropDefaultValue tableName="coupons" columnName="valid_to" columnDataType="${datetimeType}"/>
+        <dropDefaultValue tableName="coupons" columnName="valid_from" columnDataType="${datetimeType}"/>
     </changeSet>
 
     <!-- jhipster-needle-liquibase-add-changeset - JHipster will add changesets here -->
@@ -49,10 +68,10 @@
     -->
     <changeSet id="20261012230453-1-data" author="jhipster" context="faker">
         <loadData
-                  file="../fake-data/coupon.csv"
+                  file="../fake-data/coupons.csv"
                   relativeToChangelogFile="true"
                   separator=";"
-                  tableName="coupon"
+                  tableName="coupons"
                   usePreparedStatements="true">
             <column name="id" type="numeric"/>
             <column name="code" type="string"/>
@@ -60,6 +79,11 @@
             <column name="max_uses" type="numeric"/>
             <column name="used_count" type="numeric"/>
             <column name="valid_to" type="date"/>
+            <column name="valid_from" type="date"/>
+            <column name="is_active" type="boolean"/>
+            <column name="min_order_amount" type="numeric"/>
+            <column name="max_uses_per_user" type="numeric"/>
+            <column name="instructor_discount_share_percent" type="numeric"/>
             <!-- jhipster-needle-liquibase-add-loadcolumn - JHipster (and/or extensions) can add load columns here -->
         </loadData>
     </changeSet>

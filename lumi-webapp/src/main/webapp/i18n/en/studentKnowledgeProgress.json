@@ -1,0 +1,29 @@
+{
+  "lumiApp": {
+    "studentKnowledgeProgress": {
+      "home": {
+        "title": "Student Knowledge Progresses",
+        "refreshListLabel": "Refresh list",
+        "createLabel": "Create a new Student Knowledge Progress",
+        "createOrEditLabel": "Create or edit a Student Knowledge Progress",
+        "notFound": "No Student Knowledge Progresses found"
+      },
+      "created": "A new Student Knowledge Progress is created with identifier {{ param }}",
+      "updated": "A Student Knowledge Progress is updated with identifier {{ param }}",
+      "deleted": "A Student Knowledge Progress is deleted with identifier {{ param }}",
+      "delete": {
+        "question": "Are you sure you want to delete Student Knowledge Progress {{ id }}?"
+      },
+      "detail": {
+        "title": "Student Knowledge Progress"
+      },
+      "id": "ID",
+      "masteryScore": "Mastery Score",
+      "evidenceCount": "Evidence Count",
+      "calculationVersion": "Calculation Version",
+      "updatedAt": "Updated At",
+      "student": "Student",
+      "knowledgeNode": "Knowledge Node"
+    }
+  }
+}

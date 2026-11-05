@@ -2,7 +2,6 @@ package com.lumi.service;
 
 import com.lumi.config.Constants;
 import com.lumi.domain.Authority;
-import com.lumi.domain.Category;
 import com.lumi.domain.Grade;
 import com.lumi.domain.Subject;
 import com.lumi.domain.User;
@@ -10,7 +9,6 @@ import com.lumi.domain.UserProfile;
 import com.lumi.domain.enumeration.InstructorApplicationStatus;
 import com.lumi.domain.enumeration.Role;
 import com.lumi.repository.AuthorityRepository;
-import com.lumi.repository.CategoryRepository;
 import com.lumi.repository.GradeRepository;
 import com.lumi.repository.SubjectRepository;
 import com.lumi.repository.UserProfileRepository;
@@ -54,7 +52,6 @@ public class AdminService {
     private final AuthorityRepository authorityRepository;
     private final PasswordEncoder passwordEncoder;
     private final UserService userService;
-    private final CategoryRepository categoryRepository;
     private final SubjectRepository subjectRepository;
     private final GradeRepository gradeRepository;
 
@@ -64,7 +61,6 @@ public class AdminService {
         AuthorityRepository authorityRepository,
         PasswordEncoder passwordEncoder,
         UserService userService,
-        CategoryRepository categoryRepository,
         SubjectRepository subjectRepository,
         GradeRepository gradeRepository
     ) {
@@ -73,7 +69,6 @@ public class AdminService {
         this.authorityRepository = authorityRepository;
         this.passwordEncoder = passwordEncoder;
         this.userService = userService;
-        this.categoryRepository = categoryRepository;
         this.subjectRepository = subjectRepository;
         this.gradeRepository = gradeRepository;
     }
@@ -93,12 +88,6 @@ public class AdminService {
                 .map(this::catalogItem)
                 .sorted(Comparator.comparing(CatalogItemDTO::level))
                 .toList();
-            case "categories" -> categoryRepository
-                .findAll()
-                .stream()
-                .map(this::catalogItem)
-                .sorted(Comparator.comparing(CatalogItemDTO::name))
-                .toList();
             default -> throw catalogNotFound();
         };
     }
@@ -108,31 +97,6 @@ public class AdminService {
         return switch (kind) {
             case "subjects" -> saveSubject(id, name, input);
             case "grades" -> saveGrade(id, name, input);
-            case "categories" -> saveCategory(id, name, input);
-            default -> throw catalogNotFound();
-        };
-    }
-
-    public CatalogItemDTO setCatalogActive(String kind, Long id, boolean active) {
-        return switch (kind) {
-            case "subjects" -> {
-                Subject item = subjectRepository.findById(id).orElseThrow(this::missingCatalog);
-                item.setActive(active);
-                yield catalogItem(item);
-            }
-            case "grades" -> {
-                Grade item = gradeRepository.findById(id).orElseThrow(this::missingCatalog);
-                item.setActive(active);
-                yield catalogItem(item);
-            }
-            case "categories" -> {
-                Category item = categoryRepository.findById(id).orElseThrow(this::missingCatalog);
-                if (!active && categoryRepository.existsByParentIdAndActiveTrue(id)) {
-                    throw new ResponseStatusException(HttpStatus.CONFLICT, "Deactivate child categories first");
-                }
-                item.setActive(active);
-                yield catalogItem(item);
-            }
             default -> throw catalogNotFound();
         };
     }
@@ -179,30 +143,6 @@ public class AdminService {
         return catalogItem(gradeRepository.save(item));
     }
 
-    private CatalogItemDTO saveCategory(Long id, String name, CatalogItemDTO input) {
-        Category item = id == null ? new Category() : categoryRepository.findById(id).orElseThrow(this::missingCatalog);
-        boolean nameExists = categoryRepository
-            .findByNameIgnoreCase(name)
-            .filter(other -> id == null || !Objects.equals(other.getId(), id))
-            .isPresent();
-        if (nameExists) {
-            throw duplicateCatalog();
-        }
-        Category parent = input.parentId() == null ? null : categoryRepository.findById(input.parentId()).orElseThrow(this::missingCatalog);
-        if (parent != null && !Boolean.TRUE.equals(parent.getActive())) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Parent category is inactive");
-        }
-        for (Category ancestor = parent; ancestor != null; ancestor = ancestor.getParent()) {
-            if (Objects.equals(ancestor.getId(), id)) {
-                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Category cycle is not allowed");
-            }
-        }
-        item.setName(name);
-        item.setDescription(input.description());
-        item.setParent(parent);
-        return catalogItem(categoryRepository.save(item));
-    }
-
     private ResponseStatusException catalogNotFound() {
         return new ResponseStatusException(HttpStatus.NOT_FOUND, "Catalog not found");
     }
@@ -216,16 +156,11 @@ public class AdminService {
     }
 
     private CatalogItemDTO catalogItem(Subject item) {
-        return new CatalogItemDTO(item.getId(), item.getName(), item.getDescription(), null, null, item.getActive());
+        return new CatalogItemDTO(item.getId(), item.getName(), item.getDescription(), null);
     }
 
     private CatalogItemDTO catalogItem(Grade item) {
-        return new CatalogItemDTO(item.getId(), item.getName(), null, item.getLevel(), null, item.getActive());
-    }
-
-    private CatalogItemDTO catalogItem(Category item) {
-        Long parentId = item.getParent() == null ? null : item.getParent().getId();
-        return new CatalogItemDTO(item.getId(), item.getName(), item.getDescription(), null, parentId, item.getActive());
+        return new CatalogItemDTO(item.getId(), item.getName(), null, item.getLevel());
     }
 
     public User createUser(AdminUserDTO userDTO) {

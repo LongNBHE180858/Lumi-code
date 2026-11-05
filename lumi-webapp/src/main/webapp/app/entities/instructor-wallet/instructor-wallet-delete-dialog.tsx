@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Button, Modal, ModalBody, ModalFooter, ModalHeader } from 'react-bootstrap';
 import { Translate } from 'react-jhipster';
-import { useNavigate, useParams } from 'react-router';
+import { useLocation, useNavigate, useParams } from 'react-router';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
@@ -11,6 +11,7 @@ import { deleteEntity, getEntity } from './instructor-wallet.reducer';
 
 export const InstructorWalletDeleteDialog = () => {
   const dispatch = useAppDispatch();
+  const pageLocation = useLocation();
   const navigate = useNavigate();
   const { id } = useParams<'id'>();
 
@@ -25,7 +26,7 @@ export const InstructorWalletDeleteDialog = () => {
   const updateSuccess = useAppSelector(state => state.instructorWallet.updateSuccess);
 
   const handleClose = () => {
-    navigate('/instructor-wallet');
+    navigate(`/instructor-wallet${pageLocation.search}`);
   };
 
   useEffect(() => {

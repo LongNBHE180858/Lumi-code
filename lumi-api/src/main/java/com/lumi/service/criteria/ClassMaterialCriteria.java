@@ -36,7 +36,13 @@ public class ClassMaterialCriteria implements Serializable, Criteria {
 
     private InstantFilter uploadedAt;
 
+    private StringFilter fileObjectKey;
+
+    private InstantFilter updatedAt;
+
     private LongFilter studyClassId;
+
+    private LongFilter learningDocumentId;
 
     private Boolean distinct;
 
@@ -49,7 +55,10 @@ public class ClassMaterialCriteria implements Serializable, Criteria {
         this.fileUrl = other.optionalFileUrl().map(StringFilter::copy).orElse(null);
         this.fileSizeBytes = other.optionalFileSizeBytes().map(LongFilter::copy).orElse(null);
         this.uploadedAt = other.optionalUploadedAt().map(InstantFilter::copy).orElse(null);
+        this.fileObjectKey = other.optionalFileObjectKey().map(StringFilter::copy).orElse(null);
+        this.updatedAt = other.optionalUpdatedAt().map(InstantFilter::copy).orElse(null);
         this.studyClassId = other.optionalStudyClassId().map(LongFilter::copy).orElse(null);
+        this.learningDocumentId = other.optionalLearningDocumentId().map(LongFilter::copy).orElse(null);
         this.distinct = other.distinct;
     }
 
@@ -172,6 +181,44 @@ public class ClassMaterialCriteria implements Serializable, Criteria {
         this.uploadedAt = uploadedAt;
     }
 
+    public StringFilter getFileObjectKey() {
+        return fileObjectKey;
+    }
+
+    public Optional<StringFilter> optionalFileObjectKey() {
+        return Optional.ofNullable(fileObjectKey);
+    }
+
+    public StringFilter fileObjectKey() {
+        if (fileObjectKey == null) {
+            setFileObjectKey(new StringFilter());
+        }
+        return fileObjectKey;
+    }
+
+    public void setFileObjectKey(StringFilter fileObjectKey) {
+        this.fileObjectKey = fileObjectKey;
+    }
+
+    public InstantFilter getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public Optional<InstantFilter> optionalUpdatedAt() {
+        return Optional.ofNullable(updatedAt);
+    }
+
+    public InstantFilter updatedAt() {
+        if (updatedAt == null) {
+            setUpdatedAt(new InstantFilter());
+        }
+        return updatedAt;
+    }
+
+    public void setUpdatedAt(InstantFilter updatedAt) {
+        this.updatedAt = updatedAt;
+    }
+
     public LongFilter getStudyClassId() {
         return studyClassId;
     }
@@ -189,6 +236,25 @@ public class ClassMaterialCriteria implements Serializable, Criteria {
 
     public void setStudyClassId(LongFilter studyClassId) {
         this.studyClassId = studyClassId;
+    }
+
+    public LongFilter getLearningDocumentId() {
+        return learningDocumentId;
+    }
+
+    public Optional<LongFilter> optionalLearningDocumentId() {
+        return Optional.ofNullable(learningDocumentId);
+    }
+
+    public LongFilter learningDocumentId() {
+        if (learningDocumentId == null) {
+            setLearningDocumentId(new LongFilter());
+        }
+        return learningDocumentId;
+    }
+
+    public void setLearningDocumentId(LongFilter learningDocumentId) {
+        this.learningDocumentId = learningDocumentId;
     }
 
     public Boolean getDistinct() {
@@ -226,14 +292,29 @@ public class ClassMaterialCriteria implements Serializable, Criteria {
             Objects.equals(fileUrl, that.fileUrl) &&
             Objects.equals(fileSizeBytes, that.fileSizeBytes) &&
             Objects.equals(uploadedAt, that.uploadedAt) &&
+            Objects.equals(fileObjectKey, that.fileObjectKey) &&
+            Objects.equals(updatedAt, that.updatedAt) &&
             Objects.equals(studyClassId, that.studyClassId) &&
+            Objects.equals(learningDocumentId, that.learningDocumentId) &&
             Objects.equals(distinct, that.distinct)
         );
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, title, fileType, fileUrl, fileSizeBytes, uploadedAt, studyClassId, distinct);
+        return Objects.hash(
+            id,
+            title,
+            fileType,
+            fileUrl,
+            fileSizeBytes,
+            uploadedAt,
+            fileObjectKey,
+            updatedAt,
+            studyClassId,
+            learningDocumentId,
+            distinct
+        );
     }
 
     // prettier-ignore
@@ -246,7 +327,10 @@ public class ClassMaterialCriteria implements Serializable, Criteria {
             optionalFileUrl().map(f -> "fileUrl=" + f + ", ").orElse("") +
             optionalFileSizeBytes().map(f -> "fileSizeBytes=" + f + ", ").orElse("") +
             optionalUploadedAt().map(f -> "uploadedAt=" + f + ", ").orElse("") +
+            optionalFileObjectKey().map(f -> "fileObjectKey=" + f + ", ").orElse("") +
+            optionalUpdatedAt().map(f -> "updatedAt=" + f + ", ").orElse("") +
             optionalStudyClassId().map(f -> "studyClassId=" + f + ", ").orElse("") +
+            optionalLearningDocumentId().map(f -> "learningDocumentId=" + f + ", ").orElse("") +
             optionalDistinct().map(f -> "distinct=" + f + ", ").orElse("") +
         "}";
     }

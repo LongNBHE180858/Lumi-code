@@ -3,26 +3,26 @@
     "changelogDate": "20261012230504"
   },
   "applications": ["*"],
+  "documentation": "Lưu câu hỏi được chọn vào đề, thứ tự và điểm tối đa của câu.",
   "dto": "mapstruct",
+  "entityTableName": "exam_questions",
   "fields": [
     {
       "fieldName": "orderIndex",
       "fieldType": "Integer",
-      "fieldValidateRules": ["required", "min"],
-      "fieldValidateRulesMin": "0"
+      "fieldValidateRules": ["required"]
     },
     {
       "fieldName": "score",
       "fieldType": "BigDecimal",
-      "fieldValidateRules": ["required", "min"],
-      "fieldValidateRulesMin": "0"
+      "fieldValidateRules": ["required"]
     }
   ],
   "jpaMetamodelFiltering": true,
   "name": "ExamQuestion",
+  "pagination": "pagination",
   "relationships": [
     {
-      "otherEntityField": "title",
       "otherEntityName": "exam",
       "relationshipName": "exam",
       "relationshipSide": "left",

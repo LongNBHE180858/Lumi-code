@@ -74,8 +74,10 @@ class AiConversationCriteriaTest {
         aiConversationCriteria.id();
         aiConversationCriteria.type();
         aiConversationCriteria.createdAt();
+        aiConversationCriteria.updatedAt();
         aiConversationCriteria.userId();
         aiConversationCriteria.lessonId();
+        aiConversationCriteria.documentId();
         aiConversationCriteria.distinct();
     }
 
@@ -85,8 +87,10 @@ class AiConversationCriteriaTest {
                 condition.apply(criteria.getId()) &&
                 condition.apply(criteria.getType()) &&
                 condition.apply(criteria.getCreatedAt()) &&
+                condition.apply(criteria.getUpdatedAt()) &&
                 condition.apply(criteria.getUserId()) &&
                 condition.apply(criteria.getLessonId()) &&
+                condition.apply(criteria.getDocumentId()) &&
                 condition.apply(criteria.getDistinct()),
             "every filter matches"
         );
@@ -101,8 +105,10 @@ class AiConversationCriteriaTest {
                 condition.apply(criteria.getId(), copy.getId()) &&
                 condition.apply(criteria.getType(), copy.getType()) &&
                 condition.apply(criteria.getCreatedAt(), copy.getCreatedAt()) &&
+                condition.apply(criteria.getUpdatedAt(), copy.getUpdatedAt()) &&
                 condition.apply(criteria.getUserId(), copy.getUserId()) &&
                 condition.apply(criteria.getLessonId(), copy.getLessonId()) &&
+                condition.apply(criteria.getDocumentId(), copy.getDocumentId()) &&
                 condition.apply(criteria.getDistinct(), copy.getDistinct()),
             "every filter matches"
         );

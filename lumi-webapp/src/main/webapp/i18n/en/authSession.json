@@ -23,6 +23,7 @@
       "expiresAt": "Expires At",
       "isRevoked": "Is Revoked",
       "createdAt": "Created At",
+      "refreshTokenHash": "Refresh Token Hash",
       "user": "User"
     }
   }

@@ -53,7 +53,13 @@ public class SystemPlanAsserts {
             .satisfies(a -> assertThat(a.getDurationDays()).as("check durationDays").isEqualTo(expected.getDurationDays()))
             .satisfies(a -> assertThat(a.getStorageQuotaMb()).as("check storageQuotaMb").isEqualTo(expected.getStorageQuotaMb()))
             .satisfies(a -> assertThat(a.getAiGenerationLimit()).as("check aiGenerationLimit").isEqualTo(expected.getAiGenerationLimit()))
-            .satisfies(a -> assertThat(a.getMaxClasses()).as("check maxClasses").isEqualTo(expected.getMaxClasses()));
+            .satisfies(a -> assertThat(a.getMaxClasses()).as("check maxClasses").isEqualTo(expected.getMaxClasses()))
+            .satisfies(a -> assertThat(a.getPlanType()).as("check planType").isEqualTo(expected.getPlanType()))
+            .satisfies(a -> assertThat(a.getTargetRole()).as("check targetRole").isEqualTo(expected.getTargetRole()))
+            .satisfies(a -> assertThat(a.getStatus()).as("check status").isEqualTo(expected.getStatus()))
+            .satisfies(a -> assertThat(a.getAiLimitPeriod()).as("check aiLimitPeriod").isEqualTo(expected.getAiLimitPeriod()))
+            .satisfies(a -> assertThat(a.getFeatures()).as("check features").isEqualTo(expected.getFeatures()))
+            .satisfies(a -> assertThat(a.getUpdatedAt()).as("check updatedAt").isEqualTo(expected.getUpdatedAt()));
     }
 
     /**

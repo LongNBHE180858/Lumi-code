@@ -3,7 +3,9 @@
     "changelogDate": "20261012231728"
   },
   "applications": ["*"],
+  "documentation": "Lưu phiếu hỗ trợ, người được phân công và trạng thái xử lý.",
   "dto": "mapstruct",
+  "entityTableName": "support_tickets",
   "fields": [
     {
       "fieldName": "type",
@@ -26,6 +28,15 @@
     {
       "fieldName": "createdAt",
       "fieldType": "Instant"
+    },
+    {
+      "fieldName": "updatedAt",
+      "fieldType": "Instant",
+      "fieldValidateRules": ["required"]
+    },
+    {
+      "fieldName": "closedAt",
+      "fieldType": "Instant"
     }
   ],
   "jpaMetamodelFiltering": true,
@@ -39,6 +50,14 @@
       "relationshipSide": "left",
       "relationshipType": "many-to-one",
       "relationshipValidateRules": "required",
+      "relationshipWithBuiltInEntity": true
+    },
+    {
+      "otherEntityField": "login",
+      "otherEntityName": "user",
+      "relationshipName": "assignedTo",
+      "relationshipSide": "left",
+      "relationshipType": "many-to-one",
       "relationshipWithBuiltInEntity": true
     }
   ],

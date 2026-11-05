@@ -74,10 +74,13 @@ class ContentReportCriteriaTest {
         contentReportCriteria.id();
         contentReportCriteria.targetType();
         contentReportCriteria.targetId();
-        contentReportCriteria.reason();
         contentReportCriteria.status();
         contentReportCriteria.createdAt();
+        contentReportCriteria.resolvedAt();
+        contentReportCriteria.targetVersion();
         contentReportCriteria.reporterId();
+        contentReportCriteria.assignedToId();
+        contentReportCriteria.resolvedById();
         contentReportCriteria.distinct();
     }
 
@@ -87,10 +90,13 @@ class ContentReportCriteriaTest {
                 condition.apply(criteria.getId()) &&
                 condition.apply(criteria.getTargetType()) &&
                 condition.apply(criteria.getTargetId()) &&
-                condition.apply(criteria.getReason()) &&
                 condition.apply(criteria.getStatus()) &&
                 condition.apply(criteria.getCreatedAt()) &&
+                condition.apply(criteria.getResolvedAt()) &&
+                condition.apply(criteria.getTargetVersion()) &&
                 condition.apply(criteria.getReporterId()) &&
+                condition.apply(criteria.getAssignedToId()) &&
+                condition.apply(criteria.getResolvedById()) &&
                 condition.apply(criteria.getDistinct()),
             "every filter matches"
         );
@@ -105,10 +111,13 @@ class ContentReportCriteriaTest {
                 condition.apply(criteria.getId(), copy.getId()) &&
                 condition.apply(criteria.getTargetType(), copy.getTargetType()) &&
                 condition.apply(criteria.getTargetId(), copy.getTargetId()) &&
-                condition.apply(criteria.getReason(), copy.getReason()) &&
                 condition.apply(criteria.getStatus(), copy.getStatus()) &&
                 condition.apply(criteria.getCreatedAt(), copy.getCreatedAt()) &&
+                condition.apply(criteria.getResolvedAt(), copy.getResolvedAt()) &&
+                condition.apply(criteria.getTargetVersion(), copy.getTargetVersion()) &&
                 condition.apply(criteria.getReporterId(), copy.getReporterId()) &&
+                condition.apply(criteria.getAssignedToId(), copy.getAssignedToId()) &&
+                condition.apply(criteria.getResolvedById(), copy.getResolvedById()) &&
                 condition.apply(criteria.getDistinct(), copy.getDistinct()),
             "every filter matches"
         );

@@ -10,7 +10,7 @@
         Added the entity CourseEnrollment.
     -->
     <changeSet id="20261012230445-1" author="jhipster">
-        <createTable tableName="course_enrollment">
+        <createTable tableName="course_enrollments" remarks="Lưu quyền học, thời hạn và tiến độ tổng hợp của học sinh theo khóa.">
             <column name="id" type="bigint">
                 <constraints primaryKey="true" nullable="false"/>
             </column>
@@ -26,16 +26,23 @@
             <column name="expires_at" type="${datetimeType}">
                 <constraints nullable="false" />
             </column>
-            <column name="student_id" type="bigint">
+            <column name="updated_at" type="${datetimeType}">
                 <constraints nullable="false" />
             </column>
             <column name="course_id" type="bigint">
                 <constraints nullable="false" />
             </column>
+            <column name="student_id" type="bigint">
+                <constraints nullable="false" />
+            </column>
+            <column name="last_accessed_lesson_id" type="bigint">
+                <constraints nullable="true" />
+            </column>
             <!-- jhipster-needle-liquibase-add-column - JHipster will add columns here -->
         </createTable>
-        <dropDefaultValue tableName="course_enrollment" columnName="enrolled_at" columnDataType="${datetimeType}"/>
-        <dropDefaultValue tableName="course_enrollment" columnName="expires_at" columnDataType="${datetimeType}"/>
+        <dropDefaultValue tableName="course_enrollments" columnName="enrolled_at" columnDataType="${datetimeType}"/>
+        <dropDefaultValue tableName="course_enrollments" columnName="expires_at" columnDataType="${datetimeType}"/>
+        <dropDefaultValue tableName="course_enrollments" columnName="updated_at" columnDataType="${datetimeType}"/>
     </changeSet>
 
     <!-- jhipster-needle-liquibase-add-changeset - JHipster will add changesets here -->
@@ -50,18 +57,19 @@
     -->
     <changeSet id="20261012230445-1-data" author="jhipster" context="faker">
         <loadData
-                  file="../fake-data/course_enrollment.csv"
+                  file="../fake-data/course_enrollments.csv"
                   relativeToChangelogFile="true"
                   separator=";"
-                  tableName="course_enrollment"
+                  tableName="course_enrollments"
                   usePreparedStatements="true">
             <column name="id" type="numeric"/>
             <column name="progress_percent" type="numeric"/>
             <column name="status" type="string"/>
             <column name="enrolled_at" type="date"/>
             <column name="expires_at" type="date"/>
-            <column name="student_id" type="numeric"/>
+            <column name="updated_at" type="date"/>
             <column name="course_id" type="numeric"/>
+            <column name="student_id" type="numeric"/>
             <!-- jhipster-needle-liquibase-add-loadcolumn - JHipster (and/or extensions) can add load columns here -->
         </loadData>
     </changeSet>

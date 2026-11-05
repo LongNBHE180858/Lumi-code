@@ -14,6 +14,9 @@ import org.springframework.stereotype.Repository;
  */
 @Repository
 public interface QuestionRepository extends JpaRepository<Question, Long>, JpaSpecificationExecutor<Question> {
+    @Query("select question from Question question where question.createdBy.login = ?#{authentication.name}")
+    List<Question> findByCreatedByIsCurrentUser();
+
     default Optional<Question> findOneWithEagerRelationships(Long id) {
         return this.findOneWithToOneRelationships(id);
     }
@@ -27,14 +30,14 @@ public interface QuestionRepository extends JpaRepository<Question, Long>, JpaSp
     }
 
     @Query(
-        value = "select question from Question question left join fetch question.bank",
+        value = "select question from Question question left join fetch question.createdBy",
         countQuery = "select count(question) from Question question"
     )
     Page<Question> findAllWithToOneRelationships(Pageable pageable);
 
-    @Query("select question from Question question left join fetch question.bank")
+    @Query("select question from Question question left join fetch question.createdBy")
     List<Question> findAllWithToOneRelationships();
 
-    @Query("select question from Question question left join fetch question.bank where question.id =:id")
+    @Query("select question from Question question left join fetch question.createdBy where question.id =:id")
     Optional<Question> findOneWithToOneRelationships(@Param("id") Long id);
 }
