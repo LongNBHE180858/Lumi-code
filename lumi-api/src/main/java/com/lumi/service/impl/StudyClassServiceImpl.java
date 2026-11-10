@@ -5,6 +5,7 @@ import com.lumi.domain.enumeration.ClassJoinMode;
 import com.lumi.repository.StudyClassRepository;
 import com.lumi.repository.UserRepository;
 import com.lumi.security.SecurityUtils;
+import com.lumi.service.InstructorAccessService;
 import com.lumi.service.StudyClassService;
 import com.lumi.service.dto.StudyClassDTO;
 import com.lumi.service.dto.studyClass.CreateStudyClassRequestDTO;
@@ -34,6 +35,7 @@ public class StudyClassServiceImpl implements StudyClassService {
 
     private final StudyClassRepository studyClassRepository;
     private final UserRepository userRepository;
+    private final InstructorAccessService instructorAccess;
 
     private final StudyClassMapper studyClassMapper;
     private final SecureRandom secureRandom = new SecureRandom();
@@ -41,15 +43,18 @@ public class StudyClassServiceImpl implements StudyClassService {
     public StudyClassServiceImpl(
         StudyClassRepository studyClassRepository,
         StudyClassMapper studyClassMapper,
-        UserRepository userRepository
+        UserRepository userRepository,
+        InstructorAccessService instructorAccess
     ) {
         this.studyClassRepository = studyClassRepository;
         this.studyClassMapper = studyClassMapper;
         this.userRepository = userRepository;
+        this.instructorAccess = instructorAccess;
     }
 
     @Override
     public List<StudyClassDetailDTO> listClass() {
+        instructorAccess.requireActiveInstructor();
         Long currentUserId = SecurityUtils.getCurrentUserId().orElseThrow(() ->
             new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Vui lòng đăng nhập")
         );
@@ -64,6 +69,7 @@ public class StudyClassServiceImpl implements StudyClassService {
 
     @Override
     public StudyClassDetailDTO createClass(CreateStudyClassRequestDTO request) {
+        instructorAccess.requireActiveInstructor();
         Long currentUserId = SecurityUtils.getCurrentUserId().orElseThrow(() ->
             new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Vui lòng đăng nhập")
         );
@@ -85,6 +91,7 @@ public class StudyClassServiceImpl implements StudyClassService {
 
     @Override
     public StudyClassDetailDTO updateClass(long id, UpdateStudyClassRequestDTO request) {
+        instructorAccess.requireActiveInstructor();
         Long currentUserId = SecurityUtils.getCurrentUserId().orElseThrow(() ->
             new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Vui lòng đăng nhập")
         );

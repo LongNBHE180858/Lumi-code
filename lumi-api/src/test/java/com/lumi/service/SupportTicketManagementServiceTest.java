@@ -15,7 +15,12 @@ import com.lumi.repository.TicketMessageRepository;
 import com.lumi.repository.UserRepository;
 import com.lumi.service.dto.SupportTicketCreateRequest;
 import com.lumi.service.dto.TicketMessageCreateRequest;
+import com.lumi.service.dto.TicketMessageContent;
+import com.lumi.service.storage.CourseFileValidator;
+import com.lumi.service.storage.R2CourseObjectStorage;
+import java.nio.file.Files;
 import java.time.Instant;
+import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -30,6 +35,8 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.server.ResponseStatusException;
+import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 @ExtendWith(MockitoExtension.class)
 class SupportTicketManagementServiceTest {
@@ -42,6 +49,12 @@ class SupportTicketManagementServiceTest {
 
     @Mock
     private UserRepository userRepository;
+
+    @Mock
+    private CourseFileValidator fileValidator;
+
+    @Mock
+    private R2CourseObjectStorage imageStorage;
 
     @InjectMocks
     private SupportTicketManagementService service;
@@ -84,7 +97,7 @@ class SupportTicketManagementServiceTest {
         assertThat(messageCaptor.getValue().getCreatedAt()).isEqualTo(ticketCaptor.getValue().getUpdatedAt());
         assertThat(messageCaptor.getValue().getSender()).isSameAs(owner);
         assertThat(messageCaptor.getValue().getTicket().getId()).isEqualTo(21L);
-        assertThat(messageCaptor.getValue().getContent()).isEqualTo("First message");
+        assertThat(messageCaptor.getValue().getContent()).contains("First message", "lumi.ticket-message.v1");
     }
 
     @Test
@@ -192,6 +205,66 @@ class SupportTicketManagementServiceTest {
         service.changeStatus(21L, SupportTicketStatus.IN_PROGRESS);
 
         assertThat(ticket.getUpdatedAt()).isEqualTo(previousActivity);
+    }
+
+    @Test
+    void imageOnlyReplyStoresTwoImagesInOneMessageAndReopensTicket() throws Exception {
+        when(userRepository.findOneByLogin("ticketowner")).thenReturn(Optional.of(owner));
+        SupportTicket ticket = ticket("RESOLVED");
+        when(ticketRepository.findByIdForUpdate(21L)).thenReturn(Optional.of(ticket));
+        when(messageRepository.save(any(TicketMessage.class))).thenAnswer(invocation -> {
+            TicketMessage message = invocation.getArgument(0);
+            message.setId(31L);
+            return message;
+        });
+        var first = new MockMultipartFile("images", "first.png", "image/png", new byte[] { 1 });
+        var second = new MockMultipartFile("images", "second.jpg", "image/jpeg", new byte[] { 2 });
+        when(fileValidator.validate(any(), any())).thenAnswer(invocation -> {
+            var file = invocation.getArgument(0, MockMultipartFile.class);
+            return new CourseFileValidator.ValidatedFile(Files.createTempFile("ticket-test-", ".png"), file.getOriginalFilename(), file.getContentType());
+        });
+        when(imageStorage.uploadTicketImage(any(), any(), any(), any())).thenAnswer(invocation -> {
+            String name = invocation.getArgument(2);
+            return new TicketMessageContent.Image("tickets/21/" + (name.equals("first.png") ? "a" : "b") + ".png", name);
+        });
+        TransactionSynchronizationManager.initSynchronization();
+        try {
+            var result = service.addMessageWithImages(21L, "", List.of(first, second));
+            assertThat(result.content()).isEmpty();
+            assertThat(result.images()).extracting(image -> image.fileName()).containsExactly("first.png", "second.jpg");
+            assertThat(ticket.getStatus()).isEqualTo("IN_PROGRESS");
+            assertThat(ticket.getUpdatedAt()).isEqualTo(result.createdAt());
+            ArgumentCaptor<TicketMessage> saved = ArgumentCaptor.forClass(TicketMessage.class);
+            verify(messageRepository).save(saved.capture());
+            assertThat(saved.getValue().getContent()).contains("lumi.ticket-message.v1", "first.png", "second.jpg");
+        } finally {
+            TransactionSynchronizationManager.clearSynchronization();
+        }
+    }
+
+    @Test
+    void imageAccessRejectsOtherTicketOwnerBeforeIssuingUrl() {
+        User outsider = new User();
+        outsider.setId(11L);
+        outsider.setLogin("outsider");
+        authenticate("outsider", "ROLE_USER");
+        when(userRepository.findOneByLogin("outsider")).thenReturn(Optional.of(outsider));
+        when(ticketRepository.findById(21L)).thenReturn(Optional.of(ticket("OPEN")));
+
+        var error = assertThrows(ResponseStatusException.class, () -> service.imageAccess(21L, 31L, 0));
+
+        assertThat(error.getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
+    }
+
+    @Test
+    void imageUploadRejectsMoreThanThreeFilesBeforeCreatingMessage() {
+        var image = new MockMultipartFile("images", "image.png", "image/png", new byte[] { 1 });
+
+        var error = assertThrows(ResponseStatusException.class, () ->
+            service.addMessageWithImages(21L, "", List.of(image, image, image, image))
+        );
+
+        assertThat(error.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
     }
 
     private SupportTicket ticket(String status) {

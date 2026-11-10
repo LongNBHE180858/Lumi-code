@@ -6,6 +6,7 @@ import { Link, useNavigate } from 'react-router';
 
 import AdminLayout from 'app/modules/administration/layout/admin-layout';
 import { ticketApi, type Ticket, type TicketStatus } from './ticket-api';
+import TicketImagePicker from './ticket-image-picker';
 import { statusLabel, ticketDate, ticketError, ticketTypes, typeLabel } from './ticket-format';
 
 const pageSize = 10;
@@ -26,6 +27,7 @@ const TicketList = ({ admin = false }: { admin?: boolean }) => {
   const [type, setType] = useState<string>(ticketTypes[0].value);
   const [subject, setSubject] = useState('');
   const [content, setContent] = useState('');
+  const [images, setImages] = useState<File[]>([]);
   const [creating, setCreating] = useState(false);
   const [createError, setCreateError] = useState('');
 
@@ -75,7 +77,8 @@ const TicketList = ({ admin = false }: { admin?: boolean }) => {
     setCreating(true);
     setCreateError('');
     try {
-      const response = await ticketApi.create({ type, subject: trimmedSubject, content: trimmedContent });
+      const input = { type, subject: trimmedSubject, content: trimmedContent };
+      const response = images.length ? await ticketApi.create(input, images) : await ticketApi.create(input);
       navigate(`/support-tickets/${response.data.id}`);
     } catch (error) {
       setCreateError(ticketError(error));
@@ -148,6 +151,7 @@ const TicketList = ({ admin = false }: { admin?: boolean }) => {
                 placeholder="Mô tả vấn đề hoặc câu hỏi của bạn..."
               />
             </label>
+            <TicketImagePicker images={images} onChange={setImages} onError={setCreateError} disabled={creating} />
             {createError && (
               <p className="ticket-error" role="alert">
                 {createError}

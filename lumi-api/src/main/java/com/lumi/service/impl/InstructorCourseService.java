@@ -3,7 +3,7 @@ package com.lumi.service.impl;
 import com.lumi.domain.*;
 import com.lumi.domain.enumeration.*;
 import com.lumi.repository.*;
-import com.lumi.security.SecurityUtils;
+import com.lumi.service.InstructorAccessService;
 import com.lumi.service.criteria.CourseCriteria;
 import com.lumi.service.dto.InstructorCourseDTOs.*;
 import com.lumi.service.mapper.*;
@@ -17,7 +17,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
@@ -30,8 +29,7 @@ public class InstructorCourseService {
     private final ChapterRepository chapters;
     private final LessonRepository lessons;
     private final CourseMaterialRepository materials;
-    private final UserRepository users;
-    private final UserProfileRepository profiles;
+    private final InstructorAccessService instructorAccess;
     private final CourseReviewRequestRepository reviews;
     private final CourseMapper courseMapper;
     private final CourseQueryService courseQuery;
@@ -46,8 +44,7 @@ public class InstructorCourseService {
         ChapterRepository chapters,
         LessonRepository lessons,
         CourseMaterialRepository materials,
-        UserRepository users,
-        UserProfileRepository profiles,
+        InstructorAccessService instructorAccess,
         CourseReviewRequestRepository reviews,
         CourseMapper courseMapper,
         CourseQueryService courseQuery,
@@ -62,8 +59,7 @@ public class InstructorCourseService {
         this.chapters = chapters;
         this.lessons = lessons;
         this.materials = materials;
-        this.users = users;
-        this.profiles = profiles;
+        this.instructorAccess = instructorAccess;
         this.reviews = reviews;
         this.courseMapper = courseMapper;
         this.courseQuery = courseQuery;
@@ -74,15 +70,7 @@ public class InstructorCourseService {
     }
 
     private User currentInstructor() {
-        String login = SecurityUtils.getCurrentUserLogin().orElseThrow(() -> new AccessDeniedException("Authentication required"));
-        User user = users.findOneByLogin(login).orElseThrow(() -> new AccessDeniedException("Account not found"));
-        boolean admin = SecurityUtils.hasCurrentUserThisAuthority("ROLE_ADMIN");
-        boolean instructor = profiles
-            .findOneByUserId(user.getId())
-            .map(p -> p.getInstructorStatus() == InstructorApplicationStatus.ACTIVE)
-            .orElse(false);
-        if (!user.isActivated() || (!admin && !instructor)) throw new AccessDeniedException("Active instructor required");
-        return user;
+        return instructorAccess.requireActiveInstructor();
     }
 
     @Transactional(readOnly = true)

@@ -7,9 +7,56 @@ import { Link, useParams } from 'react-router';
 import { useAppSelector } from 'app/config/store';
 import AdminLayout from 'app/modules/administration/layout/admin-layout';
 import { ticketApi, type Ticket, type TicketMessage } from './ticket-api';
+import TicketImagePicker from './ticket-image-picker';
 import { statusLabel, ticketDate, ticketError, typeLabel } from './ticket-format';
 
 const messagePageSize = 50;
+
+const MessageImage = ({
+  ticketId,
+  messageId,
+  index,
+  fileName,
+}: {
+  ticketId: number;
+  messageId: number;
+  index: number;
+  fileName: string;
+}) => {
+  const [url, setUrl] = useState('');
+  const [failed, setFailed] = useState(false);
+  useEffect(() => {
+    let active = true;
+    let refreshTimer: number | undefined;
+    const load = async () => {
+      try {
+        const response = await ticketApi.imageAccess(ticketId, messageId, index);
+        if (!active) return;
+        setUrl(response.data.url);
+        setFailed(false);
+        const delay = Math.max(1000, new Date(response.data.expiresAt).getTime() - Date.now() - 30_000);
+        if (Number.isFinite(delay)) refreshTimer = window.setTimeout(load, delay);
+      } catch {
+        if (active) {
+          setUrl('');
+          setFailed(true);
+        }
+      }
+    };
+    void load();
+    return () => {
+      active = false;
+      window.clearTimeout(refreshTimer);
+    };
+  }, [ticketId, messageId, index]);
+  return url ? (
+    <a href={url} target="_blank" rel="noopener noreferrer" aria-label={`Xem ảnh ${fileName}`}>
+      <img src={url} alt={fileName} loading="lazy" />
+    </a>
+  ) : failed ? (
+    <span>Không tải được ảnh {fileName}</span>
+  ) : null;
+};
 
 const TicketDetail = ({ admin = false }: { admin?: boolean }) => {
   const { id } = useParams();
@@ -26,6 +73,7 @@ const TicketDetail = ({ admin = false }: { admin?: boolean }) => {
   const [messageError, setMessageError] = useState('');
   const [actionError, setActionError] = useState('');
   const [reply, setReply] = useState('');
+  const [images, setImages] = useState<File[]>([]);
   const [sending, setSending] = useState(false);
   const [acting, setActing] = useState(false);
 
@@ -88,15 +136,17 @@ const TicketDetail = ({ admin = false }: { admin?: boolean }) => {
   const sendMessage = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const content = reply.trim();
-    if (!content) {
-      setActionError('Vui lòng nhập nội dung tin nhắn.');
+    if (!content && images.length === 0) {
+      setActionError('Vui lòng nhập nội dung hoặc chọn ảnh.');
       return;
     }
     setSending(true);
     setActionError('');
     try {
-      await ticketApi.sendMessage(ticketId, content);
+      if (images.length) await ticketApi.sendMessage(ticketId, content, images);
+      else await ticketApi.sendMessage(ticketId, content);
       setReply('');
+      setImages([]);
       setPage(Math.floor(total / messagePageSize));
       setRefreshKey(value => value + 1);
     } catch (error) {
@@ -224,7 +274,20 @@ const TicketDetail = ({ admin = false }: { admin?: boolean }) => {
                         <strong>{message.senderLogin === login ? 'Bạn' : message.senderLogin}</strong>
                         <time>{ticketDate(message.createdAt)}</time>
                       </div>
-                      <p>{message.content}</p>
+                      {message.content && <p>{message.content}</p>}
+                      {message.images?.length > 0 && (
+                        <div className="ticket-message-images">
+                          {message.images.map(image => (
+                            <MessageImage
+                              key={image.index}
+                              ticketId={ticketId}
+                              messageId={message.id}
+                              index={image.index}
+                              fileName={image.fileName}
+                            />
+                          ))}
+                        </div>
+                      )}
                     </article>
                   ))}
                 </div>
@@ -265,8 +328,8 @@ const TicketDetail = ({ admin = false }: { admin?: boolean }) => {
                 maxLength={5000}
                 rows={4}
                 placeholder="Nhập tin nhắn của bạn..."
-                required
               />
+              <TicketImagePicker images={images} onChange={setImages} onError={setActionError} disabled={sending} />
               {ticket.status === 'RESOLVED' && <p className="ticket-muted">Tin nhắn mới sẽ tự mở lại yêu cầu và chuyển sang đang xử lý.</p>}
               {actionError && (
                 <p className="ticket-error" role="alert">

@@ -1,8 +1,11 @@
 package com.lumi.web.rest;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
@@ -16,14 +19,22 @@ import com.lumi.domain.TicketMessage;
 import com.lumi.domain.User;
 import com.lumi.repository.SupportTicketRepository;
 import com.lumi.repository.TicketMessageRepository;
+import com.lumi.service.dto.TicketMessageContent;
+import com.lumi.service.storage.CourseObjectStorage;
+import com.lumi.service.storage.R2CourseObjectStorage;
 import jakarta.persistence.EntityManager;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayOutputStream;
 import java.time.Instant;
+import javax.imageio.ImageIO;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.transaction.annotation.Transactional;
 
 @IntegrationTest
@@ -44,6 +55,9 @@ class SupportTicketResourceIT {
 
     @Autowired
     private TicketMessageRepository messageRepository;
+
+    @MockitoBean
+    private R2CourseObjectStorage imageStorage;
 
     @Test
     @Transactional
@@ -106,6 +120,36 @@ class SupportTicketResourceIT {
     @Test
     @Transactional
     @WithMockUser(username = "ticketowner", authorities = "ROLE_USER")
+    void createsTicketWithImageInFirstMessage() throws Exception {
+        User owner = persistUser("ticketowner");
+        when(imageStorage.uploadTicketImage(any(), any(), any(), any())).thenAnswer(invocation ->
+            new TicketMessageContent.Image("tickets/" + invocation.getArgument(0) + "/a.png", "issue.png")
+        );
+
+        mockMvc
+            .perform(
+                multipart(API)
+                    .file(new MockMultipartFile("images", "issue.png", "image/png", pngBytes()))
+                    .param("type", "GENERAL")
+                    .param("subject", "Need help")
+                    .param("content", "First message")
+            )
+            .andExpect(status().isCreated());
+
+        SupportTicket ticket = ticketRepository
+            .findByUserId(owner.getId(), org.springframework.data.domain.PageRequest.of(0, 10))
+            .getContent()
+            .getFirst();
+        mockMvc
+            .perform(get(API + "/{id}/messages", ticket.getId()))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$[0].content").value("First message"))
+            .andExpect(jsonPath("$[0].images.length()").value(1));
+    }
+
+    @Test
+    @Transactional
+    @WithMockUser(username = "ticketowner", authorities = "ROLE_USER")
     void ownerCanReadOwnTicketAndMessages() throws Exception {
         User owner = persistUser("ticketowner");
         SupportTicket ticket = persistTicket(owner, "OPEN");
@@ -133,6 +177,7 @@ class SupportTicketResourceIT {
         mockMvc.perform(get(API)).andExpect(status().isOk()).andExpect(jsonPath("$.length()").value(0));
         mockMvc.perform(get(API + "/{id}", ticket.getId())).andExpect(status().isForbidden());
         mockMvc.perform(get(API + "/{id}/messages", ticket.getId())).andExpect(status().isForbidden());
+        mockMvc.perform(get(API + "/{id}/messages/1/images/0/access", ticket.getId())).andExpect(status().isForbidden());
         mockMvc
             .perform(
                 post(API + "/{id}/messages", ticket.getId())
@@ -243,6 +288,43 @@ class SupportTicketResourceIT {
     @Test
     @Transactional
     @WithMockUser(username = "ticketowner", authorities = "ROLE_USER")
+    void messageWithTwoImagesCanBeReadByOwner() throws Exception {
+        User owner = persistUser("ticketowner");
+        SupportTicket ticket = persistTicket(owner, "RESOLVED");
+        when(imageStorage.uploadTicketImage(any(), any(), any(), any())).thenAnswer(invocation -> {
+            String fileName = invocation.getArgument(2);
+            return new TicketMessageContent.Image("tickets/" + ticket.getId() + "/" + (fileName.equals("first.png") ? "a" : "b") + ".png", fileName);
+        });
+        when(imageStorage.ticketImageAccess(any(), any(), any())).thenReturn(new CourseObjectStorage.Access("https://example.test/image", Instant.now().plusSeconds(300)));
+        byte[] png = pngBytes();
+
+        mockMvc
+            .perform(
+                multipart(API + "/{id}/messages", ticket.getId())
+                    .file(new MockMultipartFile("images", "first.png", "image/png", png))
+                    .file(new MockMultipartFile("images", "second.png", "image/png", png))
+                    .param("content", "Ảnh lỗi")
+            )
+            .andExpect(status().isCreated())
+            .andExpect(jsonPath("$.content").value("Ảnh lỗi"))
+            .andExpect(jsonPath("$.images.length()").value(2));
+
+        entityManager.flush();
+        assertThat(ticket.getStatus()).isEqualTo("IN_PROGRESS");
+        assertThat(ticket.getUpdatedAt()).isAfter(ticket.getCreatedAt());
+        TicketMessage message = messageRepository
+            .findByTicketIdOrderByCreatedAtAscIdAsc(ticket.getId(), org.springframework.data.domain.PageRequest.of(0, 10))
+            .getContent()
+            .getFirst();
+        mockMvc
+            .perform(get(API + "/{id}/messages/{messageId}/images/0/access", ticket.getId(), message.getId()))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.url").value("https://example.test/image"));
+    }
+
+    @Test
+    @Transactional
+    @WithMockUser(username = "ticketowner", authorities = "ROLE_USER")
     void inputValidationAndLegacyCrudAreRejected() throws Exception {
         User owner = persistUser("ticketowner");
         SupportTicket ticket = persistTicket(owner, "OPEN");
@@ -299,5 +381,11 @@ class SupportTicketResourceIT {
         TicketMessage message = new TicketMessage().content(content).createdAt(Instant.now()).sender(sender).ticket(ticket);
         entityManager.persist(message);
         entityManager.flush();
+    }
+
+    private byte[] pngBytes() throws Exception {
+        var output = new ByteArrayOutputStream();
+        ImageIO.write(new BufferedImage(1, 1, BufferedImage.TYPE_INT_RGB), "png", output);
+        return output.toByteArray();
     }
 }

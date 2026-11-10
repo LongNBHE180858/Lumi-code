@@ -36,6 +36,7 @@ import tech.jhipster.web.util.ResponseUtil;
  * REST controller for managing {@link com.lumi.domain.StudyClass}.
  */
 @RestController
+@PreAuthorize("@instructorAccessService.canUseInstructorFeatures()")
 @RequestMapping("/api")
 public class StudyClassResource {
 

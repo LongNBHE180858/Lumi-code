@@ -5,6 +5,7 @@ import { ReactReduxContext } from 'react-redux';
 import { NavLink as Link } from 'react-router';
 
 import MenuItem from 'app/shared/layout/menus/menu-item';
+import { useInstructorApproval } from 'app/shared/auth/use-instructor-approval';
 
 export interface IAccountMenuProps {
   isAuthenticated?: boolean;
@@ -68,7 +69,7 @@ export const getInitials = (name: string): string => {
   return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
 };
 
-const accountMenuItemsAuthenticated = (account: any = {}) => {
+const accountMenuItemsAuthenticated = (account: any = {}, instructorApproved = false) => {
   const authorities: string[] = account?.authorities || [];
   const isAdmin = authorities.includes('ROLE_ADMIN');
   const isInstructor =
@@ -99,7 +100,7 @@ const accountMenuItemsAuthenticated = (account: any = {}) => {
       )}
 
       {/* Menu dành cho Giảng viên */}
-      {(isInstructor || isAdmin) && (
+      {(isAdmin || (isInstructor && instructorApproved)) && (
         <>
           <MenuItem icon="book" to="/instructor/courses" data-cy="instructorCourses" end>
             Khóa học của tôi
@@ -108,6 +109,12 @@ const accountMenuItemsAuthenticated = (account: any = {}) => {
             Tạo khóa học mới
           </MenuItem>
         </>
+      )}
+
+      {authorities.includes('ROLE_INSTRUCTOR') && !instructorApproved && (
+        <MenuItem icon="user" to="/profile" data-cy="instructorApplicationStatus">
+          Trạng thái hồ sơ giảng viên
+        </MenuItem>
       )}
 
       <MenuItem icon="lock" to="/account/password" data-cy="passwordItem">
@@ -138,6 +145,9 @@ export const AccountMenu = ({ isAuthenticated = false, account: propAccount }: I
   const reduxContext = use(ReactReduxContext);
   const reduxAccount = reduxContext ? reduxContext.store?.getState()?.authentication?.account : null;
   const account = propAccount || reduxAccount || {};
+  const authorities: string[] = account.authorities ?? [];
+  const isInstructorApplicant = isAuthenticated && authorities.includes('ROLE_INSTRUCTOR') && !authorities.includes('ROLE_ADMIN');
+  const approval = useInstructorApproval(account.id ?? null, isInstructorApplicant);
 
   if (!isAuthenticated) {
     return (
@@ -186,7 +196,7 @@ export const AccountMenu = ({ isAuthenticated = false, account: propAccount }: I
       </Dropdown.Toggle>
 
       <Dropdown.Menu renderOnMount align="end" className="lumi-account-dropdown-menu">
-        {accountMenuItemsAuthenticated(account)}
+        {accountMenuItemsAuthenticated(account, approval.approved)}
       </Dropdown.Menu>
     </Dropdown>
   );

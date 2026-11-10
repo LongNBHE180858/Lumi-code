@@ -12,6 +12,7 @@ import AdminDashboard from 'app/modules/administration/dashboard/admin-dashboard
 import Login from 'app/modules/login/login';
 import Logout from 'app/modules/login/logout';
 import PrivateRoute from 'app/shared/auth/private-route';
+import InstructorAccessRoute from 'app/shared/auth/instructor-access-route';
 import ErrorBoundaryRoutes from 'app/shared/error/error-boundary-routes';
 import { Authority } from 'app/shared/jhipster/constants';
 import Profile from 'app/modules/profile/profile';
@@ -131,7 +132,9 @@ const AppRoutes = () => {
             path="instructor/*"
             element={
               <PrivateRoute hasAnyAuthorities={[Authority.ADMIN, Authority.USER]}>
-                <Instructor />
+                <InstructorAccessRoute>
+                  <Instructor />
+                </InstructorAccessRoute>
               </PrivateRoute>
             }
           />

@@ -19,8 +19,9 @@ const roleBadges: Record<ProfileRole, string> = {
 };
 
 const verificationLabels: Record<string, string> = {
-  APPROVED: 'Đã xác minh',
-  PENDING: 'Chờ xác minh',
+  APPROVED: 'Đã duyệt hồ sơ',
+  PENDING: 'Chờ duyệt hồ sơ',
+  REJECTED: 'Hồ sơ bị từ chối',
   BLOCKED: 'Đã bị khóa',
   UNVERIFIED: 'Chưa xác minh',
 };

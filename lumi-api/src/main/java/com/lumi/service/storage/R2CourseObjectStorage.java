@@ -1,6 +1,7 @@
 package com.lumi.service.storage;
 
 import com.lumi.config.CourseStorageProperties;
+import com.lumi.service.dto.TicketMessageContent;
 import jakarta.annotation.PreDestroy;
 import java.net.URI;
 import java.nio.file.*;
@@ -99,7 +100,7 @@ public class R2CourseObjectStorage implements CourseObjectStorage {
             "File is not managed by the configured cloud storage"
         );
         String key = url.substring(baseUrl().length());
-        if (!key.matches("courses/[0-9]+/[a-z]+/[a-f0-9-]+\\.[a-z0-9]+")) throw new ResponseStatusException(
+        if (!key.matches("courses/[0-9]+/[a-z]+/[a-f0-9-]+\\.[a-z0-9]+") && !key.matches("tickets/[0-9]+/[a-f0-9-]+\\.(png|jpg|jpeg)")) throw new ResponseStatusException(
             HttpStatus.CONFLICT,
             "Invalid stored file URL"
         );
@@ -135,6 +136,45 @@ public class R2CourseObjectStorage implements CourseObjectStorage {
             }
             throw new ResponseStatusException(HttpStatus.BAD_GATEWAY, "Cloud upload failed; existing file was retained");
         }
+    }
+
+    public TicketMessageContent.Image uploadTicketImage(Long ticketId, Path file, String name, String mimeType) {
+        ready();
+        String extension = name.substring(name.lastIndexOf('.') + 1).toLowerCase(java.util.Locale.ROOT);
+        String key = "tickets/" + ticketId + "/" + UUID.randomUUID() + "." + extension;
+        boolean uploaded = false;
+        try {
+            long size = Files.size(file);
+            client.putObject(
+                PutObjectRequest.builder().bucket(properties.getBucket()).key(key).contentType(mimeType).build(),
+                RequestBody.fromFile(file)
+            );
+            uploaded = true;
+            var metadata = client.headObject(HeadObjectRequest.builder().bucket(properties.getBucket()).key(key).build());
+            if (metadata.contentLength() != size || !mimeType.equals(metadata.contentType())) throw new IllegalStateException(
+                "Cloud metadata mismatch"
+            );
+            return new TicketMessageContent.Image(key, name);
+        } catch (Exception failure) {
+            if (uploaded) {
+                try {
+                    client.deleteObject(DeleteObjectRequest.builder().bucket(properties.getBucket()).key(key).build());
+                } catch (RuntimeException ignored) {}
+            }
+            throw new ResponseStatusException(HttpStatus.BAD_GATEWAY, "Ticket image upload failed");
+        }
+    }
+
+    public Access ticketImageAccess(Long ticketId, String key, String name) {
+        if (!key.matches("tickets/" + ticketId + "/[a-f0-9-]+\\.(png|jpg|jpeg)")) throw new ResponseStatusException(
+            HttpStatus.NOT_FOUND
+        );
+        return access(baseUrl() + key, name, false);
+    }
+
+    public void deleteTicketImage(String key) {
+        if (!key.matches("tickets/[0-9]+/[a-f0-9-]+\\.(png|jpg|jpeg)")) return;
+        delete(baseUrl() + key);
     }
 
     @Override

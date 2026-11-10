@@ -30,6 +30,7 @@ import tech.jhipster.web.util.ResponseUtil;
  * REST controller for managing {@link com.lumi.domain.InstructorWallet}.
  */
 @RestController
+@org.springframework.security.access.prepost.PreAuthorize("@instructorAccessService.canUseInstructorFeatures()")
 @RequestMapping("/api/instructor-wallets")
 public class InstructorWalletResource {
 

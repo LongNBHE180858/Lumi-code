@@ -11,35 +11,65 @@ import com.lumi.security.AuthoritiesConstants;
 import com.lumi.security.SecurityUtils;
 import com.lumi.service.dto.SupportTicketCreateRequest;
 import com.lumi.service.dto.SupportTicketViewDTO;
+import com.lumi.service.dto.TicketImageDTO;
 import com.lumi.service.dto.TicketMessageCreateRequest;
+import com.lumi.service.dto.TicketMessageContent;
 import com.lumi.service.dto.TicketMessageViewDTO;
+import com.lumi.service.storage.CourseFileValidator;
+import com.lumi.service.storage.R2CourseObjectStorage;
+import java.io.IOException;
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
+import tools.jackson.databind.ObjectMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 import org.springframework.web.server.ResponseStatusException;
+import org.springframework.web.multipart.MultipartFile;
 
 @Service
 @Transactional
 public class SupportTicketManagementService {
 
+    private static final String IMAGE_FORMAT = "lumi.ticket-message.v1";
+    private static final ObjectMapper MAPPER = new ObjectMapper();
+
     private final SupportTicketRepository ticketRepository;
     private final TicketMessageRepository messageRepository;
     private final UserRepository userRepository;
+    private final CourseFileValidator fileValidator;
+    private final R2CourseObjectStorage imageStorage;
 
     public SupportTicketManagementService(
         SupportTicketRepository ticketRepository,
         TicketMessageRepository messageRepository,
-        UserRepository userRepository
+        UserRepository userRepository,
+        CourseFileValidator fileValidator,
+        R2CourseObjectStorage imageStorage
     ) {
         this.ticketRepository = ticketRepository;
         this.messageRepository = messageRepository;
         this.userRepository = userRepository;
+        this.fileValidator = fileValidator;
+        this.imageStorage = imageStorage;
     }
 
     public SupportTicketViewDTO create(SupportTicketCreateRequest request) {
+        return createWithImages(request, List.of());
+    }
+
+    public SupportTicketViewDTO createWithImages(SupportTicketCreateRequest request, List<MultipartFile> images) {
+        if (
+            request.type() == null || request.type().isBlank() || request.type().trim().length() > 50 ||
+            request.subject() == null || request.subject().isBlank() || request.subject().trim().length() > 255
+        ) throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid ticket details");
+        validateText(request.content(), true);
+        validateImages(images);
         User user = currentUser();
         Instant now = Instant.now();
         SupportTicket ticket = new SupportTicket()
@@ -50,7 +80,11 @@ public class SupportTicketManagementService {
             .updatedAt(now)
             .user(user);
         ticket = ticketRepository.save(ticket);
-        TicketMessage message = new TicketMessage().content(request.content().trim()).createdAt(now).sender(user).ticket(ticket);
+        TicketMessage message = new TicketMessage()
+            .content(encodeContent(request.content().trim(), uploadImages(ticket.getId(), images)))
+            .createdAt(now)
+            .sender(user)
+            .ticket(ticket);
         messageRepository.save(message);
         return toTicketView(ticket);
     }
@@ -89,6 +123,12 @@ public class SupportTicketManagementService {
     }
 
     public TicketMessageViewDTO addMessage(Long id, TicketMessageCreateRequest request) {
+        return addMessageWithImages(id, request.content(), List.of());
+    }
+
+    public TicketMessageViewDTO addMessageWithImages(Long id, String content, List<MultipartFile> images) {
+        validateImages(images);
+        validateText(content, images == null || images.isEmpty());
         User user = currentUser();
         SupportTicket ticket = ticketRepository.findByIdForUpdate(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
         requireAccess(ticket, user);
@@ -101,8 +141,25 @@ public class SupportTicketManagementService {
         }
         Instant now = Instant.now();
         ticket.setUpdatedAt(now);
-        TicketMessage message = new TicketMessage().content(request.content().trim()).createdAt(now).sender(user).ticket(ticket);
+        TicketMessage message = new TicketMessage()
+            .content(encodeContent(content == null ? "" : content.trim(), uploadImages(ticket.getId(), images)))
+            .createdAt(now)
+            .sender(user)
+            .ticket(ticket);
         return toMessageView(messageRepository.save(message));
+    }
+
+    @Transactional(readOnly = true)
+    public com.lumi.service.storage.CourseObjectStorage.Access imageAccess(Long ticketId, Long messageId, int imageIndex) {
+        User user = currentUser();
+        SupportTicket ticket = ticketRepository.findById(ticketId).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+        requireAccess(ticket, user);
+        TicketMessage message = messageRepository.findById(messageId).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+        if (!message.getTicket().getId().equals(ticketId)) throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+        List<TicketMessageContent.Image> images = decodeContent(message.getContent()).images();
+        if (imageIndex < 0 || imageIndex >= images.size()) throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+        var image = images.get(imageIndex);
+        return imageStorage.ticketImageAccess(ticketId, image.key(), image.fileName());
     }
 
     public SupportTicketViewDTO reopen(Long id) {
@@ -164,12 +221,84 @@ public class SupportTicketManagementService {
     }
 
     private TicketMessageViewDTO toMessageView(TicketMessage message) {
+        TicketMessageContent content = decodeContent(message.getContent());
+        List<TicketImageDTO> images = new ArrayList<>();
+        for (int index = 0; index < content.images().size(); index++) {
+            images.add(new TicketImageDTO(index, content.images().get(index).fileName()));
+        }
         return new TicketMessageViewDTO(
             message.getId(),
-            message.getContent(),
+            content.text(),
+            images,
             message.getCreatedAt(),
             message.getSender().getId(),
             message.getSender().getLogin()
         );
+    }
+
+    private void validateText(String content, boolean required) {
+        if ((content == null && required) || (content != null && content.trim().length() > 5000) || (required && content.isBlank())) throw new ResponseStatusException(
+            HttpStatus.BAD_REQUEST,
+            "Invalid ticket message"
+        );
+    }
+
+    private void validateImages(List<MultipartFile> images) {
+        if (images == null) return;
+        if (images.size() > 3) throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Too many ticket images");
+        for (MultipartFile image : images) {
+            if (image == null || image.isEmpty() || image.getSize() > 5 * 1024 * 1024) throw new ResponseStatusException(
+                HttpStatus.BAD_REQUEST,
+                "Invalid ticket image size"
+            );
+        }
+    }
+
+    private List<TicketMessageContent.Image> uploadImages(Long ticketId, List<MultipartFile> images) {
+        if (images == null || images.isEmpty()) return List.of();
+        List<TicketMessageContent.Image> uploaded = new ArrayList<>();
+        for (MultipartFile image : images) {
+            try (var validated = fileValidator.validate(image, CourseFileValidator.Kind.THUMBNAIL)) {
+                var stored = imageStorage.uploadTicketImage(ticketId, validated.path(), validated.name(), validated.mimeType());
+                uploaded.add(stored);
+                TransactionSynchronizationManager.registerSynchronization(
+                    new TransactionSynchronization() {
+                        @Override
+                        public void afterCompletion(int status) {
+                            if (status == STATUS_ROLLED_BACK) {
+                                try {
+                                    imageStorage.deleteTicketImage(stored.key());
+                                } catch (RuntimeException ignored) {}
+                            }
+                        }
+                    }
+                );
+            } catch (IOException error) {
+                throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Cannot prepare ticket image");
+            }
+        }
+        return uploaded;
+    }
+
+    private String encodeContent(String text, List<TicketMessageContent.Image> images) {
+        return MAPPER.writeValueAsString(new TicketMessageContent(IMAGE_FORMAT, text, images));
+    }
+
+    private TicketMessageContent decodeContent(String stored) {
+        if (stored != null && stored.startsWith("{")) {
+            try {
+                TicketMessageContent decoded = MAPPER.readValue(stored, TicketMessageContent.class);
+                if (
+                    IMAGE_FORMAT.equals(decoded.format()) &&
+                    decoded.text() != null &&
+                    decoded.images() != null &&
+                    decoded.images().size() <= 3 &&
+                    decoded.images().stream().allMatch(image -> image != null && image.key() != null && image.fileName() != null)
+                ) {
+                    return decoded;
+                }
+            } catch (RuntimeException ignored) {}
+        }
+        return new TicketMessageContent(null, stored, List.of());
     }
 }

@@ -8,6 +8,7 @@
 - Support Ticket là kênh trao đổi riêng, tách khỏi Feedback. Mọi tài khoản đã đăng nhập có role hợp lệ trong hệ thống đều được tạo ticket; `ROLE_USER` là quyền nền hợp lệ, không bắt buộc thêm role nghiệp vụ. Chỉ người tạo ticket và admin được xem, gửi tin nhắn; không cho xóa ticket hoặc tin nhắn qua UI/API nghiệp vụ.
 - Support Ticket dùng ba trạng thái `OPEN`, `IN_PROGRESS`, `RESOLVED`. Người tạo và admin đều được mở lại ticket từ `RESOLVED`; tin nhắn mới trên ticket `RESOLVED` tự chuyển trạng thái sang `IN_PROGRESS`.
 - `support_tickets.updated_at` là thời điểm hoạt động gần nhất: bằng `created_at` khi tạo, cập nhật khi có tin nhắn mới hoặc trạng thái thực sự thay đổi, kể cả khi tin nhắn mở lại ticket đã xử lý.
+- Tin nhắn Support Ticket có thể chứa phần chữ cùng tối đa 3 ảnh PNG/JPEG, mỗi ảnh tối đa 5 MB. File ảnh lưu riêng trong R2; `ticket_messages.content` lưu JSON tham chiếu các ảnh, không lưu ảnh dạng base64 và không thêm bảng hoặc cột cho tính năng này. Một lần gửi tạo một tin nhắn, cập nhật `updated_at` một lần; nếu ticket đang `RESOLVED` thì chuyển sang `IN_PROGRESS` một lần.
 - Chỉ quản lý Môn học (`subjects`) và Khối lớp (`grades`) trong trang admin `/admin/catalog`; mở trang ở Môn học trước. Hai loại này không có trạng thái kích hoạt/tạm ngưng. Sidebar hiển thị "Môn học & Khối lớp".
 - Phân biệt file đang có, mã nền JHipster và file mới dự kiến khi mô tả cấu trúc; đừng trình bày file dự kiến như đã tồn tại.
 - Đồng bộ hai `lumi.jdl` khi đổi mô hình; đừng chạy sinh lại JHipster tùy tiện vì có mã đã tùy biến.

@@ -13,6 +13,7 @@ vi.mock('./ticket-api', () => ({
     get: vi.fn(),
     messages: vi.fn(),
     sendMessage: vi.fn(),
+    imageAccess: vi.fn(),
     reopen: vi.fn(),
     changeStatus: vi.fn(),
   },
@@ -44,6 +45,8 @@ const renderDetail = (admin = false) => {
 describe('TicketDetail', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    Object.defineProperty(URL, 'createObjectURL', { configurable: true, value: vi.fn(() => 'blob:ticket-preview') });
+    Object.defineProperty(URL, 'revokeObjectURL', { configurable: true, value: vi.fn() });
     vi.mocked(ticketApi.get).mockResolvedValue({ data: ticket } as never);
     vi.mocked(ticketApi.messages).mockResolvedValue({ data: [], headers: { 'x-total-count': '0' } } as never);
   });
@@ -68,5 +71,16 @@ describe('TicketDetail', () => {
 
     await waitFor(() => expect(ticketApi.changeStatus).toHaveBeenCalledWith(42, 'RESOLVED'));
     expect(await screen.findByText('Đã giải quyết')).toBeTruthy();
+  });
+
+  it('sends an image-only reply as one message', async () => {
+    vi.mocked(ticketApi.sendMessage).mockResolvedValue({ data: { id: 1 } } as never);
+    renderDetail();
+    await screen.findByText('Cần hỗ trợ đăng nhập');
+    const image = new File([new Uint8Array([1])], 'issue.png', { type: 'image/png' });
+    fireEvent.change(screen.getByLabelText(/Ảnh đính kèm/), { target: { files: [image] } });
+    fireEvent.click(screen.getByRole('button', { name: 'Gửi tin nhắn' }));
+
+    await waitFor(() => expect(ticketApi.sendMessage).toHaveBeenCalledWith(42, '', [image]));
   });
 });

@@ -15,6 +15,7 @@ export interface Ticket {
 export interface TicketMessage {
   id: number;
   content: string;
+  images: { index: number; fileName: string }[];
   createdAt: string;
   senderId: number;
   senderLogin: string;
@@ -26,6 +27,18 @@ export interface TicketCreateInput {
   content: string;
 }
 
+export interface TicketImageAccess {
+  url: string;
+  expiresAt: string;
+}
+
+const imageForm = (fields: object, images: File[]) => {
+  const form = new FormData();
+  Object.entries(fields).forEach(([key, value]) => form.append(key, value));
+  images.forEach(image => form.append('images', image));
+  return form;
+};
+
 const baseUrl = '/api/support-tickets';
 const adminUrl = '/api/admin/support-tickets';
 
@@ -33,10 +46,22 @@ export const ticketApi = {
   listMine: (page: number, size: number) => axios.get<Ticket[]>(baseUrl, { params: { page, size, sort: 'createdAt,desc' } }),
   listAdmin: (page: number, size: number, status?: TicketStatus, type?: string, search?: string) =>
     axios.get<Ticket[]>(adminUrl, { params: { page, size, sort: 'createdAt,desc', status, type, search } }),
-  create: (input: TicketCreateInput) => axios.post<Ticket>(baseUrl, input),
+  create: (input: TicketCreateInput, images: File[] = []) =>
+    axios.post<Ticket>(
+      baseUrl,
+      images.length ? imageForm(input, images) : input,
+      images.length ? { headers: { 'Content-Type': 'multipart/form-data' } } : undefined,
+    ),
   get: (id: number) => axios.get<Ticket>(`${baseUrl}/${id}`),
   messages: (id: number, page: number, size: number) => axios.get<TicketMessage[]>(`${baseUrl}/${id}/messages`, { params: { page, size } }),
-  sendMessage: (id: number, content: string) => axios.post<TicketMessage>(`${baseUrl}/${id}/messages`, { content }),
+  sendMessage: (id: number, content: string, images: File[] = []) =>
+    axios.post<TicketMessage>(
+      `${baseUrl}/${id}/messages`,
+      images.length ? imageForm({ content }, images) : { content },
+      images.length ? { headers: { 'Content-Type': 'multipart/form-data' } } : undefined,
+    ),
+  imageAccess: (ticketId: number, messageId: number, index: number) =>
+    axios.get<TicketImageAccess>(`${baseUrl}/${ticketId}/messages/${messageId}/images/${index}/access`),
   reopen: (id: number) => axios.post<Ticket>(`${baseUrl}/${id}/reopen`),
   changeStatus: (id: number, status: 'IN_PROGRESS' | 'RESOLVED') => axios.patch<Ticket>(`${adminUrl}/${id}/status`, { status }),
 };

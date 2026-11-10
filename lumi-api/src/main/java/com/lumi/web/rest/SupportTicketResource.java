@@ -5,6 +5,7 @@ import com.lumi.service.dto.SupportTicketCreateRequest;
 import com.lumi.service.dto.SupportTicketViewDTO;
 import com.lumi.service.dto.TicketMessageCreateRequest;
 import com.lumi.service.dto.TicketMessageViewDTO;
+import com.lumi.service.storage.CourseObjectStorage.Access;
 import jakarta.validation.Valid;
 import java.net.URI;
 import java.util.List;
@@ -16,6 +17,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -27,6 +29,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+import org.springframework.web.multipart.MultipartFile;
 import tech.jhipster.web.util.PaginationUtil;
 
 @RestController
@@ -45,6 +48,17 @@ public class SupportTicketResource {
     @PostMapping
     public ResponseEntity<SupportTicketViewDTO> create(@Valid @RequestBody SupportTicketCreateRequest request) {
         SupportTicketViewDTO ticket = ticketService.create(request);
+        return ResponseEntity.created(URI.create("/api/support-tickets/" + ticket.id())).body(ticket);
+    }
+
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<SupportTicketViewDTO> createWithImages(
+        @RequestParam String type,
+        @RequestParam String subject,
+        @RequestParam String content,
+        @RequestParam(required = false) List<MultipartFile> images
+    ) {
+        SupportTicketViewDTO ticket = ticketService.createWithImages(new SupportTicketCreateRequest(type, subject, content), images);
         return ResponseEntity.created(URI.create("/api/support-tickets/" + ticket.id())).body(ticket);
     }
 
@@ -85,6 +99,21 @@ public class SupportTicketResource {
     public ResponseEntity<TicketMessageViewDTO> addMessage(@PathVariable Long id, @Valid @RequestBody TicketMessageCreateRequest request) {
         TicketMessageViewDTO message = ticketService.addMessage(id, request);
         return ResponseEntity.status(HttpStatus.CREATED).body(message);
+    }
+
+    @PostMapping(value = "/{id}/messages", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<TicketMessageViewDTO> addMessageWithImages(
+        @PathVariable Long id,
+        @RequestParam(required = false, defaultValue = "") String content,
+        @RequestParam(required = false) List<MultipartFile> images
+    ) {
+        TicketMessageViewDTO message = ticketService.addMessageWithImages(id, content, images);
+        return ResponseEntity.status(HttpStatus.CREATED).body(message);
+    }
+
+    @GetMapping("/{id}/messages/{messageId}/images/{imageIndex}/access")
+    public ResponseEntity<Access> imageAccess(@PathVariable Long id, @PathVariable Long messageId, @PathVariable int imageIndex) {
+        return ResponseEntity.ok().cacheControl(org.springframework.http.CacheControl.noStore()).body(ticketService.imageAccess(id, messageId, imageIndex));
     }
 
     @PostMapping("/{id}/reopen")

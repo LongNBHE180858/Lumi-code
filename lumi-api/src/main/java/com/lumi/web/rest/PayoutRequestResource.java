@@ -30,6 +30,7 @@ import tech.jhipster.web.util.ResponseUtil;
  * REST controller for managing {@link com.lumi.domain.PayoutRequest}.
  */
 @RestController
+@org.springframework.security.access.prepost.PreAuthorize("@instructorAccessService.canUseInstructorFeatures()")
 @RequestMapping("/api/payout-requests")
 public class PayoutRequestResource {
 

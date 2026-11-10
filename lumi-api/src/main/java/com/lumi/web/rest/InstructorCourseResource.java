@@ -17,6 +17,7 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import tech.jhipster.web.util.PaginationUtil;
 
 @RestController
+@org.springframework.security.access.prepost.PreAuthorize("@instructorAccessService.canUseInstructorFeatures()")
 @Validated
 @RequestMapping("/api/instructor/courses")
 public class InstructorCourseResource {
