@@ -134,7 +134,6 @@
     <include file="config/liquibase/changelog/20261021000000_unique_pending_course_review.xml" relativeToChangelogFile="false"/>
 
     <include file="config/liquibase/changelog/20261022120000_instructor_review_metadata.xml" relativeToChangelogFile="false"/>
-    <include file="config/liquibase/changelog/20261022180000_remove_instructor_reviewer.xml" relativeToChangelogFile="false"/>
     <include file="config/liquibase/changelog/20261026110000_seed_knowledge_graph_subjects.xml" relativeToChangelogFile="false"/>
     <include file="config/liquibase/changelog/20261103000000_enable_vector_extensions.xml" relativeToChangelogFile="false"/>
 </databaseChangeLog>
