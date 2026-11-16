@@ -14,6 +14,8 @@ import org.springframework.stereotype.Repository;
  */
 @Repository
 public interface AssignmentStudentRepository extends JpaRepository<AssignmentStudent, Long>, JpaSpecificationExecutor<AssignmentStudent> {
+    boolean existsByAssignmentIdAndStudentId(Long assignmentId, Long studentId);
+
     @Query(
         "select assignmentStudent from AssignmentStudent assignmentStudent where assignmentStudent.student.login = ?#{authentication.name}"
     )

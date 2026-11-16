@@ -1,0 +1,786 @@
+$purchase-primary: #24a8e8;
+$purchase-text: #102b59;
+$purchase-muted: #7894af;
+$purchase-secondary: #5c738f;
+$purchase-border: #d3e8f6;
+$purchase-background: #f3faff;
+
+.app-container .view-container:has(.lumi-course-purchase) {
+  padding: 0;
+  > .jh-card {
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
+  }
+}
+
+.lumi-course-purchase {
+  min-height: calc(100vh - 66px);
+  background: $purchase-background;
+  color: $purchase-text;
+  font-family: 'Nunito', sans-serif;
+  font-size: 14px;
+  line-height: 1.5;
+
+  h1,
+  h2,
+  h3,
+  p,
+  dl,
+  dd,
+  ol {
+    margin: 0;
+  }
+  a {
+    color: #078bcf;
+    text-decoration: none;
+    font-weight: 700;
+  }
+  button,
+  select {
+    font: inherit;
+  }
+  button {
+    cursor: pointer;
+  }
+  button:disabled {
+    cursor: not-allowed;
+  }
+  button:focus-visible,
+  select:focus-visible,
+  a:focus-visible {
+    outline: 3px solid $purchase-primary;
+    outline-offset: 3px;
+  }
+
+  .purchase-content {
+    max-width: 1328px;
+    margin: 0 auto;
+    padding: 36px 64px 56px;
+  }
+  .purchase-back {
+    display: inline-block;
+    margin-bottom: 28px;
+  }
+  .purchase-heading {
+    margin-bottom: 28px;
+    h1 {
+      font-size: 32px;
+      line-height: 1.4;
+      font-weight: 900;
+    }
+    > p {
+      color: $purchase-muted;
+      font-size: 16px;
+      margin-top: 10px;
+    }
+  }
+  .purchase-steps {
+    list-style: none;
+    padding: 0;
+    display: flex;
+    gap: 18px;
+    margin-top: 28px;
+    color: $purchase-secondary;
+    font-weight: 600;
+    li {
+      display: flex;
+      align-items: center;
+      gap: 18px;
+    }
+    li:not(:last-child)::after {
+      content: '';
+      display: block;
+      width: 70px;
+      height: 1px;
+      background: $purchase-border;
+    }
+    [aria-current] {
+      color: $purchase-text;
+      font-weight: 800;
+      .purchase-step-number {
+        background: $purchase-primary;
+        border-color: $purchase-primary;
+        color: #fff;
+      }
+    }
+  }
+  .purchase-step {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .purchase-step-number {
+    display: grid;
+    place-items: center;
+    width: 32px;
+    height: 32px;
+    flex-shrink: 0;
+    border: 1px solid $purchase-border;
+    border-radius: 50%;
+    background: #fff;
+    font-size: 14px;
+    font-weight: 800;
+  }
+  .purchase-columns {
+    display: grid;
+    grid-template-columns: minmax(0, 760fr) minmax(320px, 408fr);
+    gap: 32px;
+    align-items: start;
+  }
+  .purchase-details,
+  .purchase-summary-column {
+    display: grid;
+    gap: 24px;
+    min-width: 0;
+  }
+  .purchase-panel {
+    padding: 28px;
+    background: #fff;
+    border: 1px solid $purchase-border;
+    border-radius: 20px;
+    min-width: 0;
+  }
+  h2 {
+    font-size: 19px;
+    font-weight: 800;
+  }
+  .purchase-section-title {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding-bottom: 18px;
+    border-bottom: 1px solid $purchase-border;
+    font-size: 18px;
+  }
+  .purchase-section-number {
+    display: grid;
+    place-items: center;
+    width: 32px;
+    height: 32px;
+    flex-shrink: 0;
+    border-radius: 8px;
+    background: $purchase-background;
+    color: $purchase-primary;
+    font-size: 13px;
+  }
+  .purchase-course {
+    display: flex;
+    gap: 20px;
+    align-items: start;
+    > div:last-child {
+      min-width: 0;
+      overflow-wrap: anywhere;
+    }
+    h2 {
+      margin-top: 8px;
+      font-size: 23px;
+    }
+    p {
+      color: $purchase-muted;
+    }
+  }
+  .purchase-course-image {
+    width: 100px;
+    height: 100px;
+    flex-shrink: 0;
+    border-radius: 16px;
+    background: $purchase-background;
+    color: $purchase-primary;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 5px;
+    overflow: hidden;
+    > img:not(.purchase-book-icon) {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    span {
+      font-size: 12px;
+      font-weight: 800;
+      padding: 0 6px;
+      text-align: center;
+    }
+  }
+  .purchase-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    span {
+      padding: 8px;
+      border-radius: 8px;
+      background: $purchase-background;
+      color: #078bcf;
+      font-size: 12px;
+      font-weight: 800;
+    }
+  }
+  .purchase-course-facts {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    margin-top: 24px;
+    padding-top: 22px;
+    border-top: 1px solid $purchase-border;
+    > div {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    span,
+    small {
+      color: $purchase-muted;
+    }
+    strong {
+      font-size: 20px;
+      font-weight: 900;
+    }
+    > div:first-child strong {
+      font-size: 26px;
+    }
+  }
+  .purchase-child {
+    > div:first-child > p {
+      margin-top: 14px;
+      color: $purchase-secondary;
+    }
+    label,
+    .purchase-field-label {
+      display: block;
+      margin: 22px 0 8px;
+      color: $purchase-secondary;
+      font-size: 13px;
+      font-weight: 700;
+    }
+    select {
+      width: 100%;
+      min-height: 54px;
+      padding: 12px 42px 12px 16px;
+      color: $purchase-text;
+      border: 1px solid $purchase-border;
+      border-radius: 12px;
+      background: #fff;
+      appearance: none;
+      font-weight: 700;
+      text-overflow: ellipsis;
+    }
+    select:disabled {
+      color: $purchase-text;
+      opacity: 1;
+    }
+    .purchase-help {
+      margin-top: 16px;
+      color: $purchase-secondary;
+      font-size: 13px;
+    }
+    > [role='status'],
+    > [role='alert'] {
+      margin-top: 16px;
+    }
+  }
+  .purchase-avatar {
+    display: grid;
+    place-items: center;
+    width: 40px;
+    height: 40px;
+    flex-shrink: 0;
+    border-radius: 50%;
+    background: $purchase-background;
+    color: $purchase-primary;
+    font-size: 14px;
+    font-weight: 800;
+  }
+  .purchase-buyer {
+    display: grid;
+    gap: 18px;
+  }
+  .purchase-buyer-identity {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    strong {
+      min-width: 0;
+      font-size: 16px;
+      font-weight: 800;
+      overflow-wrap: anywhere;
+    }
+  }
+  .purchase-buyer-fields {
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: minmax(0, 1fr);
+    gap: 12px;
+    > div {
+      display: grid;
+      grid-template-rows: auto 1fr;
+      gap: 8px;
+      min-width: 0;
+    }
+    dt {
+      color: $purchase-secondary;
+      font-size: 12px;
+      font-weight: 600;
+    }
+    dd {
+      display: flex;
+      align-items: center;
+      min-width: 0;
+      min-height: 66px;
+      padding: 12px 16px;
+      border: 1px solid $purchase-border;
+      border-radius: 12px;
+      background: $purchase-background;
+      font-weight: 600;
+      overflow-wrap: anywhere;
+    }
+    .purchase-avatar {
+      background: #fff;
+    }
+  }
+  .purchase-selected-child {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 16px;
+    border: 1px solid $purchase-border;
+    border-radius: 12px;
+    background: $purchase-background;
+    strong {
+      flex: 1;
+      min-width: 0;
+      overflow-wrap: anywhere;
+    }
+    .purchase-avatar {
+      width: 36px;
+      height: 36px;
+      font-size: 12px;
+      background: #fff;
+    }
+  }
+  .purchase-select-wrapper {
+    position: relative;
+  }
+  .purchase-select-arrow {
+    position: absolute;
+    right: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    pointer-events: none;
+    color: $purchase-primary;
+    font-size: 16px;
+  }
+  .purchase-method {
+    display: flex;
+    gap: 16px;
+    margin-top: 18px;
+    padding: 18px;
+    border: 1px solid $purchase-primary;
+    border-radius: 12px;
+    background: $purchase-background;
+    > span {
+      color: $purchase-primary;
+      font-size: 24px;
+    }
+    strong {
+      font-size: 16px;
+    }
+    p {
+      color: $purchase-muted;
+      margin-top: 4px;
+    }
+  }
+  .purchase-summary {
+    display: grid;
+    gap: 22px;
+    h2 {
+      font-size: 21px;
+    }
+    > strong {
+      font-size: 16px;
+    }
+    dl {
+      display: grid;
+      gap: 20px;
+    }
+    dl > div {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr);
+      gap: 16px;
+    }
+    dt {
+      color: $purchase-muted;
+      font-weight: 400;
+    }
+    dl > div:first-child dt {
+      font-size: 13px;
+    }
+    dd {
+      font-weight: 700;
+      text-align: right;
+      overflow-wrap: anywhere;
+    }
+  }
+  .purchase-payment-hint {
+    color: $purchase-secondary;
+    font-size: 13px;
+  }
+  .purchase-total {
+    border-top: 1px solid $purchase-border;
+    padding-top: 22px;
+    display: grid;
+    gap: 4px;
+    strong {
+      color: $purchase-primary;
+      font-size: 32px;
+      font-weight: 900;
+    }
+    small {
+      color: $purchase-muted;
+    }
+  }
+  .purchase-submit {
+    width: 100%;
+    padding: 16px;
+    border-radius: 12px;
+    border: 0;
+    background: $purchase-primary;
+    color: #fff;
+    font-weight: 800;
+    font-size: 16px;
+    &:disabled {
+      opacity: 0.45;
+    }
+  }
+  .purchase-help {
+    color: $purchase-muted;
+    font-size: 12px;
+  }
+  .purchase-entitlement {
+    padding-top: 20px;
+    border-top: 1px solid $purchase-border;
+    font-size: 13px;
+  }
+  .purchase-support {
+    padding: 12px 20px;
+    display: grid;
+    gap: 6px;
+  }
+  .purchase-feedback {
+    padding: 16px;
+    border: 1px solid $purchase-border;
+    border-radius: 12px;
+    background: $purchase-background;
+    overflow-wrap: anywhere;
+  }
+  .purchase-text-button {
+    padding: 0;
+    margin-top: 10px;
+    border: 0;
+    background: transparent;
+    color: #078bcf;
+    font-weight: 800;
+  }
+  .purchase-order-result {
+    display: grid;
+    gap: 10px;
+    padding: 16px;
+    background: $purchase-background;
+    border-radius: 12px;
+    h3 {
+      font-size: 18px;
+      font-weight: 800;
+    }
+  }
+
+  .payment-main,
+  .payment-sidebar {
+    display: grid;
+    gap: 24px;
+    min-width: 0;
+  }
+  .payment-qr-panel,
+  .payment-guide,
+  .payment-status,
+  .payment-result {
+    display: grid;
+    gap: 22px;
+    overflow-wrap: anywhere;
+  }
+  .payment-panel-heading {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    span {
+      color: $purchase-primary;
+      font-weight: 800;
+    }
+  }
+  .payment-deadline {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    padding: 16px;
+    border-radius: 12px;
+    background: $purchase-background;
+    > div {
+      flex: 1;
+      min-width: 0;
+    }
+    p {
+      color: $purchase-secondary;
+      font-size: 12px;
+      margin-top: 4px;
+    }
+  }
+  .payment-countdown {
+    font-size: 28px;
+    color: $purchase-primary;
+    font-weight: 900;
+    font-variant-numeric: tabular-nums;
+    flex-shrink: 0;
+  }
+  .payment-transfer {
+    display: grid;
+    grid-template-columns: minmax(0, 264fr) minmax(0, 416fr);
+    gap: 24px;
+  }
+  .payment-qr-column {
+    display: grid;
+    align-content: start;
+    gap: 12px;
+    min-width: 0;
+  }
+  .payment-qr-image {
+    display: grid;
+    place-items: center;
+    min-width: 0;
+    min-height: 240px;
+    padding: 12px;
+    border: 1px solid $purchase-border;
+    border-radius: 12px;
+    background: #fff;
+    img {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+  }
+  .payment-bank-details {
+    display: grid;
+    gap: 18px;
+    align-content: start;
+    min-width: 0;
+  }
+  .payment-transfer-field {
+    min-width: 0;
+    dt {
+      color: $purchase-secondary;
+      font-size: 12px;
+      font-weight: 400;
+      margin-bottom: 4px;
+    }
+    dd {
+      display: flex;
+      align-items: start;
+      justify-content: space-between;
+      gap: 12px;
+      strong {
+        min-width: 0;
+        overflow-wrap: anywhere;
+      }
+    }
+    button {
+      border: 0;
+      padding: 0;
+      background: transparent;
+      color: #078bcf;
+      font-size: 12px;
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+  }
+  .payment-secondary-button {
+    display: block;
+    width: 100%;
+    padding: 14px;
+    border: 1px solid $purchase-border;
+    border-radius: 10px;
+    background: #fff;
+    color: #078bcf;
+    font-weight: 800;
+    &:disabled {
+      opacity: 0.6;
+    }
+  }
+  .payment-notice {
+    border-radius: 12px;
+    background: $purchase-background;
+    padding: 16px;
+    font-size: 13px;
+    p {
+      margin-top: 6px;
+      color: $purchase-secondary;
+    }
+  }
+  .payment-guide ol {
+    display: grid;
+    gap: 22px;
+    list-style: none;
+    padding: 0;
+    li {
+      display: flex;
+      gap: 16px;
+    }
+    li > span {
+      color: $purchase-primary;
+      font-weight: 800;
+      min-width: 24px;
+      flex-shrink: 0;
+      white-space: nowrap;
+    }
+    li > div {
+      min-width: 0;
+    }
+    p {
+      color: $purchase-secondary;
+      font-size: 13px;
+      margin-top: 4px;
+    }
+  }
+  .payment-status {
+    h2 {
+      padding: 12px;
+      border-radius: 10px;
+      background: $purchase-background;
+      color: #078bcf;
+      font-size: 16px;
+    }
+    > p {
+      color: $purchase-secondary;
+    }
+  }
+  .payment-order-summary > strong {
+    padding-top: 18px;
+    border-top: 1px solid $purchase-border;
+  }
+
+  @media (min-width: 992px) and (max-width: 1150px) {
+    .payment-transfer {
+      grid-template-columns: 1fr;
+    }
+    .payment-qr-column {
+      max-width: 280px;
+      width: 100%;
+      margin: 0 auto;
+    }
+  }
+
+  @media (max-width: 991px) {
+    .purchase-content {
+      padding: 28px 24px 40px;
+    }
+    .purchase-columns {
+      grid-template-columns: 1fr;
+    }
+    .payment-sidebar {
+      display: contents;
+    }
+    .payment-main {
+      display: contents;
+    }
+    .payment-order-summary {
+      grid-row: 1;
+    }
+    .payment-qr-panel,
+    .payment-result {
+      grid-row: 2;
+    }
+    .payment-status {
+      grid-row: 3;
+    }
+    .payment-guide {
+      grid-row: 4;
+    }
+  }
+  @media (max-width: 575px) {
+    .purchase-content {
+      padding: 24px 16px 32px;
+    }
+    .purchase-heading h1 {
+      font-size: 26px;
+    }
+    .purchase-steps {
+      width: 100%;
+      gap: 0;
+      font-size: 12px;
+      li {
+        flex: 1;
+        min-width: 0;
+        position: relative;
+        justify-content: center;
+      }
+    }
+    .purchase-steps li:not(:last-child)::after {
+      position: absolute;
+      top: 16px;
+      left: calc(50% + 26px);
+      width: calc(100% - 52px);
+    }
+    .purchase-step {
+      flex-direction: column;
+      gap: 7px;
+    }
+    .purchase-buyer-fields {
+      grid-auto-flow: row;
+      grid-template-columns: 1fr;
+      gap: 14px;
+    }
+    .purchase-summary dl > div:first-child dt {
+      font-size: 12px;
+    }
+    .purchase-panel {
+      padding: 20px;
+    }
+    .purchase-course {
+      gap: 16px;
+      h2 {
+        font-size: 18px;
+      }
+    }
+    .purchase-course-image {
+      width: 64px;
+      height: 64px;
+      .purchase-book-icon {
+        width: 40px;
+        height: 40px;
+      }
+      span {
+        font-size: 9px;
+      }
+    }
+    .purchase-course-facts {
+      grid-template-columns: 1fr;
+      gap: 18px;
+    }
+    .payment-transfer {
+      grid-template-columns: 1fr;
+      gap: 24px;
+    }
+    .payment-qr-column {
+      width: 100%;
+      max-width: 300px;
+      margin: 0 auto;
+    }
+    .payment-deadline {
+      flex-wrap: wrap;
+    }
+  }
+}

@@ -24,6 +24,7 @@ package com.lumi.domain.enumeration;
  * - Các giá trị CHECK trên varchar, FK chéo và quy tắc duyệt/quyền vẫn cần validation BE/SQL.
  * - Không có webcam: securityConfig/securityConfigSnapshot chỉ cấu hình giám sát trình duyệt.
  */
+// File nay dung nhieu
 public enum RecordStatus {
     DRAFT,
     PENDING,

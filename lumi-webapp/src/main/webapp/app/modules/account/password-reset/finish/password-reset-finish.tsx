@@ -123,8 +123,8 @@ export const PasswordResetFinishPage: React.FC = () => {
       return;
     }
 
-    if (newPassword.length < 6) {
-      setClientError('Mật khẩu mới phải chứa ít nhất 6 ký tự.');
+    if (newPassword.length < 8) {
+      setClientError('Mật khẩu mới phải chứa ít nhất 8 ký tự.');
       return;
     }
 

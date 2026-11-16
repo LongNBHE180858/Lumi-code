@@ -31,10 +31,10 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.http.MediaType;
-import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.mock.web.MockMultipartFile;
-import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 
 @IntegrationTest
@@ -293,9 +293,14 @@ class SupportTicketResourceIT {
         SupportTicket ticket = persistTicket(owner, "RESOLVED");
         when(imageStorage.uploadTicketImage(any(), any(), any(), any())).thenAnswer(invocation -> {
             String fileName = invocation.getArgument(2);
-            return new TicketMessageContent.Image("tickets/" + ticket.getId() + "/" + (fileName.equals("first.png") ? "a" : "b") + ".png", fileName);
+            return new TicketMessageContent.Image(
+                "tickets/" + ticket.getId() + "/" + (fileName.equals("first.png") ? "a" : "b") + ".png",
+                fileName
+            );
         });
-        when(imageStorage.ticketImageAccess(any(), any(), any())).thenReturn(new CourseObjectStorage.Access("https://example.test/image", Instant.now().plusSeconds(300)));
+        when(imageStorage.ticketImageAccess(any(), any(), any())).thenReturn(
+            new CourseObjectStorage.Access("https://example.test/image", Instant.now().plusSeconds(300))
+        );
         byte[] png = pngBytes();
 
         mockMvc

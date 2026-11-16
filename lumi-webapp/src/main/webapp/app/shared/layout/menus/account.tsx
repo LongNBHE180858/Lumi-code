@@ -38,11 +38,7 @@ export const getAccountDisplayName = (account: any): string => {
   if (!account) return 'Thầy Nguyễn Văn Nam';
 
   const fullName = [account.firstName, account.lastName].filter(Boolean).join(' ').trim();
-  const isInstructor =
-    !account.authorities ||
-    account.authorities.length === 0 ||
-    account.authorities?.includes('ROLE_INSTRUCTOR') ||
-    account.authorities?.includes('ROLE_TEACHER');
+  const isInstructor = !account.authorities || account.authorities.length === 0 || account.authorities?.includes('ROLE_INSTRUCTOR');
   if (fullName) {
     if (isInstructor && !/^(thầy|cô)\s+/i.test(fullName)) {
       return `Thầy ${fullName}`;
@@ -72,12 +68,11 @@ export const getInitials = (name: string): string => {
 const accountMenuItemsAuthenticated = (account: any = {}, instructorApproved = false) => {
   const authorities: string[] = account?.authorities || [];
   const isAdmin = authorities.includes('ROLE_ADMIN');
-  const isInstructor =
-    authorities.includes('ROLE_INSTRUCTOR') || authorities.includes('ROLE_TEACHER') || (!isAdmin && authorities.length === 0);
+  const isInstructor = authorities.includes('ROLE_INSTRUCTOR') || (!isAdmin && authorities.length === 0);
 
   return (
     <>
-      <MenuItem icon="user" to="/account/settings" data-cy="profileItem">
+      <MenuItem icon="user" to="/profile" data-cy="profileItem">
         Hồ sơ cá nhân
       </MenuItem>
 
@@ -105,12 +100,18 @@ const accountMenuItemsAuthenticated = (account: any = {}, instructorApproved = f
           <MenuItem icon="book" to="/instructor/courses" data-cy="instructorCourses" end>
             Khóa học của tôi
           </MenuItem>
-          <MenuItem icon="tasks" to="/instructor/courses/new" data-cy="builderCourses">
+          <MenuItem icon="tasks" to="/instructor/courses/new" data-cy="builderCourses" end>
             Tạo khóa học mới
+          </MenuItem>
+          <MenuItem icon="users" to="/instructor/classes" data-cy="instructorClasses">
+            Quản lý lớp học
           </MenuItem>
         </>
       )}
 
+      <MenuItem icon="wrench" to="/account/settings" data-cy="settings">
+        <Translate contentKey="global.menu.account.settings">Settings</Translate>
+      </MenuItem>
       {authorities.includes('ROLE_INSTRUCTOR') && !instructorApproved && (
         <MenuItem icon="user" to="/profile" data-cy="instructorApplicationStatus">
           Trạng thái hồ sơ giảng viên

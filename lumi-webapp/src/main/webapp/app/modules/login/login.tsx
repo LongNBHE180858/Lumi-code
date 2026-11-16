@@ -6,7 +6,6 @@ import { Navigate, useLocation } from 'react-router';
 import { useAppDispatch, useAppSelector } from 'app/config/store';
 import { login, resetTwoFactor } from 'app/shared/reducers/authentication';
 
-import LoginModal from './login-modal';
 import { Authority } from 'app/shared/jhipster/constants';
 import { HeroSection } from './hero-section';
 import { LoginForm } from './login-form';
@@ -21,6 +20,7 @@ export const Login: React.FC = () => {
   const errorMessage = useAppSelector(state => state.authentication.errorMessage);
   const twoFactorRequired = useAppSelector(state => state.authentication.twoFactorRequired);
   const twoFactorEmail = useAppSelector(state => state.authentication.twoFactorEmail);
+  const twoFactorChallengeId = useAppSelector(state => state.authentication.twoFactorChallengeId);
   const pageLocation = useLocation();
 
   const [rememberMeState, setRememberMeState] = useState(false);
@@ -48,8 +48,9 @@ export const Login: React.FC = () => {
       </div>
 
       <TwoFactorModal
-        isOpen={Boolean(twoFactorRequired && twoFactorEmail)}
+        isOpen={Boolean(twoFactorRequired && twoFactorEmail && twoFactorChallengeId)}
         email={twoFactorEmail || ''}
+        challengeId={twoFactorChallengeId || ''}
         rememberMe={rememberMeState}
         onClose={() => dispatch(resetTwoFactor())}
       />

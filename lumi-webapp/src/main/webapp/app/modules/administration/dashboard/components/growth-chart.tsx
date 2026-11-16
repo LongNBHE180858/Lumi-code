@@ -1,54 +1,63 @@
 import React from 'react';
 
-import { chartLabels, totalUsers } from '../dashboard-data';
+import type { DashboardData } from '../dashboard-api';
 
 interface GrowthChartProps {
   period: '6' | '3';
+  points: DashboardData['monthlyUsers'];
 }
 
-const GrowthChart = ({ period }: GrowthChartProps) => {
-  const shortPeriod = period === '3';
+const GrowthChart = ({ period, points }: GrowthChartProps) => {
+  const visible = period === '3' ? points.slice(-3) : points;
+  const largest = Math.max(1, ...visible.map(point => point.users ?? 0));
+  const unit = 10 ** Math.floor(Math.log10(largest / 3));
+  const tickStep = Math.ceil(largest / 3 / unit) * unit;
+  const chartMax = tickStep * 3;
+  const plotted = visible.map((point, index) => ({
+    x: visible.length === 1 ? 300 : (index * 600) / (visible.length - 1),
+    y: point.users == null ? null : 120 - (point.users / chartMax) * 120,
+  }));
+  const segments: string[] = [];
+  let current = '';
+  plotted.forEach(point => {
+    if (point.y == null) {
+      if (current) segments.push(current);
+      current = '';
+    } else {
+      current += `${current ? ' L ' : 'M '}${point.x} ${point.y}`;
+    }
+  });
+  if (current) segments.push(current);
+  const known = visible.filter(point => point.users != null);
+  const label =
+    known.length > 1
+      ? `Tổng người dùng theo tháng, ${known.map(point => `${point.month}: ${point.users}`).join(', ')}`
+      : 'Chưa đủ mốc lịch sử để vẽ tăng trưởng người dùng';
+
   return (
-    <div
-      className="admin-growth-chart"
-      role="img"
-      aria-label={`Biểu đồ tăng trưởng người dùng trong ${period} tháng gần nhất, đạt ${totalUsers} người dùng`}
-    >
+    <div className="admin-growth-chart" role="img" aria-label={label}>
       <div className="admin-chart-plot">
-        {[15000, 10000, 5000, 0].map((tick, index) => (
-          <div className="admin-chart-tick" key={tick} style={{ top: `${20 + index * 48}px` }}>
-            <span>{tick.toLocaleString('vi-VN')}</span>
+        {[3, 2, 1, 0].map((step, index) => (
+          <div className="admin-chart-tick" key={step} style={{ top: `${20 + index * 48}px` }}>
+            <span>{(tickStep * step).toLocaleString('vi-VN')}</span>
           </div>
         ))}
-        {shortPeriod ? (
-          <svg className="admin-chart-series" viewBox="0 0 600 144" preserveAspectRatio="none" aria-hidden="true">
-            <path d="M0 75 C150 61 260 44 360 29 S530 15 600 4 L600 144 L0 144Z" fill="#24a8e8" fillOpacity=".11" />
-            <path d="M0 75 C150 61 260 44 360 29 S530 15 600 4" fill="none" stroke="#24a8e8" strokeWidth="3" />
-            <circle cx="600" cy="4" r="4" fill="#24a8e8" />
-          </svg>
-        ) : (
-          <svg className="admin-chart-series" viewBox="0 0 600 120" preserveAspectRatio="none" aria-hidden="true">
-            <path
-              d="M0 57.41 C40 57.41 80 52.81 120 48.77 C160 44.73 200 45.81 240 41.09 C280 36.37 320 31.81 360 27.65 C400 23.49 440 18.81 480 13.59 C520 8.37 560 5.81 600 0 V120 H0Z"
-              fill="#24a8e8"
-              fillOpacity=".1"
-            />
-            <path
-              d="M0 57.41 C40 57.41 80 52.81 120 48.77 C160 44.73 200 45.81 240 41.09 C280 36.37 320 31.81 360 27.65 C400 23.49 440 18.81 480 13.59 C520 8.37 560 5.81 600 0"
-              fill="none"
-              stroke="#24a8e8"
-              strokeWidth="3"
-              strokeLinecap="round"
-            />
-            <circle cx="600" cy="0" r="4" fill="#24a8e8" stroke="#fff" strokeWidth="2" />
-          </svg>
-        )}
-        <strong className="admin-chart-value">{totalUsers}</strong>
+        <svg className="admin-chart-series" viewBox="0 0 600 120" preserveAspectRatio="none" aria-hidden="true">
+          {segments.map((segment, index) => (
+            <path key={index} d={segment} fill="none" stroke="#24a8e8" strokeWidth="3" />
+          ))}
+          {plotted.map((point, index) =>
+            point.y == null ? null : <circle key={visible[index].month} cx={point.x} cy={point.y} r="4" fill="#24a8e8" />,
+          )}
+        </svg>
+        {known.length < 2 && <span className="admin-chart-empty">Chưa đủ mốc lịch sử</span>}
+        <strong className="admin-chart-value">{visible.at(-1)?.users?.toLocaleString('vi-VN') ?? '—'}</strong>
       </div>
       <div className="admin-chart-months">
-        {(shortPeriod ? chartLabels.slice(3) : chartLabels).map(label => (
-          <span key={label}>{label}</span>
-        ))}
+        {visible.map(point => {
+          const [year, month] = point.month.split('-');
+          return <span key={point.month}>{`Tháng ${Number(month)}/${year}`}</span>;
+        })}
       </div>
     </div>
   );

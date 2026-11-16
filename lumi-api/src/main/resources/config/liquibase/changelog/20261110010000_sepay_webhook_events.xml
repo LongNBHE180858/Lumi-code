@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog https://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+    <changeSet id="20261110010000-1" author="lumi">
+        <createTable tableName="sepay_webhook_events">
+            <column name="id" type="bigint"><constraints primaryKey="true" nullable="false"/></column>
+            <column name="provider_event_id" type="varchar(255)"><constraints nullable="false" unique="true" uniqueConstraintName="ux_sepay_webhook_event_id"/></column>
+            <column name="order_id" type="bigint"/>
+            <column name="payment_id" type="bigint"/>
+            <column name="bank_reference" type="varchar(255)"/>
+            <column name="receiving_account" type="varchar(255)"><constraints nullable="false"/></column>
+            <column name="transfer_type" type="varchar(10)"><constraints nullable="false"/></column>
+            <column name="amount" type="decimal(21,2)"><constraints nullable="false"/></column>
+            <column name="transaction_at" type="${datetimeType}"><constraints nullable="false"/></column>
+            <column name="received_at" type="${datetimeType}"><constraints nullable="false"/></column>
+            <column name="processing_status" type="varchar(30)"><constraints nullable="false"/></column>
+            <column name="processing_reason" type="varchar(255)"/>
+        </createTable>
+        <addForeignKeyConstraint baseTableName="sepay_webhook_events" baseColumnNames="order_id"
+            referencedTableName="orders" referencedColumnNames="id" constraintName="fk_sepay_event_order"/>
+        <addForeignKeyConstraint baseTableName="sepay_webhook_events" baseColumnNames="payment_id"
+            referencedTableName="payments" referencedColumnNames="id" constraintName="fk_sepay_event_payment"/>
+        <createIndex tableName="sepay_webhook_events" indexName="idx_sepay_event_order"><column name="order_id"/></createIndex>
+        <createIndex tableName="sepay_webhook_events" indexName="idx_sepay_event_review"><column name="processing_status"/></createIndex>
+        <rollback><dropTable tableName="sepay_webhook_events"/></rollback>
+    </changeSet>
+    <changeSet id="20261110010000-2" author="lumi">
+        <preConditions onFail="HALT">
+            <sqlCheck expectedResult="0">SELECT COUNT(*) FROM (SELECT gateway,provider_event_id FROM payments WHERE provider_event_id IS NOT NULL GROUP BY gateway,provider_event_id HAVING COUNT(*) &gt; 1) duplicates</sqlCheck>
+        </preConditions>
+        <addUniqueConstraint tableName="payments" columnNames="gateway,provider_event_id" constraintName="ux_payments_gateway_event"/>
+        <rollback><dropUniqueConstraint tableName="payments" constraintName="ux_payments_gateway_event"/></rollback>
+    </changeSet>
+</databaseChangeLog>

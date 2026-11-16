@@ -44,8 +44,13 @@ public class StudyClass implements Serializable {
     @Column(name = "max_students")
     private Integer maxStudents;
 
-    @Column(name = "current_students")
-    private Integer currentStudents;
+    @NotNull
+    @Column(name = "current_students", nullable = false)
+    private Integer currentStudents = 0;
+
+    @NotNull
+    @Column(name = "curriculum_version", nullable = false)
+    private Integer curriculumVersion = 0;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "status")
@@ -165,6 +170,19 @@ public class StudyClass implements Serializable {
 
     public void setCurrentStudents(Integer currentStudents) {
         this.currentStudents = currentStudents;
+    }
+
+    public Integer getCurriculumVersion() {
+        return this.curriculumVersion;
+    }
+
+    public StudyClass curriculumVersion(Integer curriculumVersion) {
+        this.setCurriculumVersion(curriculumVersion);
+        return this;
+    }
+
+    public void setCurriculumVersion(Integer curriculumVersion) {
+        this.curriculumVersion = curriculumVersion;
     }
 
     public RecordStatus getStatus() {
@@ -301,6 +319,7 @@ public class StudyClass implements Serializable {
             ", joinMode='" + getJoinMode() + "'" +
             ", maxStudents=" + getMaxStudents() +
             ", currentStudents=" + getCurrentStudents() +
+            ", curriculumVersion=" + getCurriculumVersion() +
             ", status='" + getStatus() + "'" +
             ", isDeleted='" + getIsDeleted() + "'" +
             ", createdAt='" + getCreatedAt() + "'" +

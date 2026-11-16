@@ -43,6 +43,10 @@ public interface AuthSessionRepository extends JpaRepository<AuthSession, Long>,
 
     Optional<AuthSession> findOneByRefreshToken(String refreshToken);
 
+    @Lock(jakarta.persistence.LockModeType.PESSIMISTIC_WRITE)
+    @Query("select s from AuthSession s where s.refreshToken = :token")
+    Optional<AuthSession> findByRefreshTokenForUpdate(@Param("token") String token);
+
     List<AuthSession> findAllByUserAndIsRevokedFalse(com.lumi.domain.User user);
 
     List<AuthSession> findAllByUserAndIsRevokedFalseOrderByCreatedAtDesc(com.lumi.domain.User user);

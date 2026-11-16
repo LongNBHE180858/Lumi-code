@@ -1,8 +1,7 @@
-import './email-verification.scss';
+﻿import './email-verification.scss';
 
 import React, { useEffect, useState } from 'react';
 import { Link, useLocation, useNavigate, useSearchParams } from 'react-router';
-import axios from 'axios';
 import { toast } from 'react-toastify';
 import { apiSendOtp, apiVerifyOtp } from 'app/shared/api/auth.api';
 
@@ -12,7 +11,6 @@ export const EmailVerificationPage: React.FC = () => {
   const navigate = useNavigate();
 
   const emailParam = searchParams.get('email') || (location.state as any)?.email || '';
-  const keyParam = searchParams.get('key');
 
   const [email] = useState<string>(emailParam || 'email-cua-ban@domain.com');
   const [otpCode, setOtpCode] = useState('');
@@ -20,21 +18,6 @@ export const EmailVerificationPage: React.FC = () => {
   const [isResending, setIsResending] = useState(false);
   const [isVerifying, setIsVerifying] = useState(false);
   const [notice, setNotice] = useState<string | null>(null);
-
-  // Activate key if present
-  useEffect(() => {
-    if (keyParam) {
-      axios
-        .get(`api/activate?key=${keyParam}`)
-        .then(() => {
-          setNotice('Tài khoản của bạn đã được kích hoạt thành công qua liên kết!');
-          toast.success('Kích hoạt tài khoản thành công!');
-        })
-        .catch(() => {
-          toast.error('Liên kết xác minh không hợp lệ hoặc đã hết hạn.');
-        });
-    }
-  }, [keyParam]);
 
   // Cooldown countdown
   useEffect(() => {
@@ -49,28 +32,21 @@ export const EmailVerificationPage: React.FC = () => {
     if (cooldown > 0 || isResending) return;
     setIsResending(true);
     setNotice(null);
-
     try {
-      await apiSendOtp(email, 'REGISTER');
-      setCooldown(60);
-      const msg = 'Đã gửi lại mã xác minh thành công. Vui lòng kiểm tra hộp thư!';
-      setNotice(msg);
-      toast.success(msg);
-    } catch {
-      // Fallback
-      setCooldown(60);
-      const msg = 'Đã gửi yêu cầu mã xác minh mới đến email của bạn.';
-      setNotice(msg);
-      toast.info(msg);
+      const response = await apiSendOtp(email, 'REGISTER');
+      setCooldown(response.data?.data?.cooldownSeconds ?? 60);
+      setNotice('Đã gửi mã OTP mới. Vui lòng kiểm tra hộp thư!');
+      toast.success('Đã gửi mã OTP mới');
+    } catch (err: any) {
+      toast.error(err?.response?.data?.message || 'Không gửi lại được OTP. Vui lòng thử lại');
     } finally {
       setIsResending(false);
     }
   };
-
   const handleVerifyOtp = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!otpCode || otpCode.trim().length < 4) {
-      toast.warning('Vui lòng nhập đầy đủ mã OTP!');
+    if (!/^\d{6}$/.test(otpCode.trim())) {
+      toast.warning('Vui lòng nhập đúng 6 chữ số mã OTP');
       return;
     }
 
@@ -151,8 +127,7 @@ export const EmailVerificationPage: React.FC = () => {
                 margin: 0,
               }}
             >
-              LUMI đã gửi liên kết và mã xác nhận OTP đến địa chỉ email bạn dùng để đăng ký. Hãy nhập mã OTP bên dưới hoặc chọn liên kết
-              trong email để hoàn tất.
+              LUMI đã gửi mã OTP đến địa chỉ email bạn dùng để đăng ký. Hãy nhập mã bên dưới để kích hoạt tài khoản.
             </p>
           </div>
         </div>
@@ -192,7 +167,7 @@ export const EmailVerificationPage: React.FC = () => {
               className="otp-input"
               autoFocus
             />
-            <button type="submit" className="btn-verify-otp" disabled={isVerifying || otpCode.length < 4}>
+            <button type="submit" className="btn-verify-otp" disabled={isVerifying || !/^\d{6}$/.test(otpCode)}>
               {isVerifying ? 'Đang xác nhận...' : 'Xác nhận OTP'}
             </button>
           </div>

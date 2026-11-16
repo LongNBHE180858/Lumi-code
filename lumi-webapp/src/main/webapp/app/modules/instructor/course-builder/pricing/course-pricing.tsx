@@ -22,7 +22,7 @@ import {
   type IBuilderAggregate,
 } from '../course-builder.reducer';
 import { builderErrorText } from '../course-builder-error';
-import { chapterDuration } from '../curriculum/video-duration';
+import { chapterDuration } from '../curriculum/lesson/video-duration';
 import PricingSummaryCard from './pricing-summary-card';
 import { durationLabels } from './saved-pricing';
 import { isBuilderReadOnly } from '../course-lifecycle';

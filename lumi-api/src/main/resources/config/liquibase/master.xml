@@ -136,4 +136,13 @@
     <include file="config/liquibase/changelog/20261022120000_instructor_review_metadata.xml" relativeToChangelogFile="false"/>
     <include file="config/liquibase/changelog/20261026110000_seed_knowledge_graph_subjects.xml" relativeToChangelogFile="false"/>
     <include file="config/liquibase/changelog/20261103000000_enable_vector_extensions.xml" relativeToChangelogFile="false"/>
+    
+    <include file="config/liquibase/changelog/20261107020000_add_course_chapter_to_exams.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20261110000000_otp_hardening.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20261110010000_login_challenge_columns.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20261110020000_class_material_exams.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20261110030000_question_bank_class_id.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20261104000000_ai_vector_json_types.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20261109010000_add_order_buyer.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20261110010000_sepay_webhook_events.xml" relativeToChangelogFile="false"/>
 </databaseChangeLog>

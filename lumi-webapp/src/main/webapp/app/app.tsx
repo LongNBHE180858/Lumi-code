@@ -1,5 +1,6 @@
 import 'react-toastify/dist/ReactToastify.css';
 import './app.scss';
+import './tailwind.css';
 import 'app/config/dayjs';
 
 import React, { useEffect } from 'react';

@@ -2,12 +2,15 @@ import './admin-components.scss';
 
 import React from 'react';
 import { ChevronRight, type LucideIcon } from 'lucide-react';
+import { Link } from 'react-router';
 
 export type MonitoringKind = 'activity' | 'request';
 
 export type MonitoringItem = {
+  id: string;
   label: string;
   icon: LucideIcon;
+  href?: string;
 } & ({ time: string; status?: never; warning?: never } | { status: string; warning?: boolean; time?: never });
 
 interface MonitoringCardProps {
@@ -30,15 +33,21 @@ const MonitoringCard = ({ title, kind, items, search, onViewAll }: MonitoringCar
         </button>
       </div>
       <div className="admin-monitoring-list">
-        {visibleItems.length === 0 && <p className="admin-no-results">Không tìm thấy kết quả phù hợp.</p>}
+        {visibleItems.length === 0 && <p className="admin-no-results">{search ? 'Không tìm thấy kết quả phù hợp.' : 'Chưa có dữ liệu.'}</p>}
         {visibleItems.map(item => {
           const Icon = item.icon;
           return (
-            <div className="admin-monitoring-row" key={item.label}>
+            <div className="admin-monitoring-row" key={item.id}>
               <span className={`admin-list-icon${kind === 'request' ? ' admin-list-icon-request' : ''}`}>
                 <Icon size={16} aria-hidden="true" />
               </span>
-              <span className="admin-row-label">{item.label}</span>
+              {item.href ? (
+                <Link className="admin-row-label" to={item.href}>
+                  {item.label}
+                </Link>
+              ) : (
+                <span className="admin-row-label">{item.label}</span>
+              )}
               {item.time !== undefined ? (
                 <span className="admin-row-time">{item.time}</span>
               ) : (

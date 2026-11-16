@@ -7,6 +7,7 @@ import { afterEach, beforeEach, expect, it, vi } from 'vitest';
 import reducer, { createDraft, updatePricing, type IBuilderAggregate } from '../course-builder.reducer';
 import CourseReviewSubmit from './course-review-submit';
 
+vi.mock('./course-review.scss', () => ({}));
 vi.mock('axios', () => ({ default: { get: vi.fn(), post: vi.fn(), put: vi.fn() } }));
 vi.mock('react-toastify', () => ({ toast: { success: vi.fn(), error: vi.fn() } }));
 const ready = (): IBuilderAggregate => ({
@@ -169,4 +170,53 @@ it('restores note within the browser session while keeping rights unchecked', as
   await setup();
   expect((screen.getByRole('textbox') as HTMLTextAreaElement).value).toBe('Ghi chú đang soạn');
   expect((screen.getByRole('checkbox') as HTMLInputElement).checked).toBe(false);
+});
+
+it('renders distinct icons and colors for completed, required missing, and recommended missing checklist items', async () => {
+  const data = ready();
+  data.review!.checks = [
+    { code: 'identity', label: 'Thông tin khóa học', required: true, complete: true, tab: 'basic-info' },
+    { code: 'pricing', label: 'Học phí và thời hạn truy cập', required: true, complete: false, tab: 'pricing' },
+    { code: 'intro', label: 'Video giới thiệu', required: false, complete: false, tab: 'basic-info' },
+  ];
+  await setup(data);
+
+  const pricingCheck = screen.getByText('Học phí và thời hạn truy cập').closest('.review-check');
+  const introCheck = screen.getByText('Video giới thiệu').closest('.review-check');
+  const identityCheck = screen.getByText('Thông tin khóa học').closest('.review-check');
+
+  expect(pricingCheck?.querySelector('svg')?.getAttribute('data-icon')).toBe('circle-exclamation');
+  expect(pricingCheck?.querySelector('svg')?.classList.contains('text-danger')).toBe(true);
+
+  expect(introCheck?.querySelector('svg')?.getAttribute('data-icon')).toBe('circle-info');
+  expect(introCheck?.querySelector('svg')?.classList.contains('text-warning')).toBe(true);
+
+  expect(identityCheck?.querySelector('svg')?.getAttribute('data-icon')).toBe('check');
+  expect(identityCheck?.querySelector('svg')?.classList.contains('text-success')).toBe(true);
+});
+
+it('withdraws a pending review and restores the editable draft without losing its request history', async () => {
+  const { store } = await setup(pending());
+  const withdrawn = ready();
+  withdrawn.course.version = 5;
+  withdrawn.review = { ...withdrawn.review!, version: 5, request: { ...pending().review!.request!, status: 'WITHDRAWN' } };
+  vi.mocked(axios.post).mockResolvedValue({ data: withdrawn });
+  fireEvent.click(screen.getByRole('button', { name: 'Rút lại gửi duyệt' }));
+  expect(axios.post).not.toHaveBeenCalled();
+  fireEvent.click(await screen.findByRole('button', { name: 'Xác nhận rút duyệt' }));
+  await waitFor(() => expect(store.getState().courseBuilder.data?.course.status).toBe('DRAFT'));
+  expect(axios.post).toHaveBeenCalledWith('/api/instructor/courses/7/review-requests/withdraw', { version: 4 });
+  expect(screen.getByText('Yêu cầu đã được rút lại')).toBeDefined();
+  expect(screen.getByRole('textbox')).toBeDefined();
+  expect(store.getState().courseBuilder.data?.review?.request?.id).toBe(50);
+});
+
+it('keeps the builder locked when withdrawal fails and allows reloading', async () => {
+  const { store } = await setup(pending());
+  vi.mocked(axios.post).mockRejectedValue({ response: { status: 409 } });
+  fireEvent.click(screen.getByRole('button', { name: 'Rút lại gửi duyệt' }));
+  fireEvent.click(await screen.findByRole('button', { name: 'Xác nhận rút duyệt' }));
+  await screen.findByText(/Không thể rút duyệt/);
+  expect(store.getState().courseBuilder.data?.course.status).toBe('PENDING');
+  expect(screen.queryByRole('textbox')).toBeNull();
 });

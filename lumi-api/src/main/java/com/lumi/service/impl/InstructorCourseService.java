@@ -208,6 +208,19 @@ public class InstructorCourseService {
         return builder(course);
     }
 
+    public Builder withdrawReview(Long id, WithdrawReview input) {
+        User user = currentInstructor();
+        Course course = courses.findForBuilderUpdate(id).orElseThrow(() -> missing("Course"));
+        if (Boolean.TRUE.equals(course.getIsDeleted()) || !course.getAuthor().getId().equals(user.getId())) throw missing("Course");
+        if (!input.version().equals(course.getVersion())) throw conflict("Stale course version; reload before withdrawing");
+        if (course.getStatus() != RecordStatus.PENDING) throw conflict("Only a pending course review can be withdrawn");
+        CourseReviewRequest request = reviews.findPendingForUpdate(id).orElseThrow(() -> conflict("No pending review request"));
+        request.setStatus(CourseReviewRequestStatus.WITHDRAWN);
+        reviews.saveAndFlush(request);
+        course.setStatus(RecordStatus.DRAFT);
+        return changed(course);
+    }
+
     public Builder addChapter(Long id, ChapterInput input) {
         Course course = editable(id, input.version());
         List<Chapter> list = chapters.findByCourseIdOrderByOrderIndexAscIdAsc(id);

@@ -94,22 +94,27 @@ spring:
   application:
     name: lumi
   ai:
-    # Opt in locally with SPRING_AI_MODEL_CHAT=openai,
-    # SPRING_AI_MODEL_EMBEDDING=openai and SPRING_AI_VECTORSTORE_TYPE=pgvector.
+    # Opt in locally with LUMI_AI_CHAT_ENABLED=true, SPRING_AI_MODEL_CHAT=openai
+    # and SPRING_AI_MODEL_EMBEDDING_TEXT=google-genai.
+    # Retrieval uses pdf_chunks directly; leave the Spring AI vector store disabled.
     # Credentials are configured separately through environment variables.
     openai:
       # Gemini's OpenAI-compatible API; no credential is stored in the repository.
       base-url: https://generativelanguage.googleapis.com/v1beta/openai/
-      api-key: ${GEMINI_API_KEY:}
+      api-key: ${GEMINI_API_KEY:disabled}
       chat:
         model: gemini-3.5-flash-lite
-      embedding:
-        model: gemini-embedding-001
-        dimensions: 768
-        encoding-format: float
+    google:
+      genai:
+        embedding:
+          api-key: ${GEMINI_API_KEY:disabled}
+          text:
+            model: gemini-embedding-001
+            dimensions: 768
     model:
       chat: none
       embedding: none
+      embedding.text: none
       image: none
       moderation: none
       audio:
@@ -253,6 +258,20 @@ spring:
     multipart:
       max-file-size: ${COURSE_UPLOAD_MAX_FILE_SIZE:1GB}
       max-request-size: ${COURSE_UPLOAD_MAX_REQUEST_SIZE:1GB}
+
+lumi:
+  payment:
+    sepay:
+      enabled: ${SEPAY_QR_ENABLED:false}
+      bank-code: ${SEPAY_BANK_CODE:}
+      bank-name: ${SEPAY_BANK_NAME:}
+      account-number: ${SEPAY_ACCOUNT_NUMBER:}
+      account-name: ${SEPAY_ACCOUNT_NAME:}
+      webhook-enabled: ${SEPAY_WEBHOOK_ENABLED:false}
+      webhook-secret: ${SEPAY_WEBHOOK_SECRET:}
+  ai:
+    chat:
+      enabled: ${LUMI_AI_CHAT_ENABLED:false}
 
 course-storage:
   enabled: ${COURSE_STORAGE_ENABLED:false}

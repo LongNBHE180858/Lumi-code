@@ -78,12 +78,10 @@ public class AccountResource {
     @PostMapping("/register")
     @ResponseStatus(HttpStatus.CREATED)
     public void registerAccount(@Valid @RequestBody ManagedUserVM managedUserVM) {
-        LOG.debug("REST request to register account");
-        if (isPasswordLengthInvalid(managedUserVM.getPassword())) {
-            throw new InvalidPasswordException();
-        }
-        User user = userService.registerUser(managedUserVM, managedUserVM.getPassword());
-        mailService.sendActivationEmail(user);
+        throw new org.springframework.web.server.ResponseStatusException(
+            HttpStatus.GONE,
+            "Vui lòng đăng ký qua /api/auth/register và xác thực bằng OTP."
+        );
     }
 
     /**
@@ -94,11 +92,10 @@ public class AccountResource {
      */
     @GetMapping("/activate")
     public void activateAccount(@RequestParam(value = "key") String key) {
-        LOG.debug("REST request to activate account");
-        Optional<User> user = userService.activateRegistration(key);
-        if (user.isEmpty()) {
-            throw new AccountResourceException("No user was found for this activation key");
-        }
+        throw new org.springframework.web.server.ResponseStatusException(
+            HttpStatus.GONE,
+            "Liên kết kích hoạt cũ không còn được sử dụng. Vui lòng xác thực tài khoản bằng OTP."
+        );
     }
 
     /**
@@ -158,7 +155,7 @@ public class AccountResource {
         if (isPasswordLengthInvalid(passwordChangeDto.getNewPassword())) {
             throw new InvalidPasswordException();
         }
-        userService.changePassword(passwordChangeDto.getCurrentPassword(), passwordChangeDto.getNewPassword());
+        authService.changePassword(passwordChangeDto);
     }
 
     /**
@@ -215,9 +212,9 @@ public class AccountResource {
     }
 
     @DeleteMapping("/account/sessions/other")
-    public ResponseEntity<Void> revokeOtherSessions(@RequestParam(value = "currentSessionId", required = false) Long currentSessionId) {
-        LOG.debug("REST request to revoke all other sessions with currentSessionId: {}", currentSessionId);
-        authService.revokeOtherSessions(currentSessionId);
+    public ResponseEntity<Void> revokeOtherSessions() {
+        LOG.debug("REST request to revoke all other sessions");
+        authService.revokeOtherSessions();
         return ResponseEntity.noContent().build();
     }
 

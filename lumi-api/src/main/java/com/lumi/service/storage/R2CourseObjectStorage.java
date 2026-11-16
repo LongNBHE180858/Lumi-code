@@ -100,10 +100,9 @@ public class R2CourseObjectStorage implements CourseObjectStorage {
             "File is not managed by the configured cloud storage"
         );
         String key = url.substring(baseUrl().length());
-        if (!key.matches("courses/[0-9]+/[a-z]+/[a-f0-9-]+\\.[a-z0-9]+") && !key.matches("tickets/[0-9]+/[a-f0-9-]+\\.(png|jpg|jpeg)")) throw new ResponseStatusException(
-            HttpStatus.CONFLICT,
-            "Invalid stored file URL"
-        );
+        if (
+            !key.matches("courses/[0-9]+/[a-z]+/[a-f0-9-]+\\.[a-z0-9]+") && !key.matches("tickets/[0-9]+/[a-f0-9-]+\\.(png|jpg|jpeg)")
+        ) throw new ResponseStatusException(HttpStatus.CONFLICT, "Invalid stored file URL");
         return key;
     }
 
@@ -166,9 +165,7 @@ public class R2CourseObjectStorage implements CourseObjectStorage {
     }
 
     public Access ticketImageAccess(Long ticketId, String key, String name) {
-        if (!key.matches("tickets/" + ticketId + "/[a-f0-9-]+\\.(png|jpg|jpeg)")) throw new ResponseStatusException(
-            HttpStatus.NOT_FOUND
-        );
+        if (!key.matches("tickets/" + ticketId + "/[a-f0-9-]+\\.(png|jpg|jpeg)")) throw new ResponseStatusException(HttpStatus.NOT_FOUND);
         return access(baseUrl() + key, name, false);
     }
 

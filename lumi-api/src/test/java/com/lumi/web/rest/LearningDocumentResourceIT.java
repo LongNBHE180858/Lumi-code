@@ -50,6 +50,17 @@ import tools.jackson.databind.ObjectMapper;
 @WithMockUser
 class LearningDocumentResourceIT {
 
+    @Test
+    @Transactional
+    void rejectSourceMetadataThatIsNotAnObject() throws Exception {
+        LearningDocumentDTO dto = learningDocumentMapper.toDto(learningDocument);
+        tools.jackson.databind.node.ObjectNode request = (tools.jackson.databind.node.ObjectNode) om.valueToTree(dto);
+        request.put("sourceMetadata", "not an object");
+        restLearningDocumentMockMvc
+            .perform(post(ENTITY_API_URL).contentType(MediaType.APPLICATION_JSON).content(om.writeValueAsBytes(request)))
+            .andExpect(status().isBadRequest());
+    }
+
     private static final String DEFAULT_SOURCE_TYPE = "AAAAAAAAAA";
     private static final String UPDATED_SOURCE_TYPE = "BBBBBBBBBB";
 
@@ -90,8 +101,8 @@ class LearningDocumentResourceIT {
     private static final String DEFAULT_BOOK_SERIES = "AAAAAAAAAA";
     private static final String UPDATED_BOOK_SERIES = "BBBBBBBBBB";
 
-    private static final String DEFAULT_SOURCE_METADATA = "AAAAAAAAAA";
-    private static final String UPDATED_SOURCE_METADATA = "BBBBBBBBBB";
+    private static final java.util.Map<String, Object> DEFAULT_SOURCE_METADATA = java.util.Map.of("source", "sample-a");
+    private static final java.util.Map<String, Object> UPDATED_SOURCE_METADATA = java.util.Map.of("source", "sample-b");
 
     private static final String ENTITY_API_URL = "/api/learning-documents";
     private static final String ENTITY_API_URL_ID = ENTITY_API_URL + "/{id}";
@@ -448,7 +459,7 @@ class LearningDocumentResourceIT {
             .andExpect(jsonPath("$.createdAt").value(DEFAULT_CREATED_AT.toString()))
             .andExpect(jsonPath("$.updatedAt").value(DEFAULT_UPDATED_AT.toString()))
             .andExpect(jsonPath("$.bookSeries").value(DEFAULT_BOOK_SERIES))
-            .andExpect(jsonPath("$.sourceMetadata").value(DEFAULT_SOURCE_METADATA));
+            .andExpect(jsonPath("$.sourceMetadata").value(org.hamcrest.Matchers.is(DEFAULT_SOURCE_METADATA)));
     }
 
     @Test
@@ -1170,7 +1181,7 @@ class LearningDocumentResourceIT {
         ClassMaterial classMaterial;
         if (TestUtil.findAll(em, ClassMaterial.class).isEmpty()) {
             learningDocumentRepository.saveAndFlush(learningDocument);
-            classMaterial = ClassMaterialResourceIT.createEntity(em);
+            classMaterial = ClassMaterialTestFixtures.createEntity(em);
         } else {
             classMaterial = TestUtil.findAll(em, ClassMaterial.class).getFirst();
         }

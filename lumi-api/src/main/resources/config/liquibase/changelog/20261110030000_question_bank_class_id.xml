@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+    <changeSet id="20261110030000-1" author="lumi">
+        <preConditions onFail="MARK_RAN">
+            <not><columnExists tableName="question_banks" columnName="class_id"/></not>
+        </preConditions>
+        <addColumn tableName="question_banks">
+            <column name="class_id" type="bigint"/>
+        </addColumn>
+    </changeSet>
+    <changeSet id="20261110030000-2" author="lumi">
+        <preConditions onFail="MARK_RAN">
+            <not><foreignKeyConstraintExists foreignKeyName="fk_question_banks_class_id"/></not>
+        </preConditions>
+        <addForeignKeyConstraint baseTableName="question_banks" baseColumnNames="class_id"
+                                 referencedTableName="classes" referencedColumnNames="id"
+                                 constraintName="fk_question_banks_class_id"/>
+    </changeSet>
+</databaseChangeLog>
+

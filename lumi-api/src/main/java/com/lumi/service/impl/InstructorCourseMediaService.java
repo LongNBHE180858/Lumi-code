@@ -119,10 +119,10 @@ public class InstructorCourseMediaService {
     }
 
     @Transactional(readOnly = true)
-    public CourseObjectStorage.Access materialAccess(Long courseId, Long lessonId, Long materialId) {
+    public CourseObjectStorage.Access materialAccess(Long courseId, Long lessonId, Long materialId, boolean download) {
         courses.owned(courseId);
         CourseMaterial material = courses.material(courseId, lessonId, materialId);
-        return storage.access(material.getFileUrl(), material.getFileName(), true);
+        return storage.access(material.getFileUrl(), material.getFileName(), download);
     }
 
     public Builder updateVideoDuration(Long courseId, Long lessonId, Long version, Integer seconds) {

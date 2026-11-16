@@ -7,14 +7,11 @@ import static com.lumi.security.SecurityUtils.USER_ID_CLAIM;
 import com.lumi.domain.AuthSession;
 import com.lumi.domain.User;
 import com.lumi.repository.AuthSessionRepository;
-import com.lumi.security.DomainUserDetailsService.UserWithId;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.oauth2.jwt.JwsHeader;
 import org.springframework.security.oauth2.jwt.JwtClaimsSet;
 import org.springframework.security.oauth2.jwt.JwtEncoder;
@@ -39,81 +36,33 @@ public class TokenProvider {
         this.authSessionRepository = authSessionRepository;
     }
 
-    public String createAccessToken(Authentication authentication, boolean rememberMe) {
-        String authorities = authentication.getAuthorities().stream().map(GrantedAuthority::getAuthority).collect(Collectors.joining(" "));
-
+    public String createAccessToken(User user, Long sessionId) {
+        String authorities = user.getAuthorities().stream().map(com.lumi.domain.Authority::getName).collect(Collectors.joining(" "));
         Instant now = Instant.now();
-        Instant validity = rememberMe
-            ? now.plus(this.tokenValidityInSecondsForRememberMe, ChronoUnit.SECONDS)
-            : now.plus(this.tokenValidityInSeconds, ChronoUnit.SECONDS);
-
-        JwtClaimsSet.Builder builder = JwtClaimsSet.builder()
+        JwtClaimsSet claims = JwtClaimsSet.builder()
             .issuedAt(now)
-            .expiresAt(validity)
-            .subject(authentication.getName())
-            .claim(AUTHORITIES_CLAIM, authorities);
-
-        if (authentication.getPrincipal() instanceof UserWithId user) {
-            builder.claim(USER_ID_CLAIM, user.getId());
-        }
-
-        JwsHeader jwsHeader = JwsHeader.with(JWT_ALGORITHM).build();
-        return this.jwtEncoder.encode(JwtEncoderParameters.from(jwsHeader, builder.build())).getTokenValue();
-    }
-
-    public String createAccessToken(Authentication authentication) {
-        return createAccessToken(authentication, false);
-    }
-
-    public String createAccessToken(User user, boolean rememberMe) {
-        String authorities =
-            user.getAuthorities() != null
-                ? user.getAuthorities().stream().map(com.lumi.domain.Authority::getName).collect(Collectors.joining(" "))
-                : "";
-
-        Instant now = Instant.now();
-        Instant validity = rememberMe
-            ? now.plus(this.tokenValidityInSecondsForRememberMe, ChronoUnit.SECONDS)
-            : now.plus(this.tokenValidityInSeconds, ChronoUnit.SECONDS);
-
-        JwtClaimsSet.Builder builder = JwtClaimsSet.builder()
-            .issuedAt(now)
-            .expiresAt(validity)
+            .expiresAt(now.plus(tokenValidityInSeconds, ChronoUnit.SECONDS))
             .subject(user.getLogin())
             .claim(AUTHORITIES_CLAIM, authorities)
-            .claim(USER_ID_CLAIM, user.getId());
-
-        JwsHeader jwsHeader = JwsHeader.with(JWT_ALGORITHM).build();
-        return this.jwtEncoder.encode(JwtEncoderParameters.from(jwsHeader, builder.build())).getTokenValue();
-    }
-
-    public String createAccessToken(User user) {
-        return createAccessToken(user, false);
+            .claim(USER_ID_CLAIM, user.getId())
+            .claim("sid", sessionId)
+            .build();
+        JwsHeader header = JwsHeader.with(JWT_ALGORITHM).build();
+        return jwtEncoder.encode(JwtEncoderParameters.from(header, claims)).getTokenValue();
     }
 
     @Transactional
-    public String createRefreshToken(User user, String deviceInfo) {
+    public AuthSession createSession(User user, String deviceInfo) {
         Instant now = Instant.now();
-        Instant expiresAt = now.plus(this.tokenValidityInSecondsForRememberMe, ChronoUnit.SECONDS);
-
-        String refreshToken = UUID.randomUUID().toString() + "-" + UUID.randomUUID().toString();
-
+        String refreshToken = UUID.randomUUID() + "-" + UUID.randomUUID();
         AuthSession session = new AuthSession()
             .user(user)
             .refreshToken(refreshToken)
-            .deviceInfo(deviceInfo != null ? deviceInfo : "Unknown Device")
+            .deviceInfo(deviceInfo == null || deviceInfo.isBlank() ? "Unknown Device" : deviceInfo)
             .createdAt(now)
-            .expiresAt(expiresAt)
+            .expiresAt(now.plus(tokenValidityInSecondsForRememberMe, ChronoUnit.SECONDS))
             .isRevoked(false);
-
-        authSessionRepository.save(session);
-
-        return refreshToken;
-    }
-
-    @Transactional
-    public String createRefreshToken(User user) {
-        return createRefreshToken(user, "Unknown Device");
+        return authSessionRepository.saveAndFlush(session);
     }
 
     public long getTokenValidityInSeconds(boolean rememberMe) {

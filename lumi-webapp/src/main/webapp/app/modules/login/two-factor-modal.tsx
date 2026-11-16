@@ -3,18 +3,19 @@ import './two-factor-modal.scss';
 import React, { useEffect, useRef, useState } from 'react';
 import { toast } from 'react-toastify';
 import { useAppDispatch } from 'app/config/store';
-import { apiSendOtp } from 'app/shared/api/auth.api';
+import { apiResendLoginOtp } from 'app/shared/api/auth.api';
 import { login2fa } from 'app/shared/reducers/authentication';
 
 export interface ITwoFactorModalProps {
   isOpen: boolean;
   email: string;
+  challengeId: string;
   rememberMe?: boolean;
   onClose: () => void;
   onSuccess?: () => void;
 }
 
-export const TwoFactorModal: React.FC<ITwoFactorModalProps> = ({ isOpen, email, rememberMe = false, onClose, onSuccess }) => {
+export const TwoFactorModal: React.FC<ITwoFactorModalProps> = ({ isOpen, email, challengeId, rememberMe = false, onClose, onSuccess }) => {
   const dispatch = useAppDispatch();
   const [otp, setOtp] = useState<string[]>(Array(6).fill(''));
   const [cooldown, setCooldown] = useState(60);
@@ -116,7 +117,7 @@ export const TwoFactorModal: React.FC<ITwoFactorModalProps> = ({ isOpen, email, 
     setErrorMsg(null);
 
     try {
-      await apiSendOtp(email, 'LOGIN');
+      await apiResendLoginOtp(challengeId);
       setCooldown(60);
       toast.success('Mã OTP mới đã được gửi về email của bạn!');
     } catch (err: any) {
@@ -140,7 +141,7 @@ export const TwoFactorModal: React.FC<ITwoFactorModalProps> = ({ isOpen, email, 
     setErrorMsg(null);
 
     try {
-      await dispatch(login2fa(email, otpCode, rememberMe));
+      await dispatch(login2fa(challengeId, otpCode, rememberMe));
       toast.success('Xác thực 2FA thành công! Đang chuyển hướng...');
       if (onSuccess) onSuccess();
       onClose();

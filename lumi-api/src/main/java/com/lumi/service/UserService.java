@@ -3,7 +3,10 @@ package com.lumi.service;
 import com.lumi.config.Constants;
 import com.lumi.domain.Authority;
 import com.lumi.domain.User;
+import com.lumi.domain.enumeration.OtpPurpose;
+import com.lumi.repository.AuthSessionRepository;
 import com.lumi.repository.AuthorityRepository;
+import com.lumi.repository.EmailOtpRepository;
 import com.lumi.repository.UserRepository;
 import com.lumi.security.AuthoritiesConstants;
 import com.lumi.security.SecurityUtils;
@@ -39,17 +42,23 @@ public class UserService {
     private final AuthorityRepository authorityRepository;
 
     private final CacheManager cacheManager;
+    private final AuthSessionRepository authSessionRepository;
+    private final EmailOtpRepository emailOtpRepository;
 
     public UserService(
         UserRepository userRepository,
         PasswordEncoder passwordEncoder,
         AuthorityRepository authorityRepository,
-        CacheManager cacheManager
+        CacheManager cacheManager,
+        AuthSessionRepository authSessionRepository,
+        EmailOtpRepository emailOtpRepository
     ) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.authorityRepository = authorityRepository;
         this.cacheManager = cacheManager;
+        this.authSessionRepository = authSessionRepository;
+        this.emailOtpRepository = emailOtpRepository;
     }
 
     public Optional<User> activateRegistration(String key) {
@@ -74,6 +83,7 @@ public class UserService {
                 user.setResetKey(null);
                 user.setResetDate(null);
                 this.clearUserCaches(user);
+                revokeUserSessions(user);
                 return user;
             });
     }
@@ -92,16 +102,10 @@ public class UserService {
 
     public User registerUser(AdminUserDTO userDTO, String password) {
         userRepository.findOneByLogin(userDTO.getLogin().toLowerCase()).ifPresent(existingUser -> {
-            boolean removed = removeNonActivatedUser(existingUser);
-            if (!removed) {
-                throw new UsernameAlreadyUsedException();
-            }
+            throw new UsernameAlreadyUsedException();
         });
         userRepository.findOneByEmailIgnoreCase(userDTO.getEmail()).ifPresent(existingUser -> {
-            boolean removed = removeNonActivatedUser(existingUser);
-            if (!removed) {
-                throw new EmailAlreadyUsedException();
-            }
+            throw new EmailAlreadyUsedException();
         });
         User newUser = new User();
         String encryptedPassword = passwordEncoder.encode(password);
@@ -127,16 +131,6 @@ public class UserService {
         this.clearUserCaches(newUser);
         LOG.debug("Created Information for User: {}", newUser);
         return newUser;
-    }
-
-    private boolean removeNonActivatedUser(User existingUser) {
-        if (existingUser.isActivated()) {
-            return false;
-        }
-        userRepository.delete(existingUser);
-        userRepository.flush();
-        this.clearUserCaches(existingUser);
-        return true;
     }
 
     /**
@@ -177,8 +171,16 @@ public class UserService {
                 String encryptedPassword = passwordEncoder.encode(newPassword);
                 user.setPassword(encryptedPassword);
                 this.clearUserCaches(user);
+                revokeUserSessions(user);
                 LOG.debug("Changed password for User: {}", user);
             });
+    }
+
+    private void revokeUserSessions(User user) {
+        var sessions = authSessionRepository.findAllByUserAndIsRevokedFalse(user);
+        sessions.forEach(session -> session.setIsRevoked(true));
+        authSessionRepository.saveAll(sessions);
+        emailOtpRepository.invalidateUnused(user.getEmail(), OtpPurpose.LOGIN);
     }
 
     @Transactional(readOnly = true)

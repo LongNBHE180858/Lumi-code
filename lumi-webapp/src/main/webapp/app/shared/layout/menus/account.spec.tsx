@@ -51,4 +51,40 @@ describe('AccountMenu', () => {
     expect(html).toContain('/login');
     expect(html).not.toContain('/logout');
   });
+
+  it('should only highlight "Tạo khóa học mới" and not "Khóa học của tôi" when at /instructor/courses/new', async () => {
+    const { container } = render(
+      <MemoryRouter initialEntries={['/instructor/courses/new']}>
+        <AccountMenu isAuthenticated account={{ authorities: ['ROLE_INSTRUCTOR'] }} />
+      </MemoryRouter>,
+    );
+
+    await waitFor(() => expect(container.querySelector('[data-cy="instructorCourses"]')).not.toBeNull());
+
+    const instructorCoursesLink = container.querySelector('[data-cy="instructorCourses"]');
+    const builderCoursesLink = container.querySelector('[data-cy="builderCourses"]');
+
+    expect(instructorCoursesLink).not.toBeNull();
+    expect(builderCoursesLink).not.toBeNull();
+    expect(instructorCoursesLink?.classList.contains('active')).toBe(false);
+    expect(builderCoursesLink?.classList.contains('active')).toBe(true);
+  });
+
+  it('should only highlight "Khóa học của tôi" and not "Tạo khóa học mới" when at /instructor/courses', async () => {
+    const { container } = render(
+      <MemoryRouter initialEntries={['/instructor/courses']}>
+        <AccountMenu isAuthenticated account={{ authorities: ['ROLE_INSTRUCTOR'] }} />
+      </MemoryRouter>,
+    );
+
+    await waitFor(() => expect(container.querySelector('[data-cy="instructorCourses"]')).not.toBeNull());
+
+    const instructorCoursesLink = container.querySelector('[data-cy="instructorCourses"]');
+    const builderCoursesLink = container.querySelector('[data-cy="builderCourses"]');
+
+    expect(instructorCoursesLink).not.toBeNull();
+    expect(builderCoursesLink).not.toBeNull();
+    expect(instructorCoursesLink?.classList.contains('active')).toBe(true);
+    expect(builderCoursesLink?.classList.contains('active')).toBe(false);
+  });
 });

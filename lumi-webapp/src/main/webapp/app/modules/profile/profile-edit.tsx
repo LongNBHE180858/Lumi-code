@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
+import dayjs from 'dayjs';
 import { Button, Form } from 'react-bootstrap';
 import { useForm } from 'react-hook-form';
 import { Link, useNavigate } from 'react-router';
@@ -19,6 +20,7 @@ import './profile-edit.scss';
 interface ProfileFormValues {
   firstName: string;
   lastName: string;
+  birthDate: string;
   phoneNumber: string;
   schoolName: string;
   gradeLevel: string;
@@ -41,6 +43,7 @@ const ProfileEditForm = ({ profile, isStudent, roleLabel }: { profile: AccountPr
     defaultValues: {
       firstName: profile.firstName ?? '',
       lastName: profile.lastName ?? '',
+      birthDate: profile.birthDate ?? '',
       phoneNumber: profile.phoneNumber ?? '',
       schoolName: profile.schoolName ?? '',
       gradeLevel: profile.gradeLevel == null ? '' : String(profile.gradeLevel),
@@ -62,6 +65,7 @@ const ProfileEditForm = ({ profile, isStudent, roleLabel }: { profile: AccountPr
     const payload: ProfileUpdate = {
       firstName: values.firstName.trim(),
       lastName: values.lastName.trim(),
+      birthDate: values.birthDate || null,
       phoneNumber: values.phoneNumber.replace(/[\s-]/g, '') || null,
       schoolName: isStudent ? values.schoolName.trim() || null : profile.schoolName,
       gradeLevel: isStudent ? (values.gradeLevel === '' ? null : Number(values.gradeLevel)) : profile.gradeLevel,
@@ -176,6 +180,23 @@ const ProfileEditForm = ({ profile, isStudent, roleLabel }: { profile: AccountPr
         <div className="profile-edit-grid">
           {field('firstName', 'Họ', 50, true)}
           {field('lastName', 'Tên đệm và tên', 50, true)}
+          <Form.Group controlId="profile-birthDate" className="profile-edit-field">
+            <Form.Label>Ngày sinh</Form.Label>
+            <Form.Control
+              type="date"
+              max={dayjs().format('YYYY-MM-DD')}
+              isInvalid={Boolean(errors.birthDate)}
+              aria-invalid={Boolean(errors.birthDate)}
+              {...register('birthDate', {
+                validate: value => !value || value <= dayjs().format('YYYY-MM-DD') || 'Ngày sinh không được ở tương lai.',
+              })}
+            />
+            {errors.birthDate && (
+              <p className="profile-field-error" role="alert">
+                {errors.birthDate.message}
+              </p>
+            )}
+          </Form.Group>
           <Form.Group controlId="profile-email" className="profile-edit-field">
             <Form.Label>Email đăng nhập</Form.Label>
             <Form.Control value={profile.email ?? ''} readOnly aria-describedby="profile-email-help" />

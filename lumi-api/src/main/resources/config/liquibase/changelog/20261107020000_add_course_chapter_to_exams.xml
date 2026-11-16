@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <changeSet id="20261107020000-1" author="lumi">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <columnExists tableName="exams" columnName="course_id"/>
+            </not>
+        </preConditions>
+        <addColumn tableName="exams">
+            <column name="course_id" type="bigint">
+                <constraints nullable="true"/>
+            </column>
+        </addColumn>
+        <addForeignKeyConstraint baseColumnNames="course_id"
+                                 baseTableName="exams"
+                                 constraintName="fk_exams__course_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="courses"
+                                 onDelete="CASCADE"/>
+    </changeSet>
+
+    <changeSet id="20261107020000-2" author="lumi">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <columnExists tableName="exams" columnName="chapter_id"/>
+            </not>
+        </preConditions>
+        <addColumn tableName="exams">
+            <column name="chapter_id" type="bigint">
+                <constraints nullable="true"/>
+            </column>
+        </addColumn>
+        <addForeignKeyConstraint baseColumnNames="chapter_id"
+                                 baseTableName="exams"
+                                 constraintName="fk_exams__chapter_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="chapters"
+                                 onDelete="SET NULL"/>
+    </changeSet>
+</databaseChangeLog>

@@ -57,14 +57,24 @@ $admin-pale: #e6f5ff;
   color: $admin-muted;
   font-size: 12px;
 
-  svg {
-    color: #61b544;
+  svg,
+  strong {
+    color: $admin-muted;
   }
 
   strong {
-    color: #61b544;
     font-weight: 700;
   }
+}
+
+.admin-stat-trend-up svg,
+.admin-stat-trend-up strong {
+  color: #61b544;
+}
+
+.admin-stat-trend-down svg,
+.admin-stat-trend-down strong {
+  color: #d9534f;
 }
 
 .admin-panel-heading {
@@ -183,7 +193,8 @@ $admin-pale: #e6f5ff;
     font-size: 24px;
   }
 
-  .admin-stat-trend span {
-    display: none;
+  .admin-stat-trend {
+    flex-wrap: wrap;
+    white-space: normal;
   }
 }

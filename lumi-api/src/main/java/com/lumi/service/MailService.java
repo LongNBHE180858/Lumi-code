@@ -118,7 +118,6 @@ public class MailService {
         sendEmailFromTemplateSync(user, "mail/passwordResetEmail", "email.reset.title");
     }
 
-    @Async
     public void sendOtpMail(String toEmail, String otpCode, String purposeDescription) {
         LOG.debug("Sending OTP email to '{}' with purpose '{}'", toEmail, purposeDescription);
         Context context = new Context(Locale.forLanguageTag("vi"));
@@ -126,6 +125,21 @@ public class MailService {
         context.setVariable("description", purposeDescription);
         context.setVariable(BASE_URL, jHipsterProperties.getMail().getBaseUrl());
         String content = templateEngine.process("mail/otpEmail", context);
-        sendEmailSync(toEmail, "Mã xác thực OTP của bạn - Lumi Education", content, false, true);
+        try {
+            MimeMessage mimeMessage = javaMailSender.createMimeMessage();
+            MimeMessageHelper message = new MimeMessageHelper(mimeMessage, false, StandardCharsets.UTF_8.name());
+            message.setTo(toEmail);
+            message.setFrom(jHipsterProperties.getMail().getFrom());
+            message.setSubject("Mã xác thực OTP của bạn - Lumi Education");
+            message.setText(content, true);
+            javaMailSender.send(mimeMessage);
+        } catch (MailException | MessagingException e) {
+            LOG.warn("OTP email could not be sent to user '{}'", toEmail, e);
+            throw new org.springframework.web.server.ResponseStatusException(
+                org.springframework.http.HttpStatus.SERVICE_UNAVAILABLE,
+                "Không thể gửi mã OTP. Vui lòng thử lại sau.",
+                e
+            );
+        }
     }
 }

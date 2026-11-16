@@ -1,6 +1,7 @@
 package com.lumi.repository;
 
 import com.lumi.domain.StudyClass;
+import com.lumi.domain.enumeration.RecordStatus;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.data.domain.Page;
@@ -14,6 +15,15 @@ import org.springframework.stereotype.Repository;
  */
 @Repository
 public interface StudyClassRepository extends JpaRepository<StudyClass, Long>, JpaSpecificationExecutor<StudyClass> {
+    boolean existsByJoinCode(String joinCode);
+
+    @Lock(jakarta.persistence.LockModeType.PESSIMISTIC_WRITE)
+    Optional<StudyClass> findByJoinCodeIgnoreCase(String joinCode);
+
+    @Lock(jakarta.persistence.LockModeType.PESSIMISTIC_WRITE)
+    @Query("select c from StudyClass c where c.id = :id")
+    Optional<StudyClass> findByIdForUpdate(@Param("id") Long id);
+
     @Query("select studyClass from StudyClass studyClass where studyClass.instructor.login = ?#{authentication.name}")
     List<StudyClass> findByInstructorIsCurrentUser();
 
@@ -42,4 +52,43 @@ public interface StudyClassRepository extends JpaRepository<StudyClass, Long>, J
     Optional<StudyClass> findOneWithToOneRelationships(@Param("id") Long id);
 
     List<StudyClass> findAllByInstructor_IdOrderByCreatedAtAsc(Long instructorId);
+
+    @Query(
+        value = """
+        select c
+        from StudyClass c
+        left join fetch c.subject
+        left join fetch c.grade
+        where c.instructor.id = :instructorId
+          and (c.isDeleted = false or c.isDeleted is null)
+          and (
+              :status is null
+              or c.status = :status
+          )
+          and (
+              :keyword is null
+              or lower(c.name) like :keyword escape '!'
+          )
+        """,
+        countQuery = """
+        select count(c.id)
+        from StudyClass c
+        where c.instructor.id = :instructorId
+          and (c.isDeleted = false or c.isDeleted is null)
+          and (
+              :status is null
+              or c.status = :status
+          )
+          and (
+              :keyword is null
+              or lower(c.name) like :keyword escape '!'
+          )
+        """
+    )
+    Page<StudyClass> findOwnedClasses(
+        @Param("instructorId") Long instructorId,
+        @Param("keyword") String keyword,
+        @Param("status") RecordStatus status,
+        Pageable pageable
+    );
 }

@@ -1,6 +1,7 @@
 package com.lumi.repository;
 
 import com.lumi.domain.QuestionOption;
+import java.util.List;
 import org.springframework.data.jpa.repository.*;
 import org.springframework.stereotype.Repository;
 
@@ -9,4 +10,8 @@ import org.springframework.stereotype.Repository;
  */
 @SuppressWarnings("unused")
 @Repository
-public interface QuestionOptionRepository extends JpaRepository<QuestionOption, Long>, JpaSpecificationExecutor<QuestionOption> {}
+public interface QuestionOptionRepository extends JpaRepository<QuestionOption, Long>, JpaSpecificationExecutor<QuestionOption> {
+    List<QuestionOption> findByQuestionIdOrderByOrderIndexAsc(Long questionId);
+
+    void deleteByQuestionId(Long questionId);
+}

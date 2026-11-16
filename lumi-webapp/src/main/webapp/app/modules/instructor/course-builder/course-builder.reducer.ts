@@ -1,6 +1,6 @@
 import { createAsyncThunk, createSlice, isPending, isRejected } from '@reduxjs/toolkit';
 import axios from 'axios';
-import { readVideoDuration } from './curriculum/video-duration';
+import { readVideoDuration } from './curriculum/lesson/video-duration';
 import { builderErrorStatus, builderErrorText } from './course-builder-error';
 import type { IChapter } from 'app/shared/model/chapter.model';
 import type { ILesson } from 'app/shared/model/lesson.model';
@@ -86,7 +86,7 @@ export interface IBuilderAggregate {
 
 export interface IReviewSummary {
   id: number;
-  status: 'PENDING' | 'APPROVED' | 'REJECTED';
+  status: 'PENDING' | 'APPROVED' | 'REJECTED' | 'WITHDRAWN';
   courseVersion: number;
   submissionNote?: string | null;
   rightsConfirmedAt: string;
@@ -106,6 +106,67 @@ export interface ISubmitReviewPayload {
   version: number;
   note: string;
   confirmedRights: boolean;
+}
+
+// =========================================================================
+// INTERFACES CHO EXAMS & QUESTIONS
+// =========================================================================
+export interface IOptionDTO {
+  id?: number;
+  content: string;
+  isCorrect: boolean;
+  orderIndex?: number;
+}
+
+export interface IQuestionDetailDTO {
+  id: number;
+  content: string;
+  type: string;
+  difficulty: string | number;
+  explanation?: string;
+  score: number;
+  orderIndex: number;
+  options: IOptionDTO[];
+}
+
+export interface IExamSummaryDTO {
+  id: number;
+  title: string;
+  assessmentType: 'PRACTICE' | 'CHECKPOINT' | 'LESSON_QUIZ' | 'CHAPTER_QUIZ' | 'MIDTERM_EXAM' | 'FINAL_EXAM';
+  durationMinutes: number;
+  passScore: number;
+  maxAttempts: number;
+  shuffleQuestions: boolean;
+  videoTriggerSeconds?: number | null;
+  courseId?: number;
+  chapterId?: number;
+  lessonId?: number;
+  totalQuestions: number;
+  totalScore: number;
+  createdAt: string;
+}
+
+export interface IExamDetailDTO extends IExamSummaryDTO {
+  questions: IQuestionDetailDTO[];
+}
+
+export interface ICreateExamInput {
+  title: string;
+  durationMinutes?: number;
+  passScore?: number;
+  maxAttempts?: number;
+  shuffleQuestions?: boolean;
+  videoTriggerSeconds?: number;
+}
+
+export interface ICreateQuestionInput {
+  content: string;
+  type?: string;
+  difficulty?: string;
+  explanation?: string;
+  score?: number;
+  orderIndex?: number;
+  options: { content: string; isCorrect: boolean; orderIndex?: number }[];
 }
 
 // 1. ĐỊNH NGHĨA STATE CỦA COURSE BUILDER TRONG REDUX
@@ -186,6 +247,27 @@ export const submitCourseReview = createAsyncThunk(
     return response.data;
   },
   writeOptions,
+);
+
+export const withdrawCourseReview = createAsyncThunk(
+  'courseBuilder/withdraw_review',
+  async ({ courseId, version }: { courseId: number; version: number }) => {
+    const response = await axios.post<IBuilderAggregate>(`${API_BASE}/${courseId}/review-requests/withdraw`, { version });
+    return response.data;
+  },
+  {
+    serializeError: writeOptions.serializeError,
+    condition(_args, { getState }) {
+      const state = (getState() as { courseBuilder: CourseBuilderState }).courseBuilder;
+      return (
+        !state.saving &&
+        !state.loading &&
+        state.data?.course.status === 'PENDING' &&
+        state.data.review?.request?.status === 'PENDING' &&
+        ![403, 404, 409].includes(state.errorStatus!)
+      );
+    },
+  },
 );
 
 export const updatePricing = createAsyncThunk(
@@ -389,8 +471,13 @@ export const renameLessonMaterial = createAsyncThunk(
   writeOptions,
 );
 
-export const getLessonMediaAccess = async (args: ILessonMediaTarget, playback = false) =>
-  (await axios.get<IMediaAccess>(`${lessonMediaPath(args)}/${playback ? 'playback' : 'download'}`)).data;
+// xem trước video mỗi lesson
+// export const getLessonMediaAccess = async (args: ILessonMediaTarget, playback = false) =>
+//   (await axios.get<IMediaAccess>(`${lessonMediaPath(args)}/${playback ? 'playback' : 'download'}`)).data;
+export const getLessonMediaAccess = async (args: ILessonMediaTarget, preview = false) => {
+  const action = preview ? (args.kind === 'video' ? 'playback' : 'preview') : 'download';
+  return (await axios.get<IMediaAccess>(`${lessonMediaPath(args)}/${action}`)).data;
+};
 
 export const reorderLessonMaterials = createAsyncThunk(
   'courseBuilder/reorder_lesson_materials',
@@ -429,6 +516,102 @@ export const updateVideoDuration = createAsyncThunk(
   writeOptions,
 );
 
+// =========================================================================
+// API THUNKS CHO EXAMS & QUESTIONS
+// =========================================================================
+export const getCourseExams = createAsyncThunk(
+  'courseBuilder/get_course_exams',
+  async (courseId: number) => (await axios.get<IExamSummaryDTO[]>(`/api/instructor/courses/${courseId}/exams`)).data,
+);
+
+export const createCourseExam = createAsyncThunk(
+  'courseBuilder/create_course_exam',
+  async ({ courseId, input }: { courseId: number; input: ICreateExamInput }) =>
+    (await axios.post<IExamDetailDTO>(`/api/instructor/courses/${courseId}/exams`, input)).data,
+);
+
+export const getChapterExams = createAsyncThunk(
+  'courseBuilder/get_chapter_exams',
+  async ({ courseId, chapterId }: { courseId: number; chapterId: number }) =>
+    (await axios.get<IExamSummaryDTO[]>(`/api/instructor/courses/${courseId}/chapters/${chapterId}/exams`)).data,
+);
+
+export const createChapterExam = createAsyncThunk(
+  'courseBuilder/create_chapter_exam',
+  async ({ courseId, chapterId, input }: { courseId: number; chapterId: number; input: ICreateExamInput }) =>
+    (await axios.post<IExamDetailDTO>(`/api/instructor/courses/${courseId}/chapters/${chapterId}/exams`, input)).data,
+);
+
+export const getLessonExams = createAsyncThunk(
+  'courseBuilder/get_lesson_exams',
+  async ({ courseId, lessonId }: { courseId: number; lessonId: number }) =>
+    (await axios.get<IExamSummaryDTO[]>(`/api/instructor/courses/${courseId}/lessons/${lessonId}/exams`)).data,
+);
+
+export const createLessonExam = createAsyncThunk(
+  'courseBuilder/create_lesson_exam',
+  async ({
+    courseId,
+    lessonId,
+    input,
+    isPractice = false,
+  }: {
+    courseId: number;
+    lessonId: number;
+    input: ICreateExamInput;
+    isPractice?: boolean;
+  }) =>
+    (await axios.post<IExamDetailDTO>(`/api/instructor/courses/${courseId}/lessons/${lessonId}/exams?practice=${isPractice}`, input)).data,
+);
+
+export const getLessonCuePoints = createAsyncThunk(
+  'courseBuilder/get_lesson_cue_points',
+  async ({ courseId, lessonId }: { courseId: number; lessonId: number }) =>
+    (await axios.get<IExamSummaryDTO[]>(`/api/instructor/courses/${courseId}/lessons/${lessonId}/cue-points`)).data,
+);
+
+export const createLessonCuePoint = createAsyncThunk(
+  'courseBuilder/create_lesson_cue_point',
+  async ({ courseId, lessonId, input }: { courseId: number; lessonId: number; input: ICreateExamInput }) =>
+    (await axios.post<IExamDetailDTO>(`/api/instructor/courses/${courseId}/lessons/${lessonId}/cue-points`, input)).data,
+);
+
+export const getExamDetail = createAsyncThunk(
+  'courseBuilder/get_exam_detail',
+  async ({ courseId, examId }: { courseId: number; examId: number }) =>
+    (await axios.get<IExamDetailDTO>(`/api/instructor/courses/${courseId}/exams/${examId}`)).data,
+);
+
+export const updateExam = createAsyncThunk(
+  'courseBuilder/update_exam',
+  async ({ courseId, examId, input }: { courseId: number; examId: number; input: ICreateExamInput }) =>
+    (await axios.put<IExamDetailDTO>(`/api/instructor/courses/${courseId}/exams/${examId}`, input)).data,
+);
+
+export const deleteExam = createAsyncThunk(
+  'courseBuilder/delete_exam',
+  async ({ courseId, examId }: { courseId: number; examId: number }) =>
+    await axios.delete(`/api/instructor/courses/${courseId}/exams/${examId}`),
+);
+
+export const addExamQuestion = createAsyncThunk(
+  'courseBuilder/add_exam_question',
+  async ({ courseId, examId, input }: { courseId: number; examId: number; input: ICreateQuestionInput }) =>
+    (await axios.post<IExamDetailDTO>(`/api/instructor/courses/${courseId}/exams/${examId}/questions`, input)).data,
+);
+
+export const updateExamQuestion = createAsyncThunk(
+  'courseBuilder/update_exam_question',
+  async ({ courseId, examId, questionId, input }: { courseId: number; examId: number; questionId: number; input: ICreateQuestionInput }) =>
+    (await axios.put<IExamDetailDTO>(`/api/instructor/courses/${courseId}/exams/${examId}/questions/${questionId}`, input)).data,
+);
+
+export const deleteExamQuestion = createAsyncThunk(
+  'courseBuilder/delete_exam_question',
+  async ({ courseId, examId, questionId }: { courseId: number; examId: number; questionId: number }) =>
+    (await axios.delete<IExamDetailDTO>(`/api/instructor/courses/${courseId}/exams/${examId}/questions/${questionId}`)).data,
+);
+
 // 4. SLICE DEFINITION (LƯU VÀO REDUX STORE)
 // ==========================================
 export const CourseBuilderSlice = createSlice({
@@ -463,6 +646,7 @@ export const CourseBuilderSlice = createSlice({
             updateBasicInfo.fulfilled.type,
             updatePricing.fulfilled.type,
             submitCourseReview.fulfilled.type,
+            withdrawCourseReview.fulfilled.type,
             uploadThumbnail.fulfilled.type,
             deleteThumbnail.fulfilled.type,
             uploadIntroVideo.fulfilled.type,
@@ -499,6 +683,7 @@ export const CourseBuilderSlice = createSlice({
           updateBasicInfo,
           updatePricing,
           submitCourseReview,
+          withdrawCourseReview,
           uploadThumbnail,
           deleteThumbnail,
           uploadIntroVideo,
@@ -529,6 +714,7 @@ export const CourseBuilderSlice = createSlice({
           updateBasicInfo,
           updatePricing,
           submitCourseReview,
+          withdrawCourseReview,
           uploadThumbnail,
           deleteThumbnail,
           uploadIntroVideo,

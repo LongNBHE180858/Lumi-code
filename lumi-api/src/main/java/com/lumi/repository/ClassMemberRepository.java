@@ -1,6 +1,8 @@
 package com.lumi.repository;
 
 import com.lumi.domain.ClassMember;
+import com.lumi.service.dto.studyClass.ClassMemberCountDTO;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.data.domain.Page;
@@ -42,4 +44,42 @@ public interface ClassMemberRepository extends JpaRepository<ClassMember, Long>,
     Optional<ClassMember> findOneWithToOneRelationships(@Param("id") Long id);
 
     long countByStudyClassIdAndStatus(long id, String status);
+
+    Optional<ClassMember> findByStudyClassIdAndStudentId(Long classId, Long studentId);
+
+    List<ClassMember> findByStudentIdOrderByRequestedAtDesc(Long studentId);
+
+    @Query(
+        value = "select m from ClassMember m join fetch m.studyClass c where m.student.id = :studentId and m.status <> 'REMOVED' and (c.isDeleted = false or c.isDeleted is null)",
+        countQuery = "select count(m) from ClassMember m join m.studyClass c where m.student.id = :studentId and m.status <> 'REMOVED' and (c.isDeleted = false or c.isDeleted is null)"
+    )
+    Page<ClassMember> findVisibleStudentClasses(@Param("studentId") Long studentId, Pageable pageable);
+
+    List<ClassMember> findByStudyClassIdOrderByRequestedAtAsc(Long classId);
+
+    @Query(
+        value = "select m from ClassMember m join fetch m.student where m.studyClass.id = :classId and m.status <> 'REMOVED'",
+        countQuery = "select count(m) from ClassMember m where m.studyClass.id = :classId and m.status <> 'REMOVED'"
+    )
+    Page<ClassMember> findVisibleClassMembers(@Param("classId") Long classId, Pageable pageable);
+
+    @Query(
+        """
+        select new com.lumi.service.dto.studyClass.ClassMemberCountDTO(
+            m.studyClass.id,
+            m.status,
+            count(m.id)
+        )
+        from ClassMember m
+        where m.studyClass.id in :classIds
+          and m.studyClass.instructor.id = :instructorId
+          and m.status in :statuses
+        group by m.studyClass.id, m.status
+        """
+    )
+    List<ClassMemberCountDTO> countMembersByClassIds(
+        @Param("instructorId") Long instructorId,
+        @Param("classIds") Collection<Long> classIds,
+        @Param("statuses") Collection<String> statuses
+    );
 }

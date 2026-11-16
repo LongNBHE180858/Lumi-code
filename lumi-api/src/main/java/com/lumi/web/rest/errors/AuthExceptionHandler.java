@@ -10,6 +10,8 @@ import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -74,6 +76,17 @@ public class AuthExceptionHandler {
         return ResponseEntity.status(statusCode).body(body);
     }
 
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<APIResponse<Void>> handleAccessDeniedException(AccessDeniedException ex) {
+        LOG.warn("Access denied: {}", ex.getMessage());
+        APIResponse<Void> body = APIResponse.<Void>builder()
+            .status(HttpStatus.FORBIDDEN.value())
+            .code(HttpStatus.FORBIDDEN.value())
+            .message("Tài khoản không có quyền truy cập chức năng này.")
+            .build();
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(body);
+    }
+
     /**
      * Bắt lỗi sai thông tin đăng nhập từ Spring Security
      */
@@ -127,6 +140,16 @@ public class AuthExceptionHandler {
             .code(HttpStatus.BAD_REQUEST.value())
             .message(firstErrorMessage)
             .data(fieldErrors)
+            .build();
+        return ResponseEntity.badRequest().body(body);
+    }
+
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ResponseEntity<APIResponse<Void>> handleInvalidJson(HttpMessageNotReadableException ex) {
+        APIResponse<Void> body = APIResponse.<Void>builder()
+            .status(HttpStatus.BAD_REQUEST.value())
+            .code(HttpStatus.BAD_REQUEST.value())
+            .message("JSON không hợp lệ hoặc trường dữ liệu không đúng kiểu.")
             .build();
         return ResponseEntity.badRequest().body(body);
     }

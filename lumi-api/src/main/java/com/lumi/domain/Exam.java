@@ -104,9 +104,34 @@ public class Exam implements Serializable {
     private Lesson lesson;
 
     @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "class_material_id")
+    private ClassMaterial classMaterial;
+
+    @ManyToOne(fetch = FetchType.LAZY)
     private User assignedStudent;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JsonIgnoreProperties(value = { "author", "subject", "grade" }, allowSetters = true)
+    private Course course;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JsonIgnoreProperties(value = { "course" }, allowSetters = true)
+    private Chapter chapter;
+
     // jhipster-needle-entity-add-field - JHipster will add fields here
+
+    public ClassMaterial getClassMaterial() {
+        return classMaterial;
+    }
+
+    public void setClassMaterial(ClassMaterial classMaterial) {
+        this.classMaterial = classMaterial;
+    }
+
+    public Exam classMaterial(ClassMaterial classMaterial) {
+        this.classMaterial = classMaterial;
+        return this;
+    }
 
     public Long getId() {
         return this.id;
@@ -391,6 +416,32 @@ public class Exam implements Serializable {
 
     public Exam assignedStudent(User user) {
         this.setAssignedStudent(user);
+        return this;
+    }
+
+    public Course getCourse() {
+        return this.course;
+    }
+
+    public void setCourse(Course course) {
+        this.course = course;
+    }
+
+    public Exam course(Course course) {
+        this.setCourse(course);
+        return this;
+    }
+
+    public Chapter getChapter() {
+        return this.chapter;
+    }
+
+    public void setChapter(Chapter chapter) {
+        this.chapter = chapter;
+    }
+
+    public Exam chapter(Chapter chapter) {
+        this.setChapter(chapter);
         return this;
     }
 

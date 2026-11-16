@@ -12,6 +12,7 @@ import lockIcon from '/content/images/course-detail/lock.svg';
 import monitorIcon from '/content/images/course-detail/monitor.svg';
 import starIcon from '/content/images/course-detail/star.svg';
 import { useAppSelector } from 'app/config/store';
+import { Authority } from 'app/shared/jhipster/constants';
 import type { CourseChapter, CourseOverview, CourseRatingSummary, CourseReviewSort } from './course-detail.model';
 import { useCourseOverview, useCourseReviews } from './use-course-detail';
 
@@ -78,6 +79,14 @@ const CourseCover = ({ course }: { course: CourseOverview }) => {
 };
 
 const EnrollAction = ({ course, isAuthenticated }: { course: CourseOverview; isAuthenticated: boolean }) => {
+  const isParent = useAppSelector(state => (state.authentication.account.authorities ?? []).includes(Authority.PARENT));
+  if (isAuthenticated && isParent && course.price != null && course.price > 0) {
+    return (
+      <Link to={`/courses/${course.id}/checkout`} className="course-detail-button">
+        Mua cho con
+      </Link>
+    );
+  }
   const label = course.price === 0 ? 'Đăng ký học miễn phí' : 'Đăng ký học';
   return isAuthenticated ? (
     <button className="course-detail-button" type="button" disabled title="Tính năng đăng ký học sắp ra mắt">

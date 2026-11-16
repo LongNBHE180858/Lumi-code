@@ -18,6 +18,7 @@ public class UserSessionDTO implements Serializable {
     private Boolean isExpired;
 
     private Boolean isActive;
+    private Boolean isCurrent;
 
     public UserSessionDTO() {}
 
@@ -82,6 +83,14 @@ public class UserSessionDTO implements Serializable {
 
     public Boolean getIsActive() {
         return isActive;
+    }
+
+    public Boolean getIsCurrent() {
+        return isCurrent;
+    }
+
+    public void setIsCurrent(Boolean isCurrent) {
+        this.isCurrent = isCurrent;
     }
 
     public void setIsActive(Boolean isActive) {

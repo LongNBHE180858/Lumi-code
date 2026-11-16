@@ -6,6 +6,11 @@ import jakarta.validation.constraints.*;
 import java.io.Serial;
 import java.io.Serializable;
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 /**
  * Lưu tin nhắn AI, nguồn trích dẫn và đánh giá phản hồi của chủ hội thoại.
@@ -35,8 +40,10 @@ public class AiMessage implements Serializable {
     @Column(name = "created_at")
     private Instant createdAt;
 
-    @Column(name = "citations", nullable = false, columnDefinition = "text")
-    private String citations;
+    @NotNull
+    @JdbcTypeCode(SqlTypes.JSON)
+    @Column(name = "citations", nullable = false, columnDefinition = "jsonb")
+    private List<@NotNull Map<String, Object>> citations;
 
     @NotNull
     @Size(max = 20)
@@ -115,17 +122,17 @@ public class AiMessage implements Serializable {
         this.createdAt = createdAt;
     }
 
-    public String getCitations() {
+    public List<Map<String, Object>> getCitations() {
         return this.citations;
     }
 
-    public AiMessage citations(String citations) {
+    public AiMessage citations(List<Map<String, Object>> citations) {
         this.setCitations(citations);
         return this;
     }
 
-    public void setCitations(String citations) {
-        this.citations = citations;
+    public void setCitations(List<Map<String, Object>> citations) {
+        this.citations = citations == null ? null : new ArrayList<>(citations);
     }
 
     public String getGenerationStatus() {

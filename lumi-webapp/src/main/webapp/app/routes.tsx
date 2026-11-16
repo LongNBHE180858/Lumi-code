@@ -20,6 +20,8 @@ import ProfileEdit from 'app/modules/profile/profile-edit';
 import InstructorProfile from 'app/modules/instructor-profile/instructor-profile';
 import Courses from 'app/modules/courses/courses';
 import CourseDetail from 'app/modules/course-detail/course-detail';
+import CourseCheckout from 'app/modules/course-purchase/course-checkout';
+import CoursePayment from 'app/modules/course-purchase/course-payment';
 import FeedbackSubmit from 'app/entities/feedback/feedback-submit';
 import TicketList from 'app/modules/support-tickets/ticket-list';
 import TicketDetail from 'app/modules/support-tickets/ticket-detail';
@@ -31,6 +33,8 @@ const Account = React.lazy(() => import('app/modules/account'));
 const Admin = React.lazy(() => import('app/modules/administration'));
 
 const Instructor = React.lazy(() => import('app/modules/instructor'));
+
+const Student = React.lazy(() => import('app/modules/student'));
 
 const AppRoutes = () => {
   return (
@@ -55,6 +59,22 @@ const AppRoutes = () => {
           <Route path="instructors/:id" element={<InstructorProfile />} />
           <Route path="courses" element={<Courses />} />
           <Route path="courses/:id" element={<CourseDetail />} />
+          <Route
+            path="course-orders/:orderId/payment"
+            element={
+              <PrivateRoute hasAnyAuthorities={[Authority.PARENT]}>
+                <CoursePayment />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="courses/:courseId/checkout"
+            element={
+              <PrivateRoute hasAnyAuthorities={[Authority.PARENT]}>
+                <CourseCheckout />
+              </PrivateRoute>
+            }
+          />
           <Route
             path="profile/edit"
             element={
@@ -131,10 +151,18 @@ const AppRoutes = () => {
           <Route
             path="instructor/*"
             element={
-              <PrivateRoute hasAnyAuthorities={[Authority.ADMIN, Authority.USER]}>
+              <PrivateRoute hasAnyAuthorities={[Authority.ADMIN, Authority.INSTRUCTOR]}>
                 <InstructorAccessRoute>
                   <Instructor />
                 </InstructorAccessRoute>
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="student/*"
+            element={
+              <PrivateRoute hasAnyAuthorities={[Authority.STUDENT]}>
+                <Student />
               </PrivateRoute>
             }
           />

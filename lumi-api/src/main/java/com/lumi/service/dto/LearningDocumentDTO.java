@@ -5,6 +5,7 @@ import jakarta.persistence.Lob;
 import jakarta.validation.constraints.*;
 import java.io.Serializable;
 import java.time.Instant;
+import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -61,8 +62,8 @@ public class LearningDocumentDTO implements Serializable {
     @Size(max = 100)
     private String bookSeries;
 
-    @Lob
-    private String sourceMetadata;
+    @NotNull
+    private Map<String, Object> sourceMetadata;
 
     private CourseMaterialDTO courseMaterial;
 
@@ -187,11 +188,11 @@ public class LearningDocumentDTO implements Serializable {
         this.bookSeries = bookSeries;
     }
 
-    public String getSourceMetadata() {
+    public Map<String, Object> getSourceMetadata() {
         return sourceMetadata;
     }
 
-    public void setSourceMetadata(String sourceMetadata) {
+    public void setSourceMetadata(Map<String, Object> sourceMetadata) {
         this.sourceMetadata = sourceMetadata;
     }
 

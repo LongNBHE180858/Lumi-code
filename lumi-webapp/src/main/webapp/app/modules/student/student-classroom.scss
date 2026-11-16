@@ -1,0 +1,820 @@
+﻿/* ==========================================================================
+   ASSIGN TASK STYLES (Figma 565:2 — 7.2.1C Quản lý lớp — Giao việc)
+   ========================================================================== */
+
+.assign-task-container {
+  margin-top: 10px;
+}
+
+.assign-task-two-cols {
+  display: grid;
+  grid-template-columns: 1.6fr 1.1fr;
+  gap: 24px;
+  align-items: flex-start;
+}
+
+@media (max-width: 960px) {
+  .assign-task-two-cols {
+    grid-template-columns: 1fr;
+  }
+}
+
+.assign-task-form-card,
+.assign-task-side-card {
+  background: #ffffff;
+  border: 1px solid rgba(211, 232, 246, 0.85);
+  border-radius: 20px;
+  padding: 28px;
+  box-shadow: var(--shadow-card);
+}
+
+.form-card-head {
+  padding-bottom: 18px;
+  margin-bottom: 20px;
+  border-bottom: 1.5px solid #edf4fa;
+}
+
+.form-head-title {
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--color-text-title);
+}
+
+.form-head-desc {
+  font-size: 14px;
+  color: var(--color-text-secondary);
+  margin-top: 4px;
+}
+
+.assign-form-body {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.form-item-textarea {
+  background: #fbfdff;
+  border: 1.5px solid var(--color-border-input);
+  border-radius: 12px;
+  padding: 12px 14px;
+  font-size: 14px;
+  color: var(--color-text-title);
+  outline: none;
+  font-family: inherit;
+  resize: vertical;
+  line-height: 1.5;
+  transition: all 0.2s ease;
+}
+
+.form-item-textarea:focus {
+  background: #ffffff;
+  border-color: var(--color-primary);
+  box-shadow: var(--shadow-input-focus);
+}
+
+/* Attachments */
+.attachments-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.attachment-file-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #f4f9fd;
+  border: 1px solid #d3e8f6;
+  border-radius: 12px;
+  padding: 10px 14px;
+}
+
+.attachment-file-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.file-icon {
+  font-size: 20px;
+}
+
+.file-name {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--color-text-title);
+}
+
+.file-meta {
+  font-size: 11px;
+  color: var(--color-text-secondary);
+}
+
+.btn-remove-attachment {
+  background: none;
+  border: none;
+  color: #ef4444;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 6px;
+}
+
+.btn-remove-attachment:hover {
+  background: #fee2e2;
+}
+
+.attachment-actions-row {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.btn-add-attachment {
+  background: #ffffff;
+  border: 1.5px dashed var(--color-primary);
+  color: var(--color-primary);
+  border-radius: 10px;
+  padding: 8px 14px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.btn-add-attachment:hover {
+  background: #eaf6fc;
+}
+
+.btn-select-existing-bank {
+  background: #f7fbff;
+  border: 1px solid #d3e8f6;
+  color: var(--color-text-title);
+  border-radius: 10px;
+  padding: 8px 14px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.btn-select-existing-bank:hover {
+  background: #eef7fc;
+  border-color: var(--color-primary);
+}
+
+/* Side Card */
+.assign-task-side-card {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.side-section-box {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding-bottom: 18px;
+  border-bottom: 1px solid #edf4fa;
+}
+
+.side-section-title {
+  font-size: 16px;
+  font-weight: 800;
+  color: var(--color-text-title);
+}
+
+.target-class-badge-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: #f4f9fd;
+  border: 1px solid #d3e8f6;
+  border-radius: 14px;
+  padding: 12px 16px;
+}
+
+.class-badge-avatar {
+  font-size: 24px;
+}
+
+.class-badge-texts {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.target-class-name {
+  font-size: 15px;
+  font-weight: 800;
+  color: var(--color-text-title);
+}
+
+.target-class-sub {
+  font-size: 12px;
+  color: var(--color-text-secondary);
+}
+
+.btn-link-change-class {
+  background: none;
+  border: none;
+  color: var(--color-primary);
+  font-size: 12px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.btn-link-change-class:hover {
+  text-decoration: underline;
+}
+
+.change-class-dropdown {
+  background: #eef7fc;
+  border: 1px solid #c8e2f5;
+  border-radius: 12px;
+  padding: 12px;
+}
+
+.student-recipient-info {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.student-recipient-tag {
+  display: inline-block;
+  font-size: 13px;
+  font-weight: 700;
+  color: #0369a1;
+  background: #e0f2fe;
+  padding: 4px 10px;
+  border-radius: 8px;
+  width: fit-content;
+}
+
+.custom-checkbox-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.custom-checkbox-row input[type='checkbox'] {
+  width: 18px;
+  height: 18px;
+  margin-top: 2px;
+  accent-color: var(--color-primary);
+  cursor: pointer;
+}
+
+.checkbox-label-text {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--color-text-title);
+}
+
+.side-actions-box {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.confirm-summary-text {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #fffbeb;
+  border: 1px solid #fde68a;
+  border-radius: 10px;
+  padding: 10px 14px;
+  font-size: 13px;
+  color: #92400e;
+}
+
+.confirm-icon {
+  font-size: 16px;
+}
+
+.actions-button-row {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.btn-submit-assign {
+  box-shadow: 0 4px 16px rgba(36, 168, 232, 0.4);
+}
+
+/* ==========================================================================
+   JOIN CLASS POPUP & PAGE STYLES (Figma 565:253)
+   ========================================================================== */
+
+.join-class-modal-dialog {
+  max-width: 580px;
+}
+
+.join-modal-step-box {
+  background: #f7fbff;
+  border: 1.5px solid #d3e8f6;
+  border-radius: 16px;
+  padding: 16px 20px;
+}
+
+.join-code-input-row {
+  display: flex;
+  gap: 10px;
+  margin-top: 8px;
+  margin-bottom: 6px;
+}
+
+.font-code {
+  font-family: ui-monospace, SFMono-Regular, monospace;
+  font-weight: 800;
+  letter-spacing: 1px;
+}
+
+.btn-search-code {
+  flex-shrink: 0;
+  padding: 10px 20px;
+}
+
+.join-modal-result-box {
+  background: #ffffff;
+  border: 1.5px solid #c8e2f5;
+  border-radius: 16px;
+  padding: 18px 20px;
+  margin-top: 14px;
+}
+
+.result-status-tag {
+  display: inline-block;
+  font-size: 12px;
+  font-weight: 800;
+  color: #059669;
+  background: #ecfdf5;
+  border: 1px solid #a7f3d0;
+  padding: 4px 10px;
+  border-radius: 999px;
+  margin-bottom: 12px;
+}
+
+.found-class-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.found-icon {
+  font-size: 32px;
+}
+
+.found-name {
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--color-text-title);
+}
+
+.found-code {
+  font-family: ui-monospace, monospace;
+  font-size: 13px;
+  color: var(--color-primary);
+  font-weight: 700;
+}
+
+.found-class-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px 16px;
+  background: #f7fbff;
+  border: 1px solid #d3e8f6;
+  border-radius: 12px;
+  padding: 12px 16px;
+  font-size: 13px;
+}
+
+.found-grid-item {
+  display: flex;
+  justify-content: space-between;
+}
+
+.found-label {
+  color: var(--color-text-secondary);
+  font-weight: 600;
+}
+
+.found-val {
+  color: var(--color-text-title);
+  font-weight: 700;
+}
+
+.join-rules-callout {
+  display: flex;
+  gap: 10px;
+  background: #fffbeb;
+  border: 1px solid #fde68a;
+  border-radius: 12px;
+  padding: 12px 14px;
+  margin-top: 14px;
+  font-size: 12px;
+  color: #92400e;
+  line-height: 1.4;
+}
+
+.rules-icon {
+  font-size: 18px;
+  flex-shrink: 0;
+}
+
+.account-tag-bar {
+  background: #f1f7fc;
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-size: 12px;
+  color: #334e68;
+  margin-top: 12px;
+}
+
+/* Full Page Join (565:253) */
+.join-page-intro {
+  margin-bottom: 8px;
+}
+
+.join-page-grid {
+  display: grid;
+  grid-template-columns: 1.5fr 1fr;
+  gap: 24px;
+  align-items: flex-start;
+}
+
+@media (max-width: 900px) {
+  .join-page-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.join-page-left-card,
+.join-page-right-card {
+  background: #ffffff;
+  border: 1px solid rgba(211, 232, 246, 0.85);
+  border-radius: 20px;
+  padding: 28px;
+  box-shadow: var(--shadow-card);
+}
+
+.join-step-title {
+  font-size: 17px;
+  font-weight: 800;
+  color: var(--color-text-title);
+  margin-bottom: 12px;
+}
+
+.guide-steps-list {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  margin-top: 16px;
+}
+
+.guide-step-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+}
+
+.step-num-badge {
+  width: 36px;
+  height: 36px;
+  border-radius: 12px;
+  background: #eaf6fc;
+  color: var(--color-primary);
+  font-size: 15px;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.step-content {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.step-title {
+  font-size: 15px;
+  font-weight: 800;
+  color: var(--color-text-title);
+}
+
+.step-desc {
+  font-size: 13px;
+  color: var(--color-text-secondary);
+  line-height: 1.4;
+}
+
+.join-tips-box {
+  background: #f7fbff;
+  border: 1px solid #d3e8f6;
+  border-radius: 14px;
+  padding: 16px;
+  margin-top: 24px;
+}
+
+.tips-heading {
+  font-size: 13px;
+  font-weight: 800;
+  color: var(--color-text-title);
+  margin-bottom: 8px;
+}
+
+.tips-list {
+  padding-left: 20px;
+  font-size: 12px;
+  color: var(--color-text-secondary);
+  line-height: 1.6;
+}
+
+.join-success-card {
+  background: #ffffff;
+  border: 1px solid rgba(211, 232, 246, 0.85);
+  border-radius: 20px;
+  padding: 48px 32px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  box-shadow: var(--shadow-card);
+}
+
+.success-icon {
+  font-size: 48px;
+}
+
+.success-title {
+  font-size: 24px;
+  font-weight: 800;
+  color: var(--color-text-title);
+}
+
+.success-desc {
+  font-size: 15px;
+  color: var(--color-text-secondary);
+  max-width: 500px;
+}
+
+.success-actions {
+  margin-top: 16px;
+}
+
+/* ==========================================================================
+   STUDENT ASSIGNMENTS PAGE (Figma 565:227)
+   ========================================================================== */
+
+.btn-join-class-action {
+  padding: 10px 22px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.stat-active-selected {
+  border-color: var(--color-primary) !important;
+  box-shadow: 0 0 0 3px rgba(36, 168, 232, 0.2) !important;
+}
+
+.assignments-tabs-filter-bar {
+  display: flex;
+  gap: 8px;
+  border-bottom: 1.5px solid #edf4fa;
+  margin-top: 8px;
+  overflow-x: auto;
+}
+
+.assignment-tab-btn {
+  background: none;
+  border: none;
+  padding: 12px 20px;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  position: relative;
+  white-space: nowrap;
+  transition: all 0.15s ease;
+}
+
+.assignment-tab-btn:hover {
+  color: var(--color-text-title);
+}
+
+.assignment-tab-btn.active {
+  color: var(--color-primary);
+}
+
+.assignment-tab-btn.active::after {
+  content: '';
+  position: absolute;
+  bottom: -1.5px;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: var(--color-primary);
+  border-radius: 3px 3px 0 0;
+}
+
+.cell-task-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.cell-task-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--color-text-title);
+}
+
+.cell-task-meta {
+  font-size: 12px;
+  color: var(--color-text-secondary);
+}
+
+.cell-teacher-name {
+  font-size: 14px;
+  color: #334e68;
+  font-weight: 600;
+}
+
+.cell-due-date {
+  font-size: 13px;
+  font-weight: 700;
+  color: #b91c1c;
+  background: #fef2f2;
+  padding: 3px 8px;
+  border-radius: 6px;
+  display: inline-block;
+}
+
+.status-not-started {
+  background: #f1f5f9;
+  color: #475569;
+  border: 1px solid #cbd5e1;
+}
+
+.status-in-progress {
+  background: #eff6ff;
+  color: #1d4ed8;
+  border: 1px solid #bfdbfe;
+}
+
+.status-overdue {
+  background: #fef2f2;
+  color: #b91c1c;
+  border: 1px solid #fecaca;
+}
+
+.status-graded {
+  background: #ecfdf5;
+  color: #047857;
+  border: 1px solid #a7f3d0;
+}
+
+.btn-table-task-action {
+  background: #ffffff;
+  color: var(--color-primary);
+  border: 1.5px solid var(--color-border-input);
+  font-size: 13px;
+  font-weight: 700;
+  padding: 6px 14px;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.btn-table-task-action:hover {
+  background: var(--color-primary);
+  color: #ffffff;
+  border-color: var(--color-primary);
+  box-shadow: 0 4px 12px rgba(36, 168, 232, 0.3);
+}
+
+.student-callout-note {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: #f7fbff;
+  border: 1px solid #d3e8f6;
+  border-radius: 12px;
+  padding: 14px 18px;
+  font-size: 13px;
+  color: #486581;
+}
+
+.note-icon {
+  font-size: 18px;
+  flex-shrink: 0;
+}
+
+/* ==========================================================================
+   STUDENT CLASSES PAGE & CARDS
+   ========================================================================== */
+
+.pending-classes-box {
+  background: #fffbeb;
+  border: 1.5px solid #fde68a;
+  border-radius: 20px;
+  padding: 22px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.pending-box-head {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.pending-icon {
+  font-size: 24px;
+}
+
+.pending-box-title {
+  font-size: 16px;
+  font-weight: 800;
+  color: #92400e;
+}
+
+.pending-box-desc {
+  font-size: 13px;
+  color: #b45309;
+  margin-top: 2px;
+}
+
+.pending-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 14px;
+}
+
+.pending-class-card {
+  background: #ffffff;
+  border: 1px solid #fde68a;
+  border-radius: 14px;
+  padding: 14px 18px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+
+.pending-class-name {
+  font-size: 15px;
+  font-weight: 800;
+  color: var(--color-text-title);
+}
+
+.pending-class-code {
+  font-family: ui-monospace, monospace;
+  font-size: 12px;
+  color: var(--color-primary);
+  font-weight: 700;
+  margin-right: 8px;
+}
+
+.pending-class-teacher {
+  font-size: 12px;
+  color: var(--color-text-secondary);
+  margin-top: 2px;
+}
+
+.pending-class-action {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 6px;
+}
+
+.btn-cancel-pending {
+  background: none;
+  border: none;
+  color: #ef4444;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  padding: 2px;
+}
+
+.btn-cancel-pending:hover {
+  text-decoration: underline;
+}
+
+.student-classes-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+}

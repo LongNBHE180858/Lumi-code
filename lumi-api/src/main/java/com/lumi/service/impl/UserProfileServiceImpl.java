@@ -5,6 +5,7 @@ import com.lumi.domain.enumeration.InstructorApplicationStatus;
 import com.lumi.repository.*;
 import com.lumi.security.SecurityUtils;
 import com.lumi.service.UserProfileService;
+import com.lumi.service.payment.ParentPurchaseAccessService;
 import com.lumi.service.dto.*;
 import com.lumi.service.mapper.UserProfileMapper;
 import com.lumi.web.rest.errors.BadRequestAlertException;
@@ -39,9 +40,8 @@ public class UserProfileServiceImpl implements UserProfileService {
     private final CourseEnrollmentRepository courseEnrollmentRepository;
     private final StudentStreakRepository studentStreakRepository;
 
-    private final ParentStudentLinkRepository parentStudentLinkRepository;
-
     private final CourseRepository courseRepository;
+    private final ParentPurchaseAccessService purchaseAccessService;
 
     public UserProfileServiceImpl(
         UserProfileRepository userProfileRepository,
@@ -49,16 +49,16 @@ public class UserProfileServiceImpl implements UserProfileService {
         UserRepository userRepository,
         CourseEnrollmentRepository courseEnrollmentRepository,
         StudentStreakRepository studentStreakRepository,
-        ParentStudentLinkRepository parentStudentLinkRepository,
-        CourseRepository courseRepository
+        CourseRepository courseRepository,
+        ParentPurchaseAccessService purchaseAccessService
     ) {
         this.userProfileRepository = userProfileRepository;
         this.userProfileMapper = userProfileMapper;
         this.userRepository = userRepository;
         this.courseEnrollmentRepository = courseEnrollmentRepository;
         this.studentStreakRepository = studentStreakRepository;
-        this.parentStudentLinkRepository = parentStudentLinkRepository;
         this.courseRepository = courseRepository;
+        this.purchaseAccessService = purchaseAccessService;
     }
 
     @Override
@@ -234,19 +234,11 @@ public class UserProfileServiceImpl implements UserProfileService {
 
     @Override
     public List<LinkedStudentDTO> getLinkedStudents() {
-        Long parentId = SecurityUtils.getCurrentUserId().orElseThrow(() ->
-            new RuntimeException("Người dùng chưa đăng nhập hoặc không tìm thấy user ID trong phiên")
-        );
-
-        List<ParentStudentLink> links = parentStudentLinkRepository.findByParentIdWithStudent(parentId);
+        List<ParentStudentLink> links = purchaseAccessService.getPurchasableChildren();
 
         List<LinkedStudentDTO> result = new ArrayList<>();
 
         for (ParentStudentLink link : links) {
-            if (!"LINKED".equals(link.getStatus())) {
-                continue;
-            }
-
             User student = link.getStudent();
 
             String firstName = student.getFirstName() != null ? student.getFirstName() : "";

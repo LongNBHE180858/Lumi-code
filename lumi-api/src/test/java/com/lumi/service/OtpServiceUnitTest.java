@@ -8,9 +8,11 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
 import com.lumi.domain.EmailOtp;
+import com.lumi.domain.User;
 import com.lumi.domain.enumeration.OtpPurpose;
 import com.lumi.repository.EmailOtpRepository;
 import com.lumi.repository.UserRepository;
+import com.lumi.security.OtpDigest;
 import com.lumi.service.dto.auth.otp.OtpResponseDTO;
 import com.lumi.service.dto.auth.otp.SendOtpRequestDTO;
 import com.lumi.web.rest.errors.BadRequestAlertException;
@@ -49,10 +51,11 @@ class OtpServiceUnitTest {
     private CacheManager cacheManager;
 
     private OtpService otpService;
+    private final OtpDigest otpDigest = new OtpDigest("unit-test-secret-for-otp-hashing-123456789");
 
     @BeforeEach
     void setUp() {
-        otpService = new OtpService(emailOtpRepository, userRepository, mailService, cacheManager);
+        otpService = new OtpService(emailOtpRepository, userRepository, mailService, otpDigest, cacheManager);
     }
 
     @Test
@@ -65,9 +68,10 @@ class OtpServiceUnitTest {
         request.setEmail(testEmail);
         request.setPurpose(OtpPurpose.REGISTER);
 
-        when(userRepository.findOneByEmailIgnoreCase(testEmail)).thenReturn(Optional.empty());
-        when(emailOtpRepository.findTopByEmailIgnoreCaseAndPurposeOrderByCreatedAtDesc(eq(testEmail), eq(OtpPurpose.REGISTER)))
-            .thenReturn(Optional.empty());
+        when(userRepository.findOneByEmailIgnoreCase(testEmail)).thenReturn(Optional.of(new User()));
+        when(emailOtpRepository.findTopByEmailIgnoreCaseAndPurposeOrderByCreatedAtDesc(eq(testEmail), eq(OtpPurpose.REGISTER))).thenReturn(
+            Optional.empty()
+        );
 
         ArgumentCaptor<EmailOtp> otpCaptor = ArgumentCaptor.forClass(EmailOtp.class);
 
@@ -79,15 +83,11 @@ class OtpServiceUnitTest {
         verify(emailOtpRepository, times(1)).save(otpCaptor.capture());
 
         EmailOtp savedOtp = otpCaptor.getValue();
-        assertThat(savedOtp.getOtpCode())
-            .as("OTP code must be exactly 6 characters per SRS GB-05")
-            .hasSize(6);
-
-        assertThat(savedOtp.getOtpCode())
-            .as("OTP code must contain only numeric digits per SRS GB-05")
-            .matches("^[0-9]{6}$");
-
-        verify(mailService, times(1)).sendOtpMail(eq(testEmail), eq(savedOtp.getOtpCode()), anyString());
+        ArgumentCaptor<String> mailedCode = ArgumentCaptor.forClass(String.class);
+        verify(mailService, times(1)).sendOtpMail(eq(testEmail), mailedCode.capture(), anyString());
+        assertThat(mailedCode.getValue()).matches("^[0-9]{6}$");
+        assertThat(otpDigest.matches(mailedCode.getValue(), savedOtp.getOtpCode())).isTrue();
+        assertThat(savedOtp.getOtpCode()).hasSize(64);
     }
 
     @Test
@@ -100,9 +100,10 @@ class OtpServiceUnitTest {
         request.setEmail(testEmail);
         request.setPurpose(OtpPurpose.REGISTER);
 
-        when(userRepository.findOneByEmailIgnoreCase(testEmail)).thenReturn(Optional.empty());
-        when(emailOtpRepository.findTopByEmailIgnoreCaseAndPurposeOrderByCreatedAtDesc(eq(testEmail), eq(OtpPurpose.REGISTER)))
-            .thenReturn(Optional.empty());
+        when(userRepository.findOneByEmailIgnoreCase(testEmail)).thenReturn(Optional.of(new User()));
+        when(emailOtpRepository.findTopByEmailIgnoreCaseAndPurposeOrderByCreatedAtDesc(eq(testEmail), eq(OtpPurpose.REGISTER))).thenReturn(
+            Optional.empty()
+        );
 
         ArgumentCaptor<EmailOtp> otpCaptor = ArgumentCaptor.forClass(EmailOtp.class);
 
@@ -139,7 +140,7 @@ class OtpServiceUnitTest {
         request.setEmail(testEmail);
         request.setPurpose(OtpPurpose.REGISTER);
 
-        when(userRepository.findOneByEmailIgnoreCase(testEmail)).thenReturn(Optional.empty());
+        when(userRepository.findOneByEmailIgnoreCase(testEmail)).thenReturn(Optional.of(new User()));
 
         // Simulate an existing OTP created 30 seconds ago (cooldown is 60s)
         EmailOtp recentOtp = new EmailOtp();
@@ -147,17 +148,16 @@ class OtpServiceUnitTest {
         recentOtp.setPurpose(OtpPurpose.REGISTER);
         recentOtp.setCreatedAt(Instant.now().minusSeconds(30));
 
-        when(emailOtpRepository.findTopByEmailIgnoreCaseAndPurposeOrderByCreatedAtDesc(eq(testEmail), eq(OtpPurpose.REGISTER)))
-            .thenReturn(Optional.of(recentOtp));
+        when(emailOtpRepository.findTopByEmailIgnoreCaseAndPurposeOrderByCreatedAtDesc(eq(testEmail), eq(OtpPurpose.REGISTER))).thenReturn(
+            Optional.of(recentOtp)
+        );
 
         // Act & Assert
         assertThatThrownBy(() -> otpService.sendOtp(request, "127.0.0.1"))
             .isInstanceOf(BadRequestAlertException.class)
             .satisfies(ex -> {
                 BadRequestAlertException badRequest = (BadRequestAlertException) ex;
-                assertThat(badRequest.getErrorKey())
-                    .as("Error key must indicate otpCooldown")
-                    .isEqualTo("otpCooldown");
+                assertThat(badRequest.getErrorKey()).as("Error key must indicate otpCooldown").isEqualTo("otpCooldown");
                 assertThat(badRequest.getMessage())
                     .as("Message must instruct user to wait before resending")
                     .contains("giây trước khi yêu cầu gửi lại mã OTP");
@@ -167,5 +167,27 @@ class OtpServiceUnitTest {
         verify(emailOtpRepository, never()).save(any(EmailOtp.class));
         verify(mailService, never()).sendOtpMail(anyString(), anyString(), anyString());
     }
-}
 
+    @Test
+    void loginChallengeAcceptsOtpOnceAndKeepsRememberMeChoice() {
+        User user = new User();
+        user.setActivated(true);
+        EmailOtp challenge = new EmailOtp();
+        challenge.setEmail("student@lumi.edu.vn");
+        challenge.setPurpose(OtpPurpose.LOGIN);
+        challenge.setLoginChallengeId("challenge-123");
+        challenge.setOtpCode(otpDigest.hash("123456"));
+        challenge.setExpiresAt(Instant.now().plusSeconds(300));
+        challenge.setIsUsed(false);
+        challenge.setRememberMe(true);
+        when(emailOtpRepository.findChallengeForUpdate("challenge-123", OtpPurpose.LOGIN)).thenReturn(Optional.of(challenge));
+        when(userRepository.findOneWithAuthoritiesByEmailIgnoreCase("student@lumi.edu.vn")).thenReturn(Optional.of(user));
+
+        OtpService.VerifiedLogin verified = otpService.verifyLoginChallenge("challenge-123", "123456");
+
+        assertThat(verified.user()).isSameAs(user);
+        assertThat(verified.rememberMe()).isTrue();
+        assertThat(challenge.getIsUsed()).isTrue();
+        assertThatThrownBy(() -> otpService.verifyLoginChallenge("challenge-123", "123456")).isInstanceOf(BadRequestAlertException.class);
+    }
+}

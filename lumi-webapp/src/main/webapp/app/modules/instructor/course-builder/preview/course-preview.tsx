@@ -215,6 +215,24 @@ export const CoursePreview = ({ onBack, onNext, onNavigateTab }: CoursePreviewPr
             {/* Khối 3: Mô tả & Mục tiêu học tập */}
             <PreviewDetails course={course} edit={edit} isStudentView={isStudentView} />
 
+            {/* Khối hiển thị Bài kiểm tra khóa học */}
+            <Card className="preview-panel p-4 rounded-4 border-0">
+              <div className="preview-section-heading d-flex justify-content-between align-items-center mb-3">
+                <div>
+                  <div className="preview-eyebrow">ĐÁNH GIÁ & KIỂM TRA</div>
+                  <h5 className="mb-0">Hệ thống bài kiểm tra & câu hỏi luyện tập</h5>
+                </div>
+                {!isStudentView && (
+                  <Button variant="outline-primary" size="sm" onClick={() => edit('curriculum')}>
+                    <FontAwesomeIcon icon={faPen} className="me-1" /> Chỉnh sửa
+                  </Button>
+                )}
+              </div>
+              <div className="small text-muted">
+                Khóa học có bài kiểm tra kết thúc và câu hỏi luyện tập đi kèm với từng bài học để củng cố kiến thức.
+              </div>
+            </Card>
+
             {/* Khối 4: Đề cương chương trình học */}
             <PreviewCurriculum chapters={data.chapters} edit={edit} select={setSelectedLesson} isStudentView={isStudentView} />
           </div>

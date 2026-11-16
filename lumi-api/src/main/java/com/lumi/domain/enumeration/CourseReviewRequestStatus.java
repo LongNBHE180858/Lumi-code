@@ -4,4 +4,5 @@ public enum CourseReviewRequestStatus {
     PENDING,
     APPROVED,
     REJECTED,
+    WITHDRAWN,
 }

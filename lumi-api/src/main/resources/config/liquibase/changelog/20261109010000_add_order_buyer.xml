@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog https://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+    <changeSet id="20261109010000-1" author="lumi">
+        <!-- Legacy orders retain a null buyer; do not infer a parent from a current link. -->
+        <addColumn tableName="orders">
+            <column name="buyer_id" type="bigint"/>
+        </addColumn>
+        <addForeignKeyConstraint baseTableName="orders" baseColumnNames="buyer_id"
+                                 constraintName="fk_orders__buyer_id"
+                                 referencedTableName="jhi_user" referencedColumnNames="id"/>
+        <createIndex tableName="orders" indexName="idx_orders_buyer_id">
+            <column name="buyer_id"/>
+        </createIndex>
+        <rollback>
+            <dropIndex tableName="orders" indexName="idx_orders_buyer_id"/>
+            <dropForeignKeyConstraint baseTableName="orders" constraintName="fk_orders__buyer_id"/>
+            <dropColumn tableName="orders" columnName="buyer_id"/>
+        </rollback>
+    </changeSet>
+</databaseChangeLog>

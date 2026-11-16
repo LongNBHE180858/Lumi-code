@@ -6,6 +6,7 @@ import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validation;
 import jakarta.validation.Validator;
 import jakarta.validation.ValidatorFactory;
+import java.time.LocalDate;
 import java.util.Set;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
@@ -25,6 +26,15 @@ class RegisterRequestDTOUnitTest {
     static void setUp() {
         ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
         validator = factory.getValidator();
+    }
+
+    @Test
+    void birthDateRequiresAValueAndAcceptsLocalDate() {
+        RegisterRequestDTO request = new RegisterRequestDTO();
+        assertThat(validator.validateProperty(request, "birthDate")).hasSize(1);
+
+        request.setBirthDate(LocalDate.of(2014, 1, 1));
+        assertThat(validator.validateProperty(request, "birthDate")).isEmpty();
     }
 
     @Test

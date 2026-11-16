@@ -1,14 +1,24 @@
 import React from 'react';
 import { Badge, Button, Card } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCheck, faCircleInfo } from '@fortawesome/free-solid-svg-icons';
+import { faCheck, faCircleExclamation, faCircleInfo } from '@fortawesome/free-solid-svg-icons';
 import type { IBuilderAggregate, IReviewState } from '../course-builder.reducer';
 import { savedPricing } from '../pricing/saved-pricing';
-import { chapterDuration } from '../curriculum/video-duration';
+import { chapterDuration } from '../curriculum/lesson/video-duration';
 import { PreviewMedia } from '../preview/preview-media';
 import { courseLifecycle } from '../course-lifecycle';
 
 export type ReviewEditTab = 'basic-info' | 'curriculum' | 'pricing' | 'preview';
+
+const getCheckIcon = (complete: boolean, required: boolean) => {
+  if (complete) return faCheck;
+  return required ? faCircleExclamation : faCircleInfo;
+};
+
+const getCheckColorClass = (complete: boolean, required: boolean) => {
+  if (complete) return 'text-success';
+  return required ? 'text-danger' : 'text-warning';
+};
 
 export const ReviewChecklist = ({
   review,
@@ -24,7 +34,7 @@ export const ReviewChecklist = ({
     <div className="text-muted small mb-3">Các mục bắt buộc được kiểm tra từ bản nháp đã lưu. Mục khuyến nghị không chặn gửi duyệt.</div>
     {review.checks.map(item => (
       <div key={item.code} className="review-check">
-        <FontAwesomeIcon icon={item.complete ? faCheck : faCircleInfo} className={item.complete ? 'text-success' : 'text-warning'} />
+        <FontAwesomeIcon icon={getCheckIcon(item.complete, item.required)} className={getCheckColorClass(item.complete, item.required)} />
         <div className="flex-grow-1">
           <div className="fw-semibold">{item.label}</div>
           <div className="small text-muted">
@@ -88,7 +98,9 @@ export const ReviewRequestStatus = ({ request }: { request: NonNullable<IReviewS
         ? 'Yêu cầu đang chờ duyệt'
         : request.status === 'APPROVED'
           ? 'Yêu cầu đã được phê duyệt'
-          : 'Yêu cầu cần bổ sung'}
+          : request.status === 'WITHDRAWN'
+            ? 'Yêu cầu đã được rút lại'
+            : 'Yêu cầu cần bổ sung'}
     </h5>
     <div className="small text-muted">
       Yêu cầu #{request.id} • Gửi lúc {dateText(request.submittedAt)}

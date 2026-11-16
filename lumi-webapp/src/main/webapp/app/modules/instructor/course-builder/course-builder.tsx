@@ -26,11 +26,12 @@ import CoursePricing, { PricingNavigation } from './pricing/course-pricing';
 import CoursePreview from './preview/course-preview';
 import CourseReviewSubmit from './review/course-review-submit';
 import { courseLifecycle, isBuilderReadOnly } from './course-lifecycle';
+import CourseExamsTab from './exams/course-exams-tab';
 
-export type BuilderTabType = 'basic-info' | 'curriculum' | 'pricing' | 'preview' | 'review';
+export type BuilderTabType = 'basic-info' | 'curriculum' | 'exams' | 'pricing' | 'preview' | 'review';
 
 const initialBuilderTab = (step: string | null): BuilderTabType => {
-  if (step === 'curriculum' || step === 'pricing' || step === 'preview' || step === 'review') return step;
+  if (step === 'curriculum' || step === 'exams' || step === 'pricing' || step === 'preview' || step === 'review') return step;
   return 'basic-info';
 };
 
@@ -154,7 +155,7 @@ export const CourseBuilder = () => {
   return (
     <div className="course-builder-container p-4">
       {/* 1. Breadcrumbs */}
-      <div className="text-muted small mb-2">
+      {/* <div className="text-muted small mb-2">
         Trang chủ › Không gian giảng viên ›{' '}
         <Link
           to="/instructor/courses"
@@ -169,10 +170,10 @@ export const CourseBuilder = () => {
           }}
           className="text-decoration-none"
         >
-          Khóa học của tôi
+          Xây dựng khóa học
         </Link>{' '}
         › Quản lý khóa học
-      </div>
+      </div> */}
 
       {/* 2. Tiêu đề */}
       <div className="d-flex justify-content-between align-items-center mb-4">
@@ -191,9 +192,10 @@ export const CourseBuilder = () => {
               pricingNavigationRef.current.requestLeave(() => navigate('/instructor/courses'));
             }
           }}
-          className="text-decoration-none fw-semibold"
+          className="btn btn-outline-secondary btn-sm rounded-pill px-3 py-2 fw-semibold d-inline-flex align-items-center shadow-sm"
         >
-          <FontAwesomeIcon icon={faArrowLeft} className="me-1" /> Khóa học của tôi
+          <FontAwesomeIcon icon={faArrowLeft} className="me-2" />
+          Khóa học của tôi
         </Link>
       </div>
 
@@ -205,7 +207,11 @@ export const CourseBuilder = () => {
               <Badge bg="info" className="text-primary bg-info-subtle px-3 py-2 rounded-pill fw-bold">
                 {lifecycle.label}
               </Badge>
-              <span className="text-muted small">{lifecycle.description}</span>
+              <span className="text-muted small">
+                <Badge bg="secondary" className="text-secondary bg-secondary-subtle px-3 py-2 rounded-pill fw-bold">
+                  {lifecycle.description}
+                </Badge>
+              </span>
             </div>
             <h3 className="fw-bold mb-0 text-dark">{course?.title || 'Khóa học chưa đặt tên'}</h3>
           </div>
@@ -321,6 +327,16 @@ export const CourseBuilder = () => {
         <Nav.Item>
           <Nav.Link
             disabled={saving}
+            active={activeTab === 'exams'}
+            onClick={() => requestTabChange('exams')}
+            className="fw-bold px-4 py-3"
+          >
+            Đề kiểm tra
+          </Nav.Link>
+        </Nav.Item>
+        <Nav.Item>
+          <Nav.Link
+            disabled={saving}
             active={activeTab === 'pricing'}
             onClick={() => requestTabChange('pricing')}
             className="fw-bold px-4 py-3"
@@ -358,6 +374,14 @@ export const CourseBuilder = () => {
         <CurriculumTab
           navigationRef={curriculumNavigationRef}
           onBack={() => setActiveTab('basic-info')}
+          onNext={() => setActiveTab('exams')}
+        />
+      )}
+      {activeTab === 'exams' && course && (
+        <CourseExamsTab
+          courseId={course.id}
+          disabled={readOnly}
+          onBack={() => setActiveTab('curriculum')}
           onNext={() => setActiveTab('pricing')}
         />
       )}

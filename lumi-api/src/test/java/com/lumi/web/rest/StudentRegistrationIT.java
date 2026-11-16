@@ -107,6 +107,7 @@ class StudentRegistrationIT {
         vm.setPassword("Lumi@2026Password");
         vm.setFirstName("Hanoi");
         vm.setLastName("Student");
+        vm.setBirthDate(java.time.LocalDate.of(2014, 1, 1));
         vm.setPhoneNumber("098" + suffix.replaceAll("[^0-9]", "1234567").substring(0, 7));
         //        vm.setSchoolName("THCS Chu Van An");
         //        vm.setGradeLevel(10);

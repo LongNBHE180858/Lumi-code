@@ -399,6 +399,8 @@ $lumi-bg-light: #f3faff;
 
   /* Mobile Navbar Collapse */
   .navbar-collapse {
+    visibility: visible;
+
     @media (max-width: 991px) {
       background-color: #ffffff;
       padding: 16px;

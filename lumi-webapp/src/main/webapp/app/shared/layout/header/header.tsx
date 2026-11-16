@@ -46,6 +46,10 @@ const Header = (props: IHeaderProps) => {
             <Nav className="lumi-nav-links mx-auto">
               <Home />
               <LumiNavItem to="/courses" label="Khóa học" />
+              <LumiNavItem
+                to={account?.authorities?.includes('ROLE_STUDENT') ? '/student/classes' : '/instructor/classes'}
+                label="Lớp học"
+              />
               <LumiNavItem to="/instructors" label="Giảng viên" />
               <LumiNavItem to="/roadmap" label="Lộ trình" />
               <LumiNavItem to="/news" label="Tin tức" />
@@ -57,7 +61,7 @@ const Header = (props: IHeaderProps) => {
                   data-cy="wishlistHeaderNav"
                 />
               )} */}
-              {props.isAuthenticated && account.authorities.includes(props.isAdmin) && <EntitiesMenu />}
+              {props.isAuthenticated && props.isAdmin && <EntitiesMenu />}
               {props.isAuthenticated && props.isAdmin && <AdminMenu showOpenAPI={props.isOpenAPIEnabled} />}
             </Nav>
 

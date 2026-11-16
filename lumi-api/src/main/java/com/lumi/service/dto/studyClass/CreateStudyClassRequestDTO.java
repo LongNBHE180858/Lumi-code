@@ -1,7 +1,7 @@
 package com.lumi.service.dto.studyClass;
 
 import com.lumi.domain.enumeration.ClassJoinMode;
-import com.lumi.domain.enumeration.ClassStatus;
+import com.lumi.domain.enumeration.RecordStatus;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -33,5 +33,5 @@ public class CreateStudyClassRequestDTO {
     private Integer maxStudents;
 
     @NotNull(message = "Vui lòng chọn trạng thái trước khi mở lớp")
-    private ClassStatus status;
+    private RecordStatus status;
 }

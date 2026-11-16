@@ -71,6 +71,7 @@ const Profile = () => {
     ? [
         { label: 'Họ và tên', value: fullName || profile.login },
         { label: 'Email', value: profile.email },
+        { label: 'Ngày sinh', value: profile.birthDate ? profile.birthDate.split('-').reverse().join('/') : null },
         { label: 'Số điện thoại', value: profile.phoneNumber },
         ...(role === 'student'
           ? [

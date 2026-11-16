@@ -8,11 +8,16 @@ import SettingsLayout from '../settings-layout/settings-layout';
 import ActiveSessionsList, { IUserSessionItem } from './active-sessions-list';
 import PasswordQuickCard from './password-quick-card';
 import TwoFactorSection from './two-factor-section';
+import SecurityTwoFactorModal from './security-two-factor-modal';
 
 export const ManageSecurityPage: React.FC = () => {
   const [sessions, setSessions] = useState<IUserSessionItem[]>([]);
   const [loadingSessions, setLoadingSessions] = useState(true);
   const [twoFactorEnabled, setTwoFactorEnabled] = useState(false);
+  const [twoFactorEmail, setTwoFactorEmail] = useState('');
+  const [loadingTwoFactor, setLoadingTwoFactor] = useState(true);
+  const [sendingTwoFactorOtp, setSendingTwoFactorOtp] = useState(false);
+  const [pendingTwoFactorState, setPendingTwoFactorState] = useState<boolean | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
 
   const fetchSessions = async () => {
@@ -36,12 +41,15 @@ export const ManageSecurityPage: React.FC = () => {
     fetchSessions();
     apiGet2faStatus()
       .then(res => {
-        const enabled = Boolean(res?.data?.data?.is2faEnabled ?? res?.data?.is2faEnabled);
+        const status = res?.data?.data ?? res?.data;
+        const enabled = Boolean(status?.is2faEnable);
         setTwoFactorEnabled(enabled);
+        setTwoFactorEmail(status?.email ?? '');
       })
       .catch(() => {
-        // Keep default state
-      });
+        toast.error('Không thể tải trạng thái 2FA. Vui lòng tải lại trang.');
+      })
+      .finally(() => setLoadingTwoFactor(false));
   }, []);
 
   const handleLogoutSession = async (sessionId: number | string) => {
@@ -51,40 +59,44 @@ export const ManageSecurityPage: React.FC = () => {
       const msg = 'Đã đăng xuất thiết bị thành công.';
       setNotice(msg);
       toast.success(msg);
-    } catch {
-      // Optimistic update
-      setSessions(prev => prev.filter(s => s.id !== sessionId));
-      toast.success('Đã yêu cầu đăng xuất thiết bị.');
+    } catch (error: any) {
+      toast.error(error?.response?.data?.message || 'Không thể đăng xuất thiết bị. Vui lòng thử lại.');
     }
   };
 
   const handleLogoutAllOther = async () => {
     try {
       await apiRevokeOtherSessions();
-      setSessions(prev => (prev.length > 0 ? [prev[0]] : []));
+      await fetchSessions();
       const msg = 'Đã đăng xuất tất cả các thiết bị khác thành công.';
       setNotice(msg);
       toast.success(msg);
-    } catch {
-      setSessions(prev => (prev.length > 0 ? [prev[0]] : []));
-      toast.success('Đã gửi yêu cầu đăng xuất tất cả các thiết bị khác.');
+    } catch (error: any) {
+      toast.error(error?.response?.data?.message || 'Không thể đăng xuất các thiết bị khác. Vui lòng thử lại.');
     }
   };
 
   const handleToggle2FA = async () => {
+    if (!twoFactorEmail || sendingTwoFactorOtp || pendingTwoFactorState !== null) return;
+    setSendingTwoFactorOtp(true);
     try {
       const next = !twoFactorEnabled;
-      await apiInit2fa(next);
-      setTwoFactorEnabled(next);
-      const msg = next ? 'Đã kích hoạt xác thực hai bước (2FA qua Email OTP).' : 'Đã tắt xác thực hai bước.';
-      setNotice(msg);
-      toast.success(msg);
-    } catch {
-      setTwoFactorEnabled(prev => !prev);
-      const msg = !twoFactorEnabled ? 'Đã kích hoạt xác thực hai bước.' : 'Đã tắt xác thực hai bước.';
-      setNotice(msg);
-      toast.info(msg);
+      await apiInit2fa();
+      setPendingTwoFactorState(next);
+      toast.success('Mã OTP đã được gửi về email của bạn.');
+    } catch (error: any) {
+      toast.error(error?.response?.data?.message || 'Không thể gửi mã OTP. Vui lòng thử lại.');
+    } finally {
+      setSendingTwoFactorOtp(false);
     }
+  };
+
+  const handleTwoFactorConfirmed = (enabled: boolean) => {
+    setTwoFactorEnabled(enabled);
+    setPendingTwoFactorState(null);
+    const message = enabled ? 'Đã bật xác thực hai bước.' : 'Đã tắt xác thực hai bước.';
+    setNotice(message);
+    toast.success(message);
   };
 
   return (
@@ -121,7 +133,11 @@ export const ManageSecurityPage: React.FC = () => {
 
           {/* Section: Security settings */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-            <TwoFactorSection isEnabled={twoFactorEnabled} onToggle={handleToggle2FA} />
+            <TwoFactorSection
+              isEnabled={twoFactorEnabled}
+              onToggle={handleToggle2FA}
+              loading={loadingTwoFactor || sendingTwoFactorOtp || !twoFactorEmail}
+            />
 
             <div className="lumi-divider" />
 
@@ -129,6 +145,14 @@ export const ManageSecurityPage: React.FC = () => {
           </div>
         </div>
       </div>
+      {pendingTwoFactorState !== null && (
+        <SecurityTwoFactorModal
+          email={twoFactorEmail}
+          enable={pendingTwoFactorState}
+          onClose={() => setPendingTwoFactorState(null)}
+          onConfirmed={handleTwoFactorConfirmed}
+        />
+      )}
     </SettingsLayout>
   );
 };

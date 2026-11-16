@@ -4,6 +4,8 @@ import ErrorBoundaryRoutes from 'app/shared/error/error-boundary-routes';
 
 import { CourseList } from './courses/course-list';
 import { CourseBuilder } from './course-builder/course-builder';
+import { ClassList } from './classes';
+import InstructorClassroom from './classes/instructor-classroom';
 
 const InstructorRoutes = () => (
   <div>
@@ -11,6 +13,8 @@ const InstructorRoutes = () => (
       {/* 1. Mặc định truy cập /instructor sẽ hiện danh sách khóa học */}
       <Route index element={<CourseList />} />
       <Route path="courses" element={<CourseList />} />
+      <Route path="classes" element={<ClassList />} />
+      <Route path="classes/:id" element={<InstructorClassroom />} />
 
       {/* Dùng chung builder để giữ form khi draft mới nhận được ID. */}
       <Route element={<CourseBuilder />}>

@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+    http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <changeSet id="20261110-otp-hardening" author="lumi">
+        <modifyDataType
+            tableName="email_otp"
+            columnName="otp_code"
+            newDataType="varchar(64)"/>
+
+        <addColumn tableName="email_otp">
+            <column name="failed_attempts"
+                    type="integer"
+                    defaultValueNumeric="0">
+                <constraints nullable="false"/>
+            </column>
+        </addColumn>
+
+        <!-- Mã cũ đang lưu dạng rõ; không cho tiếp tục sử dụng -->
+        <update tableName="email_otp">
+            <column name="is_used" valueBoolean="true"/>
+            <where>is_used = false</where>
+        </update>
+    </changeSet>
+</databaseChangeLog>
+

@@ -31,6 +31,7 @@ import java.util.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.cache.CacheManager;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
@@ -63,6 +64,7 @@ public class AuthService implements IAuthService {
     private final MailService mailService;
     private final SecureRandom secureRandom = new SecureRandom();
     private final EmailOtpRepository emailOtpRepository;
+    private final ApplicationEventPublisher eventPublisher;
 
     public AuthService(
         AuthenticationManagerBuilder authenticationManagerBuilder,
@@ -76,7 +78,8 @@ public class AuthService implements IAuthService {
         CacheManager cacheManager,
         OtpService otpService,
         MailService mailService,
-        EmailOtpRepository emailOtpRepository
+        EmailOtpRepository emailOtpRepository,
+        ApplicationEventPublisher eventPublisher
     ) {
         this.authenticationManagerBuilder = authenticationManagerBuilder;
         this.tokenProvider = tokenProvider;
@@ -90,6 +93,7 @@ public class AuthService implements IAuthService {
         this.otpService = otpService;
         this.mailService = mailService;
         this.emailOtpRepository = emailOtpRepository;
+        this.eventPublisher = eventPublisher;
     }
 
     @Override
@@ -137,6 +141,7 @@ public class AuthService implements IAuthService {
             session.setIsRevoked(true);
         }
         authSessionRepository.saveAll(activeSessions);
+        emailOtpRepository.invalidateUnused(user.getEmail(), OtpPurpose.LOGIN);
 
         LOG.info("Password reset successfully for user '{}' and all active sessions revoked", user.getLogin());
     }
@@ -153,10 +158,10 @@ public class AuthService implements IAuthService {
 
         if (
             passwordChangeDto.getNewPassword() == null ||
-            passwordChangeDto.getNewPassword().length() < 4 ||
+            passwordChangeDto.getNewPassword().length() < 8 ||
             passwordChangeDto.getNewPassword().length() > 100
         ) {
-            throw new BadRequestAlertException("Mật khẩu mới phải có độ dài từ 4 đến 100 ký tự.", "account", "passwordLengthInvalid");
+            throw new BadRequestAlertException("Mật khẩu mới phải có độ dài từ 8 đến 100 ký tự.", "account", "passwordLengthInvalid");
         }
 
         if (passwordChangeDto.getCurrentPassword().equals(passwordChangeDto.getNewPassword())) {
@@ -178,6 +183,11 @@ public class AuthService implements IAuthService {
         userRepository.save(user);
         clearUserCaches(user);
 
+        var sessions = authSessionRepository.findAllByUserAndIsRevokedFalse(user);
+        sessions.forEach(session -> session.setIsRevoked(true));
+        authSessionRepository.saveAll(sessions);
+        emailOtpRepository.invalidateUnused(user.getEmail(), OtpPurpose.LOGIN);
+
         LOG.info("Password changed successfully for user '{}'", user.getLogin());
     }
 
@@ -192,19 +202,29 @@ public class AuthService implements IAuthService {
             .findOneByLogin(login)
             .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
 
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        Long currentSessionId =
+            authentication != null &&
+            authentication.getPrincipal() instanceof org.springframework.security.oauth2.jwt.Jwt jwt &&
+            jwt.getClaim("sid") instanceof Number sessionClaim
+                ? sessionClaim.longValue()
+                : null;
+
         return authSessionRepository
             .findAllByUserAndIsRevokedFalseOrderByCreatedAtDesc(user)
             .stream()
             .filter(s -> s.getExpiresAt() != null && s.getExpiresAt().isAfter(java.time.Instant.now()))
-            .map(s ->
-                new com.lumi.service.dto.auth.session.UserSessionDTO(
+            .map(s -> {
+                var dto = new com.lumi.service.dto.auth.session.UserSessionDTO(
                     s.getId(),
                     s.getDeviceInfo(),
                     s.getCreatedAt(),
                     s.getExpiresAt(),
                     s.getIsRevoked()
-                )
-            )
+                );
+                dto.setIsCurrent(s.getId().equals(currentSessionId));
+                return dto;
+            })
             .toList();
     }
 
@@ -234,7 +254,7 @@ public class AuthService implements IAuthService {
     }
 
     @Override
-    public void revokeOtherSessions(Long currentSessionId) {
+    public void revokeOtherSessions() {
         String login = com.lumi.security.SecurityUtils.getCurrentUserLogin().orElseThrow(() ->
             new org.springframework.web.server.ResponseStatusException(HttpStatus.UNAUTHORIZED, "User not authenticated")
         );
@@ -243,10 +263,23 @@ public class AuthService implements IAuthService {
             .findOneByLogin(login)
             .orElseThrow(() -> new org.springframework.web.server.ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
 
-        java.util.List<com.lumi.domain.AuthSession> otherSessions =
-            currentSessionId != null
-                ? authSessionRepository.findAllByUserAndIdNotAndIsRevokedFalse(user, currentSessionId)
-                : authSessionRepository.findAllByUserAndIsRevokedFalse(user);
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (!(authentication.getPrincipal() instanceof org.springframework.security.oauth2.jwt.Jwt jwt)) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Không tìm thấy phiên hiện tại.");
+        }
+        Number sessionClaim = jwt.getClaim("sid");
+        if (sessionClaim == null) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Token không có ID phiên.");
+        }
+        Long sessionId = sessionClaim.longValue();
+        authSessionRepository
+            .findByIdAndUser(sessionId, user)
+            .filter(session -> !Boolean.TRUE.equals(session.getIsRevoked()))
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Phiên hiện tại không hợp lệ."));
+        java.util.List<com.lumi.domain.AuthSession> otherSessions = authSessionRepository.findAllByUserAndIdNotAndIsRevokedFalse(
+            user,
+            sessionId
+        );
 
         for (var session : otherSessions) {
             session.setIsRevoked(true);
@@ -271,18 +304,25 @@ public class AuthService implements IAuthService {
         boolean isStudent = user
             .getAuthorities()
             .stream()
-            .anyMatch(a -> a.getName().equals(AuthoritiesConstants.STUDENT) || a.getName().equals(AuthoritiesConstants.USER));
+            .anyMatch(a -> a.getName().equals(AuthoritiesConstants.STUDENT));
 
         if (!isStudent) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Tài khoản không có quyền truy cập dành cho Học sinh / Học viên.");
         }
 
-        var twoFaOpt = checkAndInitiate2fa(user, ipAddress);
+        var twoFaOpt = checkAndInitiate2fa(user, ipAddress, loginVM.isRememberMe());
         if (twoFaOpt.isPresent()) {
             return twoFaOpt.orElseThrow();
         }
 
-        return buildAuthResponse(authentication, user, loginVM.isRememberMe(), resolveDeviceInfo(loginVM, clientDeviceInfo));
+        return buildAuthResponse(
+            authentication,
+            user,
+            loginVM.isRememberMe(),
+            resolveDeviceInfo(loginVM, clientDeviceInfo),
+            ipAddress,
+            clientDeviceInfo
+        );
     }
 
     @Override
@@ -303,25 +343,26 @@ public class AuthService implements IAuthService {
             .stream()
             .anyMatch(a -> a.getName().equals(AuthoritiesConstants.INSTRUCTOR) || a.getName().equals(AuthoritiesConstants.ADMIN));
 
-        Optional<UserProfile> userProfileOpt = userProfileRepository.findOneByUserId(user.getId());
-        boolean hasInstructorProfile = userProfileOpt.isPresent() && userProfileOpt.orElseThrow().getInstructorStatus() != null;
-
-        Optional<TeacherVerification> verificationOpt = teacherVerificationRepository.findOneByUserId(user.getId());
-        boolean hasTeacherVerification = verificationOpt.isPresent();
-
-        if (!hasTeacherRole && !hasInstructorProfile && !hasTeacherVerification) {
+        if (!hasTeacherRole) {
             throw new ResponseStatusException(
                 HttpStatus.FORBIDDEN,
                 "Tài khoản không có quyền truy cập dành cho Giáo viên / Giảng viên. Vui lòng đăng ký tài khoản Giáo viên."
             );
         }
 
-        var twoFaOpt = checkAndInitiate2fa(user, ipAddress);
+        var twoFaOpt = checkAndInitiate2fa(user, ipAddress, loginVM.isRememberMe());
         if (twoFaOpt.isPresent()) {
             return twoFaOpt.orElseThrow();
         }
 
-        return buildAuthResponse(authentication, user, loginVM.isRememberMe(), resolveDeviceInfo(loginVM, clientDeviceInfo));
+        return buildAuthResponse(
+            authentication,
+            user,
+            loginVM.isRememberMe(),
+            resolveDeviceInfo(loginVM, clientDeviceInfo),
+            ipAddress,
+            clientDeviceInfo
+        );
     }
 
     @Override
@@ -336,32 +377,27 @@ public class AuthService implements IAuthService {
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
         User user = getUserFromAuthentication(authentication);
-        var twoFaOpt = checkAndInitiate2fa(user, ipAddress);
+        var twoFaOpt = checkAndInitiate2fa(user, ipAddress, loginVM.isRememberMe());
         if (twoFaOpt.isPresent()) {
             return twoFaOpt.orElseThrow();
         }
 
-        return buildAuthResponse(authentication, user, loginVM.isRememberMe(), resolveDeviceInfo(loginVM, clientDeviceInfo));
+        return buildAuthResponse(
+            authentication,
+            user,
+            loginVM.isRememberMe(),
+            resolveDeviceInfo(loginVM, clientDeviceInfo),
+            ipAddress,
+            clientDeviceInfo
+        );
     }
 
     @Override
-    public AuthResponseDTO login2fa(Login2faVM login2faVM, String clientDeviceInfo) {
-        String email = login2faVM.getEmail().trim().toLowerCase();
-        String otpCode = login2faVM.getOtpCode().trim();
-        LOG.debug("REST request to complete 2FA login for email: {}", email);
-
-        var verifyRequest = new VerifyOtpRequestDTO(email, com.lumi.domain.enumeration.OtpPurpose.LOGIN, otpCode);
-        otpService.verifyOtp(verifyRequest);
-
-        User user = userRepository
-            .findOneWithAuthoritiesByEmailIgnoreCase(email)
-            .orElseThrow(() ->
-                new ResponseStatusException(HttpStatus.NOT_FOUND, "Không tìm thấy thông tin tài khoản người dùng: " + email)
-            );
-
-        if (!user.isActivated()) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Tài khoản chưa được kích hoạt.");
-        }
+    public AuthResponseDTO login2fa(Login2faVM login2faVM, String clientDeviceInfo, String ipAddress) {
+        OtpService.VerifiedLogin verified = otpService.verifyLoginChallenge(login2faVM.getChallengeId(), login2faVM.getOtpCode());
+        User user = verified.user();
+        boolean enabled = userProfileRepository.findOneByUserId(user.getId()).map(UserProfile::getIs2faEnabled).orElse(false);
+        if (!enabled) throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Tài khoản không bật 2FA.");
 
         var userDetails = DomainUserDetailsService.UserWithId.fromUser(user);
         Authentication authentication = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
@@ -370,26 +406,20 @@ public class AuthService implements IAuthService {
         return buildAuthResponse(
             authentication,
             user,
-            login2faVM.isRememberMe(),
-            login2faVM.getDeviceInfo() != null && !login2faVM.getDeviceInfo().isBlank() ? login2faVM.getDeviceInfo() : clientDeviceInfo
+            verified.rememberMe(),
+            login2faVM.getDeviceInfo() != null && !login2faVM.getDeviceInfo().isBlank() ? login2faVM.getDeviceInfo() : clientDeviceInfo,
+            ipAddress,
+            clientDeviceInfo
         );
     }
 
-    private Optional<AuthResponseDTO> checkAndInitiate2fa(User user, String ipAddress) {
+    private Optional<AuthResponseDTO> checkAndInitiate2fa(User user, String ipAddress, boolean rememberMe) {
         boolean is2faEnabled = userProfileRepository.findOneByUserId(user.getId()).map(UserProfile::getIs2faEnabled).orElse(false);
 
         if (is2faEnabled) {
             LOG.info("2FA is enabled for user {}. Sending OTP to email.", user.getLogin());
-            try {
-                var sendOtpRequest = new SendOtpRequestDTO(user.getEmail(), OtpPurpose.LOGIN);
-                otpService.sendOtp(sendOtpRequest, ipAddress != null ? ipAddress : "0.0.0.0");
-            } catch (BadRequestAlertException ex) {
-                if (!"otpCooldown".equals(ex.getErrorKey())) {
-                    throw ex;
-                }
-                LOG.info("2FA OTP cooldown active for user {}, using previously sent OTP", user.getLogin());
-            }
-            return Optional.of(AuthResponseDTO.require2fa(user.getEmail()));
+            String challengeId = otpService.startLoginChallenge(user, rememberMe, ipAddress);
+            return Optional.of(AuthResponseDTO.require2fa(user.getEmail(), challengeId));
         }
         return Optional.empty();
     }
@@ -505,7 +535,7 @@ public class AuthService implements IAuthService {
     public AuthResponseDTO refreshToken(RefreshTokenRequestVM requestVM, String clientDeviceInfo) {
         String token = requestVM.getRefreshToken();
         AuthSession session = authSessionRepository
-            .findOneByRefreshToken(token)
+            .findByRefreshTokenForUpdate(token)
             .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Refresh token không hợp lệ hoặc không tồn tại."));
 
         if (Boolean.TRUE.equals(session.getIsRevoked())) {
@@ -523,7 +553,7 @@ public class AuthService implements IAuthService {
         }
 
         session.setIsRevoked(true);
-        authSessionRepository.save(session);
+        authSessionRepository.saveAndFlush(session);
 
         String deviceInfo =
             requestVM.getDeviceInfo() != null && !requestVM.getDeviceInfo().isBlank()
@@ -532,8 +562,9 @@ public class AuthService implements IAuthService {
                   ? clientDeviceInfo
                   : session.getDeviceInfo();
 
-        String newAccessToken = tokenProvider.createAccessToken(user, false);
-        String newRefreshToken = tokenProvider.createRefreshToken(user, deviceInfo);
+        AuthSession nextSession = tokenProvider.createSession(user, deviceInfo);
+        String newAccessToken = tokenProvider.createAccessToken(user, nextSession.getId());
+        String newRefreshToken = nextSession.getRefreshToken();
         long expiresIn = tokenProvider.getTokenValidityInSeconds(false);
 
         UserAuthDTO userAuthDTO = buildUserAuthDTO(user);
@@ -578,36 +609,7 @@ public class AuthService implements IAuthService {
             .findById(userId)
             .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Không tìm thấy thông tin người dùng"));
 
-        OtpPurpose purpose = request != null && request.getPurpose() != null ? request.getPurpose() : OtpPurpose.STATUS2FA;
-
-        Instant now = Instant.now();
-
-        // Kiểm tra cooldown 60s
-        emailOtpRepository.findTopByEmailIgnoreCaseAndPurposeOrderByCreatedAtDesc(user.getEmail(), purpose).ifPresent(latestOtp -> {
-            long secondsSinceLast = java.time.Duration.between(latestOtp.getCreatedAt(), now).getSeconds();
-            if (secondsSinceLast < COOLDOWN_SECONDS) {
-                throw new BadRequestAlertException(
-                    "Vui lòng đợi " + (COOLDOWN_SECONDS - secondsSinceLast) + " giây trước khi yêu cầu mã OTP mới.",
-                    "emailOtp",
-                    "otpCooldown"
-                );
-            }
-        });
-
-        String otpCode = generateNumericOtp(OTP_LENGTH);
-
-        EmailOtp emailOtp = new EmailOtp();
-        emailOtp.setEmail(user.getEmail());
-        emailOtp.setOtpCode(otpCode);
-        emailOtp.setPurpose(purpose);
-        emailOtp.setCreatedAt(now);
-        emailOtp.setExpiresAt(now.plus(EXPIRATION_MINUTES, ChronoUnit.MINUTES));
-        emailOtp.setIsUsed(false);
-        emailOtp.setIpAddress(ipAddress);
-        emailOtpRepository.save(emailOtp);
-
-        String purposeDescription = resolvePurposeDescription(purpose);
-        mailService.sendOtpMail(user.getEmail(), otpCode, purposeDescription);
+        otpService.sendOtp(new SendOtpRequestDTO(user.getEmail(), OtpPurpose.STATUS2FA), ipAddress);
     }
 
     @Override
@@ -621,25 +623,7 @@ public class AuthService implements IAuthService {
             .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Không tìm thấy thông tin người dùng"));
 
         String email = user.getEmail().toLowerCase().trim();
-        String otp = request.getOtpCode() != null ? request.getOtpCode().trim() : "";
-        OtpPurpose purpose = request.getPurpose() != null ? request.getPurpose() : OtpPurpose.STATUS2FA;
-
-        EmailOtp emailOtp = emailOtpRepository
-            .findTopByEmailIgnoreCaseAndPurposeAndIsUsedFalseOrderByCreatedAtDesc(email, purpose)
-            .orElseThrow(() -> new BadRequestAlertException("Mã OTP không hợp lệ hoặc đã được sử dụng.", "emailOtp", "otpInvalid"));
-
-        if (emailOtp.getExpiresAt().isBefore(Instant.now())) {
-            throw new BadRequestAlertException("Mã OTP đã hết hạn. Vui lòng yêu cầu mã mới.", "emailOtp", "otpExpired");
-        }
-
-        if (!emailOtp.getOtpCode().equals(otp)) {
-            throw new BadRequestAlertException("Mã OTP không chính xác. Vui lòng kiểm tra lại.", "emailOtp", "otpIncorrect");
-        }
-
-        // Đánh dấu mã OTP đã được xác minh thành công
-        emailOtp.setIsUsed(true);
-        emailOtp.setVerifiedAt(Instant.now());
-        emailOtpRepository.save(emailOtp);
+        otpService.verifyOtp(new VerifyOtpRequestDTO(email, OtpPurpose.STATUS2FA, request.getOtpCode()));
 
         // Cập nhật trạng thái 2FA vào hồ sơ người dùng
         var userProfile = userProfileRepository
@@ -699,13 +683,23 @@ public class AuthService implements IAuthService {
             );
     }
 
-    private AuthResponseDTO buildAuthResponse(Authentication authentication, User user, boolean rememberMe, String deviceInfo) {
-        String accessToken = tokenProvider.createAccessToken(authentication, rememberMe);
-        String refreshToken = tokenProvider.createRefreshToken(user, deviceInfo);
-        long expiresIn = tokenProvider.getTokenValidityInSeconds(rememberMe);
+    private AuthResponseDTO buildAuthResponse(
+        Authentication authentication,
+        User user,
+        boolean rememberMe,
+        String deviceInfo,
+        String ipAddress,
+        String userAgent
+    ) {
+        AuthSession session = tokenProvider.createSession(user, deviceInfo);
+        String accessToken = tokenProvider.createAccessToken(user, session.getId());
+        String refreshToken = session.getRefreshToken();
+        long expiresIn = tokenProvider.getTokenValidityInSeconds(false);
 
         UserAuthDTO userAuthDTO = buildUserAuthDTO(user);
-        return new AuthResponseDTO(accessToken, refreshToken, expiresIn, userAuthDTO);
+        AuthResponseDTO response = new AuthResponseDTO(accessToken, refreshToken, expiresIn, userAuthDTO);
+        eventPublisher.publishEvent(new LoginSucceededEvent(user.getId(), ipAddress, userAgent));
+        return response;
     }
 
     private UserAuthDTO buildUserAuthDTO(User user) {
@@ -749,20 +743,12 @@ public class AuthService implements IAuthService {
         String login = registerRequestDTO.getUsername().toLowerCase().trim();
         String email = registerRequestDTO.getEmail().toLowerCase().trim();
 
-        // Kiểm tra login đã tồn tại hay chưa
         userRepository.findOneByLogin(login).ifPresent(existingUser -> {
-            boolean removed = removeNonActivatedUser(existingUser);
-            if (!removed) {
-                throw new LoginAlreadyUsedException();
-            }
+            throw new LoginAlreadyUsedException();
         });
 
-        // Kiểm tra email đã tồn tại hay chưa
         userRepository.findOneByEmailIgnoreCase(email).ifPresent(existingUser -> {
-            boolean removed = removeNonActivatedUser(existingUser);
-            if (!removed) {
-                throw new EmailAlreadyUsedException();
-            }
+            throw new EmailAlreadyUsedException();
         });
 
         if (registerRequestDTO.getBirthDate() != null) {
@@ -855,16 +841,8 @@ public class AuthService implements IAuthService {
         }
         userProfileRepository.saveAndFlush(userProfile);
 
-        // Tự động gửi mã OTP xác thực tài khoản qua email
-        try {
-            SendOtpRequestDTO sendOtpRequest = new SendOtpRequestDTO();
-            sendOtpRequest.setEmail(email);
-            sendOtpRequest.setPurpose(OtpPurpose.REGISTER);
-            otpService.sendOtp(sendOtpRequest, null);
-            LOG.info("Auto-sent registration activation OTP to email: {}", email);
-        } catch (Exception e) {
-            LOG.warn("Failed to auto-send registration OTP to {}: {}", email, e.getMessage());
-        }
+        SendOtpRequestDTO request = new SendOtpRequestDTO(email, OtpPurpose.REGISTER);
+        otpService.sendOtp(request, null);
 
         UserAuthDTO userAuthDTO = buildUserAuthDTO(savedUser);
         AuthResponseDTO responseDTO = new AuthResponseDTO();
@@ -890,19 +868,6 @@ public class AuthService implements IAuthService {
             return AuthoritiesConstants.PARENTS;
         }
         throw new BadRequestAlertException("Vai trò này hiện chưa được hỗ trợ đăng ký trực tuyến.", "userManagement", "roleNotSupported");
-    }
-
-    // Phần này bỏ chuyển giao cho Long
-    private boolean removeNonActivatedUser(User existingUser) {
-        if (existingUser.isActivated()) {
-            return false;
-        }
-        userProfileRepository.findOneByUserId(existingUser.getId()).ifPresent(userProfileRepository::delete);
-        teacherVerificationRepository.findOneByUserId(existingUser.getId()).ifPresent(teacherVerificationRepository::delete);
-        userRepository.delete(existingUser);
-        userRepository.flush();
-        clearUserCaches(existingUser);
-        return true;
     }
 
     private void clearUserCaches(User user) {

@@ -14,6 +14,8 @@ public final class InstructorCourseDTOs {
 
     public record CreateDraft(@Size(max = 255) String title) {}
 
+    public record WithdrawReview(@NotNull @Min(0) Long version) {}
+
     public record ManageCourse(
         Long id,
         Long version,

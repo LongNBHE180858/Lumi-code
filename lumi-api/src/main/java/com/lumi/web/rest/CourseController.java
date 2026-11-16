@@ -4,6 +4,7 @@ import com.lumi.service.CourseService;
 import com.lumi.service.dto.APIResponse;
 import com.lumi.service.dto.CourseBrowseRequest;
 import com.lumi.service.dto.CourseBrowseResponse;
+import com.lumi.service.dto.CourseCheckoutDTO;
 import com.lumi.service.dto.CourseOverviewResponse;
 import com.lumi.service.dto.CourseReviewsResponse;
 import io.swagger.v3.oas.annotations.Operation;
@@ -17,10 +18,15 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.MissingServletRequestParameterException;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -28,6 +34,12 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class CourseController {
+    //khi tham số gửi lên bị thiếu hoặc sai kiểu sẽ thả ra lỗi 400, theo format, hệ thống ưu tiên gọi ExceptionHandler ở trong controller trước hơn ở ngoài
+    @ExceptionHandler({ MissingServletRequestParameterException.class, MethodArgumentTypeMismatchException.class })
+    public ResponseEntity<APIResponse<Void>> handleInvalidParameters(Exception exception) {
+        return ResponseEntity.badRequest().body(APIResponse.<Void>builder()
+            .status(400).code(400).message("Tham số yêu cầu bị thiếu hoặc không đúng kiểu dữ liệu.").build());
+    }
 
     CourseService service;
 
@@ -75,4 +87,22 @@ public class CourseController {
 
         return ResponseEntity.ok(response);
     }
+
+    @Operation(summary = "Get course checkout", description = "Get checkout information for a linked child of the current parent without creating an order")
+    @GetMapping("/{courseId}/checkout")
+    @PreAuthorize("hasRole('PARENT')")
+    public ResponseEntity<APIResponse<CourseCheckoutDTO>> getCheckout(
+        @PathVariable("courseId") Long courseId,
+        @RequestParam("studentId") Long studentId
+    ) {
+        APIResponse<CourseCheckoutDTO> response = APIResponse.<CourseCheckoutDTO>builder()
+            .code(1000)
+            .status(HttpStatus.OK.value())
+            .message("Lấy thông tin đăng ký khóa học thành công")
+            .data(service.getCheckout(courseId, studentId))
+            .build();
+
+        return ResponseEntity.ok(response);
+    }
+
 }

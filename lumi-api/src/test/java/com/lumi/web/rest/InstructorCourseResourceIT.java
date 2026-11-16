@@ -262,6 +262,93 @@ class InstructorCourseResourceIT {
     }
 
     @Test
+    void withdrawReviewPreservesHistoryAndAllowsEditingAndResubmitting() throws Exception {
+        Builder draft = chapter(create(), "Withdrawal chapter");
+        draft = lesson(draft, draft.chapters().getFirst().chapter().getId(), "Video lesson");
+        Course course = courses.findById(draft.course().getId()).orElseThrow();
+        Subject subject = new Subject().name("Withdrawal subject");
+        em.persist(subject);
+        course.setSubject(subject);
+        course.setGrade(em.createQuery("select g from Grade g", Grade.class).setMaxResults(1).getSingleResult());
+        course.setShortDescription("Summary");
+        course.setDescription("Description");
+        course.setTargetAudience("Students");
+        course.setLearningObjectives(List.of("Learn"));
+        course.setThumbnailUrl("private/cover");
+        course.setPrice(java.math.BigDecimal.ZERO);
+        course.setAccessDurationValue(1);
+        course.setAccessDurationUnit(AccessDurationUnit.MONTH);
+        em.find(Lesson.class, draft.chapters().getFirst().lessons().getFirst().lesson().getId()).setVideoUrl("private/video");
+        em.flush();
+        Builder submitted = service.submitReview(course.getId(), new SubmitReview(course.getVersion(), "First", true));
+        Long requestId = submitted.review().request().id();
+        String path = "/api/instructor/courses/" + course.getId() + "/review-requests/withdraw";
+        var response = mvc
+            .perform(
+                post(path)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(json.writeValueAsBytes(new WithdrawReview(submitted.course().getVersion())))
+            )
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.course.status").value("DRAFT"))
+            .andExpect(jsonPath("$.review.request.status").value("WITHDRAWN"))
+            .andExpect(jsonPath("$.review.canSubmit").value(true))
+            .andReturn();
+        asTeacher();
+        Builder withdrawn = json.readValue(response.getResponse().getContentAsString(), Builder.class);
+        assertThat(withdrawn.course().getVersion()).isGreaterThan(submitted.course().getVersion());
+        Builder edited = service.pricing(
+            course.getId(),
+            new Pricing(withdrawn.course().getVersion(), java.math.BigDecimal.ZERO, 2, AccessDurationUnit.MONTH)
+        );
+        Builder resubmitted = service.submitReview(course.getId(), new SubmitReview(edited.course().getVersion(), "Second", true));
+        assertThat(resubmitted.review().request().id()).isNotEqualTo(requestId);
+        assertThat(em.find(CourseReviewRequest.class, requestId).getStatus()).isEqualTo(CourseReviewRequestStatus.WITHDRAWN);
+        assertThat(
+            em
+                .createQuery("select count(r) from CourseReviewRequest r where r.course.id = :id", Long.class)
+                .setParameter("id", course.getId())
+                .getSingleResult()
+        ).isEqualTo(2);
+    }
+
+    @Test
+    void withdrawReviewRejectsInvalidStateVersionAndForeignOwner() throws Exception {
+        Builder draft = create();
+        Course course = courses.findById(draft.course().getId()).orElseThrow();
+        String path = "/api/instructor/courses/" + course.getId() + "/review-requests/withdraw";
+        mvc.perform(post(path).contentType(MediaType.APPLICATION_JSON).content("{}")).andExpect(status().isBadRequest());
+        mvc.perform(post(path).contentType(MediaType.APPLICATION_JSON).content("{\"version\":-1}")).andExpect(status().isBadRequest());
+        mvc.perform(
+            post(path)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(json.writeValueAsBytes(new WithdrawReview(course.getVersion())))
+        ).andExpect(status().isConflict());
+        asTeacher();
+        course.setStatus(RecordStatus.PENDING);
+        em.flush();
+        mvc.perform(post(path).contentType(MediaType.APPLICATION_JSON).content("{\"version\":999999}")).andExpect(status().isConflict());
+        mvc.perform(
+            post(path)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(json.writeValueAsBytes(new WithdrawReview(course.getVersion())))
+        ).andExpect(status().isConflict());
+        asTeacher();
+        User other = new User();
+        other.setLogin("withdraw-other");
+        other.setPassword("x".repeat(60));
+        other.setActivated(true);
+        em.persist(other);
+        course.setAuthor(other);
+        em.flush();
+        mvc.perform(
+            post(path)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(json.writeValueAsBytes(new WithdrawReview(course.getVersion())))
+        ).andExpect(status().isNotFound());
+    }
+
+    @Test
     void pricingRoundTripFreePaidAndCalendarUnits() throws Exception {
         Builder draft = create();
         String path = "/api/instructor/courses/" + draft.course().getId() + "/pricing";

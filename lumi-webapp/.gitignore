@@ -56,6 +56,13 @@ local.properties
 *.ids
 *.orig
 classes/
+!/src/main/webapp/app/modules/instructor/classes/
+!/src/main/webapp/app/modules/student/classes/
+/src/main/webapp/app/modules/student/classes/*
+!/src/main/webapp/app/modules/student/classes/index.tsx
+!/src/main/webapp/app/modules/student/classes/student-classroom.tsx
+!/src/main/webapp/app/modules/student/classes/student-class-exams.tsx
+!/src/main/webapp/app/modules/student/classes/student-class-exams.spec.tsx
 out/
 
 ######################

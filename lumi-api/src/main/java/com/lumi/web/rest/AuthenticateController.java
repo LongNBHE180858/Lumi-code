@@ -55,14 +55,7 @@ public class AuthenticateController {
 
     @PostMapping("/authenticate")
     public ResponseEntity<JWTToken> authorize(@Valid @RequestBody LoginVM loginVM) {
-        var authenticationToken = new UsernamePasswordAuthenticationToken(loginVM.getUsername(), loginVM.getPassword());
-
-        var authentication = authenticationManagerBuilder.getObject().authenticate(authenticationToken);
-        SecurityContextHolder.getContext().setAuthentication(authentication);
-        String jwt = this.createToken(authentication, loginVM.isRememberMe());
-        var httpHeaders = new HttpHeaders();
-        httpHeaders.setBearerAuth(jwt);
-        return new ResponseEntity<>(new JWTToken(jwt), httpHeaders, HttpStatus.OK);
+        throw new org.springframework.web.server.ResponseStatusException(HttpStatus.GONE, "Sử dụng /api/auth/login để đăng nhập");
     }
 
     /**

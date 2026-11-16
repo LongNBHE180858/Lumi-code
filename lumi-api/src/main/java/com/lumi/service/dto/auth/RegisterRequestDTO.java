@@ -22,7 +22,7 @@ public class RegisterRequestDTO implements Serializable {
     private String username;
 
     @NotBlank(message = "Mật khẩu không được để trống")
-    @Size(min = 4, max = 100, message = "Mật khẩu từ 4 đến 100 ký tự")
+    @Size(min = 8, max = 100, message = "Mật khẩu từ 8 đến 100 ký tự")
     private String password;
 
     @NotBlank(message = "Email không được để trống")
@@ -34,7 +34,7 @@ public class RegisterRequestDTO implements Serializable {
     @Size(max = 50)
     private String firstName;
 
-    @NotBlank(message = "Ngày sinh không được để trống")
+    @NotNull(message = "Ngày sinh không được để trống")
     @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDate birthDate;
 

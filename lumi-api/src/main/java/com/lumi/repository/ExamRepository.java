@@ -14,11 +14,37 @@ import org.springframework.stereotype.Repository;
  */
 @Repository
 public interface ExamRepository extends JpaRepository<Exam, Long>, JpaSpecificationExecutor<Exam> {
+    List<Exam> findByStudyClassIdAndIsDeletedFalseOrderByCreatedAtDesc(Long classId);
+
+    @Lock(jakarta.persistence.LockModeType.PESSIMISTIC_WRITE)
+    @Query("select e from Exam e where e.id = :id")
+    Optional<Exam> findByIdForUpdate(@Param("id") Long id);
+
     @Query("select exam from Exam exam where exam.createdBy.login = ?#{authentication.name}")
     List<Exam> findByCreatedByIsCurrentUser();
 
     @Query("select exam from Exam exam where exam.assignedStudent.login = ?#{authentication.name}")
     List<Exam> findByAssignedStudentIsCurrentUser();
+
+    List<Exam> findByCourseIdAndChapterIsNullAndLessonIsNullAndIsDeletedFalseOrderByCreatedAtDesc(Long courseId);
+
+    List<Exam> findByChapterIdAndLessonIsNullAndIsDeletedFalseOrderByCreatedAtDesc(Long chapterId);
+
+    List<Exam> findByChapterIdAndIsDeletedFalseOrderByCreatedAtDesc(Long chapterId);
+
+    List<Exam> findByLessonIdAndAssessmentTypeAndIsDeletedFalseOrderByCreatedAtDesc(Long lessonId, String assessmentType);
+
+    List<Exam> findByLessonIdAndIsDeletedFalseOrderByCreatedAtDesc(Long lessonId);
+
+    List<Exam> findByLessonIdAndAssessmentTypeAndIsDeletedFalseOrderByVideoTriggerSecondsAsc(Long lessonId, String assessmentType);
+
+    boolean existsByLessonIdAndAssessmentTypeAndVideoTriggerSecondsAndIsDeletedFalse(
+        Long lessonId,
+        String assessmentType,
+        java.math.BigDecimal videoTriggerSeconds
+    );
+
+    Optional<Exam> findByIdAndIsDeletedFalse(Long id);
 
     default Optional<Exam> findOneWithEagerRelationships(Long id) {
         return this.findOneWithToOneRelationships(id);

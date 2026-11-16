@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog https://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <changeSet id="20261104000000-1" author="lumi" dbms="postgresql">
+        <!-- Validate before changing types. Never discard malformed legacy values. -->
+        <sql splitStatements="false"><![CDATA[
+            DO $$
+            DECLARE
+                source_row record;
+                parsed_citations jsonb;
+            BEGIN
+                FOR source_row IN SELECT id, embedding FROM pdf_chunks WHERE embedding IS NOT NULL LOOP
+                    BEGIN
+                        PERFORM source_row.embedding::vector(768);
+                    EXCEPTION WHEN OTHERS THEN
+                        RAISE EXCEPTION 'pdf_chunks id=%: embedding must contain 768 finite numbers; fix the value before retrying migration', source_row.id;
+                    END;
+                END LOOP;
+                FOR source_row IN SELECT id, source_metadata FROM learning_documents LOOP
+                    IF source_row.source_metadata IS NULL OR NOT (source_row.source_metadata IS JSON OBJECT) THEN
+                        RAISE EXCEPTION 'learning_documents id=%: source_metadata must be a JSON object; fix the value before retrying migration', source_row.id;
+                    END IF;
+                END LOOP;
+                FOR source_row IN SELECT id, citations FROM ai_messages LOOP
+                    IF source_row.citations IS NULL OR NOT (source_row.citations IS JSON ARRAY) THEN
+                        RAISE EXCEPTION 'ai_messages id=%: citations must be a JSON array; fix the value before retrying migration', source_row.id;
+                    END IF;
+                    parsed_citations := source_row.citations::jsonb;
+                    IF jsonb_path_exists(parsed_citations, '$[*] ? (@.type() != "object")') THEN
+                        RAISE EXCEPTION 'ai_messages id=%: each citation must be a JSON object; fix the value before retrying migration', source_row.id;
+                    END IF;
+                END LOOP;
+            END $$;
+        ]]></sql>
+
+        <sql><![CDATA[
+            ALTER TABLE pdf_chunks ALTER COLUMN embedding TYPE vector(768) USING embedding::vector(768);
+            ALTER TABLE learning_documents ALTER COLUMN source_metadata DROP DEFAULT;
+            ALTER TABLE learning_documents ALTER COLUMN source_metadata TYPE jsonb USING source_metadata::jsonb;
+            ALTER TABLE learning_documents ALTER COLUMN source_metadata SET DEFAULT '{}'::jsonb;
+            ALTER TABLE learning_documents ADD CONSTRAINT ck_learning_documents_metadata_object
+                CHECK (jsonb_typeof(source_metadata) = 'object');
+            ALTER TABLE ai_messages ALTER COLUMN citations DROP DEFAULT;
+            ALTER TABLE ai_messages ALTER COLUMN citations TYPE jsonb USING citations::jsonb;
+            ALTER TABLE ai_messages ALTER COLUMN citations SET DEFAULT '[]'::jsonb;
+            ALTER TABLE ai_messages ADD CONSTRAINT ck_ai_messages_citations_array
+                CHECK (jsonb_typeof(citations) = 'array' AND NOT jsonb_path_exists(citations, '$[*] ? (@.type() != "object")'));
+            CREATE INDEX idx_pdf_chunks_embedding_cosine ON pdf_chunks USING hnsw (embedding vector_cosine_ops);
+        ]]></sql>
+
+        <rollback>
+            <sql>
+                DROP INDEX idx_pdf_chunks_embedding_cosine;
+                ALTER TABLE learning_documents DROP CONSTRAINT ck_learning_documents_metadata_object;
+                ALTER TABLE ai_messages DROP CONSTRAINT ck_ai_messages_citations_array;
+                ALTER TABLE pdf_chunks ALTER COLUMN embedding TYPE text USING embedding::text;
+                ALTER TABLE learning_documents ALTER COLUMN source_metadata DROP DEFAULT;
+                ALTER TABLE learning_documents ALTER COLUMN source_metadata TYPE text USING source_metadata::text;
+                ALTER TABLE ai_messages ALTER COLUMN citations DROP DEFAULT;
+                ALTER TABLE ai_messages ALTER COLUMN citations TYPE text USING citations::text;
+            </sql>
+        </rollback>
+    </changeSet>
+</databaseChangeLog>

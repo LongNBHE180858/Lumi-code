@@ -18,7 +18,7 @@ public class ForgotPasswordFinishRequestDTO implements Serializable {
     private String otpCode;
 
     @NotBlank(message = "Mật khẩu mới không được để trống")
-    @Size(min = 4, max = 100, message = "Mật khẩu phải từ 4 đến 100 ký tự")
+    @Size(min = 8, max = 100, message = "Mật khẩu phải từ 8 đến 100 ký tự")
     private String newPassword;
 
     public ForgotPasswordFinishRequestDTO() {}

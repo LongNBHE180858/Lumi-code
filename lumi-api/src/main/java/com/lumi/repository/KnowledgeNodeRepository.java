@@ -45,4 +45,6 @@ public interface KnowledgeNodeRepository extends JpaRepository<KnowledgeNode, Lo
         "select knowledgeNode from KnowledgeNode knowledgeNode left join fetch knowledgeNode.subject where knowledgeNode.subject.id = :subjectId"
     )
     List<KnowledgeNode> findAllWithSubjectBySubjectId(@Param("subjectId") Long subjectId);
+
+    Optional<KnowledgeNode> findFirstByTitleIgnoreCase(String title);
 }

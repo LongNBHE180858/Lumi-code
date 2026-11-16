@@ -11,7 +11,10 @@ import java.time.Instant;
  * Lưu thành viên lớp, yêu cầu tham gia và trạng thái duyệt.
  */
 @Entity
-@Table(name = "class_members")
+@Table(
+    name = "class_members",
+    uniqueConstraints = @UniqueConstraint(name = "ux_class_members_class_student", columnNames = { "study_class_id", "student_id" })
+)
 @SuppressWarnings("common-java:DuplicatedBlocks")
 public class ClassMember implements Serializable {
 
@@ -34,6 +37,16 @@ public class ClassMember implements Serializable {
     @NotNull
     @Column(name = "requested_at", nullable = false)
     private Instant requestedAt;
+
+    @Column(name = "applied_at")
+    private Instant appliedAt;
+
+    @Column(name = "approved_at")
+    private Instant approvedAt;
+
+    @Size(max = 500)
+    @Column(name = "decision_reason", length = 500)
+    private String decisionReason;
 
     @Column(name = "left_at")
     private Instant leftAt;
@@ -103,6 +116,45 @@ public class ClassMember implements Serializable {
 
     public void setRequestedAt(Instant requestedAt) {
         this.requestedAt = requestedAt;
+    }
+
+    public Instant getAppliedAt() {
+        return this.appliedAt;
+    }
+
+    public ClassMember appliedAt(Instant appliedAt) {
+        this.setAppliedAt(appliedAt);
+        return this;
+    }
+
+    public void setAppliedAt(Instant appliedAt) {
+        this.appliedAt = appliedAt;
+    }
+
+    public Instant getApprovedAt() {
+        return this.approvedAt;
+    }
+
+    public ClassMember approvedAt(Instant approvedAt) {
+        this.setApprovedAt(approvedAt);
+        return this;
+    }
+
+    public void setApprovedAt(Instant approvedAt) {
+        this.approvedAt = approvedAt;
+    }
+
+    public String getDecisionReason() {
+        return this.decisionReason;
+    }
+
+    public ClassMember decisionReason(String decisionReason) {
+        this.setDecisionReason(decisionReason);
+        return this;
+    }
+
+    public void setDecisionReason(String decisionReason) {
+        this.decisionReason = decisionReason;
     }
 
     public Instant getLeftAt() {
@@ -184,6 +236,9 @@ public class ClassMember implements Serializable {
             ", status='" + getStatus() + "'" +
             ", joinedAt='" + getJoinedAt() + "'" +
             ", requestedAt='" + getRequestedAt() + "'" +
+            ", appliedAt='" + getAppliedAt() + "'" +
+            ", approvedAt='" + getApprovedAt() + "'" +
+            ", decisionReason='" + getDecisionReason() + "'" +
             ", leftAt='" + getLeftAt() + "'" +
             ", updatedAt='" + getUpdatedAt() + "'" +
             "}";

@@ -8,6 +8,9 @@ import com.lumi.domain.Lesson;
 import com.lumi.domain.Subject;
 import com.lumi.domain.User;
 import com.lumi.domain.enumeration.RecordStatus;
+import com.lumi.domain.enumeration.AccessDurationUnit;
+import com.lumi.repository.CourseEnrollmentRepository;
+import com.lumi.service.payment.ParentPurchaseAccessService;
 import com.lumi.repository.ChapterRepository;
 import com.lumi.repository.CourseRepository;
 import com.lumi.repository.CourseReviewRepository;
@@ -16,16 +19,19 @@ import com.lumi.service.CourseService;
 import com.lumi.service.UserProfileService;
 import com.lumi.service.dto.CourseBrowseRequest;
 import com.lumi.service.dto.CourseBrowseResponse;
+import com.lumi.service.dto.CourseCheckoutDTO;
 import com.lumi.service.dto.CourseDTO;
 import com.lumi.service.dto.CourseOverviewResponse;
 import com.lumi.service.dto.CourseRatingSummaryDTO;
 import com.lumi.service.dto.CourseReviewsResponse;
 import com.lumi.service.dto.InstructorPublicProfileDTO;
 import com.lumi.service.mapper.CourseMapper;
+
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.*;
 import java.util.stream.Stream;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
@@ -33,6 +39,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
@@ -51,6 +58,8 @@ public class CourseServiceImpl implements CourseService {
     private final CourseReviewRepository courseReviewRepository;
     private final ChapterRepository chapterRepository;
     private final UserProfileService userProfileService;
+    private final CourseEnrollmentRepository courseEnrollmentRepository;
+    private final ParentPurchaseAccessService purchaseAccessService;
 
     private final CourseMapper courseMapper;
 
@@ -60,7 +69,9 @@ public class CourseServiceImpl implements CourseService {
         LessonRepository lessonRepository,
         CourseReviewRepository courseReviewRepository,
         ChapterRepository chapterRepository,
-        UserProfileService userProfileService
+        UserProfileService userProfileService,
+        CourseEnrollmentRepository courseEnrollmentRepository,
+        ParentPurchaseAccessService purchaseAccessService
     ) {
         this.courseRepository = courseRepository;
         this.courseMapper = courseMapper;
@@ -68,6 +79,8 @@ public class CourseServiceImpl implements CourseService {
         this.courseReviewRepository = courseReviewRepository;
         this.chapterRepository = chapterRepository;
         this.userProfileService = userProfileService;
+        this.courseEnrollmentRepository = courseEnrollmentRepository;
+        this.purchaseAccessService = purchaseAccessService;
     }
 
     @Override
@@ -213,6 +226,76 @@ public class CourseServiceImpl implements CourseService {
             .build();
     }
 
+    @Override
+    @Transactional(readOnly = true)
+    @PreAuthorize("hasRole('PARENT')")
+    public CourseCheckoutDTO getCheckout(Long courseId, Long studentId) {
+        if (courseId == null || courseId <= 0 || studentId == null || studentId <= 0) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Mã khóa học hoặc học sinh không hợp lệ.");
+        }
+
+        User student = purchaseAccessService.validateForCheckout(studentId).getStudent();
+
+        Course course = getPublicCourse(courseId);
+        Subject subject = course.getSubject();
+        Grade grade = course.getGrade();
+        boolean hasEnrollment = courseEnrollmentRepository.existsByStudentIdAndCourseId(student.getId(), courseId);
+
+        Integer durationValue = course.getAccessDurationValue();
+        AccessDurationUnit durationUnit = course.getAccessDurationUnit();
+        if (durationValue == null && durationUnit == null) {
+            durationValue = course.getValidDurationDays();
+            if (durationValue != null) {
+                durationUnit = AccessDurationUnit.DAY;
+            }
+        }
+
+        BigDecimal originalPrice = course.getPrice();
+        // GB-122: zero or 50,000–10,000,000 VND; use whole VND as in course pricing.
+        boolean validPrice = originalPrice != null
+            && originalPrice.stripTrailingZeros().scale() <= 0
+            && (originalPrice.signum() == 0
+            || (originalPrice.compareTo(BigDecimal.valueOf(50_000)) >= 0
+            && originalPrice.compareTo(BigDecimal.valueOf(10_000_000)) <= 0));
+        boolean validDuration = durationValue != null && durationValue > 0 && durationUnit != null;
+
+        String purchaseBlockReason = null;
+        // Current reviewed checkout rule: any existing enrollment blocks a new purchase.
+        // Repurchase after expiry/refund needs a separate approved lifecycle decision.
+        if (hasEnrollment) {
+            purchaseBlockReason = "Học sinh đã đăng ký khóa học này.";
+        } else if (subject == null) {
+            purchaseBlockReason = "Khóa học chưa có thông tin môn học.";
+        } else if (!validPrice) {
+            purchaseBlockReason = "Khóa học chưa có học phí hợp lệ.";
+        } else if (!validDuration) {
+            purchaseBlockReason = "Khóa học chưa có thời hạn truy cập hợp lệ.";
+        }
+
+        // Current checkout scope: no discounts, tax temporarily zero, no added fee.
+        BigDecimal taxAmount = BigDecimal.ZERO;
+        BigDecimal finalPrice = validPrice ? originalPrice.add(taxAmount) : null;
+
+        return CourseCheckoutDTO.builder()
+            .courseId(course.getId())
+            .studentId(student.getId())
+            .title(course.getTitle())
+            .thumbnailUrl(course.getThumbnailUrl())
+            .subjectId(subject == null ? null : subject.getId())
+            .subjectName(subject == null ? null : subject.getName())
+            .gradeId(grade.getId())
+            .gradeLevel(grade.getLevel())
+            .gradeName(grade.getName())
+            .accessDurationValue(durationValue)
+            .accessDurationUnit(durationUnit)
+            .originalPrice(originalPrice)
+            .taxAmount(taxAmount)
+            .finalPrice(finalPrice)
+            .canPurchase(purchaseBlockReason == null)
+            .purchaseBlockReason(purchaseBlockReason)
+            .build();
+    }
+
     private InstructorPublicProfileDTO getPublicAuthor(User author) {
         if (author == null) {
             return null;
@@ -251,11 +334,11 @@ public class CourseServiceImpl implements CourseService {
             .filter(
                 course ->
                     course.getStatus() == RecordStatus.ACTIVE &&
-                    !Boolean.TRUE.equals(course.getIsDeleted()) &&
-                    course.getGrade() != null &&
-                    course.getGrade().getLevel() != null &&
-                    course.getGrade().getLevel() >= 1 &&
-                    course.getGrade().getLevel() <= 9
+                        !Boolean.TRUE.equals(course.getIsDeleted()) &&
+                        course.getGrade() != null &&
+                        course.getGrade().getLevel() != null &&
+                        course.getGrade().getLevel() >= 1 &&
+                        course.getGrade().getLevel() <= 9
             )
             .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Không tìm thấy khóa học"));
     }

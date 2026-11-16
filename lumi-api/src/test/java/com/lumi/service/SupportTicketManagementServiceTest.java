@@ -14,8 +14,8 @@ import com.lumi.repository.SupportTicketRepository;
 import com.lumi.repository.TicketMessageRepository;
 import com.lumi.repository.UserRepository;
 import com.lumi.service.dto.SupportTicketCreateRequest;
-import com.lumi.service.dto.TicketMessageCreateRequest;
 import com.lumi.service.dto.TicketMessageContent;
+import com.lumi.service.dto.TicketMessageCreateRequest;
 import com.lumi.service.storage.CourseFileValidator;
 import com.lumi.service.storage.R2CourseObjectStorage;
 import java.nio.file.Files;
@@ -31,12 +31,12 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.web.server.ResponseStatusException;
-import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
+import org.springframework.web.server.ResponseStatusException;
 
 @ExtendWith(MockitoExtension.class)
 class SupportTicketManagementServiceTest {
@@ -221,7 +221,11 @@ class SupportTicketManagementServiceTest {
         var second = new MockMultipartFile("images", "second.jpg", "image/jpeg", new byte[] { 2 });
         when(fileValidator.validate(any(), any())).thenAnswer(invocation -> {
             var file = invocation.getArgument(0, MockMultipartFile.class);
-            return new CourseFileValidator.ValidatedFile(Files.createTempFile("ticket-test-", ".png"), file.getOriginalFilename(), file.getContentType());
+            return new CourseFileValidator.ValidatedFile(
+                Files.createTempFile("ticket-test-", ".png"),
+                file.getOriginalFilename(),
+                file.getContentType()
+            );
         });
         when(imageStorage.uploadTicketImage(any(), any(), any(), any())).thenAnswer(invocation -> {
             String name = invocation.getArgument(2);
@@ -231,7 +235,9 @@ class SupportTicketManagementServiceTest {
         try {
             var result = service.addMessageWithImages(21L, "", List.of(first, second));
             assertThat(result.content()).isEmpty();
-            assertThat(result.images()).extracting(image -> image.fileName()).containsExactly("first.png", "second.jpg");
+            assertThat(result.images())
+                .extracting(image -> image.fileName())
+                .containsExactly("first.png", "second.jpg");
             assertThat(ticket.getStatus()).isEqualTo("IN_PROGRESS");
             assertThat(ticket.getUpdatedAt()).isEqualTo(result.createdAt());
             ArgumentCaptor<TicketMessage> saved = ArgumentCaptor.forClass(TicketMessage.class);

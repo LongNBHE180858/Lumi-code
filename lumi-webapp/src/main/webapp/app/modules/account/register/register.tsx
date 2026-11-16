@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import dayjs from 'dayjs';
 import { useNavigate } from 'react-router';
 import { toast } from 'react-toastify';
 
@@ -7,7 +8,7 @@ import { RoleSelector, UserRole } from './role-selector';
 import { AccountInfoSection, AccountInfoFields } from './account-info-section';
 import { RoleDetailsSection, RoleDetailFields } from './role-details-section';
 import { TermsAndActions } from './terms-and-actions';
-import { handleRegister, reset } from './register.reducer';
+import { handleRegisterInstructor, handleRegisterParents, handleRegisterStudent, reset } from './register.reducer';
 
 import './register.scss';
 
@@ -30,6 +31,7 @@ export const RegisterPage = () => {
     phoneNumber: '',
     firstName: '',
     lastName: '',
+    birthDate: '',
     password: '',
     confirmPassword: '',
   });
@@ -95,6 +97,14 @@ export const RegisterPage = () => {
       setValidationError('Vui lòng nhập địa chỉ Email hợp lệ.');
       return;
     }
+    if (!accountInfo.birthDate) {
+      setValidationError('Vui lòng chọn ngày sinh.');
+      return;
+    }
+    if (accountInfo.birthDate > dayjs().format('YYYY-MM-DD')) {
+      setValidationError('Ngày sinh không được ở tương lai.');
+      return;
+    }
     if (!accountInfo.username.trim() || accountInfo.username.length < 3) {
       setValidationError('Tên đăng nhập cần có tối thiểu 3 ký tự.');
       return;
@@ -121,23 +131,48 @@ export const RegisterPage = () => {
       setValidationError('Vui lòng đồng ý với cam kết tính chính xác và điều khoản sử dụng của LUMI.');
       return;
     }
-
     setValidationError(null);
-
-    dispatch(
-      handleRegister({
-        username: accountInfo.username.trim(),
-        email: accountInfo.email.trim(),
-        password: accountInfo.password,
-        firstName: accountInfo.firstName.trim(),
-        lastName: accountInfo.lastName.trim(),
-        phoneNumber: accountInfo.phoneNumber.trim() || undefined,
-        role: selectedRole,
-        schoolName: roleDetails.schoolName.trim() || undefined,
-        gradeLevel: roleDetails.gradeLevel ? Number(roleDetails.gradeLevel) : undefined,
-        langKey: currentLocale || 'vi',
-      }),
-    );
+    // 1. Dữ liệu chung cho cả 3 vai trò
+    const baseAccountData = {
+      username: accountInfo.username.trim(),
+      email: accountInfo.email.trim(),
+      password: accountInfo.password,
+      firstName: accountInfo.firstName.trim(),
+      lastName: accountInfo.lastName.trim(),
+      birthDate: accountInfo.birthDate,
+      phoneNumber: accountInfo.phoneNumber.trim() || undefined,
+      role: selectedRole,
+      langKey: currentLocale || 'vi',
+    };
+    // 2. Gửi request tương ứng theo từng Role
+    if (selectedRole === 'ROLE_STUDENT') {
+      dispatch(
+        handleRegisterStudent({
+          ...baseAccountData,
+          schoolName: roleDetails.schoolName.trim() || undefined,
+          gradeLevel: Number(roleDetails.gradeLevel),
+        }),
+      );
+    } else if (selectedRole === 'ROLE_INSTRUCTOR') {
+      dispatch(
+        handleRegisterInstructor({
+          ...baseAccountData,
+          schoolName: roleDetails.schoolName.trim() || undefined,
+          gradeLevel: roleDetails.gradeLevel ? Number(roleDetails.gradeLevel) : undefined,
+          subjects: roleDetails.subjects,
+          yearsOfExperience: roleDetails.yearsOfExperience ? Number(roleDetails.yearsOfExperience) : undefined,
+          bio: roleDetails.notes?.trim() || undefined,
+        }),
+      );
+    } else if (selectedRole === 'ROLE_PARENT') {
+      dispatch(
+        handleRegisterParents({
+          ...baseAccountData,
+          childGradeLevel: roleDetails.gradeLevel ? Number(roleDetails.gradeLevel) : undefined,
+          studentCode: roleDetails.notes?.trim() || undefined,
+        }),
+      );
+    }
   };
 
   const getHeroRoleTitle = () => {
@@ -196,12 +231,10 @@ export const RegisterPage = () => {
 
         {/* Form Container */}
         <div className="register-form-container">
-          {/* Part 1: Role Selector */}
           <RoleSelector selectedRole={selectedRole} onSelectRole={setSelectedRole} />
 
           <div className="lumi-divider" />
 
-          {/* Part 2 & Part 3: Account info and Role-based details */}
           <div className="register-columns-grid">
             <div className="register-column">
               <AccountInfoSection fields={accountInfo} onChange={handleAccountChange} />
@@ -219,7 +252,6 @@ export const RegisterPage = () => {
 
           <div className="lumi-divider" />
 
-          {/* Terms & Actions */}
           <TermsAndActions
             commitAccuracy={commitAccuracy}
             agreeTerms={agreeTerms}

@@ -8,15 +8,11 @@ import PageNotFound from 'app/shared/error/page-not-found';
 import AiConversation from './ai-conversation';
 import AiGeneratedContent from './ai-generated-content';
 import AiMessage from './ai-message';
-import AuthSession from './auth-session';
 import Chapter from './chapter';
-import ClassMaterial from './class-material';
-import ClassMember from './class-member';
 import ContentReport from './content-report';
 import Course from './course';
 import CourseEnrollment from './course-enrollment';
 import CourseReview from './course-review';
-import StudyClass from './study-class';
 import Refund from './refund';
 import InstructorWallet from './instructor-wallet';
 import TeacherVerification from './teacher-verification';
@@ -27,7 +23,6 @@ import PdfChunk from './pdf-chunk';
 import Notification from './notification';
 import Grade from './grade';
 import Lesson from './lesson';
-import ParentStudentLink from './parent-student-link';
 import Subject from './subject';
 import CourseMaterial from './course-material';
 import Wishlist from './wishlist';
@@ -45,8 +40,6 @@ export default () => {
         {/* prettier-ignore */}
         <Route path="/user-profile/*" element={<UserProfile />} />
         <Route path="/teacher-verification/*" element={<TeacherVerification />} />
-        <Route path="/parent-student-link/*" element={<ParentStudentLink />} />
-        <Route path="/auth-session/*" element={<AuthSession />} />
         <Route path="/subject/*" element={<Subject />} />
         <Route path="/grade/*" element={<Grade />} />
         <Route path="/course/*" element={<Course />} />
@@ -57,9 +50,6 @@ export default () => {
         <Route path="/wishlist/*" element={<Wishlist />} />
         <Route path="/feedback/*" element={<FeedbackSubmit />} />
         <Route path="/course-review/*" element={<CourseReview />} />
-        <Route path="/study-class/*" element={<StudyClass />} />
-        <Route path="/class-member/*" element={<ClassMember />} />
-        <Route path="/class-material/*" element={<ClassMaterial />} />
         <Route path="/refund/*" element={<Refund />} />
         <Route path="/instructor-wallet/*" element={<InstructorWallet />} />
         <Route path="/wallet-transaction/*" element={<WalletTransaction />} />

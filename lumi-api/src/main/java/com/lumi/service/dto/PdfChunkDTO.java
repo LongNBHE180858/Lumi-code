@@ -20,8 +20,8 @@ public class PdfChunkDTO implements Serializable {
     @Lob
     private String chunkText;
 
-    @Lob
-    private String embedding;
+    @Size(min = 768, max = 768)
+    private float[] embedding;
 
     @NotNull
     @Min(value = 0)
@@ -58,11 +58,11 @@ public class PdfChunkDTO implements Serializable {
         this.chunkText = chunkText;
     }
 
-    public String getEmbedding() {
+    public float[] getEmbedding() {
         return embedding;
     }
 
-    public void setEmbedding(String embedding) {
+    public void setEmbedding(float[] embedding) {
         this.embedding = embedding;
     }
 
@@ -118,7 +118,7 @@ public class PdfChunkDTO implements Serializable {
             "id=" + getId() +
             ", pageNumber=" + getPageNumber() +
             ", chunkText='" + getChunkText() + "'" +
-            ", embedding='" + getEmbedding() + "'" +
+            ", embeddingDimensions=" + (embedding == null ? null : embedding.length) +
             ", chunkIndex=" + getChunkIndex() +
             ", indexVersion=" + getIndexVersion() +
             ", material=" + getMaterial() +

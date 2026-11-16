@@ -36,6 +36,17 @@ import tools.jackson.databind.ObjectMapper;
 @WithMockUser
 class AiMessageResourceIT {
 
+    @Test
+    @Transactional
+    void rejectCitationsThatAreNotAnArray() throws Exception {
+        AiMessageDTO dto = aiMessageMapper.toDto(aiMessage);
+        tools.jackson.databind.node.ObjectNode request = (tools.jackson.databind.node.ObjectNode) om.valueToTree(dto);
+        request.putObject("citations").put("chunkId", 1);
+        restAiMessageMockMvc
+            .perform(post(ENTITY_API_URL).contentType(MediaType.APPLICATION_JSON).content(om.writeValueAsBytes(request)))
+            .andExpect(status().isBadRequest());
+    }
+
     private static final String DEFAULT_SENDER_ROLE = "AAAAAAAAAA";
     private static final String UPDATED_SENDER_ROLE = "BBBBBBBBBB";
 
@@ -45,8 +56,8 @@ class AiMessageResourceIT {
     private static final Instant DEFAULT_CREATED_AT = Instant.ofEpochMilli(0L);
     private static final Instant UPDATED_CREATED_AT = Instant.ofEpochMilli(1791835009362L);
 
-    private static final String DEFAULT_CITATIONS = "AAAAAAAAAA";
-    private static final String UPDATED_CITATIONS = "BBBBBBBBBB";
+    private static final java.util.List<java.util.Map<String, Object>> DEFAULT_CITATIONS = java.util.List.of(java.util.Map.of("chunkId", 1));
+    private static final java.util.List<java.util.Map<String, Object>> UPDATED_CITATIONS = java.util.List.of(java.util.Map.of("chunkId", 2));
 
     private static final String DEFAULT_GENERATION_STATUS = "AAAAAAAAAA";
     private static final String UPDATED_GENERATION_STATUS = "BBBBBBBBBB";
@@ -276,7 +287,7 @@ class AiMessageResourceIT {
             .andExpect(jsonPath("$.senderRole").value(DEFAULT_SENDER_ROLE))
             .andExpect(jsonPath("$.content").value(DEFAULT_CONTENT))
             .andExpect(jsonPath("$.createdAt").value(DEFAULT_CREATED_AT.toString()))
-            .andExpect(jsonPath("$.citations").value(DEFAULT_CITATIONS))
+            .andExpect(jsonPath("$.citations").value(org.hamcrest.Matchers.is(DEFAULT_CITATIONS)))
             .andExpect(jsonPath("$.generationStatus").value(DEFAULT_GENERATION_STATUS))
             .andExpect(jsonPath("$.modelName").value(DEFAULT_MODEL_NAME))
             .andExpect(jsonPath("$.feedbackRating").value(DEFAULT_FEEDBACK_RATING))

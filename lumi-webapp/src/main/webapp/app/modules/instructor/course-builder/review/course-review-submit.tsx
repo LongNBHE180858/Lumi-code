@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { Alert, Row, Col, Card, Form, Button, Modal, Spinner } from 'react-bootstrap';
 import { toast } from 'react-toastify';
 import { useAppDispatch, useAppSelector } from 'app/config/store';
-import { getCourseBuilder, submitCourseReview } from '../course-builder.reducer';
+import { getCourseBuilder, submitCourseReview, withdrawCourseReview } from '../course-builder.reducer';
 import { isBuilderReadOnly } from '../course-lifecycle';
 import { builderErrorText } from '../course-builder-error';
 import { ReviewChecklist, ReviewCourseSummary, ReviewRequestStatus, type ReviewEditTab } from './review-sections';
@@ -13,6 +13,166 @@ interface CourseReviewSubmitProps {
   onNavigateTab?: (tab: ReviewEditTab) => void;
   onSubmitSuccess?: () => void;
 }
+
+interface WithdrawModalProps {
+  show: boolean;
+  withdrawing: boolean;
+  withdrawError: boolean;
+  onClose: () => void;
+  onConfirm: () => void;
+}
+
+const WithdrawModal = ({ show, withdrawing, withdrawError, onClose, onConfirm }: WithdrawModalProps) => (
+  <Modal show={show} centered backdrop="static" onHide={onClose} keyboard={!withdrawing}>
+    <Modal.Header closeButton={!withdrawing}>
+      <Modal.Title>Rút lại yêu cầu duyệt?</Modal.Title>
+    </Modal.Header>
+    <Modal.Body>
+      Khóa học sẽ quay về bản nháp để bạn chỉnh sửa. Lần gửi duyệt này vẫn được giữ trong lịch sử.
+      {withdrawError && (
+        <Alert variant="danger" className="mt-3 mb-0">
+          Không thể rút duyệt. Hãy đóng hộp thoại và tải lại dữ liệu; yêu cầu có thể đã được xử lý hoặc phiên bản đã thay đổi.
+        </Alert>
+      )}
+    </Modal.Body>
+    <Modal.Footer>
+      <Button variant="secondary" disabled={withdrawing} onClick={onClose}>
+        Hủy
+      </Button>
+      <Button
+        variant="warning"
+        disabled={withdrawing || withdrawError}
+        onClick={() => {
+          void onConfirm();
+        }}
+      >
+        {withdrawing ? 'Đang rút duyệt...' : 'Xác nhận rút duyệt'}
+      </Button>
+    </Modal.Footer>
+  </Modal>
+);
+
+interface ConfirmSubmitModalProps {
+  show: boolean;
+  courseTitle?: string;
+  saving: boolean;
+  canSubmit: boolean;
+  onClose: () => void;
+  onConfirm: () => void;
+}
+
+const ConfirmSubmitModal = ({ show, courseTitle, saving, canSubmit, onClose, onConfirm }: ConfirmSubmitModalProps) => (
+  <Modal
+    show={show}
+    onHide={() => {
+      if (!saving) onClose();
+    }}
+    backdrop="static"
+    centered
+  >
+    <Modal.Header closeButton={!saving}>
+      <Modal.Title>Xác nhận gửi duyệt</Modal.Title>
+    </Modal.Header>
+    <Modal.Body>
+      <p>
+        Bạn sắp gửi khóa học <strong>{courseTitle}</strong> để phê duyệt.
+      </p>
+      <p className="mb-0">Khóa học sẽ được khóa chỉnh sửa trong lúc chờ duyệt. Thao tác này chưa xuất bản hoặc mở đăng ký khóa học.</p>
+    </Modal.Body>
+    <Modal.Footer>
+      <Button variant="secondary" disabled={saving} onClick={onClose}>
+        Kiểm tra lại
+      </Button>
+      <Button
+        disabled={!canSubmit}
+        onClick={() => {
+          void onConfirm();
+        }}
+      >
+        {saving ? 'Đang gửi...' : 'Xác nhận gửi duyệt'}
+      </Button>
+    </Modal.Footer>
+  </Modal>
+);
+
+interface ReviewNotesAndRightsProps {
+  note: string;
+  setNote: (note: string) => void;
+  confirmedRights: boolean;
+  setConfirmedRights: (checked: boolean) => void;
+  saving: boolean;
+  blocked: boolean;
+}
+
+const ReviewNotesAndRights = ({ note, setNote, confirmedRights, setConfirmedRights, saving, blocked }: ReviewNotesAndRightsProps) => (
+  <>
+    <Card className="review-card p-4">
+      <h5 className="fw-bold">Ghi chú khi gửi duyệt</h5>
+      <Form.Group controlId="review-note">
+        <Form.Label className="small text-muted">Lời nhắn kèm yêu cầu (không bắt buộc)</Form.Label>
+        <Form.Control
+          as="textarea"
+          rows={4}
+          value={note}
+          disabled={saving}
+          maxLength={5000}
+          onChange={event => setNote(event.target.value)}
+          placeholder="Thông tin bạn muốn người duyệt lưu ý..."
+        />
+      </Form.Group>
+      <div className="small text-muted mt-2">
+        {note.length}/5000 ký tự • Ghi chú được giữ trong phiên trình duyệt và chỉ gửi lên khi bạn xác nhận.
+      </div>
+    </Card>
+    <Card className="review-card p-4">
+      <h5 className="fw-bold mb-3">Xác nhận quyền sử dụng nội dung</h5>
+      <Form.Check
+        id="confirm-rights-checkbox"
+        type="checkbox"
+        checked={confirmedRights}
+        disabled={blocked}
+        onChange={event => setConfirmedRights(event.target.checked)}
+        label="Tôi xác nhận có quyền sử dụng video, hình ảnh và tài liệu trong khóa học, và đã kiểm tra nội dung trước khi gửi yêu cầu phê duyệt."
+      />
+    </Card>
+  </>
+);
+
+interface ReviewSubmitActionCardProps {
+  readOnly: boolean;
+  canSubmit: boolean;
+  canSubmitReview?: boolean;
+  saving: boolean;
+  isPendingRequest: boolean;
+  onOpenConfirmation: () => void;
+}
+
+const ReviewSubmitActionCard = ({
+  readOnly,
+  canSubmit,
+  canSubmitReview,
+  saving,
+  isPendingRequest,
+  onOpenConfirmation,
+}: ReviewSubmitActionCardProps) => {
+  const title = readOnly ? 'Theo dõi yêu cầu phê duyệt' : 'Sẵn sàng gửi bản nháp?';
+  const subtitle = canSubmitReview
+    ? 'Hoàn tất xác nhận quyền nội dung để gửi yêu cầu.'
+    : 'Kiểm tra trạng thái và hoàn tất các mục bắt buộc trước khi gửi.';
+  const submitText = saving ? 'Đang gửi...' : isPendingRequest ? 'Đã gửi duyệt' : 'Gửi duyệt';
+
+  return (
+    <Card className="review-card p-4 d-flex flex-row flex-wrap justify-content-between align-items-center gap-3">
+      <div>
+        <h5 className="fw-bold mb-1">{title}</h5>
+        <div className="text-muted small">{subtitle}</div>
+      </div>
+      <Button disabled={!canSubmit} onClick={onOpenConfirmation}>
+        {submitText}
+      </Button>
+    </Card>
+  );
+};
 
 const readNote = (key: string) => {
   try {
@@ -36,6 +196,14 @@ const useReviewNote = (courseId?: number) => {
   return [note, setNote] as const;
 };
 
+const getReviewErrorMessage = (errorStatus: number | null | undefined, errorMessage: string | null | undefined) => {
+  if (!errorMessage) return null;
+  if (errorStatus === 409) {
+    return 'Dữ liệu hoặc trạng thái khóa học đã thay đổi. Tải lại để kiểm tra trước khi gửi tiếp; ghi chú của bạn được giữ lại.';
+  }
+  return errorMessage;
+};
+
 export const CourseReviewSubmit = ({ onBack, onNavigateTab, onSubmitSuccess }: CourseReviewSubmitProps) => {
   const dispatch = useAppDispatch();
   const { data, loading, saving, errorStatus, errorMessage } = useAppSelector(state => state.courseBuilder);
@@ -44,20 +212,48 @@ export const CourseReviewSubmit = ({ onBack, onNavigateTab, onSubmitSuccess }: C
   const [confirmedRights, setConfirmedRights] = useState(false);
   const [confirmationVersion, setConfirmationVersion] = useState<number | null>(null);
   const requestRef = useRef(false);
+  const [showWithdraw, setShowWithdraw] = useState(false);
+  const [withdrawing, setWithdrawing] = useState(false);
+  const [withdrawError, setWithdrawError] = useState(false);
+
+  const closeWithdraw = () => {
+    if (!requestRef.current) setShowWithdraw(false);
+  };
+
+  const confirmWithdraw = async () => {
+    if (!data || requestRef.current) return;
+    requestRef.current = true;
+    setWithdrawing(true);
+    setWithdrawError(false);
+    try {
+      await dispatch(withdrawCourseReview({ courseId: data.course.id, version: data.course.version })).unwrap();
+      setShowWithdraw(false);
+      toast.success('Đã rút duyệt. Bạn có thể chỉnh sửa bản nháp.');
+    } catch {
+      setWithdrawError(true);
+    } finally {
+      requestRef.current = false;
+      setWithdrawing(false);
+    }
+  };
+
   useEffect(() => {
     setConfirmedRights(false);
     setConfirmationVersion(null);
   }, [data?.course.version]);
+
   useEffect(() => {
     if (!courseId) return;
     const request = dispatch(getCourseBuilder(courseId));
     return () => request.abort();
   }, [courseId, dispatch]);
+
   const reload = () => {
     setConfirmedRights(false);
     setConfirmationVersion(null);
     if (courseId) void dispatch(getCourseBuilder(courseId));
   };
+
   const edit = (tab: ReviewEditTab) => onNavigateTab?.(tab);
   const review = data?.review;
   const readOnly = isBuilderReadOnly(data);
@@ -94,6 +290,9 @@ export const CourseReviewSubmit = ({ onBack, onNavigateTab, onSubmitSuccess }: C
         </Button>
       </Alert>
     );
+
+  const alertError = getReviewErrorMessage(errorStatus, errorMessage);
+
   return (
     <div className="course-review d-flex flex-column gap-4">
       <Alert variant="info" className="review-intro mb-0 d-flex flex-wrap justify-content-between align-items-center gap-3">
@@ -105,14 +304,20 @@ export const CourseReviewSubmit = ({ onBack, onNavigateTab, onSubmitSuccess }: C
           Tải lại danh sách kiểm tra
         </Button>
       </Alert>
-      {errorMessage && (
-        <Alert variant="danger">
-          {errorStatus === 409
-            ? 'Dữ liệu hoặc trạng thái khóa học đã thay đổi. Tải lại để kiểm tra trước khi gửi tiếp; ghi chú của bạn được giữ lại.'
-            : errorMessage}
-        </Alert>
-      )}
+      {alertError && <Alert variant="danger">{alertError}</Alert>}
       {review?.request && <ReviewRequestStatus request={review.request} />}
+      {data.course.status === 'PENDING' && review?.request?.status === 'PENDING' && (
+        <Button
+          variant="outline-warning"
+          disabled={loading || saving || withdrawing || [403, 404, 409].includes(errorStatus!)}
+          onClick={() => {
+            setWithdrawError(false);
+            setShowWithdraw(true);
+          }}
+        >
+          Rút lại gửi duyệt
+        </Button>
+      )}
       {loading && (
         <div role="status">
           <Spinner size="sm" className="me-2" />
@@ -128,37 +333,14 @@ export const CourseReviewSubmit = ({ onBack, onNavigateTab, onSubmitSuccess }: C
               <Alert variant="warning">Chưa tải được danh sách kiểm tra. Hãy tải lại trước khi gửi.</Alert>
             )}
             {!readOnly && (
-              <>
-                <Card className="review-card p-4">
-                  <h5 className="fw-bold">Ghi chú khi gửi duyệt</h5>
-                  <Form.Group controlId="review-note">
-                    <Form.Label className="small text-muted">Lời nhắn kèm yêu cầu (không bắt buộc)</Form.Label>
-                    <Form.Control
-                      as="textarea"
-                      rows={4}
-                      value={note}
-                      disabled={saving}
-                      maxLength={5000}
-                      onChange={event => setNote(event.target.value)}
-                      placeholder="Thông tin bạn muốn người duyệt lưu ý..."
-                    />
-                  </Form.Group>
-                  <div className="small text-muted mt-2">
-                    {note.length}/5000 ký tự • Ghi chú được giữ trong phiên trình duyệt và chỉ gửi lên khi bạn xác nhận.
-                  </div>
-                </Card>
-                <Card className="review-card p-4">
-                  <h5 className="fw-bold mb-3">Xác nhận quyền sử dụng nội dung</h5>
-                  <Form.Check
-                    id="confirm-rights-checkbox"
-                    type="checkbox"
-                    checked={confirmedRights}
-                    disabled={blocked}
-                    onChange={event => setConfirmedRights(event.target.checked)}
-                    label="Tôi xác nhận có quyền sử dụng video, hình ảnh và tài liệu trong khóa học, và đã kiểm tra nội dung trước khi gửi yêu cầu phê duyệt."
-                  />
-                </Card>
-              </>
+              <ReviewNotesAndRights
+                note={note}
+                setNote={setNote}
+                confirmedRights={confirmedRights}
+                setConfirmedRights={setConfirmedRights}
+                saving={saving}
+                blocked={blocked}
+              />
             )}
           </div>
         </Col>
@@ -166,53 +348,32 @@ export const CourseReviewSubmit = ({ onBack, onNavigateTab, onSubmitSuccess }: C
           <ReviewCourseSummary data={data} preview={() => edit('preview')} />
         </Col>
       </Row>
-      <Card className="review-card p-4 d-flex flex-row flex-wrap justify-content-between align-items-center gap-3">
-        <div>
-          <h5 className="fw-bold mb-1">{readOnly ? 'Theo dõi yêu cầu phê duyệt' : 'Sẵn sàng gửi bản nháp?'}</h5>
-          <div className="text-muted small">
-            {review?.canSubmit
-              ? 'Hoàn tất xác nhận quyền nội dung để gửi yêu cầu.'
-              : 'Kiểm tra trạng thái và hoàn tất các mục bắt buộc trước khi gửi.'}
-          </div>
-        </div>
-        <Button disabled={!canSubmit} onClick={() => setConfirmationVersion(data.course.version)}>
-          {saving ? 'Đang gửi...' : review?.request?.status === 'PENDING' ? 'Đã gửi duyệt' : 'Gửi duyệt'}
-        </Button>
-      </Card>
+      <ReviewSubmitActionCard
+        readOnly={readOnly}
+        canSubmit={canSubmit}
+        canSubmitReview={review?.canSubmit}
+        saving={saving}
+        isPendingRequest={review?.request?.status === 'PENDING'}
+        onOpenConfirmation={() => setConfirmationVersion(data.course.version)}
+      />
       <Button variant="link" className="text-start px-0" disabled={saving} onClick={onBack}>
         ← Quay lại Xem trước
       </Button>
-      <Modal
+      <WithdrawModal
+        show={showWithdraw}
+        withdrawing={withdrawing}
+        withdrawError={withdrawError}
+        onClose={closeWithdraw}
+        onConfirm={confirmWithdraw}
+      />
+      <ConfirmSubmitModal
         show={confirmationVersion !== null}
-        onHide={() => {
-          if (!saving) setConfirmationVersion(null);
-        }}
-        backdrop="static"
-        centered
-      >
-        <Modal.Header closeButton={!saving}>
-          <Modal.Title>Xác nhận gửi duyệt</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          <p>
-            Bạn sắp gửi khóa học <strong>{data.course.title}</strong> để phê duyệt.
-          </p>
-          <p className="mb-0">Khóa học sẽ được khóa chỉnh sửa trong lúc chờ duyệt. Thao tác này chưa xuất bản hoặc mở đăng ký khóa học.</p>
-        </Modal.Body>
-        <Modal.Footer>
-          <Button variant="secondary" disabled={saving} onClick={() => setConfirmationVersion(null)}>
-            Kiểm tra lại
-          </Button>
-          <Button
-            disabled={!canSubmit}
-            onClick={() => {
-              void submit();
-            }}
-          >
-            {saving ? 'Đang gửi...' : 'Xác nhận gửi duyệt'}
-          </Button>
-        </Modal.Footer>
-      </Modal>
+        courseTitle={data.course.title}
+        saving={saving}
+        canSubmit={canSubmit}
+        onClose={() => setConfirmationVersion(null)}
+        onConfirm={submit}
+      />
     </div>
   );
 };

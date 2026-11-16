@@ -127,6 +127,14 @@
     {
       "otherEntityField": "login",
       "otherEntityName": "user",
+      "relationshipName": "buyer",
+      "relationshipSide": "left",
+      "relationshipType": "many-to-one",
+      "relationshipWithBuiltInEntity": true
+    },
+    {
+      "otherEntityField": "login",
+      "otherEntityName": "user",
       "relationshipName": "student",
       "relationshipSide": "left",
       "relationshipType": "many-to-one",

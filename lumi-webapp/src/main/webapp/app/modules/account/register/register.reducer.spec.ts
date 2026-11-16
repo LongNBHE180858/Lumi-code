@@ -60,7 +60,7 @@ describe('Creating account tests', () => {
     ).toEqual({
       ...initialState,
       registrationSuccess: true,
-      registeredEmail: 'test@lumi.edu.vn',
+          registeredEmail: 'test@lumi.edu.vn',
       successMessage: 'Đăng ký thành công! Vui lòng xác thực tài khoản.',
     });
   });
@@ -82,7 +82,7 @@ describe('Creating account tests', () => {
   describe('Actions', () => {
     let store;
 
-    const resolvedObject = { value: 'whatever' };
+    const resolvedObject = { data: { value: 'whatever' } };
     const getState = vi.fn();
     const dispatch = vi.fn();
     const extra = {};

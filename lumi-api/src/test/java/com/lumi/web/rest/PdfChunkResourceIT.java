@@ -35,6 +35,12 @@ import tools.jackson.databind.ObjectMapper;
 @WithMockUser
 class PdfChunkResourceIT {
 
+    private static float[] sampleEmbedding(float component) {
+        float[] embedding = new float[768];
+        java.util.Arrays.fill(embedding, component);
+        return embedding;
+    }
+
     private static final Integer DEFAULT_PAGE_NUMBER = 1;
     private static final Integer UPDATED_PAGE_NUMBER = 2;
     private static final Integer SMALLER_PAGE_NUMBER = 1 - 1;
@@ -42,8 +48,8 @@ class PdfChunkResourceIT {
     private static final String DEFAULT_CHUNK_TEXT = "AAAAAAAAAA";
     private static final String UPDATED_CHUNK_TEXT = "BBBBBBBBBB";
 
-    private static final String DEFAULT_EMBEDDING = "AAAAAAAAAA";
-    private static final String UPDATED_EMBEDDING = "BBBBBBBBBB";
+    private static final float[] DEFAULT_EMBEDDING = sampleEmbedding(0.125f);
+    private static final float[] UPDATED_EMBEDDING = sampleEmbedding(0.25f);
 
     private static final Integer DEFAULT_CHUNK_INDEX = 0;
     private static final Integer UPDATED_CHUNK_INDEX = 1;
@@ -133,6 +139,36 @@ class PdfChunkResourceIT {
     @BeforeEach
     void initTest() {
         pdfChunk = createEntity(em);
+    }
+
+    @Test
+    @Transactional
+    void rejectEmbeddingWithWrongDimensions() throws Exception {
+        long before = getRepositoryCount();
+        PdfChunkDTO dto = pdfChunkMapper.toDto(pdfChunk);
+        dto.setEmbedding(new float[] { 0.1f, 0.2f });
+        restPdfChunkMockMvc
+            .perform(post(ENTITY_API_URL).contentType(MediaType.APPLICATION_JSON).content(om.writeValueAsBytes(dto)))
+            .andExpect(status().isBadRequest());
+        assertThat(getRepositoryCount()).isEqualTo(before);
+    }
+
+    @Test
+    @Transactional
+    void partialUpdateRejectsWrongDimensionsWithoutChangingStoredVector() throws Exception {
+        insertedPdfChunk = pdfChunkRepository.saveAndFlush(pdfChunk);
+        PdfChunkDTO patch = new PdfChunkDTO();
+        patch.setId(insertedPdfChunk.getId());
+        patch.setEmbedding(new float[] { 0.1f });
+        restPdfChunkMockMvc
+            .perform(
+                patch(ENTITY_API_URL_ID, patch.getId())
+                    .contentType("application/merge-patch+json")
+                    .content(om.writeValueAsBytes(patch))
+            )
+            .andExpect(status().isBadRequest());
+        em.clear();
+        assertThat(pdfChunkRepository.findById(patch.getId()).orElseThrow().getEmbedding()).containsExactly(DEFAULT_EMBEDDING);
     }
 
     @AfterEach
@@ -233,7 +269,7 @@ class PdfChunkResourceIT {
             .andExpect(jsonPath("$.[*].id").value(hasItem(pdfChunk.getId().intValue())))
             .andExpect(jsonPath("$.[*].pageNumber").value(hasItem(DEFAULT_PAGE_NUMBER)))
             .andExpect(jsonPath("$.[*].chunkText").value(hasItem(DEFAULT_CHUNK_TEXT)))
-            .andExpect(jsonPath("$.[*].embedding").value(hasItem(DEFAULT_EMBEDDING)))
+            .andExpect(jsonPath("$.[*].embedding[0]").value(hasItem((double) DEFAULT_EMBEDDING[0])))
             .andExpect(jsonPath("$.[*].chunkIndex").value(hasItem(DEFAULT_CHUNK_INDEX)))
             .andExpect(jsonPath("$.[*].indexVersion").value(hasItem(DEFAULT_INDEX_VERSION)));
     }
@@ -252,7 +288,7 @@ class PdfChunkResourceIT {
             .andExpect(jsonPath("$.id").value(pdfChunk.getId().intValue()))
             .andExpect(jsonPath("$.pageNumber").value(DEFAULT_PAGE_NUMBER))
             .andExpect(jsonPath("$.chunkText").value(DEFAULT_CHUNK_TEXT))
-            .andExpect(jsonPath("$.embedding").value(DEFAULT_EMBEDDING))
+            .andExpect(jsonPath("$.embedding.length()").value(768))
             .andExpect(jsonPath("$.chunkIndex").value(DEFAULT_CHUNK_INDEX))
             .andExpect(jsonPath("$.indexVersion").value(DEFAULT_INDEX_VERSION));
     }
@@ -541,7 +577,7 @@ class PdfChunkResourceIT {
             .andExpect(jsonPath("$.[*].id").value(hasItem(pdfChunk.getId().intValue())))
             .andExpect(jsonPath("$.[*].pageNumber").value(hasItem(DEFAULT_PAGE_NUMBER)))
             .andExpect(jsonPath("$.[*].chunkText").value(hasItem(DEFAULT_CHUNK_TEXT)))
-            .andExpect(jsonPath("$.[*].embedding").value(hasItem(DEFAULT_EMBEDDING)))
+            .andExpect(jsonPath("$.[*].embedding[0]").value(hasItem((double) DEFAULT_EMBEDDING[0])))
             .andExpect(jsonPath("$.[*].chunkIndex").value(hasItem(DEFAULT_CHUNK_INDEX)))
             .andExpect(jsonPath("$.[*].indexVersion").value(hasItem(DEFAULT_INDEX_VERSION)));
 

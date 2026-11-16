@@ -396,6 +396,34 @@
   }
 }
 
+.ticket-image-dropzone {
+  border: 2px dashed #a9bed6;
+  border-radius: 10px;
+  padding: 16px;
+  background: #f7faff;
+  transition:
+    border-color 150ms,
+    background-color 150ms;
+
+  &:focus-within,
+  &.ticket-image-dropzone-active {
+    border-color: #286bb8;
+    background: #eaf3ff;
+  }
+
+  label {
+    display: block;
+    cursor: pointer;
+  }
+
+  .ticket-image-dropzone-hint {
+    display: block;
+    margin-top: 5px;
+    color: #526d8a;
+    font-size: 13px;
+  }
+}
+
 .ticket-selected-images,
 .ticket-message-images {
   display: flex;

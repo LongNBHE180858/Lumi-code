@@ -6,6 +6,10 @@ import jakarta.validation.constraints.*;
 import java.io.Serial;
 import java.io.Serializable;
 import java.time.Instant;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 /**
  * Lưu nguồn tài liệu học tập, metadata sách và trạng thái xử lý lập chỉ mục.
@@ -81,8 +85,10 @@ public class LearningDocument implements Serializable {
     @Column(name = "book_series", length = 100)
     private String bookSeries;
 
-    @Column(name = "source_metadata", nullable = false, columnDefinition = "text")
-    private String sourceMetadata;
+    @NotNull
+    @JdbcTypeCode(SqlTypes.JSON)
+    @Column(name = "source_metadata", nullable = false, columnDefinition = "jsonb")
+    private Map<String, Object> sourceMetadata;
 
     @JsonIgnoreProperties(value = { "lesson", "learningDocument" }, allowSetters = true)
     @OneToOne(fetch = FetchType.LAZY)
@@ -288,17 +294,17 @@ public class LearningDocument implements Serializable {
         this.bookSeries = bookSeries;
     }
 
-    public String getSourceMetadata() {
+    public Map<String, Object> getSourceMetadata() {
         return this.sourceMetadata;
     }
 
-    public LearningDocument sourceMetadata(String sourceMetadata) {
+    public LearningDocument sourceMetadata(Map<String, Object> sourceMetadata) {
         this.setSourceMetadata(sourceMetadata);
         return this;
     }
 
-    public void setSourceMetadata(String sourceMetadata) {
-        this.sourceMetadata = sourceMetadata;
+    public void setSourceMetadata(Map<String, Object> sourceMetadata) {
+        this.sourceMetadata = sourceMetadata == null ? null : new LinkedHashMap<>(sourceMetadata);
     }
 
     public CourseMaterial getCourseMaterial() {

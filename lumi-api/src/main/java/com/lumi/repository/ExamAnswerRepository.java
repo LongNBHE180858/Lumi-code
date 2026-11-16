@@ -1,6 +1,7 @@
 package com.lumi.repository;
 
 import com.lumi.domain.ExamAnswer;
+import java.util.List;
 import org.springframework.data.jpa.repository.*;
 import org.springframework.stereotype.Repository;
 
@@ -9,4 +10,6 @@ import org.springframework.stereotype.Repository;
  */
 @SuppressWarnings("unused")
 @Repository
-public interface ExamAnswerRepository extends JpaRepository<ExamAnswer, Long>, JpaSpecificationExecutor<ExamAnswer> {}
+public interface ExamAnswerRepository extends JpaRepository<ExamAnswer, Long>, JpaSpecificationExecutor<ExamAnswer> {
+    List<ExamAnswer> findByAttemptId(Long attemptId);
+}

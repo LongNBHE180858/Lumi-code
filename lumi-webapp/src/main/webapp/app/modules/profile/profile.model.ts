@@ -7,6 +7,7 @@ export interface AccountProfile {
   lastName: string | null;
   fullName: string | null;
   email: string | null;
+  birthDate: string | null;
   imageUrl: string | null;
   authorities: string[] | null;
 
@@ -19,7 +20,7 @@ export interface AccountProfile {
 
 export type ProfileUpdate = Pick<
   AccountProfile,
-  'firstName' | 'lastName' | 'imageUrl' | 'phoneNumber' | 'schoolName' | 'gradeLevel' | 'bio'
+  'firstName' | 'lastName' | 'birthDate' | 'imageUrl' | 'phoneNumber' | 'schoolName' | 'gradeLevel' | 'bio'
 >;
 
 export interface ProfileStatistics {

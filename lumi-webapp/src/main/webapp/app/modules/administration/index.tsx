@@ -13,8 +13,13 @@ import AdminLayout from './layout/admin-layout';
 import InstructorApplications from './instructor-applications/instructor-applications';
 import AdminCatalog from './catalog/admin-catalog';
 import AdminPremiumPackages from './premium-packages/admin-premium-packages';
+import AdminAuditLogs from './audit-logs/admin-audit-logs';
 import TicketList from 'app/modules/support-tickets/ticket-list';
 import TicketDetail from 'app/modules/support-tickets/ticket-detail';
+import FeedbackAdminList from './feedback/feedback-admin-list';
+import FeedbackAdminDetail from './feedback/feedback-admin-detail';
+import KnowledgeGraphAdmin from './knowledge-graph/knowledge-graph';
+import { CourseReviewList, CourseReviewDetail } from './reviewer';
 
 const AdminUserManagement = () => {
   return (
@@ -25,17 +30,19 @@ const AdminUserManagement = () => {
     </AdminLayout>
   );
 };
-import FeedbackAdminList from './feedback/feedback-admin-list';
-import FeedbackAdminDetail from './feedback/feedback-admin-detail';
-import KnowledgeGraphAdmin from './knowledge-graph/knowledge-graph';
 
 const AdministrationRoutes = () => (
   <div>
     <ErrorBoundaryRoutes>
       <Route path="user-management/*" element={<AdminUserManagement />} />
       <Route path="instructor-applications" element={<InstructorApplications />} />
+      <Route path="course-review" element={<CourseReviewList />} />
+      <Route path="course-review/:id" element={<CourseReviewDetail />} />
+      <Route path="course-reviews" element={<CourseReviewList />} />
+      <Route path="course-reviews/:id" element={<CourseReviewDetail />} />
       <Route path="catalog" element={<AdminCatalog />} />
       <Route path="premium-packages" element={<AdminPremiumPackages />} />
+      <Route path="audit-logs" element={<AdminAuditLogs />} />
       <Route path="support-tickets" element={<TicketList admin />} />
       <Route path="support-tickets/:id" element={<TicketDetail admin />} />
       <Route path="feedback" element={<FeedbackAdminList />} />

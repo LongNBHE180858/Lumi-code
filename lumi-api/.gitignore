@@ -154,3 +154,5 @@ coverage/
 
 # Local Cloudflare R2 credentials
 /r2-local.properties
+start-dev.ps1
+/uploads/

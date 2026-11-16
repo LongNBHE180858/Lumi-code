@@ -41,7 +41,7 @@ public interface IAuthService {
 
     AuthResponseDTO loginTeacher(LoginVM request, String clientDeviceInfo, String ipAddress);
 
-    AuthResponseDTO login2fa(Login2faVM request, String clientDeviceInfo);
+    AuthResponseDTO login2fa(Login2faVM request, String clientDeviceInfo, String ipAddress);
 
     AuthResponseDTO refreshToken(RefreshTokenRequestVM request, String clientDeviceInfo);
 
@@ -51,7 +51,7 @@ public interface IAuthService {
 
     void revokeSession(Long sessionId);
 
-    void revokeOtherSessions(Long currentSessionId);
+    void revokeOtherSessions();
 
     void changePassword(PasswordChangeDTO request);
 

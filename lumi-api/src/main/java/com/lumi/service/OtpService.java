@@ -1,9 +1,11 @@
 package com.lumi.service;
 
 import com.lumi.domain.EmailOtp;
+import com.lumi.domain.User;
 import com.lumi.domain.enumeration.OtpPurpose;
 import com.lumi.repository.EmailOtpRepository;
 import com.lumi.repository.UserRepository;
+import com.lumi.security.OtpDigest;
 import com.lumi.service.dto.auth.otp.OtpResponseDTO;
 import com.lumi.service.dto.auth.otp.SendOtpRequestDTO;
 import com.lumi.service.dto.auth.otp.VerifyOtpRequestDTO;
@@ -13,9 +15,11 @@ import java.time.Duration;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Optional;
+import java.util.UUID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
@@ -35,18 +39,23 @@ public class OtpService {
     private final EmailOtpRepository emailOtpRepository;
     private final UserRepository userRepository;
     private final MailService mailService;
+    private final OtpDigest otpDigest;
     private final org.springframework.cache.CacheManager cacheManager;
     private final SecureRandom secureRandom = new SecureRandom();
+
+    public record VerifiedLogin(User user, boolean rememberMe) {}
 
     public OtpService(
         EmailOtpRepository emailOtpRepository,
         UserRepository userRepository,
         MailService mailService,
+        OtpDigest otpDigest,
         org.springframework.cache.CacheManager cacheManager
     ) {
         this.emailOtpRepository = emailOtpRepository;
         this.userRepository = userRepository;
         this.mailService = mailService;
+        this.otpDigest = otpDigest;
         this.cacheManager = cacheManager;
     }
 
@@ -75,26 +84,27 @@ public class OtpService {
 
         String otpCode = generateNumericOtp(OTP_LENGTH);
 
+        emailOtpRepository.invalidateUnused(email, purpose);
+
         EmailOtp emailOtp = new EmailOtp();
         emailOtp.setEmail(email);
-        emailOtp.setOtpCode(otpCode);
+        emailOtp.setOtpCode(otpDigest.hash(otpCode));
         emailOtp.setPurpose(purpose);
         emailOtp.setCreatedAt(now);
         emailOtp.setExpiresAt(now.plus(EXPIRATION_MINUTES, ChronoUnit.MINUTES));
         emailOtp.setIsUsed(false);
+        emailOtp.setFailedAttempts(0);
         emailOtp.setIpAddress(ipAddress);
 
         emailOtpRepository.save(emailOtp);
-
-        // lưu otp thì gửi mail
-        String purposeDescription = resolvePurposeDescription(purpose);
-        mailService.sendOtpMail(email, otpCode, purposeDescription);
+        mailService.sendOtpMail(email, otpCode, resolvePurposeDescription(purpose));
 
         LOG.info("OTP sent to {} for purpose {}", email, purpose);
 
         return OtpResponseDTO.sent("Mã OTP đã được gửi thành công đến email của bạn.", COOLDOWN_SECONDS, EXPIRATION_MINUTES * 60);
     }
 
+    @Transactional(propagation = Propagation.REQUIRES_NEW, noRollbackFor = BadRequestAlertException.class)
     public OtpResponseDTO verifyOtp(VerifyOtpRequestDTO request) {
         String email = request.getEmail().trim().toLowerCase();
         OtpPurpose purpose = request.getPurpose();
@@ -102,36 +112,127 @@ public class OtpService {
 
         EmailOtp otp = emailOtpRepository
             .findTopByEmailIgnoreCaseAndPurposeAndIsUsedFalseOrderByCreatedAtDesc(email, purpose)
-            .orElseThrow(() -> new BadRequestAlertException("Mã OTP không hợp lệ hoặc đã được sử dụng.", ENTITY_NAME, "otpInvalid"));
+            .orElseThrow(() -> new BadRequestAlertException("Mã OTP không hợp lệ hoặc đã sử dụng.", ENTITY_NAME, "otpInvalid"));
 
-        if (otp.getExpiresAt().isBefore(Instant.now())) {
-            throw new BadRequestAlertException("Mã OTP đã hết hạn. Vui lòng yêu cầu mã mới.", ENTITY_NAME, "otpExpired");
+        if (!otp.getExpiresAt().isAfter(Instant.now())) {
+            otp.setIsUsed(true);
+            emailOtpRepository.save(otp);
+            throw new BadRequestAlertException("Mã OTP đã hết hạn.", ENTITY_NAME, "otpExpired");
         }
 
-        if (!otp.getOtpCode().equals(inputOtp)) {
-            throw new BadRequestAlertException("Mã OTP không chính xác. Vui lòng kiểm tra lại.", ENTITY_NAME, "otpIncorrect");
+        if (otp.getFailedAttempts() >= 5) {
+            otp.setIsUsed(true);
+            emailOtpRepository.save(otp);
+            throw new BadRequestAlertException("Mã OTP đã bị khóa do nhập sai quá nhiều lần.", ENTITY_NAME, "otpLocked");
+        }
+
+        if (!otpDigest.matches(inputOtp, otp.getOtpCode())) {
+            int failed = otp.getFailedAttempts() + 1;
+            otp.setFailedAttempts(failed);
+            if (failed >= 5) otp.setIsUsed(true);
+            emailOtpRepository.save(otp);
+
+            throw new BadRequestAlertException("Mã OTP không chính xác.", ENTITY_NAME, "otpIncorrect");
         }
 
         otp.setIsUsed(true);
         otp.setVerifiedAt(Instant.now());
         emailOtpRepository.save(otp);
 
-        LOG.info("OTP verified successfully for email {} and purpose {}", email, purpose);
-
-        // Nếu mục đích là đăng ký hoặc xác thực email -> kích hoạt tài khoản
         if (purpose == OtpPurpose.REGISTER || purpose == OtpPurpose.EMAIL_VERIFICATION) {
-            userRepository.findOneByEmailIgnoreCase(email).ifPresent(user -> {
-                if (!user.isActivated()) {
-                    user.setActivated(true);
-                    userRepository.save(user);
-                    clearUserCaches(user);
-                    LOG.info("User {} successfully activated via OTP verification", user.getLogin());
-                }
-            });
-            return OtpResponseDTO.verified("Xác thực email và kích hoạt tài khoản thành công! Bạn có thể đăng nhập ngay bây giờ.");
+            User user = userRepository
+                .findOneByEmailIgnoreCase(email)
+                .orElseThrow(() -> new BadRequestAlertException("Không tìm thấy tài khoản.", ENTITY_NAME, "userNotFound"));
+
+            if (!user.isActivated()) {
+                user.setActivated(true);
+                userRepository.save(user);
+                clearUserCaches(user);
+            }
+
+            return OtpResponseDTO.verified("Xác thực email thành công. Bạn có thể đăng nhập.");
         }
 
-        return OtpResponseDTO.verified("Xác thực mã OTP thành công.");
+        return OtpResponseDTO.verified("Xác thực OTP thành công.");
+    }
+
+    public String startLoginChallenge(User user, boolean rememberMe, String ipAddress) {
+        String email = user.getEmail().trim().toLowerCase();
+        Instant now = Instant.now();
+        var previous = emailOtpRepository.findTopByEmailIgnoreCaseAndPurposeOrderByCreatedAtDesc(email, OtpPurpose.LOGIN);
+        if (previous.isPresent() && Duration.between(previous.orElseThrow().getCreatedAt(), now).getSeconds() < COOLDOWN_SECONDS) {
+            EmailOtp existing = previous.orElseThrow();
+            if (
+                existing.getLoginChallengeId() != null && !Boolean.TRUE.equals(existing.getIsUsed()) && existing.getExpiresAt().isAfter(now)
+            ) {
+                return existing.getLoginChallengeId();
+            }
+            throw new BadRequestAlertException("Vui lòng đợi trước khi yêu cầu mã OTP mới.", ENTITY_NAME, "otpCooldown");
+        }
+
+        emailOtpRepository.invalidateUnused(email, OtpPurpose.LOGIN);
+        String code = generateNumericOtp(OTP_LENGTH);
+        EmailOtp otp = new EmailOtp();
+        otp.setEmail(email);
+        otp.setPurpose(OtpPurpose.LOGIN);
+        otp.setOtpCode(otpDigest.hash(code));
+        otp.setLoginChallengeId(UUID.randomUUID().toString());
+        otp.setRememberMe(rememberMe);
+        otp.setFailedAttempts(0);
+        otp.setIsUsed(false);
+        otp.setCreatedAt(now);
+        otp.setExpiresAt(now.plus(EXPIRATION_MINUTES, ChronoUnit.MINUTES));
+        otp.setIpAddress(ipAddress);
+        emailOtpRepository.save(otp);
+        mailService.sendOtpMail(email, code, resolvePurposeDescription(OtpPurpose.LOGIN));
+        return otp.getLoginChallengeId();
+    }
+
+    @Transactional(propagation = Propagation.REQUIRES_NEW, noRollbackFor = BadRequestAlertException.class)
+    public VerifiedLogin verifyLoginChallenge(String challengeId, String code) {
+        EmailOtp otp = emailOtpRepository
+            .findChallengeForUpdate(challengeId, OtpPurpose.LOGIN)
+            .orElseThrow(() -> new BadRequestAlertException("Yêu cầu đăng nhập không hợp lệ.", ENTITY_NAME, "challengeInvalid"));
+        Instant now = Instant.now();
+        if (Boolean.TRUE.equals(otp.getIsUsed()) || !otp.getExpiresAt().isAfter(now)) {
+            throw new BadRequestAlertException("Yêu cầu đăng nhập đã hết hiệu lực.", ENTITY_NAME, "challengeExpired");
+        }
+        if (otp.getFailedAttempts() >= 5) {
+            throw new BadRequestAlertException("Bạn đã nhập sai quá nhiều lần.", ENTITY_NAME, "challengeLocked");
+        }
+        if (code == null || !code.matches("\\d{6}") || !otpDigest.matches(code, otp.getOtpCode())) {
+            int failed = otp.getFailedAttempts() + 1;
+            otp.setFailedAttempts(failed);
+            if (failed >= 5) otp.setIsUsed(true);
+            emailOtpRepository.save(otp);
+            throw new BadRequestAlertException("OTP không chính xác.", ENTITY_NAME, "otpIncorrect");
+        }
+        User user = userRepository
+            .findOneWithAuthoritiesByEmailIgnoreCase(otp.getEmail())
+            .filter(User::isActivated)
+            .orElseThrow(() -> new BadRequestAlertException("Tài khoản không hợp lệ.", ENTITY_NAME, "userInvalid"));
+        otp.setIsUsed(true);
+        otp.setVerifiedAt(now);
+        emailOtpRepository.save(otp);
+        return new VerifiedLogin(user, Boolean.TRUE.equals(otp.getRememberMe()));
+    }
+
+    public void resendLoginChallenge(String challengeId) {
+        EmailOtp otp = emailOtpRepository
+            .findChallengeForUpdate(challengeId, OtpPurpose.LOGIN)
+            .orElseThrow(() -> new BadRequestAlertException("Yêu cầu đăng nhập không hợp lệ.", ENTITY_NAME, "challengeInvalid"));
+        Instant now = Instant.now();
+        if (Boolean.TRUE.equals(otp.getIsUsed()) || !otp.getExpiresAt().isAfter(now) || otp.getFailedAttempts() >= 5) {
+            throw new BadRequestAlertException("Yêu cầu đăng nhập đã hết hiệu lực.", ENTITY_NAME, "challengeExpired");
+        }
+        if (Duration.between(otp.getCreatedAt(), now).getSeconds() < COOLDOWN_SECONDS) {
+            throw new BadRequestAlertException("Vui lòng đợi trước khi gửi lại OTP.", ENTITY_NAME, "otpCooldown");
+        }
+        String code = generateNumericOtp(OTP_LENGTH);
+        otp.setOtpCode(otpDigest.hash(code));
+        otp.setCreatedAt(now);
+        emailOtpRepository.save(otp);
+        mailService.sendOtpMail(otp.getEmail(), code, resolvePurposeDescription(OtpPurpose.LOGIN));
     }
 
     @Transactional(readOnly = true)
@@ -151,6 +252,15 @@ public class OtpService {
                 throw new BadRequestAlertException("Email không tồn tại trong hệ thống.", ENTITY_NAME, "emailNotFound");
             }
         } else if (purpose == OtpPurpose.REGISTER || purpose == OtpPurpose.EMAIL_VERIFICATION) {
+            User user = userRepository
+                .findOneByEmailIgnoreCase(email)
+                .orElseThrow(() ->
+                    new BadRequestAlertException("Không tìm thấy tài khoản cần xác thực.", ENTITY_NAME, "registrationNotFound")
+                );
+
+            if (user.isActivated()) {
+                throw new BadRequestAlertException("Tài khoản đã được kích hoạt.", ENTITY_NAME, "accountAlreadyActivated");
+            }
             boolean alreadyActivated = userRepository
                 .findOneByEmailIgnoreCase(email)
                 .filter(u -> Boolean.TRUE.equals(u.isActivated()))

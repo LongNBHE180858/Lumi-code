@@ -51,6 +51,10 @@ public class QuestionBank implements Serializable {
     @ManyToOne(fetch = FetchType.LAZY)
     private Grade grade;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "class_id")
+    private StudyClass studyClass;
+
     // jhipster-needle-entity-add-field - JHipster will add fields here
 
     public Long getId() {
@@ -154,6 +158,19 @@ public class QuestionBank implements Serializable {
 
     public QuestionBank grade(Grade grade) {
         this.setGrade(grade);
+        return this;
+    }
+
+    public StudyClass getStudyClass() {
+        return this.studyClass;
+    }
+
+    public void setStudyClass(StudyClass studyClass) {
+        this.studyClass = studyClass;
+    }
+
+    public QuestionBank studyClass(StudyClass studyClass) {
+        this.setStudyClass(studyClass);
         return this;
     }
 

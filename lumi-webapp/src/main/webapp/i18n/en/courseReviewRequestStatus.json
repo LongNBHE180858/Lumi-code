@@ -3,7 +3,8 @@
     "CourseReviewRequestStatus": {
       "PENDING": "Pending",
       "APPROVED": "Approved",
-      "REJECTED": "Rejected"
+      "REJECTED": "Rejected",
+      "WITHDRAWN": "Withdrawn"
     }
   }
 }

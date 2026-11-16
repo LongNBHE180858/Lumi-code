@@ -1,5 +1,6 @@
 package com.lumi.web.rest;
 
+import com.lumi.domain.enumeration.OtpPurpose;
 import com.lumi.service.IAuthService;
 import com.lumi.service.OtpService;
 import com.lumi.service.dto.APIResponse;
@@ -24,6 +25,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -46,6 +48,9 @@ public class AuthController {
         @Valid @RequestBody SendOtpRequestDTO request,
         HttpServletRequest httpRequest
     ) {
+        if (request.getPurpose() != OtpPurpose.REGISTER && request.getPurpose() != OtpPurpose.EMAIL_VERIFICATION) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Mục đích OTP không được phép ở API này.");
+        }
         LOG.debug("REST request to send OTP to email: {} for purpose: {}", request.getEmail(), request.getPurpose());
         String ipAddress = extractClientIp(httpRequest);
         OtpResponseDTO response = otpService.sendOtp(request, ipAddress);
@@ -62,6 +67,9 @@ public class AuthController {
     @PostMapping("/otp/verify")
     @Operation(summary = "Xác thực mã OTP 6 chữ số")
     public ResponseEntity<APIResponse<OtpResponseDTO>> verifyOtp(@Valid @RequestBody VerifyOtpRequestDTO request) {
+        if (request.getPurpose() != OtpPurpose.REGISTER && request.getPurpose() != OtpPurpose.EMAIL_VERIFICATION) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Mục đích OTP không được phép ở API này.");
+        }
         LOG.debug("REST request to verify OTP for email: {} and purpose: {}", request.getEmail(), request.getPurpose());
         OtpResponseDTO response = otpService.verifyOtp(request);
         return ResponseEntity.ok(
@@ -297,9 +305,10 @@ public class AuthController {
         @Valid @RequestBody com.lumi.web.rest.vm.Login2faVM login2faVM,
         HttpServletRequest request
     ) {
-        LOG.debug("REST request to complete 2FA login for email: {}", login2faVM.getEmail());
+        LOG.debug("REST request to complete 2FA login");
         String clientDeviceInfo = extractDeviceInfo(request);
-        AuthResponseDTO response = authService.login2fa(login2faVM, clientDeviceInfo);
+        String clientIp = extractClientIp(request);
+        AuthResponseDTO response = authService.login2fa(login2faVM, clientDeviceInfo, clientIp);
 
         var httpHeaders = new HttpHeaders();
         if (response.getAccessToken() != null) {
@@ -316,6 +325,14 @@ public class AuthController {
                     .build()
             );
     }
+
+    @PostMapping("/login/2fa/resend")
+    public ResponseEntity<Void> resendLoginOtp(@Valid @RequestBody LoginChallengeRequest request) {
+        otpService.resendLoginChallenge(request.challengeId());
+        return ResponseEntity.noContent().build();
+    }
+
+    public record LoginChallengeRequest(@jakarta.validation.constraints.NotBlank String challengeId) {}
 
     @PostMapping("/refresh")
     @Operation(summary = "Refresh access token")
@@ -388,7 +405,7 @@ public class AuthController {
 
     @PostMapping("/2fa/confirm")
     @Operation(summary = "Xác nhận mã OTP để bật/tắt 2FA")
-    public ResponseEntity<APIResponse<TwoFaResponseDTO>> confirm2fa(@RequestBody TwoFactorConfirmRequestDTO request) {
+    public ResponseEntity<APIResponse<TwoFaResponseDTO>> confirm2fa(@Valid @RequestBody TwoFactorConfirmRequestDTO request) {
         LOG.debug("REST request to confirm 2fa status of current user");
         TwoFaResponseDTO response = authService.confirm2faStatus(request);
         return ResponseEntity.ok(
@@ -417,10 +434,10 @@ public class AuthController {
     }
 
     @DeleteMapping("/account/sessions/other")
-    @Operation(summary = "Đăng xuất tất cả các thiết bị khác (trừ thiết bị hiện tại nếu truyền currentSessionId)")
-    public ResponseEntity<Void> revokeOtherSessions(@RequestParam(value = "currentSessionId", required = false) Long currentSessionId) {
-        LOG.debug("REST request to revoke all other sessions with currentSessionId: {}", currentSessionId);
-        authService.revokeOtherSessions(currentSessionId);
+    @Operation(summary = "Đăng xuất tất cả các thiết bị khác")
+    public ResponseEntity<Void> revokeOtherSessions() {
+        LOG.debug("REST request to revoke all other sessions");
+        authService.revokeOtherSessions();
         return ResponseEntity.noContent().build();
     }
 
@@ -430,10 +447,6 @@ public class AuthController {
     }
 
     private String extractClientIp(HttpServletRequest request) {
-        String xfHeader = request.getHeader("X-Forwarded-For");
-        if (xfHeader == null || xfHeader.isEmpty() || "unknown".equalsIgnoreCase(xfHeader)) {
-            return request.getRemoteAddr();
-        }
-        return xfHeader.split(",")[0].trim();
+        return request.getRemoteAddr();
     }
 }

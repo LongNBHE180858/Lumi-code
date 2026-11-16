@@ -1,4 +1,4 @@
-import React, { useImperativeHandle, useRef, useState } from 'react';
+import React, { useEffect, useImperativeHandle, useRef, useState } from 'react';
 import { useStore } from 'react-redux';
 import type { IRootState } from 'app/config/store';
 import { Row, Col, Card, Button, Form, Modal } from 'react-bootstrap';
@@ -13,14 +13,16 @@ import {
   faPen,
   faTrash,
   faRightLeft,
+  faListCheck,
 } from '@fortawesome/free-solid-svg-icons';
 
-import LessonEditor, { ILessonData } from './lesson-editor';
+import LessonEditor, { ILessonData } from './lesson/lesson-editor';
+import ChapterExamEditor from './chapter-exam-editor';
 import { useAppDispatch, useAppSelector } from 'app/config/store';
 import { toast } from 'react-toastify';
 import { builderErrorText } from '../course-builder-error';
 import { isBuilderReadOnly } from '../course-lifecycle';
-import { chapterDuration, formatDuration, lessonSeconds } from './video-duration';
+import { chapterDuration, formatDuration, lessonSeconds } from './lesson/video-duration';
 import {
   createChapter,
   updateChapter,
@@ -31,6 +33,10 @@ import {
   deleteLesson,
   getCourseBuilder,
   moveLesson,
+  createChapterExam,
+  getChapterExams,
+  deleteExam,
+  IExamSummaryDTO,
 } from '../course-builder.reducer';
 
 interface CurriculumTabProps {
@@ -103,6 +109,9 @@ export const CurriculumTab = ({ onBack, onNext, navigationRef }: CurriculumTabPr
 
   const [activeChapterId, setActiveChapterId] = useState<number | null>(null);
   const [activeLessonId, setActiveLessonId] = useState<number | null>(null);
+  const [activeExamId, setActiveExamId] = useState<number | null>(null);
+  const [chapterExams, setChapterExams] = useState<Record<number, IExamSummaryDTO[]>>({});
+  const [examToDelete, setExamToDelete] = useState<{ chapterId: number; examId: number; title: string } | null>(null);
 
   // null: không nhập, 'new': thêm chương, number: đổi tên chương
   const [editingChapter, setEditingChapter] = useState<number | 'new' | null>(null);
@@ -182,10 +191,36 @@ export const CurriculumTab = ({ onBack, onNext, navigationRef }: CurriculumTabPr
 
   useImperativeHandle(navigationRef, () => ({ requestLeave: requestAction }));
 
+  const refreshChapterExams = async (chapterId: number) => {
+    if (!data?.course.id) return;
+    try {
+      const res = await dispatch(getChapterExams({ courseId: data.course.id, chapterId })).unwrap();
+      const chapterOnly = res.filter(e => !e.lessonId && e.assessmentType === 'CHAPTER_QUIZ');
+      setChapterExams(prev => ({ ...prev, [chapterId]: chapterOnly }));
+    } catch {
+      /* ignore */
+    }
+  };
+
+  useEffect(() => {
+    if (currentChapter?.id) {
+      void refreshChapterExams(currentChapter.id);
+    }
+  }, [currentChapter?.id, data?.course.id]);
+
   const selectLesson = (chapterId: number, lessonId: number | null) => {
     setLessonDraft(null);
     setActiveChapterId(chapterId);
     setActiveLessonId(lessonId);
+    setActiveExamId(null);
+    void refreshChapterExams(chapterId);
+  };
+
+  const selectChapterExam = (chapterId: number, examId: number) => {
+    setLessonDraft(null);
+    setActiveChapterId(chapterId);
+    setActiveLessonId(null);
+    setActiveExamId(examId);
   };
   // Kiểm tra tên chương hiện tại có bị trùng lặp với các chương khác không
   const effectiveChapterTitle =
@@ -639,6 +674,55 @@ export const CurriculumTab = ({ onBack, onNext, navigationRef }: CurriculumTabPr
       </Card>
     );
 
+  const handleAddChapterExam = async (chapterId: number) => {
+    if (!data || saving || controlsDisabled) return;
+    const targetChapter = chapters.find(c => c.id === chapterId);
+    const existing = chapterExams[chapterId] || [];
+    const defaultTitle = generateUniqueTitle(
+      `Kiểm tra: ${targetChapter?.title || 'Chương'}`,
+      existing.map(e => e.title),
+    );
+
+    try {
+      const created = await dispatch(
+        createChapterExam({
+          courseId: data.course.id,
+          chapterId,
+          input: {
+            title: defaultTitle,
+            durationMinutes: 15,
+            passScore: 60,
+          },
+        }),
+      ).unwrap();
+
+      toast.success('Đã tạo bài kiểm tra chương.');
+      await refreshChapterExams(chapterId);
+      selectChapterExam(chapterId, created.id);
+    } catch {
+      toast.error('Không thể tạo bài kiểm tra chương.');
+    }
+  };
+
+  const handleConfirmDeleteChapterExam = async () => {
+    if (!data || !examToDelete) return;
+    try {
+      await dispatch(deleteExam({ courseId: data.course.id, examId: examToDelete.examId })).unwrap();
+      toast.success('Đã xóa bài kiểm tra.');
+      if (activeExamId === examToDelete.examId) {
+        setActiveExamId(null);
+        if (currentChapter?.lessons.length) {
+          setActiveLessonId(currentChapter.lessons[0].id);
+        }
+      }
+      void refreshChapterExams(examToDelete.chapterId);
+    } catch {
+      toast.error('Không thể xóa bài kiểm tra.');
+    } finally {
+      setExamToDelete(null);
+    }
+  };
+
   return (
     <div>
       {errorMessage && (
@@ -702,7 +786,11 @@ export const CurriculumTab = ({ onBack, onNext, navigationRef }: CurriculumTabPr
                         isExpanded ? 'bg-light border-bottom' : ''
                       }`}
                       onClick={() => {
-                        if (editingChapter !== null || draggedIndex !== null || ch.id === currentChapter?.id) return;
+                        if (editingChapter !== null || draggedIndex !== null) return;
+                        if (ch.id === currentChapter?.id) {
+                          void refreshChapterExams(ch.id);
+                          return;
+                        }
                         requestAction(() => selectLesson(ch.id, null));
                       }}
                       style={{ cursor: 'pointer' }}
@@ -786,7 +874,7 @@ export const CurriculumTab = ({ onBack, onNext, navigationRef }: CurriculumTabPr
                     {isExpanded && (
                       <div className="p-2 d-flex flex-column gap-1 bg-white">
                         {ch.lessons.map((ls, idx) => {
-                          const isSelected = ls.id === currentLesson?.id;
+                          const isSelected = !activeExamId && ch.id === currentChapter?.id && ls.id === currentLesson?.id;
                           return (
                             <div
                               key={ls.id}
@@ -809,7 +897,7 @@ export const CurriculumTab = ({ onBack, onNext, navigationRef }: CurriculumTabPr
                                 void handleLessonDrop(ch.id, event.clientY < bounds.top + bounds.height / 2 ? idx : idx + 1);
                               }}
                               onClick={() => {
-                                if (ls.id === currentLesson?.id) return;
+                                if (isSelected) return;
                                 requestAction(() => selectLesson(ch.id, ls.id));
                               }}
                               className={`p-2 rounded-2 d-flex justify-content-between align-items-center cursor-pointer ${
@@ -867,6 +955,7 @@ export const CurriculumTab = ({ onBack, onNext, navigationRef }: CurriculumTabPr
                                   }}
                                   disabled={controlsDisabled || chapters.length < 2}
                                   title="Chuyển sang chương khác"
+                                  aria-label="Chuyển chương"
                                   onClick={event => {
                                     event.stopPropagation();
                                     requestAction(() => {
@@ -903,21 +992,90 @@ export const CurriculumTab = ({ onBack, onNext, navigationRef }: CurriculumTabPr
                           );
                         })}
 
-                        <Button
-                          variant="outline-primary"
-                          size="sm"
-                          className="w-100 rounded-3 mt-2 border-dashed"
-                          disabled={controlsDisabled}
-                          onClick={() =>
-                            requestAction(() => {
-                              setLessonDraft(null);
-                              void handleAddLesson(ch.id);
-                            })
-                          }
-                        >
-                          <FontAwesomeIcon icon={faPlus} className="me-1" />
-                          Thêm bài học
-                        </Button>
+                        {/* Danh sách bài kiểm tra của chương - Luôn hiển thị sau list lesson */}
+                        {chapterExams[ch.id]?.map(exam => {
+                          const isExamSelected = activeExamId === exam.id;
+                          return (
+                            <div
+                              key={exam.id}
+                              onClick={() => {
+                                if (isExamSelected) return;
+                                requestAction(() => selectChapterExam(ch.id, exam.id));
+                              }}
+                              className={`p-2 rounded-3 border d-flex justify-content-between align-items-center transition-all ${
+                                isExamSelected ? 'border-success bg-success-subtle shadow-xs' : 'bg-white'
+                              }`}
+                              style={{ cursor: 'pointer' }}
+                            >
+                              <div className="d-flex align-items-center gap-2" style={{ minWidth: 0 }}>
+                                <span className="text-success small">
+                                  <FontAwesomeIcon icon={faListCheck} />
+                                </span>
+                                <span className="small fw-semibold text-truncate">{exam.title}</span>
+                              </div>
+                              <div className="d-flex align-items-center gap-1.5 ms-auto">
+                                <span
+                                  className="badge bg-light text-secondary border fw-normal py-1 px-2 me-1"
+                                  style={{ fontSize: '11px' }}
+                                >
+                                  {exam.durationMinutes}p • {exam.totalQuestions} câu
+                                </span>
+                                <Button
+                                  size="sm"
+                                  variant="outline-danger"
+                                  className="py-1 px-2 border-0 rounded-pill d-inline-flex align-items-center gap-1 shadow-none"
+                                  style={{
+                                    fontSize: '11.5px',
+                                    backgroundColor: 'rgba(220, 53, 69, 0.08)',
+                                    color: '#dc3545',
+                                  }}
+                                  disabled={controlsDisabled}
+                                  title="Xóa bài kiểm tra"
+                                  onClick={event => {
+                                    event.stopPropagation();
+                                    setExamToDelete({ chapterId: ch.id, examId: exam.id, title: exam.title });
+                                  }}
+                                >
+                                  <FontAwesomeIcon icon={faTrash} style={{ fontSize: '10px' }} />
+                                  <span className="fw-medium">Xóa</span>
+                                </Button>
+                              </div>
+                            </div>
+                          );
+                        })}
+
+                        <div className="d-flex gap-2 mt-2">
+                          <Button
+                            variant="outline-primary"
+                            size="sm"
+                            className="flex-grow-1 rounded-3 border-dashed"
+                            disabled={controlsDisabled}
+                            onClick={() =>
+                              requestAction(() => {
+                                setLessonDraft(null);
+                                void handleAddLesson(ch.id);
+                              })
+                            }
+                          >
+                            <FontAwesomeIcon icon={faPlus} className="me-1" />
+                            Thêm bài học
+                          </Button>
+                          <Button
+                            variant="outline-success"
+                            size="sm"
+                            className="rounded-3 border-dashed"
+                            disabled={controlsDisabled || ch.lessons.length === 0}
+                            title={ch.lessons.length === 0 ? 'Cần có bài học trước khi tạo bài kiểm tra' : 'Thêm bài kiểm tra chương'}
+                            onClick={() =>
+                              requestAction(() => {
+                                void handleAddChapterExam(ch.id);
+                              })
+                            }
+                          >
+                            <FontAwesomeIcon icon={faPlus} className="me-1" />
+                            Thêm bài kiểm tra
+                          </Button>
+                        </div>
                       </div>
                     )}
                   </div>
@@ -970,8 +1128,31 @@ export const CurriculumTab = ({ onBack, onNext, navigationRef }: CurriculumTabPr
           </Card>
         </Col>
 
-        {/* CỘT PHẢI: CHI TIẾT BÀI HỌC ĐANG CHỌN */}
-        <Col lg={7}>{renderLessonEditor()}</Col>
+        {/* CỘT PHẢI: CHI TIẾT BÀI HỌC HOẶC BÀI KIỂM TRA CHƯƠNG ĐANG CHỌN */}
+        <Col lg={7}>
+          {activeExamId && activeChapterId ? (
+            <ChapterExamEditor
+              key={`exam-${activeExamId}`}
+              courseId={data.course.id}
+              chapterId={activeChapterId}
+              chapterTitle={currentChapter?.title || ''}
+              examId={activeExamId}
+              disabled={controlsDisabled}
+              onDeleteExam={() => {
+                void refreshChapterExams(activeChapterId);
+                setActiveExamId(null);
+                if (currentChapter?.lessons.length) {
+                  setActiveLessonId(currentChapter.lessons[0].id);
+                }
+              }}
+              onExamUpdated={() => {
+                void refreshChapterExams(activeChapterId);
+              }}
+            />
+          ) : (
+            renderLessonEditor()
+          )}
+        </Col>
       </Row>
       {renderMoveDialog()}
 
@@ -1054,6 +1235,22 @@ export const CurriculumTab = ({ onBack, onNext, navigationRef }: CurriculumTabPr
         </Modal.Footer>
       </Modal>
 
+      {/* Modal xác nhận xóa bài kiểm tra chương */}
+      <Modal show={examToDelete !== null} onHide={() => setExamToDelete(null)} centered>
+        <Modal.Header closeButton>
+          <Modal.Title className="h6 fw-bold">Xác nhận xóa bài kiểm tra</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>Bạn có chắc muốn xóa bài kiểm tra &quot;{examToDelete?.title}&quot; cùng toàn bộ câu hỏi của nó không?</Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" size="sm" onClick={() => setExamToDelete(null)}>
+            Hủy
+          </Button>
+          <Button variant="danger" size="sm" onClick={handleConfirmDeleteChapterExam}>
+            Xác nhận xóa đề
+          </Button>
+        </Modal.Footer>
+      </Modal>
+
       {/* THANH ĐIỀU HƯỚNG CUỐI TRANG */}
       <div className="d-flex justify-content-between align-items-center mt-4 pt-3 border-top">
         <Button
@@ -1065,7 +1262,7 @@ export const CurriculumTab = ({ onBack, onNext, navigationRef }: CurriculumTabPr
           <FontAwesomeIcon icon={faArrowLeft} className="me-2" /> Thông tin khóa học
         </Button>
         <Button variant="primary" className="rounded-pill px-4 py-2" disabled={saving || chapterBusy} onClick={() => requestAction(onNext)}>
-          Tiếp: Học phí <FontAwesomeIcon icon={faArrowRight} className="ms-2" />
+          Tiếp: Đề kiểm tra <FontAwesomeIcon icon={faArrowRight} className="ms-2" />
         </Button>
       </div>
     </div>

@@ -14,6 +14,13 @@ import org.springframework.stereotype.Repository;
  */
 @Repository
 public interface ExamQuestionRepository extends JpaRepository<ExamQuestion, Long>, JpaSpecificationExecutor<ExamQuestion> {
+    List<ExamQuestion> findByExamIdOrderByOrderIndexAsc(Long examId);
+
+    void deleteByExamId(Long examId);
+
+    void deleteByExamIdAndQuestionId(Long examId, Long questionId);
+    long countByExamId(Long examId);
+
     default Optional<ExamQuestion> findOneWithEagerRelationships(Long id) {
         return this.findOneWithToOneRelationships(id);
     }

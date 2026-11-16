@@ -43,6 +43,18 @@ public class ClassMaterial implements Serializable {
     @Column(name = "file_size_bytes", nullable = false)
     private Long fileSizeBytes;
 
+    @NotNull
+    @Column(name = "order_index", nullable = false)
+    private Integer orderIndex = 0;
+
+    @NotNull
+    @Size(max = 20)
+    @Column(name = "status", length = 20, nullable = false)
+    private String status = "PUBLISHED";
+
+    @Column(name = "description", columnDefinition = "text")
+    private String description;
+
     @Column(name = "uploaded_at")
     private Instant uploadedAt;
 
@@ -128,6 +140,45 @@ public class ClassMaterial implements Serializable {
 
     public void setFileSizeBytes(Long fileSizeBytes) {
         this.fileSizeBytes = fileSizeBytes;
+    }
+
+    public Integer getOrderIndex() {
+        return this.orderIndex;
+    }
+
+    public ClassMaterial orderIndex(Integer orderIndex) {
+        this.setOrderIndex(orderIndex);
+        return this;
+    }
+
+    public void setOrderIndex(Integer orderIndex) {
+        this.orderIndex = orderIndex;
+    }
+
+    public String getStatus() {
+        return this.status;
+    }
+
+    public ClassMaterial status(String status) {
+        this.setStatus(status);
+        return this;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    public String getDescription() {
+        return this.description;
+    }
+
+    public ClassMaterial description(String description) {
+        this.setDescription(description);
+        return this;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 
     public Instant getUploadedAt() {
@@ -229,6 +280,9 @@ public class ClassMaterial implements Serializable {
             ", fileType='" + getFileType() + "'" +
             ", fileUrl='" + getFileUrl() + "'" +
             ", fileSizeBytes=" + getFileSizeBytes() +
+            ", orderIndex=" + getOrderIndex() +
+            ", status='" + getStatus() + "'" +
+            ", description='" + getDescription() + "'" +
             ", uploadedAt='" + getUploadedAt() + "'" +
             ", fileObjectKey='" + getFileObjectKey() + "'" +
             ", updatedAt='" + getUpdatedAt() + "'" +

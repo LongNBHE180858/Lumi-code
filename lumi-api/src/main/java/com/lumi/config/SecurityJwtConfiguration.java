@@ -3,6 +3,7 @@ package com.lumi.config;
 import static com.lumi.security.SecurityUtils.JWT_ALGORITHM;
 
 import com.lumi.management.SecurityMetersService;
+import com.lumi.repository.AuthSessionRepository;
 import com.lumi.repository.UserRepository;
 import com.lumi.security.jwt.ActiveUserJwtDecoder;
 import com.nimbusds.jose.jwk.source.ImmutableSecret;
@@ -31,7 +32,11 @@ public class SecurityJwtConfiguration {
     private String jwtKey;
 
     @Bean
-    public JwtDecoder jwtDecoder(SecurityMetersService metersService, ObjectProvider<UserRepository> userRepositoryProvider) {
+    public JwtDecoder jwtDecoder(
+        SecurityMetersService metersService,
+        ObjectProvider<UserRepository> userRepositoryProvider,
+        ObjectProvider<AuthSessionRepository> sessionRepositoryProvider
+    ) {
         NimbusJwtDecoder jwtDecoder = NimbusJwtDecoder.withSecretKey(getSecretKey()).macAlgorithm(JWT_ALGORITHM).build();
         JwtDecoder meteredDecoder = token -> {
             try {
@@ -55,7 +60,10 @@ public class SecurityJwtConfiguration {
         };
         // Security-only test contexts omit JPA; the running application has a UserRepository.
         UserRepository userRepository = userRepositoryProvider.getIfAvailable();
-        return userRepository == null ? meteredDecoder : new ActiveUserJwtDecoder(meteredDecoder, userRepository);
+        AuthSessionRepository sessionRepository = sessionRepositoryProvider.getIfAvailable();
+        return userRepository == null || sessionRepository == null
+            ? meteredDecoder
+            : new ActiveUserJwtDecoder(meteredDecoder, userRepository, sessionRepository);
     }
 
     @Bean

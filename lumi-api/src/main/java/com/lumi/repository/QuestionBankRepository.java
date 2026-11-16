@@ -40,4 +40,16 @@ public interface QuestionBankRepository extends JpaRepository<QuestionBank, Long
 
     @Query("select questionBank from QuestionBank questionBank left join fetch questionBank.instructor where questionBank.id =:id")
     Optional<QuestionBank> findOneWithToOneRelationships(@Param("id") Long id);
+
+    List<QuestionBank> findByInstructorIdOrderByUpdatedAtDesc(Long instructorId);
+
+    @Query(
+        """
+            select qb from QuestionBank qb
+            where qb.instructor.id = :instructorId
+              and (qb.studyClass is null or qb.studyClass.id = :classId)
+            order by qb.updatedAt desc
+        """
+    )
+    List<QuestionBank> findAccessibleBanks(@Param("instructorId") Long instructorId, @Param("classId") Long classId);
 }

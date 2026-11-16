@@ -6,7 +6,7 @@ import { Link, useNavigate, useParams } from 'react-router';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import { useAppDispatch, useAppSelector } from 'app/config/store';
-import { getEntities as getClassMaterials } from 'app/entities/class-material/class-material.reducer';
+
 import { getEntities as getCourseMaterials } from 'app/entities/course-material/course-material.reducer';
 import { getEntities as getGrades } from 'app/entities/grade/grade.reducer';
 import { getEntities as getSubjects } from 'app/entities/subject/subject.reducer';
@@ -24,7 +24,7 @@ export const LearningDocumentUpdate = () => {
   const isNew = id === undefined;
 
   const courseMaterials = useAppSelector(state => state.courseMaterial.entities);
-  const classMaterials = useAppSelector(state => state.classMaterial.entities);
+  const classMaterials: any[] = [];
   const users = useAppSelector(state => state.userManagement.users);
   const subjects = useAppSelector(state => state.subject.entities);
   const grades = useAppSelector(state => state.grade.entities);
@@ -45,7 +45,7 @@ export const LearningDocumentUpdate = () => {
     }
 
     dispatch(getCourseMaterials({}));
-    dispatch(getClassMaterials({}));
+
     dispatch(getUsers({}));
     dispatch(getSubjects({}));
     dispatch(getGrades({}));

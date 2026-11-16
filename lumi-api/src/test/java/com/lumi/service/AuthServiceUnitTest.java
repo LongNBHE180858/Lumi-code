@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
+import com.lumi.domain.AuthSession;
 import com.lumi.domain.Authority;
 import com.lumi.domain.User;
 import com.lumi.domain.UserProfile;
@@ -14,6 +15,8 @@ import com.lumi.service.dto.auth.AuthResponseDTO;
 import com.lumi.service.dto.auth.RegisterRequestDTO;
 import com.lumi.service.dto.auth.otp.OtpResponseDTO;
 import com.lumi.service.dto.auth.otp.SendOtpRequestDTO;
+import com.lumi.web.rest.vm.Login2faVM;
+import com.lumi.web.rest.vm.LoginVM;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -26,6 +29,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.cache.CacheManager;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
@@ -73,6 +77,9 @@ class AuthServiceUnitTest {
     @Mock
     private EmailOtpRepository emailOtpRepository;
 
+    @Mock
+    private ApplicationEventPublisher eventPublisher;
+
     private AuthService authService;
 
     @BeforeEach
@@ -89,7 +96,8 @@ class AuthServiceUnitTest {
             cacheManager,
             otpService,
             mailService,
-            emailOtpRepository
+            emailOtpRepository,
+            eventPublisher
         );
     }
 
@@ -193,5 +201,83 @@ class AuthServiceUnitTest {
         assertThat(authorityNames)
             .as("When role is blank, resolveTargetRole must default to ROLE_STUDENT")
             .contains(AuthoritiesConstants.STUDENT, AuthoritiesConstants.USER);
+    }
+
+    @Test
+    void successfulLoginRecordsAuditAndReturnsProfile() {
+        User user = activeUser();
+        UserProfile profile = new UserProfile();
+        profile.setIs2faEnabled(false);
+        when(userRepository.findOneWithAuthoritiesByLogin("student")).thenReturn(Optional.of(user));
+        when(passwordEncoder.matches("secret", "encoded")).thenReturn(true);
+        when(userProfileRepository.findOneByUserId(42L)).thenReturn(Optional.of(profile));
+        when(teacherVerificationRepository.findOneByUserId(42L)).thenReturn(Optional.empty());
+        when(tokenProvider.createSession(user, "browser")).thenReturn(new AuthSession().id(7L).refreshToken("refresh"));
+        when(tokenProvider.createAccessToken(user, 7L)).thenReturn("access");
+
+        LoginVM request = new LoginVM();
+        request.setUsername("student");
+        request.setPassword("secret");
+        AuthResponseDTO response = authService.login(request, "browser", "192.0.2.1");
+
+        assertThat(response.getAccessToken()).isEqualTo("access");
+        assertThat(response.getRefreshToken()).isEqualTo("refresh");
+        assertThat(response.getUser().getProfile()).isNotNull();
+        ArgumentCaptor<LoginSucceededEvent> event = ArgumentCaptor.forClass(LoginSucceededEvent.class);
+        verify(eventPublisher).publishEvent(event.capture());
+        assertThat(event.getValue()).isEqualTo(new LoginSucceededEvent(42L, "192.0.2.1", "browser"));
+    }
+
+    @Test
+    void twoFactorChallengeDoesNotRecordLoginBeforeVerification() {
+        User user = activeUser();
+        UserProfile profile = new UserProfile();
+        profile.setIs2faEnabled(true);
+        when(userRepository.findOneWithAuthoritiesByLogin("student")).thenReturn(Optional.of(user));
+        when(passwordEncoder.matches("secret", "encoded")).thenReturn(true);
+        when(userProfileRepository.findOneByUserId(42L)).thenReturn(Optional.of(profile));
+        when(otpService.startLoginChallenge(user, false, "192.0.2.1")).thenReturn("challenge");
+
+        LoginVM request = new LoginVM();
+        request.setUsername("student");
+        request.setPassword("secret");
+        AuthResponseDTO response = authService.login(request, "browser", "192.0.2.1");
+
+        assertThat(response.getIs2faRequired()).isTrue();
+        verifyNoInteractions(eventPublisher);
+        verify(tokenProvider, never()).createSession(any(), any());
+    }
+
+    @Test
+    void completedTwoFactorLoginRecordsAuditAndReturnsProfile() {
+        User user = activeUser();
+        UserProfile profile = new UserProfile();
+        profile.setIs2faEnabled(true);
+        when(otpService.verifyLoginChallenge("challenge", "123456")).thenReturn(new OtpService.VerifiedLogin(user, false));
+        when(userProfileRepository.findOneByUserId(42L)).thenReturn(Optional.of(profile));
+        when(teacherVerificationRepository.findOneByUserId(42L)).thenReturn(Optional.empty());
+        when(tokenProvider.createSession(user, "browser")).thenReturn(new AuthSession().id(8L).refreshToken("refresh"));
+        when(tokenProvider.createAccessToken(user, 8L)).thenReturn("access");
+
+        Login2faVM request = new Login2faVM();
+        request.setChallengeId("challenge");
+        request.setOtpCode("123456");
+        AuthResponseDTO response = authService.login2fa(request, "browser", "192.0.2.1");
+
+        assertThat(response.getAccessToken()).isEqualTo("access");
+        assertThat(response.getUser().getProfile()).isNotNull();
+        ArgumentCaptor<LoginSucceededEvent> event = ArgumentCaptor.forClass(LoginSucceededEvent.class);
+        verify(eventPublisher).publishEvent(event.capture());
+        assertThat(event.getValue()).isEqualTo(new LoginSucceededEvent(42L, "192.0.2.1", "browser"));
+    }
+
+    private User activeUser() {
+        User user = new User();
+        user.setId(42L);
+        user.setLogin("student");
+        user.setEmail("student@example.com");
+        user.setPassword("encoded");
+        user.setActivated(true);
+        return user;
     }
 }

@@ -44,4 +44,10 @@ public interface LearningDocumentRepository extends JpaRepository<LearningDocume
         "select learningDocument from LearningDocument learningDocument left join fetch learningDocument.uploadedBy where learningDocument.id =:id"
     )
     Optional<LearningDocument> findOneWithToOneRelationships(@Param("id") Long id);
+
+    Optional<LearningDocument> findFirstByFileObjectKeyAndSourceTypeAndUploadedBy_Login(
+        String fileObjectKey,
+        String sourceType,
+        String login
+    );
 }

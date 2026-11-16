@@ -91,10 +91,20 @@ $admin-pale: #e6f5ff;
 
 .admin-chart-series {
   position: absolute;
-  top: 44px;
+  top: 20px;
   left: 56px;
   width: 600px;
-  height: 120px;
+  height: 144px;
+}
+
+.admin-chart-empty {
+  position: absolute;
+  top: 92px;
+  left: 56px;
+  width: 600px;
+  color: $admin-muted;
+  font-size: 12px;
+  text-align: center;
 }
 
 .admin-chart-value {
@@ -140,7 +150,7 @@ $admin-pale: #e6f5ff;
   height: 136px;
   margin: 0 auto;
   border-radius: 50%;
-  background: conic-gradient(#7894af 0 0.32%, #102b59 0.32% 4.49%, $admin-blue 4.49% 100%);
+  background: $admin-pale;
 
   &::before {
     content: '';
@@ -201,7 +211,7 @@ $admin-pale: #e6f5ff;
     background: $admin-navy;
   }
 
-  .admin-legend-marker-admin {
+  .admin-legend-marker-parent {
     background: $admin-muted;
   }
 
@@ -228,15 +238,24 @@ $admin-pale: #e6f5ff;
   grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
-.admin-sample-note {
+.admin-dashboard-state {
   color: $admin-muted;
-  font-size: 12px;
+  font-size: 14px;
+
+  button {
+    margin-left: 12px;
+    border: 0;
+    background: transparent;
+    color: $admin-blue;
+    font-weight: 700;
+  }
 }
 
 .admin-dialog-backdrop {
   position: fixed;
   z-index: 100;
   inset: 0;
+  overscroll-behavior: contain;
   display: grid;
   place-items: center;
   padding: 24px;
@@ -246,6 +265,9 @@ $admin-pale: #e6f5ff;
 .admin-dialog {
   position: relative;
   width: min(600px, 100%);
+  max-height: min(80vh, 720px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
   padding: 8px;
   box-shadow: 0 20px 60px rgba(16, 43, 89, 0.18);
 
@@ -256,6 +278,36 @@ $admin-pale: #e6f5ff;
 
   .admin-text-action {
     display: none;
+  }
+}
+
+.admin-dialog-status {
+  padding: 12px 24px 20px;
+  color: $admin-muted;
+  font-size: 14px;
+
+  button {
+    margin-left: 12px;
+    border: 0;
+    background: transparent;
+    color: $admin-blue;
+    font-weight: 700;
+  }
+}
+
+.admin-dialog-load-more {
+  display: block;
+  margin: 4px auto 20px;
+  padding: 8px 16px;
+  border: 1px solid $admin-blue;
+  border-radius: 8px;
+  background: #fff;
+  color: $admin-blue;
+  font-weight: 700;
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: wait;
   }
 }
 

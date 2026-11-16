@@ -37,4 +37,8 @@ public interface ClassMaterialRepository extends JpaRepository<ClassMaterial, Lo
 
     @Query("select classMaterial from ClassMaterial classMaterial left join fetch classMaterial.studyClass where classMaterial.id =:id")
     Optional<ClassMaterial> findOneWithToOneRelationships(@Param("id") Long id);
+
+    List<ClassMaterial> findByStudyClassIdOrderByUploadedAtDesc(Long classId);
+
+    List<ClassMaterial> findByStudyClassIdOrderByOrderIndexAscIdAsc(Long classId);
 }

@@ -12,8 +12,8 @@ import com.lumi.security.SecurityUtils;
 import com.lumi.service.dto.SupportTicketCreateRequest;
 import com.lumi.service.dto.SupportTicketViewDTO;
 import com.lumi.service.dto.TicketImageDTO;
-import com.lumi.service.dto.TicketMessageCreateRequest;
 import com.lumi.service.dto.TicketMessageContent;
+import com.lumi.service.dto.TicketMessageCreateRequest;
 import com.lumi.service.dto.TicketMessageViewDTO;
 import com.lumi.service.storage.CourseFileValidator;
 import com.lumi.service.storage.R2CourseObjectStorage;
@@ -21,7 +21,6 @@ import java.io.IOException;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
-import tools.jackson.databind.ObjectMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -29,8 +28,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionSynchronization;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
-import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.server.ResponseStatusException;
+import tools.jackson.databind.ObjectMapper;
 
 @Service
 @Transactional
@@ -65,8 +65,12 @@ public class SupportTicketManagementService {
 
     public SupportTicketViewDTO createWithImages(SupportTicketCreateRequest request, List<MultipartFile> images) {
         if (
-            request.type() == null || request.type().isBlank() || request.type().trim().length() > 50 ||
-            request.subject() == null || request.subject().isBlank() || request.subject().trim().length() > 255
+            request.type() == null ||
+            request.type().isBlank() ||
+            request.type().trim().length() > 50 ||
+            request.subject() == null ||
+            request.subject().isBlank() ||
+            request.subject().trim().length() > 255
         ) throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid ticket details");
         validateText(request.content(), true);
         validateImages(images);
@@ -237,10 +241,9 @@ public class SupportTicketManagementService {
     }
 
     private void validateText(String content, boolean required) {
-        if ((content == null && required) || (content != null && content.trim().length() > 5000) || (required && content.isBlank())) throw new ResponseStatusException(
-            HttpStatus.BAD_REQUEST,
-            "Invalid ticket message"
-        );
+        if (
+            (content == null && required) || (content != null && content.trim().length() > 5000) || (required && content.isBlank())
+        ) throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid ticket message");
     }
 
     private void validateImages(List<MultipartFile> images) {
@@ -293,7 +296,10 @@ public class SupportTicketManagementService {
                     decoded.text() != null &&
                     decoded.images() != null &&
                     decoded.images().size() <= 3 &&
-                    decoded.images().stream().allMatch(image -> image != null && image.key() != null && image.fileName() != null)
+                    decoded
+                        .images()
+                        .stream()
+                        .allMatch(image -> image != null && image.key() != null && image.fileName() != null)
                 ) {
                     return decoded;
                 }

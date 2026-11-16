@@ -1,6 +1,7 @@
 package com.lumi.domain;
 
 import com.lumi.domain.enumeration.InstructorApplicationStatus;
+import com.lumi.domain.enumeration.RecordStatus;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import java.io.Serial;

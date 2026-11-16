@@ -76,6 +76,11 @@ public class InstructorCourseResource {
         return service.submitReview(courseId, input);
     }
 
+    @PostMapping("/{courseId}/review-requests/withdraw")
+    public Builder withdrawReview(@PathVariable Long courseId, @Valid @RequestBody WithdrawReview input) {
+        return service.withdrawReview(courseId, input);
+    }
+
     @PutMapping("/{courseId}/pricing")
     public Builder pricing(@PathVariable Long courseId, @Valid @RequestBody Pricing input) {
         return service.pricing(courseId, input);

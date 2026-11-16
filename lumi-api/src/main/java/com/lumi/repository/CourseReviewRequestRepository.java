@@ -21,6 +21,12 @@ public interface CourseReviewRequestRepository
     java.util.Optional<CourseReviewRequest> findFirstByCourseIdOrderBySubmittedAtDescIdDesc(Long courseId);
     boolean existsByCourseIdAndStatus(Long courseId, com.lumi.domain.enumeration.CourseReviewRequestStatus status);
 
+    @Lock(jakarta.persistence.LockModeType.PESSIMISTIC_WRITE)
+    @Query(
+        "select r from CourseReviewRequest r where r.course.id = :courseId and r.status = com.lumi.domain.enumeration.CourseReviewRequestStatus.PENDING"
+    )
+    Optional<CourseReviewRequest> findPendingForUpdate(@Param("courseId") Long courseId);
+
     @Query(
         "select courseReviewRequest from CourseReviewRequest courseReviewRequest where courseReviewRequest.submittedBy.login = ?#{authentication.name}"
     )

@@ -1,8 +1,7 @@
 package com.lumi.web.rest.vm;
 
-import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.Pattern;
 
 /**
  * View Model for 2FA Login verification.
@@ -10,25 +9,22 @@ import jakarta.validation.constraints.Size;
 public class Login2faVM {
 
     @NotBlank
-    @Email
-    private String email;
+    private String challengeId;
 
     @NotBlank
-    @Size(min = 6, max = 6)
+    @Pattern(regexp = "\\d{6}")
     private String otpCode;
-
-    private boolean rememberMe;
 
     private String deviceInfo;
 
     public Login2faVM() {}
 
-    public String getEmail() {
-        return email;
+    public String getChallengeId() {
+        return challengeId;
     }
 
-    public void setEmail(String email) {
-        this.email = email;
+    public void setChallengeId(String challengeId) {
+        this.challengeId = challengeId;
     }
 
     public String getOtpCode() {
@@ -37,14 +33,6 @@ public class Login2faVM {
 
     public void setOtpCode(String otpCode) {
         this.otpCode = otpCode;
-    }
-
-    public boolean isRememberMe() {
-        return rememberMe;
-    }
-
-    public void setRememberMe(boolean rememberMe) {
-        this.rememberMe = rememberMe;
     }
 
     public String getDeviceInfo() {
@@ -57,6 +45,6 @@ public class Login2faVM {
 
     @Override
     public String toString() {
-        return "Login2faVM{" + "email='" + email + '\'' + ", rememberMe=" + rememberMe + '}';
+        return "Login2faVM{challengeId='" + challengeId + "'}";
     }
 }

@@ -2,6 +2,7 @@ package com.lumi.service;
 
 import com.lumi.service.dto.CourseBrowseRequest;
 import com.lumi.service.dto.CourseBrowseResponse;
+import com.lumi.service.dto.CourseCheckoutDTO;
 import com.lumi.service.dto.CourseDTO;
 import com.lumi.service.dto.CourseOverviewResponse;
 import com.lumi.service.dto.CourseReviewsResponse;
@@ -63,6 +64,8 @@ public interface CourseService {
     CourseBrowseResponse browse(CourseBrowseRequest request, Pageable pageable);
 
     CourseOverviewResponse overview(Long id);
+
+    CourseCheckoutDTO getCheckout(Long courseId, Long studentId);
 
     CourseReviewsResponse reviews(Long id, Pageable pageable);
 }

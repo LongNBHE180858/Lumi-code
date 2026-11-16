@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <!-- IDs 1-4 were already applied to the local database. Keep their history intact. -->
+    <changeSet id="20261104230000-5" author="lumi">
+        <preConditions onFail="MARK_RAN">
+            <not><columnExists tableName="classes" columnName="curriculum_version"/></not>
+        </preConditions>
+        <addColumn tableName="classes">
+            <column name="curriculum_version" type="integer" defaultValueNumeric="0">
+                <constraints nullable="false"/>
+            </column>
+        </addColumn>
+    </changeSet>
+
+    <changeSet id="20261104230000-6" author="lumi">
+        <preConditions onFail="MARK_RAN">
+            <not><columnExists tableName="class_materials" columnName="order_index"/></not>
+        </preConditions>
+        <addColumn tableName="class_materials">
+            <column name="order_index" type="integer" defaultValueNumeric="0">
+                <constraints nullable="false"/>
+            </column>
+        </addColumn>
+        <sql dbms="postgresql"><![CDATA[
+            WITH ordered AS (
+                SELECT id, row_number() OVER (PARTITION BY study_class_id ORDER BY uploaded_at NULLS LAST, id) - 1 AS position
+                FROM class_materials
+            )
+            UPDATE class_materials m SET order_index = ordered.position
+            FROM ordered WHERE m.id = ordered.id
+        ]]></sql>
+    </changeSet>
+
+    <changeSet id="20261104230000-7" author="lumi">
+        <preConditions onFail="MARK_RAN">
+            <not><columnExists tableName="class_materials" columnName="status"/></not>
+        </preConditions>
+        <addColumn tableName="class_materials">
+            <column name="status" type="varchar(20)" defaultValue="PUBLISHED">
+                <constraints nullable="false"/>
+            </column>
+        </addColumn>
+    </changeSet>
+
+    <changeSet id="20261104230000-8" author="lumi">
+        <preConditions onFail="MARK_RAN">
+            <not><columnExists tableName="class_materials" columnName="description"/></not>
+        </preConditions>
+        <addColumn tableName="class_materials">
+            <column name="description" type="text"/>
+        </addColumn>
+    </changeSet>
+
+    <changeSet id="20261104230000-9" author="lumi">
+        <preConditions onFail="MARK_RAN">
+            <not><columnExists tableName="class_members" columnName="applied_at"/></not>
+        </preConditions>
+        <addColumn tableName="class_members">
+            <column name="applied_at" type="${datetimeType}"/>
+        </addColumn>
+        <sql>UPDATE class_members SET applied_at = requested_at WHERE applied_at IS NULL</sql>
+    </changeSet>
+
+    <changeSet id="20261104230000-10" author="lumi">
+        <preConditions onFail="MARK_RAN">
+            <not><columnExists tableName="class_members" columnName="approved_at"/></not>
+        </preConditions>
+        <addColumn tableName="class_members">
+            <column name="approved_at" type="${datetimeType}"/>
+        </addColumn>
+        <sql>UPDATE class_members SET approved_at = joined_at WHERE status = 'ACTIVE' AND approved_at IS NULL</sql>
+    </changeSet>
+
+    <changeSet id="20261104230000-11" author="lumi">
+        <preConditions onFail="MARK_RAN">
+            <not><columnExists tableName="class_members" columnName="decision_reason"/></not>
+        </preConditions>
+        <addColumn tableName="class_members">
+            <column name="decision_reason" type="varchar(500)"/>
+        </addColumn>
+    </changeSet>
+
+    <changeSet id="20261104230000-12" author="lumi">
+        <preConditions onFail="MARK_RAN">
+            <sqlCheck expectedResult="0">
+                SELECT count(*) FROM pg_constraint WHERE conrelid = 'class_members'::regclass AND conname = 'ux_class_members_class_student'
+            </sqlCheck>
+        </preConditions>
+        <addUniqueConstraint tableName="class_members" columnNames="study_class_id, student_id" constraintName="ux_class_members_class_student"/>
+    </changeSet>
+
+    <changeSet id="20261104230000-13" author="lumi">
+        <preConditions onFail="MARK_RAN">
+            <sqlCheck expectedResult="0">
+                SELECT count(*) FROM pg_indexes WHERE tablename = 'class_materials' AND indexname = 'idx_class_materials_class_order'
+            </sqlCheck>
+        </preConditions>
+        <createIndex tableName="class_materials" indexName="idx_class_materials_class_order">
+            <column name="study_class_id"/>
+            <column name="order_index"/>
+        </createIndex>
+    </changeSet>
+
+    <changeSet id="20261104230000-14" author="lumi">
+        <preConditions onFail="MARK_RAN">
+            <sqlCheck expectedResult="0">
+                SELECT count(*) FROM pg_indexes WHERE tablename = 'class_members' AND indexname = 'idx_class_members_class_status'
+            </sqlCheck>
+        </preConditions>
+        <createIndex tableName="class_members" indexName="idx_class_members_class_status">
+            <column name="study_class_id"/>
+            <column name="status"/>
+        </createIndex>
+    </changeSet>
+
+    <changeSet id="20261104230000-15" author="lumi">
+        <sql dbms="postgresql"><![CDATA[
+            UPDATE classes c SET current_students = (
+                SELECT count(*) FROM class_members m WHERE m.study_class_id = c.id AND m.status = 'ACTIVE'
+            )
+        ]]></sql>
+        <addDefaultValue tableName="classes" columnName="current_students" columnDataType="integer" defaultValueNumeric="0"/>
+        <addNotNullConstraint tableName="classes" columnName="current_students" columnDataType="integer"/>
+    </changeSet>
+</databaseChangeLog>

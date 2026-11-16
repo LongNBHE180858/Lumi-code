@@ -5,6 +5,8 @@ import jakarta.persistence.Lob;
 import jakarta.validation.constraints.*;
 import java.io.Serializable;
 import java.time.Instant;
+import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -25,8 +27,8 @@ public class AiMessageDTO implements Serializable {
 
     private Instant createdAt;
 
-    @Lob
-    private String citations;
+    @NotNull
+    private List<@NotNull Map<String, Object>> citations;
 
     @NotNull
     @Size(max = 20)
@@ -77,11 +79,11 @@ public class AiMessageDTO implements Serializable {
         this.createdAt = createdAt;
     }
 
-    public String getCitations() {
+    public List<Map<String, Object>> getCitations() {
         return citations;
     }
 
-    public void setCitations(String citations) {
+    public void setCitations(List<Map<String, Object>> citations) {
         this.citations = citations;
     }
 

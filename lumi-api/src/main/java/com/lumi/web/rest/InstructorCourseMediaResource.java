@@ -88,7 +88,12 @@ public class InstructorCourseMediaResource {
 
     @GetMapping("/lessons/{lessonId}/materials/{materialId}/download")
     public ResponseEntity<Access> materialAccess(@PathVariable Long courseId, @PathVariable Long lessonId, @PathVariable Long materialId) {
-        return noCache(service.materialAccess(courseId, lessonId, materialId));
+        return noCache(service.materialAccess(courseId, lessonId, materialId, true));
+    }
+
+    @GetMapping("/lessons/{lessonId}/materials/{materialId}/preview")
+    public ResponseEntity<Access> materialPreview(@PathVariable Long courseId, @PathVariable Long lessonId, @PathVariable Long materialId) {
+        return noCache(service.materialAccess(courseId, lessonId, materialId, false));
     }
 
     @GetMapping("/lessons/{lessonId}/video/playback")

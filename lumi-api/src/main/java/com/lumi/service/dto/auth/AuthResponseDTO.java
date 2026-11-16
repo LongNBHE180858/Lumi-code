@@ -26,13 +26,25 @@ public class AuthResponseDTO implements Serializable {
     @JsonProperty("email")
     private String email;
 
+    @JsonProperty("challenge_id")
+    private String challengeId;
+
     public AuthResponseDTO() {}
 
-    public static AuthResponseDTO require2fa(String email) {
+    public static AuthResponseDTO require2fa(String email, String challengeId) {
         AuthResponseDTO response = new AuthResponseDTO();
         response.setIs2faRequired(true);
         response.setEmail(email);
+        response.setChallengeId(challengeId);
         return response;
+    }
+
+    public String getChallengeId() {
+        return challengeId;
+    }
+
+    public void setChallengeId(String challengeId) {
+        this.challengeId = challengeId;
     }
 
     public AuthResponseDTO(String accessToken, String refreshToken, Long expiresIn, UserAuthDTO user) {

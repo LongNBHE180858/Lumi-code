@@ -13,12 +13,6 @@ const EntitiesMenu = () => {
       <MenuItem icon="asterisk" to="/teacher-verification">
         <Translate contentKey="global.menu.entities.teacherVerification" />
       </MenuItem>
-      <MenuItem icon="asterisk" to="/parent-student-link">
-        <Translate contentKey="global.menu.entities.parentStudentLink" />
-      </MenuItem>
-      <MenuItem icon="asterisk" to="/auth-session">
-        <Translate contentKey="global.menu.entities.authSession" />
-      </MenuItem>
       <MenuItem icon="asterisk" to="/subject">
         <Translate contentKey="global.menu.entities.subject" />
       </MenuItem>
@@ -45,15 +39,6 @@ const EntitiesMenu = () => {
       </MenuItem>
       <MenuItem icon="asterisk" to="/course-review">
         <Translate contentKey="global.menu.entities.courseReview" />
-      </MenuItem>
-      <MenuItem icon="asterisk" to="/study-class">
-        <Translate contentKey="global.menu.entities.studyClass" />
-      </MenuItem>
-      <MenuItem icon="asterisk" to="/class-member">
-        <Translate contentKey="global.menu.entities.classMember" />
-      </MenuItem>
-      <MenuItem icon="asterisk" to="/class-material">
-        <Translate contentKey="global.menu.entities.classMaterial" />
       </MenuItem>
       <MenuItem icon="asterisk" to="/system-plan">
         <Translate contentKey="global.menu.entities.systemPlan" />

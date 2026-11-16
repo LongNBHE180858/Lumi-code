@@ -2,7 +2,14 @@
 <!DOCTYPE configuration>
 
 <configuration scan="true">
-    <include resource="org/springframework/boot/logging/logback/base.xml"/>
+    <appender name="TEST_CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%level %logger{36}: %msg%n</pattern>
+        </encoder>
+    </appender>
+    <root level="WARN">
+        <appender-ref ref="TEST_CONSOLE"/>
+    </root>
 
     <logger name="com.lumi" level="INFO"/>
 

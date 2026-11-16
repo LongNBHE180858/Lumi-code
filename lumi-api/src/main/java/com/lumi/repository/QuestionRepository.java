@@ -40,4 +40,10 @@ public interface QuestionRepository extends JpaRepository<Question, Long>, JpaSp
 
     @Query("select question from Question question left join fetch question.createdBy where question.id =:id")
     Optional<Question> findOneWithToOneRelationships(@Param("id") Long id);
+
+    List<Question> findByBankIdAndIsDeletedFalseOrderByCreatedAtDesc(Long bankId);
+
+    long countByBankIdAndIsDeletedFalse(Long bankId);
+
+    boolean existsByBankIdAndContentIgnoreCaseAndIsDeletedFalse(Long bankId, String content);
 }

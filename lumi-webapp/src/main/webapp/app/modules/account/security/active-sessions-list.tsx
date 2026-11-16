@@ -150,10 +150,10 @@ export const ActiveSessionsList: React.FC<IActiveSessionsListProps> = ({
         )}
 
         {!loading &&
-          activeSessions.map((s, index) => {
+          activeSessions.map(s => {
             const devType = parseDeviceType(s.deviceInfo);
             const { name, details } = parseBrowserAndOs(s.deviceInfo);
-            const isCurrent = s.isCurrent ?? index === 0;
+            const isCurrent = Boolean(s.isCurrent);
 
             const formattedTime = s.createdAt
               ? new Date(s.createdAt).toLocaleString('vi-VN', {
@@ -180,7 +180,7 @@ export const ActiveSessionsList: React.FC<IActiveSessionsListProps> = ({
                 </div>
 
                 {/* Location */}
-                <div className="session-meta-text">Việt Nam</div>
+                <div className="session-meta-text">—</div>
 
                 {/* Last Active */}
                 <div>

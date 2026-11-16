@@ -329,6 +329,23 @@ entity Payment (payments) {
   receivedAt Instant
 }
 
+/** Mỗi giao dịch SePay một bản ghi; ứng dụng hiện tại chỉ truy cập qua xử lý webhook nội bộ. */
+entity SePayWebhookEvent (sepay_webhook_events) {
+  providerEventId String required unique maxlength(255)
+  bankReference String maxlength(255)
+  receivingAccount String required maxlength(255)
+  transferType String required maxlength(10)
+  amount BigDecimal required
+  transactionAt Instant required
+  receivedAt Instant required
+  processingStatus SePayWebhookStatus required
+  processingReason String maxlength(255)
+}
+
+enum SePayWebhookStatus {
+  PROCESSED, REVIEW_REQUIRED, IGNORED
+}
+
 /** Lưu yêu cầu hoàn tiền, kết quả xử lý và việc thu hồi quyền học. */
 entity Refund (refunds) {
   // SQL amount numeric(12,2); giữ precision/scale trong JPA/Liquibase.
@@ -784,10 +801,13 @@ relationship ManyToOne {
   Coupon{instructor(login)} to User with builtInEntity
   Coupon{course} to Course
   CourseOrder{student(login) required} to User with builtInEntity
+  CourseOrder{buyer(login)} to User with builtInEntity
   CourseOrder{course} to Course
   CourseOrder{plan} to SystemPlan
   CourseOrder{coupon} to Coupon
   Payment{order required} to CourseOrder
+  SePayWebhookEvent{order} to CourseOrder
+  SePayWebhookEvent{payment} to Payment
   Refund{order required} to CourseOrder
   Refund{payment required} to Payment
   Refund{processedBy(login)} to User with builtInEntity
@@ -890,3 +910,6 @@ paginate StudyClass, ClassMember, ClassMaterial, SystemPlan, TeacherQuota, Coupo
 paginate Exam, Assignment, AssignmentStudent, AssignmentSubmission, ExamAttempt, StudentNote, StudentStreak, FlashcardDeck, KnowledgeNode, KnowledgeEdge, Discussion, SupportTicket with pagination
 paginate CourseReviewRequest, LessonProgress, StudentKnowledgeProgress, LearningDocument, AiGeneratedContent, Question, QuestionOption, ExamQuestion, Flashcard, FlashcardReview, PdfChunk, AiConversation with pagination
 paginate QuestionKnowledgeLink with pagination
+
+// Entity nội bộ, không cần giao diện CRUD. Không chạy lại generator trên repo hiện tại.
+skipClient SePayWebhookEvent

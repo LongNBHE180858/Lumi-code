@@ -82,6 +82,8 @@ public class CourseOrderDTO implements Serializable {
     @NotNull
     private UserDTO student;
 
+    private UserDTO buyer;
+
     private CourseDTO course;
 
     private SystemPlanDTO plan;
@@ -274,6 +276,14 @@ public class CourseOrderDTO implements Serializable {
 
     public UserDTO getStudent() {
         return student;
+    }
+
+    public UserDTO getBuyer() {
+        return buyer;
+    }
+
+    public void setBuyer(UserDTO buyer) {
+        this.buyer = buyer;
     }
 
     public void setStudent(UserDTO student) {

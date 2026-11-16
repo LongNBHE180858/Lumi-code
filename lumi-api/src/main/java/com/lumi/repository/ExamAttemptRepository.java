@@ -14,6 +14,16 @@ import org.springframework.stereotype.Repository;
  */
 @Repository
 public interface ExamAttemptRepository extends JpaRepository<ExamAttempt, Long>, JpaSpecificationExecutor<ExamAttempt> {
+    List<ExamAttempt> findByExamIdAndStudentIdOrderByStartTimeDesc(Long examId, Long studentId);
+
+    boolean existsByExamId(Long examId);
+
+    List<ExamAttempt> findByExamStudyClassIdAndStatus(Long classId, String status);
+
+    @Lock(jakarta.persistence.LockModeType.PESSIMISTIC_WRITE)
+    @Query("select a from ExamAttempt a where a.id = :id")
+    Optional<ExamAttempt> findByIdForUpdate(@Param("id") Long id);
+
     @Query("select examAttempt from ExamAttempt examAttempt where examAttempt.student.login = ?#{authentication.name}")
     List<ExamAttempt> findByStudentIsCurrentUser();
 

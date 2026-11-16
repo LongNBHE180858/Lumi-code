@@ -38,6 +38,7 @@ describe('Student Registration UI Unit Tests (Phase 3.1 Scope)', () => {
     // Assert 3: Student-relevant inputs are present
     expect(screen.getByText(/Trường đang học/i)).toBeDefined();
     expect(screen.getByText(/Khối lớp học tập/i)).toBeDefined();
+    expect(container.querySelector<HTMLInputElement>('#register-birth-date')?.type).toBe('date');
 
     // Assert 4: Teacher-only fields are NOT present for Student role
     expect(screen.queryByText('Môn học giảng dạy chính')).toBeNull();
@@ -77,6 +78,7 @@ describe('Student Registration UI Unit Tests (Phase 3.1 Scope)', () => {
     fireEvent.change(lastNameInput, { target: { value: 'Nguyễn' } });
     fireEvent.change(firstNameInput, { target: { value: 'Văn A' } });
     fireEvent.change(emailInput, { target: { value: 'student.hanoi@lumi.edu.vn' } });
+    fireEvent.change(container.querySelector('#register-birth-date')!, { target: { value: '2014-01-01' } });
     fireEvent.change(usernameInput, { target: { value: 'student_hanoi' } });
     fireEvent.change(passwordInput, { target: { value: 'Lumi@2026' } });
     fireEvent.change(confirmPasswordInput, { target: { value: 'Mismatch@999' } });
@@ -89,5 +91,16 @@ describe('Student Registration UI Unit Tests (Phase 3.1 Scope)', () => {
     // SRS MSG07: "Mật khẩu và mật khẩu xác nhận không khớp."
     const mismatchNotice = screen.getByText('Mật khẩu và xác nhận mật khẩu không khớp.');
     expect(mismatchNotice).toBeDefined();
+  });
+
+  it('requires a birth date before submitting registration', () => {
+    const { container } = renderRegisterPage();
+    const textInputs = container.querySelectorAll('input.form-input-element');
+    fireEvent.change(textInputs[0], { target: { value: 'Nguyễn' } });
+    fireEvent.change(textInputs[1], { target: { value: 'Minh' } });
+    fireEvent.change(textInputs[2], { target: { value: 'student@lumi.edu.vn' } });
+
+    fireEvent.click(screen.getByText('Tạo tài khoản LUMI'));
+    expect(screen.getByText('Vui lòng chọn ngày sinh.')).toBeDefined();
   });
 });

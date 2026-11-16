@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Accordion, Badge, Button, Card, Col, Modal, Row } from 'react-bootstrap';
 import type { IBuilderAggregate, IChapterNode, ICourseData, ILessonNode } from '../course-builder.reducer';
-import { chapterDuration, formatDuration, lessonSeconds } from '../curriculum/video-duration';
+import { chapterDuration, formatDuration, lessonSeconds } from '../curriculum/lesson/video-duration';
 import { savedPricing } from '../pricing/saved-pricing';
 import { PreviewMedia } from './preview-media';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';

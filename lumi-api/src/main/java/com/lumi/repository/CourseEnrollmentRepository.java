@@ -41,4 +41,6 @@ public interface CourseEnrollmentRepository
 
     @Query("select count(distinct c.course.id) from CourseEnrollment c where c.student.id = :studentId")
     long countDistinctCourseByStudentId(@Param("studentId") Long studentId);
+
+    boolean existsByStudentIdAndCourseId(Long studentId, Long courseId);
 }

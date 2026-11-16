@@ -11,6 +11,11 @@ export const courseLifecycle = (data: IBuilderAggregate | null) => {
   if (status && status !== 'DRAFT') return { label: status, description: 'Khóa học hiện không thể chỉnh sửa' };
   return {
     label: 'Bản nháp',
-    description: data?.review?.request?.status === 'REJECTED' ? 'Cần bổ sung theo phản hồi duyệt' : 'Chưa xuất bản • Chưa gửi duyệt',
+    description:
+      data?.review?.request?.status === 'REJECTED'
+        ? 'Cần bổ sung theo phản hồi duyệt'
+        : data?.review?.request?.status === 'WITHDRAWN'
+          ? 'Đã rút duyệt • Có thể chỉnh sửa và gửi lại'
+          : 'Chưa xuất bản • Chưa gửi duyệt',
   };
 };

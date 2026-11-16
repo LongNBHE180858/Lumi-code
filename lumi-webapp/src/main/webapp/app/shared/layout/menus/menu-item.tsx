@@ -17,10 +17,10 @@ export interface IMenuItem {
 }
 
 const MenuItem = (props: IMenuItem) => {
-  const { to, icon, lucideIcon: Lucide, id, children } = props;
+  const { to, icon, lucideIcon: Lucide, id, children, end } = props;
 
   return (
-    <DropdownItem as={Link} to={to} id={id} data-cy={props['data-cy']}>
+    <DropdownItem as={Link} to={to} id={id} data-cy={props['data-cy']} end={end}>
       {Lucide ? <Lucide size={16} className="align-middle" aria-hidden="true" /> : icon && <FontAwesomeIcon icon={icon} />} {children}
     </DropdownItem>
   );

@@ -31,8 +31,8 @@ public class EmailOtp implements Serializable {
     private String email;
 
     @NotNull
-    @Size(max = 10)
-    @Column(name = "otp_code", length = 10, nullable = false)
+    @Size(max = 64)
+    @Column(name = "otp_code", length = 64, nullable = false)
     private String otpCode;
 
     @NotNull
@@ -58,6 +58,42 @@ public class EmailOtp implements Serializable {
     @Size(max = 45)
     @Column(name = "ip_address", length = 45)
     private String ipAddress;
+
+    @NotNull
+    @Column(name = "failed_attempts", nullable = false)
+    private Integer failedAttempts = 0;
+
+    @Size(max = 36)
+    @Column(name = "login_challenge_id", length = 36, unique = true)
+    private String loginChallengeId;
+
+    @NotNull
+    @Column(name = "remember_me", nullable = false)
+    private Boolean rememberMe = false;
+
+    public String getLoginChallengeId() {
+        return loginChallengeId;
+    }
+
+    public void setLoginChallengeId(String loginChallengeId) {
+        this.loginChallengeId = loginChallengeId;
+    }
+
+    public Boolean getRememberMe() {
+        return rememberMe;
+    }
+
+    public void setRememberMe(Boolean rememberMe) {
+        this.rememberMe = rememberMe;
+    }
+
+    public Integer getFailedAttempts() {
+        return failedAttempts;
+    }
+
+    public void setFailedAttempts(Integer failedAttempts) {
+        this.failedAttempts = failedAttempts;
+    }
 
     public Long getId() {
         return this.id;

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+    <changeSet id="20261110010000-1" author="lumi">
+        <addColumn tableName="email_otp">
+            <column name="login_challenge_id" type="varchar(36)"/>
+            <column name="remember_me" type="boolean" defaultValueBoolean="false">
+                <constraints nullable="false"/>
+            </column>
+        </addColumn>
+        <addUniqueConstraint tableName="email_otp" columnNames="login_challenge_id" constraintName="ux_email_otp_login_challenge_id"/>
+    </changeSet>
+</databaseChangeLog>

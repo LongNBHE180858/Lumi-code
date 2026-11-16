@@ -5,6 +5,7 @@ import com.lumi.repository.PdfChunkRepository;
 import com.lumi.service.PdfChunkService;
 import com.lumi.service.dto.PdfChunkDTO;
 import com.lumi.service.mapper.PdfChunkMapper;
+import com.lumi.web.rest.errors.BadRequestAlertException;
 import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,6 +32,7 @@ public class PdfChunkServiceImpl implements PdfChunkService {
 
     @Override
     public PdfChunkDTO save(PdfChunkDTO pdfChunkDTO) {
+        validateEmbedding(pdfChunkDTO.getEmbedding());
         LOG.debug("Request to save PdfChunk : {}", pdfChunkDTO);
         PdfChunk pdfChunk = pdfChunkMapper.toEntity(pdfChunkDTO);
         pdfChunk = pdfChunkRepository.save(pdfChunk);
@@ -39,6 +41,7 @@ public class PdfChunkServiceImpl implements PdfChunkService {
 
     @Override
     public PdfChunkDTO update(PdfChunkDTO pdfChunkDTO) {
+        validateEmbedding(pdfChunkDTO.getEmbedding());
         LOG.debug("Request to update PdfChunk : {}", pdfChunkDTO);
         PdfChunk pdfChunk = pdfChunkMapper.toEntity(pdfChunkDTO);
         pdfChunk = pdfChunkRepository.save(pdfChunk);
@@ -47,6 +50,7 @@ public class PdfChunkServiceImpl implements PdfChunkService {
 
     @Override
     public Optional<PdfChunkDTO> partialUpdate(PdfChunkDTO pdfChunkDTO) {
+        validateEmbedding(pdfChunkDTO.getEmbedding());
         LOG.debug("Request to partially update PdfChunk : {}", pdfChunkDTO);
 
         return pdfChunkRepository
@@ -65,6 +69,20 @@ public class PdfChunkServiceImpl implements PdfChunkService {
     public Optional<PdfChunkDTO> findOne(Long id) {
         LOG.debug("Request to get PdfChunk : {}", id);
         return pdfChunkRepository.findById(id).map(pdfChunkMapper::toDto);
+    }
+
+    private void validateEmbedding(float[] embedding) {
+        if (embedding == null) {
+            return;
+        }
+        if (embedding.length != 768) {
+            throw new BadRequestAlertException("Embedding phải có đúng 768 chiều.", "pdfChunk", "invalidembedding");
+        }
+        for (float component : embedding) {
+            if (!Float.isFinite(component)) {
+                throw new BadRequestAlertException("Embedding chỉ được chứa số hữu hạn.", "pdfChunk", "invalidembedding");
+            }
+        }
     }
 
     @Override

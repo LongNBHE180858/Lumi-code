@@ -3,7 +3,8 @@
     "CourseReviewRequestStatus": {
       "PENDING": "Chờ duyệt",
       "APPROVED": "Đã duyệt",
-      "REJECTED": "Cần chỉnh sửa"
+      "REJECTED": "Cần chỉnh sửa",
+      "WITHDRAWN": "Đã rút lại"
     }
   }
 }

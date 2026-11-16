@@ -14,6 +14,8 @@ import org.springframework.stereotype.Repository;
  */
 @Repository
 public interface AssignmentRepository extends JpaRepository<Assignment, Long>, JpaSpecificationExecutor<Assignment> {
+    List<Assignment> findByStudyClassIdAndIsDeletedFalseOrderByCreatedAtDesc(Long classId);
+
     @Query("select assignment from Assignment assignment where assignment.assignedBy.login = ?#{authentication.name}")
     List<Assignment> findByAssignedByIsCurrentUser();
 

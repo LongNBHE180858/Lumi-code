@@ -20,7 +20,7 @@ public class ClassMaterialDTO implements Serializable {
     private String title;
 
     @NotNull
-    @Size(max = 20)
+    @Size(max = 50)
     private String fileType;
 
     @NotNull
@@ -37,9 +37,6 @@ public class ClassMaterialDTO implements Serializable {
 
     @NotNull
     private Instant updatedAt;
-
-    @NotNull
-    private StudyClassDTO studyClass;
 
     public Long getId() {
         return id;
@@ -105,14 +102,6 @@ public class ClassMaterialDTO implements Serializable {
         this.updatedAt = updatedAt;
     }
 
-    public StudyClassDTO getStudyClass() {
-        return studyClass;
-    }
-
-    public void setStudyClass(StudyClassDTO studyClass) {
-        this.studyClass = studyClass;
-    }
-
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -131,7 +120,7 @@ public class ClassMaterialDTO implements Serializable {
 
     @Override
     public int hashCode() {
-        return Objects.hash(this.id);
+        return Objects.hashCode(this.id);
     }
 
     // prettier-ignore
@@ -146,7 +135,6 @@ public class ClassMaterialDTO implements Serializable {
             ", uploadedAt='" + getUploadedAt() + "'" +
             ", fileObjectKey='" + getFileObjectKey() + "'" +
             ", updatedAt='" + getUpdatedAt() + "'" +
-            ", studyClass=" + getStudyClass() +
             "}";
     }
 }

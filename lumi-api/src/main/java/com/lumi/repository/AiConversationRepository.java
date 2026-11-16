@@ -3,6 +3,8 @@ package com.lumi.repository;
 import com.lumi.domain.AiConversation;
 import java.util.List;
 import java.util.Optional;
+
+import jakarta.persistence.LockModeType;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.*;
@@ -40,4 +42,18 @@ public interface AiConversationRepository extends JpaRepository<AiConversation, 
 
     @Query("select aiConversation from AiConversation aiConversation left join fetch aiConversation.user where aiConversation.id =:id")
     Optional<AiConversation> findOneWithToOneRelationships(@Param("id") Long id);
+
+    boolean existsByIdAndUser_LoginAndTypeIn(
+        Long id,
+        String login,
+        List<String> types
+    );
+
+    //khóa bản ghi để tránh transaction khác sửa đồng thời, dành cho trường hợp bật 2 tab nhắn cùng 1 lúc trong 1 đoạn chat
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    Optional<AiConversation> findByIdAndUser_LoginAndTypeIn(
+        Long id,
+        String login,
+        List<String> types
+    );
 }

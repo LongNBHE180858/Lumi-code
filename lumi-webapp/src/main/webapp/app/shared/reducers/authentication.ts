@@ -8,6 +8,7 @@ import { AUTHENTICATION_TOKEN_KEY } from 'app/shared/jhipster/constants';
 import { setLocale } from 'app/shared/reducers/locale';
 
 import {
+  REFRESH_TOKEN_KEY,
   saveTokens,
   clearTokens,
   getRefreshToken,
@@ -38,6 +39,7 @@ export const initialState = {
   sessions: [] as any[],
   twoFactorRequired: false,
   twoFactorEmail: null as string | null,
+  twoFactorChallengeId: null as string | null,
 };
 
 export type AuthenticationState = Readonly<typeof initialState>;
@@ -90,74 +92,76 @@ export const authenticateTeacher = createAsyncThunk(
 
 export const authenticate2fa = createAsyncThunk(
   'authentication/login_2fa',
-  async ({ email, otpCode, rememberMe }: { email: string; otpCode: string; rememberMe?: boolean }) =>
-    apiLogin2fa(email, otpCode, rememberMe),
+  async ({ challengeId, otpCode }: { challengeId: string; otpCode: string }) => apiLogin2fa(challengeId, otpCode),
   {
     serializeError: serializeAxiosError,
   },
 );
 
-export const login2fa: (email: string, otpCode: string, rememberMe?: boolean) => AppThunk<Promise<any>> =
-  (email, otpCode, rememberMe = false) =>
+export const login2fa: (challengeId: string, otpCode: string, rememberMe?: boolean) => AppThunk<Promise<any>> =
+  (challengeId, otpCode, rememberMe = false) =>
   async dispatch => {
-    const result = await dispatch(authenticate2fa({ email, otpCode, rememberMe }));
-    const response = result.payload as AxiosResponse;
+    const response = (await dispatch(authenticate2fa({ challengeId, otpCode })).unwrap()) as AxiosResponse;
     const data = response?.data?.data;
-    if (data?.access_token) {
-      saveTokens(data.access_token, data.refresh_token ?? '', rememberMe);
-      dispatch(AuthenticationSlice.actions.resetTwoFactor());
-      dispatch(getSession());
-    }
+    if (!data?.access_token) throw new Error('Không nhận được access token sau khi xác thực 2FA.');
+    saveTokens(data.access_token, data.refresh_token ?? '', rememberMe);
+    dispatch(AuthenticationSlice.actions.resetTwoFactor());
+    dispatch(getSession());
     return data;
   };
 
 export const login: (username: string, password: string, rememberMe?: boolean) => AppThunk =
   (username, password, rememberMe = false) =>
   async dispatch => {
+    clearTokens();
     const result = await dispatch(authenticate({ username, password, rememberMe }));
     const response = result.payload as AxiosResponse;
     const data = response?.data?.data;
     if (data?.access_token) {
       saveTokens(data.access_token, data.refresh_token ?? '', rememberMe);
+      dispatch(getSession());
     }
-    dispatch(getSession());
   };
 
 export const loginStudent: (username: string, password: string, rememberMe?: boolean) => AppThunk =
   (username, password, rememberMe = false) =>
   async dispatch => {
+    clearTokens();
     const result = await dispatch(authenticateStudent({ username, password, rememberMe }));
     const response = result.payload as AxiosResponse;
     const data = response?.data?.data;
     if (data?.access_token) {
       saveTokens(data.access_token, data.refresh_token ?? '', rememberMe);
+      dispatch(getSession());
     }
-    dispatch(getSession());
   };
 
 export const loginTeacher: (username: string, password: string, rememberMe?: boolean) => AppThunk =
   (username, password, rememberMe = false) =>
   async dispatch => {
+    clearTokens();
     const result = await dispatch(authenticateTeacher({ username, password, rememberMe }));
     const response = result.payload as AxiosResponse;
     const data = response?.data?.data;
     if (data?.access_token) {
       saveTokens(data.access_token, data.refresh_token ?? '', rememberMe);
+      dispatch(getSession());
     }
-    dispatch(getSession());
   };
 
 export const refreshSession = (): AppThunk => async dispatch => {
   const refreshToken = getRefreshToken();
   if (refreshToken) {
     try {
+      const rememberMe = Boolean(Storage.local.get(REFRESH_TOKEN_KEY));
       const res = await apiRefreshToken(refreshToken);
       const data = res.data?.data;
       if (data?.access_token) {
-        saveTokens(data.access_token, data.refresh_token ?? refreshToken, true);
+        saveTokens(data.access_token, data.refresh_token ?? refreshToken, rememberMe);
         dispatch(getSession());
       }
     } catch {
+      clearTokens();
       dispatch(logoutSession());
     }
   }
@@ -178,9 +182,8 @@ export const revokeSessionThunk = createAsyncThunk(
 
 export const revokeOtherSessionsThunk = createAsyncThunk(
   'authentication/revoke_other_sessions',
-  async (currentSessionId?: number | string) => {
-    await apiRevokeOtherSessions(currentSessionId);
-    return currentSessionId;
+  async () => {
+    await apiRevokeOtherSessions();
   },
   { serializeError: serializeAxiosError },
 );
@@ -248,6 +251,7 @@ export const AuthenticationSlice = createSlice({
     resetTwoFactor(state) {
       state.twoFactorRequired = false;
       state.twoFactorEmail = null;
+      state.twoFactorChallengeId = null;
     },
   },
   extraReducers(builder) {
@@ -268,6 +272,7 @@ export const AuthenticationSlice = createSlice({
           loginSuccess: !data?.is_2fa_required,
           twoFactorRequired: Boolean(data?.is_2fa_required),
           twoFactorEmail: data?.email ?? null,
+          twoFactorChallengeId: data?.challenge_id ?? null,
         };
       })
       .addCase(getAccount.rejected, (state, action) => ({
@@ -330,6 +335,7 @@ export const AuthenticationSlice = createSlice({
           loginSuccess: !data?.is_2fa_required,
           twoFactorRequired: Boolean(data?.is_2fa_required),
           twoFactorEmail: data?.email ?? null,
+          twoFactorChallengeId: data?.challenge_id ?? null,
         };
       })
       .addCase(authenticateTeacher.fulfilled, (state, action) => {
@@ -342,6 +348,7 @@ export const AuthenticationSlice = createSlice({
           loginSuccess: !data?.is_2fa_required,
           twoFactorRequired: Boolean(data?.is_2fa_required),
           twoFactorEmail: data?.email ?? null,
+          twoFactorChallengeId: data?.challenge_id ?? null,
         };
       })
       .addCase(authenticate2fa.fulfilled, state => ({
@@ -362,7 +369,7 @@ export const AuthenticationSlice = createSlice({
         state.sessions = state.sessions.filter(s => s.id !== action.payload);
       })
       .addCase(revokeOtherSessionsThunk.fulfilled, state => {
-        state.sessions = state.sessions.slice(0, 1);
+        state.sessions = state.sessions.filter(s => s.isCurrent);
       });
   },
 });

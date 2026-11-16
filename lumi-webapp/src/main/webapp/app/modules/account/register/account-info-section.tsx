@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import dayjs from 'dayjs';
 
 export interface AccountInfoFields {
   username: string;
@@ -6,6 +7,7 @@ export interface AccountInfoFields {
   phoneNumber: string;
   firstName: string;
   lastName: string;
+  birthDate: string;
   password: string;
   confirmPassword: string;
 }
@@ -190,6 +192,22 @@ export const AccountInfoSection: React.FC<AccountInfoSectionProps> = ({ fields, 
                 </svg>
               </button>
             </div>
+          </div>
+        </div>
+        <div className="form-field-group">
+          <label className="form-label-title" htmlFor="register-birth-date">
+            Ngày sinh <span style={{ color: 'var(--color-primary, #24a8e8)' }}>*</span>
+          </label>
+          <div className="form-input-container">
+            <input
+              id="register-birth-date"
+              type="date"
+              className="form-input-element"
+              value={fields.birthDate}
+              max={dayjs().format('YYYY-MM-DD')}
+              onChange={e => onChange('birthDate', e.target.value)}
+              required
+            />
           </div>
         </div>
       </div>

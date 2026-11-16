@@ -53,7 +53,7 @@ describe('Quản lý bài học', () => {
     vi.mocked(axios.put).mockResolvedValueOnce({ data: result });
     fireEvent.click(screen.getAllByRole('button', { name: 'Chuyển chương' })[0]);
     fireEvent.change(await screen.findByLabelText('Chương đích'), { target: { value: '20' } });
-    fireEvent.click(screen.getByRole('button', { name: 'Chuyển bài học', exact: true }));
+    fireEvent.click(screen.getByRole('button', { name: 'Chuyển bài học' }));
     await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
     expect(axios.put).toHaveBeenCalledWith('/api/instructor/courses/1/lessons/101/move', {
       version: 1,
@@ -261,7 +261,7 @@ describe('Quản lý bài học', () => {
     result.totalLessons = 1;
     result.course.version = 2;
     vi.mocked(axios.delete).mockResolvedValueOnce({ data: result });
-    fireEvent.click(screen.getAllByRole('button', { name: 'Xóa', exact: true })[1]);
+    fireEvent.click(screen.getAllByRole('button', { name: 'Xóa' })[1]);
     const dialog = await screen.findByRole('dialog');
     expect(axios.delete).not.toHaveBeenCalled();
     fireEvent.click(within(dialog).getByRole('button', { name: 'Xóa bài học' }));

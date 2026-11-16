@@ -1,6 +1,7 @@
 package com.lumi.service.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import jakarta.validation.constraints.PastOrPresent;
 import java.time.LocalDate;
 import java.util.Set;
 import lombok.*;
@@ -19,7 +20,10 @@ public class AccountProfileDTO {
     private String lastName;
     private String fullName;
     private String email;
+
+    @PastOrPresent(message = "Ngày sinh không được ở tương lai")
     private LocalDate birthDate;
+
     private String imageUrl;
     private Set<String> authorities;
     private String bio;

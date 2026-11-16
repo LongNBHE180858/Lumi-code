@@ -5,6 +5,9 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import java.io.Serial;
 import java.io.Serializable;
+import org.hibernate.annotations.Array;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 /**
  * Lưu đoạn văn bản và embedding được tách từ nguồn tài liệu.
@@ -29,8 +32,11 @@ public class PdfChunk implements Serializable {
     @Column(name = "chunk_text", nullable = false, columnDefinition = "text")
     private String chunkText;
 
-    @Column(name = "embedding", columnDefinition = "text")
-    private String embedding;
+    @Size(min = 768, max = 768)
+    @JdbcTypeCode(SqlTypes.VECTOR)
+    @Array(length = 768)
+    @Column(name = "embedding", columnDefinition = "vector(768)")
+    private float[] embedding;
 
     @NotNull
     @Min(value = 0)
@@ -88,16 +94,16 @@ public class PdfChunk implements Serializable {
         this.chunkText = chunkText;
     }
 
-    public String getEmbedding() {
+    public float[] getEmbedding() {
         return this.embedding;
     }
 
-    public PdfChunk embedding(String embedding) {
+    public PdfChunk embedding(float[] embedding) {
         this.setEmbedding(embedding);
         return this;
     }
 
-    public void setEmbedding(String embedding) {
+    public void setEmbedding(float[] embedding) {
         this.embedding = embedding;
     }
 
@@ -166,7 +172,7 @@ public class PdfChunk implements Serializable {
             "id=" + getId() +
             ", pageNumber=" + getPageNumber() +
             ", chunkText='" + getChunkText() + "'" +
-            ", embedding='" + getEmbedding() + "'" +
+            ", embeddingDimensions=" + (embedding == null ? null : embedding.length) +
             ", chunkIndex=" + getChunkIndex() +
             ", indexVersion=" + getIndexVersion() +
             "}";
