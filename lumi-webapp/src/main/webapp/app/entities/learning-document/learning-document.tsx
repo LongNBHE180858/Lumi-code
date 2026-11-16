@@ -235,16 +235,8 @@ export const LearningDocument = () => {
                     )}
                   </td>
                   <td>{learningDocument.uploadedBy ? learningDocument.uploadedBy.login : ''}</td>
-                  <td>
-                    {learningDocument.subject ? (
-                      <Link to={`/subject/${learningDocument.subject.id}`}>{learningDocument.subject.id}</Link>
-                    ) : (
-                      ''
-                    )}
-                  </td>
-                  <td>
-                    {learningDocument.grade ? <Link to={`/grade/${learningDocument.grade.id}`}>{learningDocument.grade.id}</Link> : ''}
-                  </td>
+                  <td>{learningDocument.subject?.name ?? ''}</td>
+                  <td>{learningDocument.grade?.name ?? ''}</td>
                   <td className="text-end">
                     <div className="btn-group flex-btn-group-container">
                       <Button

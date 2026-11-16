@@ -9,10 +9,18 @@ Admin quản lý Môn học (`subjects`) và Khối lớp (`grades`) tại `/adm
 ```text
 lumi-api/src/main/java/com/lumi/
 ├─ web/rest/
-│  └─ AdminResource.java                         [CHÍNH] GET, POST, PUT /api/admin/catalog/{kind}; yêu cầu ROLE_ADMIN
+│  ├─ AdminResource.java                         [CHÍNH] GET, POST, PUT /api/admin/catalog/subjects và /grades; yêu cầu ROLE_ADMIN
+│  ├─ SubjectResource.java                       Chỉ đọc GET /api/subjects, /count và /{id}
+│  └─ GradeResource.java                         Chỉ đọc GET /api/grades, /count và /{id}
 ├─ service/
 │  ├─ AdminService.java                          [CHÍNH] Liệt kê, kiểm tra và lưu Môn học/Khối lớp
-│  └─ dto/CatalogItemDTO.java                    Dữ liệu chung: id, name, description, level
+│  ├─ SubjectService.java, GradeService.java     Giao diện dịch vụ đọc cho API dùng chung
+│  ├─ impl/SubjectServiceImpl.java               Tìm Môn học theo ID, trả SubjectDTO
+│  ├─ impl/GradeServiceImpl.java                 Tìm Khối lớp theo ID, trả GradeDTO
+│  ├─ query/SubjectQueryService.java             Lọc và đếm Môn học cho API đọc
+│  ├─ query/GradeQueryService.java               Lọc và đếm Khối lớp cho API đọc
+│  ├─ mapper/SubjectMapper.java, GradeMapper.java  Chuyển đổi entity và DTO
+│  └─ dto/SubjectDTO.java, GradeDTO.java         Dữ liệu riêng của Môn học và Khối lớp
 ├─ repository/
 │  ├─ SubjectRepository.java                    Tìm Môn học theo tên không phân biệt hoa thường
 │  └─ GradeRepository.java                      Tìm Khối lớp theo level
@@ -33,6 +41,10 @@ lumi-api/
 
 lumi-api/src/test/java/com/lumi/service/
 └─ AdminCatalogServiceTest.java                 Unit test lưu, kiểm tra trùng và giới hạn level
+
+lumi-api/src/test/java/com/lumi/web/rest/
+├─ AdminCatalogResourceTest.java                 Kiểm tra API admin dùng DTO riêng
+└─ CatalogReadResourceTest.java                  Kiểm tra API GET còn hoạt động và API ghi cũ không còn
 ```
 
 ## Frontend
@@ -44,6 +56,7 @@ lumi-webapp/src/main/webapp/app/modules/administration/
 │  ├─ catalog-api.ts                            Kiểu dữ liệu FE và lời gọi GET, POST, PUT
 │  ├─ admin-catalog.scss                        Kiểu dáng trang quản trị
 │  ├─ admin-catalog.spec.tsx                    Kiểm tra tab mặc định và hai loại dữ liệu
+│  ├─ catalog-api.spec.ts                        Kiểm tra payload riêng của Môn học và Khối lớp
 │  └─ components/
 │     ├─ catalog-table.tsx                      Bảng Môn học hoặc Khối lớp
 │     └─ catalog-form-dialog.tsx                Biểu mẫu tạo/sửa
@@ -54,6 +67,14 @@ lumi-webapp/
 ├─ lumi.jdl                                     Đồng bộ mô tả Subject và Grade với BE
 ├─ .jhipster/Subject.json                       Metadata của Subject
 └─ .jhipster/Grade.json                         Metadata của Grade
+
+lumi-webapp/src/main/webapp/app/entities/
+├─ subject/subject.reducer.ts                   Chỉ tải danh sách Môn học cho form dùng chung
+├─ grade/grade.reducer.ts                       Chỉ tải danh sách Khối lớp cho form dùng chung
+├─ course/course-update.tsx                     Chọn Môn học và Khối lớp cho khóa học
+├─ course/course.tsx                            Hiển thị tên Môn học và Khối lớp trong danh sách khóa học
+├─ learning-document/learning-document-update.tsx  Chọn Môn học và Khối lớp cho tài liệu
+└─ learning-document/learning-document.tsx     Hiển thị tên Môn học và Khối lớp trong danh sách tài liệu
 ```
 
 Luồng đang dùng: `admin-catalog.tsx` → `catalog-api.ts` → `AdminResource` → `AdminService` → `SubjectRepository`/`GradeRepository` → `Subject`/`Grade` → `subjects`/`grades`.
@@ -66,10 +87,10 @@ Luồng đang dùng: `admin-catalog.tsx` → `catalog-api.ts` → `AdminResource
 | Tạo | `POST /api/admin/catalog/subjects` hoặc `/grades` | Tạo mục; trả `201` và URL mục mới |
 | Sửa | `PUT /api/admin/catalog/subjects/{id}` hoặc `/grades/{id}` | Sửa mục hiện có; trả `404` nếu không có ID |
 
-Tất cả endpoint trên yêu cầu `ROLE_ADMIN`. Tên được cắt khoảng trắng đầu/cuối và không được rỗng. Môn học giới hạn tên 100 ký tự, mô tả 5000 ký tự và kiểm tra trùng tên không phân biệt hoa thường. Khối lớp giới hạn tên 50 ký tự, `level` từ 1 đến 12 và không cho trùng `level`. FE gửi `name`, `description`, `level`; API không trả trường trạng thái hoặc danh mục cha.
+Tất cả endpoint trên yêu cầu `ROLE_ADMIN`. Tên được cắt khoảng trắng đầu/cuối và không được rỗng. Môn học giới hạn tên 100 ký tự, mô tả 5000 ký tự và kiểm tra trùng tên không phân biệt hoa thường. Khối lớp giới hạn tên 50 ký tự, `level` từ 1 đến 12 và không cho trùng `level`. FE gửi `name` và `description` cho Môn học; gửi `name` và `level` cho Khối lớp. API không trả trường trạng thái hoặc danh mục cha.
 
-## Schema và mã JHipster còn lại
+## Schema và API đọc dùng chung
 
 Schema hiện hành tạo hai bảng `subjects` và `grades`, không có cột `active`. `master.xml` không include changeset của danh mục khóa học hoặc bổ sung trạng thái. Không có migration mới cho lần dọn chức năng này; DB cũ cần được người dùng tạo lại theo quy trình của dự án.
 
-API và màn CRUD JHipster riêng cho Subject/Grade vẫn tồn tại ở `/api/subjects`, `/api/grades`, `/subject` và `/grade`. Chúng không được trang admin `/admin/catalog` sử dụng. Các endpoint DELETE JHipster hiện gọi service nhưng service không xóa bản ghi; màn admin không cung cấp thao tác xóa.
+Các màn CRUD JHipster `/subject` và `/grade` đã bỏ. Hai cột Môn học và Khối lớp trong danh sách khóa học và tài liệu học tập hiển thị tên thay cho liên kết đến các trang đã gỡ; quan hệ dữ liệu và lựa chọn trên form vẫn còn. `GET /api/subjects` và `GET /api/grades` (cùng `count` và `/{id}`) phục vụ các phần dùng chung; POST, PUT, PATCH, DELETE ở hai API này đã bỏ. Chỉ API admin được phép tạo và sửa.

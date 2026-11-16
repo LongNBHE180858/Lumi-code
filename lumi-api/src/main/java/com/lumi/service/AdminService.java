@@ -16,8 +16,9 @@ import com.lumi.repository.UserRepository;
 import com.lumi.security.AuthoritiesConstants;
 import com.lumi.security.SecurityUtils;
 import com.lumi.service.dto.AdminUserDTO;
-import com.lumi.service.dto.CatalogItemDTO;
+import com.lumi.service.dto.GradeDTO;
 import com.lumi.service.dto.InstructorApplicationDTO;
+import com.lumi.service.dto.SubjectDTO;
 import com.lumi.web.rest.errors.BadRequestAlertException;
 import com.lumi.web.rest.errors.EmailAlreadyUsedException;
 import com.lumi.web.rest.errors.LoginAlreadyUsedException;
@@ -74,45 +75,31 @@ public class AdminService {
     }
 
     @Transactional(readOnly = true)
-    public List<CatalogItemDTO> getCatalog(String kind) {
-        return switch (kind) {
-            case "subjects" -> subjectRepository
-                .findAll()
-                .stream()
-                .map(this::catalogItem)
-                .sorted(Comparator.comparing(CatalogItemDTO::name))
-                .toList();
-            case "grades" -> gradeRepository
-                .findAll()
-                .stream()
-                .map(this::catalogItem)
-                .sorted(Comparator.comparing(CatalogItemDTO::level))
-                .toList();
-            default -> throw catalogNotFound();
-        };
+    public List<SubjectDTO> getCatalogSubjects() {
+        return subjectRepository.findAll().stream().map(this::catalogSubject).sorted(Comparator.comparing(SubjectDTO::getName)).toList();
     }
 
-    public CatalogItemDTO saveCatalog(String kind, Long id, CatalogItemDTO input) {
-        String name = validateCatalogName(kind, input);
-        return switch (kind) {
-            case "subjects" -> saveSubject(id, name, input);
-            case "grades" -> saveGrade(id, name, input);
-            default -> throw catalogNotFound();
-        };
+    @Transactional(readOnly = true)
+    public List<GradeDTO> getCatalogGrades() {
+        return gradeRepository.findAll().stream().map(this::catalogGrade).sorted(Comparator.comparing(GradeDTO::getLevel)).toList();
     }
 
-    private String validateCatalogName(String kind, CatalogItemDTO input) {
-        if (input == null || input.name() == null || input.name().isBlank()) {
+    private String validateCatalogName(String name, int maxLength) {
+        if (name == null || name.isBlank()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Name is required");
         }
-        String name = input.name().trim();
-        if (name.length() > ("grades".equals(kind) ? 50 : 100)) {
+        name = name.trim();
+        if (name.length() > maxLength) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Name is too long");
         }
         return name;
     }
 
-    private CatalogItemDTO saveSubject(Long id, String name, CatalogItemDTO input) {
+    public SubjectDTO saveCatalogSubject(Long id, SubjectDTO input) {
+        String name = validateCatalogName(input.getName(), 100);
+        if (input.getDescription() != null && input.getDescription().length() > 5000) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Description is too long");
+        }
         Subject item = id == null ? new Subject() : subjectRepository.findById(id).orElseThrow(this::missingCatalog);
         boolean nameExists = subjectRepository
             .findByNameIgnoreCase(name)
@@ -122,29 +109,26 @@ public class AdminService {
             throw duplicateCatalog();
         }
         item.setName(name);
-        item.setDescription(input.description());
-        return catalogItem(subjectRepository.save(item));
+        item.setDescription(input.getDescription());
+        return catalogSubject(subjectRepository.save(item));
     }
 
-    private CatalogItemDTO saveGrade(Long id, String name, CatalogItemDTO input) {
-        if (input.level() == null || input.level() < 1 || input.level() > 12) {
+    public GradeDTO saveCatalogGrade(Long id, GradeDTO input) {
+        String name = validateCatalogName(input.getName(), 50);
+        if (input.getLevel() == null || input.getLevel() < 1 || input.getLevel() > 12) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Grade level must be between 1 and 12");
         }
         Grade item = id == null ? new Grade() : gradeRepository.findById(id).orElseThrow(this::missingCatalog);
         boolean levelExists = gradeRepository
-            .findByLevel(input.level())
+            .findByLevel(input.getLevel())
             .filter(other -> id == null || !Objects.equals(other.getId(), id))
             .isPresent();
         if (levelExists) {
             throw duplicateCatalog();
         }
         item.setName(name);
-        item.setLevel(input.level());
-        return catalogItem(gradeRepository.save(item));
-    }
-
-    private ResponseStatusException catalogNotFound() {
-        return new ResponseStatusException(HttpStatus.NOT_FOUND, "Catalog not found");
+        item.setLevel(input.getLevel());
+        return catalogGrade(gradeRepository.save(item));
     }
 
     private ResponseStatusException missingCatalog() {
@@ -155,12 +139,20 @@ public class AdminService {
         return new ResponseStatusException(HttpStatus.CONFLICT, "Catalog item already exists");
     }
 
-    private CatalogItemDTO catalogItem(Subject item) {
-        return new CatalogItemDTO(item.getId(), item.getName(), item.getDescription(), null);
+    private SubjectDTO catalogSubject(Subject item) {
+        SubjectDTO dto = new SubjectDTO();
+        dto.setId(item.getId());
+        dto.setName(item.getName());
+        dto.setDescription(item.getDescription());
+        return dto;
     }
 
-    private CatalogItemDTO catalogItem(Grade item) {
-        return new CatalogItemDTO(item.getId(), item.getName(), null, item.getLevel());
+    private GradeDTO catalogGrade(Grade item) {
+        GradeDTO dto = new GradeDTO();
+        dto.setId(item.getId());
+        dto.setName(item.getName());
+        dto.setLevel(item.getLevel());
+        return dto;
     }
 
     public User createUser(AdminUserDTO userDTO) {

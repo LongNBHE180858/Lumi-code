@@ -1225,7 +1225,7 @@ class LearningDocumentResourceIT {
         Subject subject;
         if (TestUtil.findAll(em, Subject.class).isEmpty()) {
             learningDocumentRepository.saveAndFlush(learningDocument);
-            subject = SubjectResourceIT.createEntity();
+            subject = new Subject().name("AAAAAAAAAA").description("AAAAAAAAAA");
         } else {
             subject = TestUtil.findAll(em, Subject.class).getFirst();
         }
@@ -1247,7 +1247,7 @@ class LearningDocumentResourceIT {
         Grade grade;
         if (TestUtil.findAll(em, Grade.class).isEmpty()) {
             learningDocumentRepository.saveAndFlush(learningDocument);
-            grade = GradeResourceIT.createEntity();
+            grade = new Grade().level(1).name("AAAAAAAAAA");
         } else {
             grade = TestUtil.findAll(em, Grade.class).getFirst();
         }

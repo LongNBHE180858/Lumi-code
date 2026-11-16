@@ -48,8 +48,8 @@ const AdminCatalog = () => {
     setLoadError('');
     catalogApi
       .list(kind)
-      .then(response => {
-        if (active) setItems(response.data);
+      .then(data => {
+        if (active) setItems(data);
       })
       .catch(() => {
         if (!active) return;

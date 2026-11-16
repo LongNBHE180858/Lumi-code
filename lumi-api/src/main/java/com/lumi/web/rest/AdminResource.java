@@ -7,9 +7,10 @@ import com.lumi.domain.enumeration.Role;
 import com.lumi.service.AdminService;
 import com.lumi.service.MailService;
 import com.lumi.service.dto.AdminUserDTO;
-import com.lumi.service.dto.CatalogItemDTO;
+import com.lumi.service.dto.GradeDTO;
 import com.lumi.service.dto.InstructorApplicationDTO;
 import com.lumi.service.dto.RejectInstructorApplicationRequest;
+import com.lumi.service.dto.SubjectDTO;
 import com.lumi.service.dto.UserActivationRequest;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Pattern;
@@ -139,20 +140,36 @@ public class AdminResource {
         return adminService.getManagedRoles();
     }
 
-    @GetMapping("/catalog/{kind}")
-    public List<CatalogItemDTO> getCatalog(@PathVariable String kind) {
-        return adminService.getCatalog(kind);
+    @GetMapping("/catalog/subjects")
+    public List<SubjectDTO> getCatalogSubjects() {
+        return adminService.getCatalogSubjects();
     }
 
-    @PostMapping("/catalog/{kind}")
-    public ResponseEntity<CatalogItemDTO> createCatalogItem(@PathVariable String kind, @Valid @RequestBody CatalogItemDTO input) {
-        CatalogItemDTO created = adminService.saveCatalog(kind, null, input);
-        return ResponseEntity.created(URI.create("/api/admin/catalog/" + kind + "/" + created.id())).body(created);
+    @GetMapping("/catalog/grades")
+    public List<GradeDTO> getCatalogGrades() {
+        return adminService.getCatalogGrades();
     }
 
-    @PutMapping("/catalog/{kind}/{id}")
-    public CatalogItemDTO updateCatalogItem(@PathVariable String kind, @PathVariable Long id, @Valid @RequestBody CatalogItemDTO input) {
-        return adminService.saveCatalog(kind, id, input);
+    @PostMapping("/catalog/subjects")
+    public ResponseEntity<SubjectDTO> createCatalogSubject(@Valid @RequestBody SubjectDTO input) {
+        SubjectDTO created = adminService.saveCatalogSubject(null, input);
+        return ResponseEntity.created(URI.create("/api/admin/catalog/subjects/" + created.getId())).body(created);
+    }
+
+    @PostMapping("/catalog/grades")
+    public ResponseEntity<GradeDTO> createCatalogGrade(@Valid @RequestBody GradeDTO input) {
+        GradeDTO created = adminService.saveCatalogGrade(null, input);
+        return ResponseEntity.created(URI.create("/api/admin/catalog/grades/" + created.getId())).body(created);
+    }
+
+    @PutMapping("/catalog/subjects/{id}")
+    public SubjectDTO updateCatalogSubject(@PathVariable Long id, @Valid @RequestBody SubjectDTO input) {
+        return adminService.saveCatalogSubject(id, input);
+    }
+
+    @PutMapping("/catalog/grades/{id}")
+    public GradeDTO updateCatalogGrade(@PathVariable Long id, @Valid @RequestBody GradeDTO input) {
+        return adminService.saveCatalogGrade(id, input);
     }
 
     @GetMapping("/instructor-applications")

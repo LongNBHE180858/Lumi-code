@@ -231,8 +231,8 @@ export const Course = () => {
                   <td>{course.updatedAt ? <TextFormat type="date" value={course.updatedAt} format={APP_DATE_FORMAT} /> : null}</td>
                   <td>{course.storageLimitBytes}</td>
                   <td>{course.author ? course.author.login : ''}</td>
-                  <td>{course.subject ? <Link to={`/subject/${course.subject.id}`}>{course.subject.id}</Link> : ''}</td>
-                  <td>{course.grade ? <Link to={`/grade/${course.grade.id}`}>{course.grade.id}</Link> : ''}</td>
+                  <td>{course.subject?.name ?? ''}</td>
+                  <td>{course.grade?.name ?? ''}</td>
                   <td className="text-end">
                     <div className="btn-group flex-btn-group-container">
                       <Button as={Link as any} to={`/course/${course.id}`} variant="info" size="sm" data-cy="entityDetailsButton">

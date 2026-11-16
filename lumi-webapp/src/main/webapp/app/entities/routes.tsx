@@ -21,9 +21,7 @@ import WalletTransaction from './wallet-transaction';
 import PayoutRequest from './payout-request';
 import PdfChunk from './pdf-chunk';
 import Notification from './notification';
-import Grade from './grade';
 import Lesson from './lesson';
-import Subject from './subject';
 import CourseMaterial from './course-material';
 import Wishlist from './wishlist';
 import CourseReviewRequest from './course-review-request';
@@ -40,8 +38,6 @@ export default () => {
         {/* prettier-ignore */}
         <Route path="/user-profile/*" element={<UserProfile />} />
         <Route path="/teacher-verification/*" element={<TeacherVerification />} />
-        <Route path="/subject/*" element={<Subject />} />
-        <Route path="/grade/*" element={<Grade />} />
         <Route path="/course/*" element={<Course />} />
         <Route path="/chapter/*" element={<Chapter />} />
         <Route path="/lesson/*" element={<Lesson />} />

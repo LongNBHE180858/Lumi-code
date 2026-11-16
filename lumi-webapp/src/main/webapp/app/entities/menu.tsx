@@ -13,12 +13,6 @@ const EntitiesMenu = () => {
       <MenuItem icon="asterisk" to="/teacher-verification">
         <Translate contentKey="global.menu.entities.teacherVerification" />
       </MenuItem>
-      <MenuItem icon="asterisk" to="/subject">
-        <Translate contentKey="global.menu.entities.subject" />
-      </MenuItem>
-      <MenuItem icon="asterisk" to="/grade">
-        <Translate contentKey="global.menu.entities.grade" />
-      </MenuItem>
       <MenuItem icon="asterisk" to="/course">
         <Translate contentKey="global.menu.entities.course" />
       </MenuItem>

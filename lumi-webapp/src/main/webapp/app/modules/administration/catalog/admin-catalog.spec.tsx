@@ -18,12 +18,11 @@ describe('AdminCatalog', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     vi.mocked(catalogApi.list).mockImplementation(kind =>
-      Promise.resolve({
-        data:
-          kind === 'subjects'
-            ? [{ id: 1, name: 'Toán', description: null, level: null }]
-            : [{ id: 2, name: 'Lớp 1', description: null, level: 1 }],
-      } as never),
+      Promise.resolve(
+        kind === 'subjects'
+          ? [{ id: 1, name: 'Toán', description: null, level: null }]
+          : [{ id: 2, name: 'Lớp 1', description: null, level: 1 }],
+      ),
     );
   });
 
@@ -32,7 +31,6 @@ describe('AdminCatalog', () => {
 
     expect(await screen.findByText('Toán')).toBeTruthy();
     expect(catalogApi.list).toHaveBeenCalledWith('subjects');
-    expect(screen.queryByRole('button', { name: 'Danh mục khóa học' })).toBeNull();
     expect(screen.queryByText('Trạng thái')).toBeNull();
     expect(screen.queryByRole('button', { name: /Kích hoạt|Tạm ngưng/ })).toBeNull();
 

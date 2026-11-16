@@ -1404,7 +1404,7 @@ class CourseResourceIT {
         Subject subject;
         if (TestUtil.findAll(em, Subject.class).isEmpty()) {
             courseRepository.saveAndFlush(course);
-            subject = SubjectResourceIT.createEntity();
+            subject = new Subject().name("AAAAAAAAAA").description("AAAAAAAAAA");
         } else {
             subject = TestUtil.findAll(em, Subject.class).getFirst();
         }
@@ -1426,7 +1426,7 @@ class CourseResourceIT {
         Grade grade;
         if (TestUtil.findAll(em, Grade.class).isEmpty()) {
             courseRepository.saveAndFlush(course);
-            grade = GradeResourceIT.createEntity();
+            grade = new Grade().level(1).name("AAAAAAAAAA");
         } else {
             grade = TestUtil.findAll(em, Grade.class).getFirst();
         }
