@@ -19,8 +19,6 @@ import com.lumi.web.rest.errors.BadRequestAlertException;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -28,8 +26,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -50,16 +46,6 @@ class AdminServiceUserTest {
 
     @InjectMocks
     private AdminService service;
-
-    @BeforeEach
-    void setUp() {
-        SecurityContextHolder.getContext().setAuthentication(new UsernamePasswordAuthenticationToken("reviewer", "n/a"));
-    }
-
-    @AfterEach
-    void clearSecurityContext() {
-        SecurityContextHolder.clearContext();
-    }
 
     @Test
     void createsStudentWhenOnlyBasicRoleIsRequested() {
@@ -113,40 +99,6 @@ class AdminServiceUserTest {
     }
 
     @Test
-    void cannotDeactivateAdminAccount() {
-        SecurityContextHolder.getContext().setAuthentication(new UsernamePasswordAuthenticationToken("admin", "n/a"));
-        User admin = user(1L, "admin", AuthoritiesConstants.ADMIN);
-        AdminUserDTO request = new AdminUserDTO(admin);
-        request.setActivated(false);
-        when(users.findById(1L)).thenReturn(Optional.of(admin));
-
-        assertThatThrownBy(() -> service.updateUser(request)).isInstanceOf(BadRequestAlertException.class);
-        verify(users, never()).save(any(User.class));
-    }
-
-    @Test
-    void cannotRemoveAdminRole() {
-        User admin = user(2L, "other-admin", AuthoritiesConstants.ADMIN);
-        AdminUserDTO request = new AdminUserDTO(admin);
-        request.setAuthorities(Set.of(AuthoritiesConstants.STUDENT));
-        when(users.findById(2L)).thenReturn(Optional.of(admin));
-
-        assertThatThrownBy(() -> service.updateUser(request)).isInstanceOf(BadRequestAlertException.class);
-        verify(users, never()).save(any(User.class));
-    }
-
-    @Test
-    void cannotPromoteAnotherAccountToAdmin() {
-        User learner = user(3L, "learner", AuthoritiesConstants.STUDENT);
-        AdminUserDTO request = new AdminUserDTO(learner);
-        request.setAuthorities(Set.of(AuthoritiesConstants.ADMIN));
-        when(users.findById(3L)).thenReturn(Optional.of(learner));
-
-        assertThatThrownBy(() -> service.updateUser(request)).isInstanceOf(BadRequestAlertException.class);
-        verify(users, never()).save(any(User.class));
-    }
-
-    @Test
     void canTemporarilyLockAnOrdinaryAccount() {
         User learner = user(3L, "learner", AuthoritiesConstants.STUDENT);
         when(users.findOneWithAuthoritiesByLogin("learner")).thenReturn(Optional.of(learner));
@@ -192,26 +144,6 @@ class AdminServiceUserTest {
         assertThat(service.getAllUsers(Role.ROLE_STUDENT, "  LuCiA%_  ", pageable).getContent())
             .extracting(AdminUserDTO::getLogin)
             .containsExactly("learner");
-    }
-
-    @Test
-    void cannotDeleteAdminAccount() {
-        User admin = user(2L, "other-admin", AuthoritiesConstants.ADMIN);
-        when(users.findOneByLogin("other-admin")).thenReturn(Optional.of(admin));
-
-        assertThatThrownBy(() -> service.deleteUser("other-admin")).isInstanceOf(BadRequestAlertException.class);
-        verify(users, never()).delete(any(User.class));
-    }
-
-    @Test
-    void deletesAnUnprotectedAccount() {
-        User learner = user(3L, "learner", AuthoritiesConstants.STUDENT);
-        when(users.findOneByLogin("learner")).thenReturn(Optional.of(learner));
-
-        service.deleteUser("learner");
-
-        verify(users).delete(learner);
-        verify(userService).clearUserCaches(learner);
     }
 
     private User user(Long id, String login, String role) {

@@ -204,61 +204,6 @@ public class AdminService {
         return savedUser;
     }
 
-    /**
-     * Update all information for a specific user, and return the modified user.
-     *
-     * @param userDTO user to update.
-     * @return updated user.
-     */
-    public Optional<AdminUserDTO> updateUser(AdminUserDTO userDTO) {
-        if (userDTO.getEmail() != null) {
-            userRepository
-                .findOneByEmailIgnoreCase(userDTO.getEmail())
-                .filter(user -> !user.getId().equals(userDTO.getId()))
-                .ifPresent(user -> {
-                    throw new EmailAlreadyUsedException();
-                });
-        }
-        userRepository
-            .findOneByLogin(userDTO.getLogin().toLowerCase())
-            .filter(user -> !user.getId().equals(userDTO.getId()))
-            .ifPresent(user -> {
-                throw new LoginAlreadyUsedException();
-            });
-        Optional<User> existingUser = userRepository.findById(userDTO.getId());
-
-        if (existingUser.isEmpty()) {
-            return Optional.empty();
-        }
-
-        User user = existingUser.orElseThrow();
-        preventProtectedAdminUpdate(user, userDTO);
-        userService.clearUserCaches(user);
-
-        user.setLogin(userDTO.getLogin().toLowerCase());
-        user.setFirstName(userDTO.getFirstName());
-        user.setLastName(userDTO.getLastName());
-
-        if (userDTO.getEmail() != null) {
-            user.setEmail(userDTO.getEmail().toLowerCase());
-        }
-
-        user.setImageUrl(userDTO.getImageUrl());
-        user.setActivated(userDTO.isActivated());
-        user.setLangKey(userDTO.getLangKey());
-
-        Set<Authority> requestedAuthorities = resolveManagedAuthorities(userDTO.getAuthorities());
-        Set<Authority> authorities = user.getAuthorities();
-        authorities.clear();
-        authorities.addAll(requestedAuthorities);
-
-        User savedUser = userRepository.save(user);
-        userService.clearUserCaches(savedUser);
-        LOG.debug("Changed Information for User: {}", savedUser);
-
-        return Optional.of(new AdminUserDTO(savedUser));
-    }
-
     @Transactional(readOnly = true)
     public Page<AdminUserDTO> getAllUsers(Role role, String search, Pageable pageable) {
         boolean hasSearch = search != null && !search.isBlank();
@@ -362,41 +307,6 @@ public class AdminService {
                 .stream()
                 .anyMatch(authority -> AuthoritiesConstants.INSTRUCTOR.equals(authority.getName()))
         );
-    }
-
-    public void deleteUser(String login) {
-        Optional<User> existingUser = userRepository.findOneByLogin(login);
-
-        if (existingUser.isEmpty()) {
-            return;
-        }
-
-        User user = existingUser.orElseThrow();
-        preventProtectedAdminDeletion(user);
-        userRepository.delete(user);
-        userService.clearUserCaches(user);
-
-        LOG.debug("Deleted User: {}", user);
-    }
-
-    private void preventProtectedAdminUpdate(User user, AdminUserDTO requestedUser) {
-        boolean hasAdminRole = hasAdminRole(user);
-        boolean keepsAdminRole =
-            requestedUser.getAuthorities() != null && requestedUser.getAuthorities().contains(AuthoritiesConstants.ADMIN);
-        if (!hasAdminRole && keepsAdminRole) {
-            throw new BadRequestAlertException("Admin access cannot be granted", "userManagement", "adminCreationDisabled");
-        }
-        boolean removesAdminRole = hasAdminRole && !keepsAdminRole;
-        boolean deactivatesAdmin = hasAdminRole && user.isActivated() && !requestedUser.isActivated();
-        if (removesAdminRole || deactivatesAdmin) {
-            throw new BadRequestAlertException("The admin account cannot lose access", "userManagement", "adminAccessProtected");
-        }
-    }
-
-    private void preventProtectedAdminDeletion(User user) {
-        if (hasAdminRole(user)) {
-            throw new BadRequestAlertException("The admin account cannot be deleted", "userManagement", "adminDeleteProtected");
-        }
     }
 
     private boolean hasAdminRole(User user) {

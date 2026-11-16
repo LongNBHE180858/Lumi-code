@@ -54,9 +54,6 @@ class UserServiceIT {
     private UserService userService;
 
     @Autowired
-    private AdminService adminService;
-
-    @Autowired
     private AuditingHandler auditingHandler;
 
     @MockitoBean
@@ -91,7 +88,7 @@ class UserServiceIT {
             .map(cacheName -> this.cacheManager.getCache(cacheName))
             .filter(Objects::nonNull)
             .forEach(Cache::clear);
-        adminService.deleteUser(DEFAULT_LOGIN);
+        userRepository.findOneByLogin(DEFAULT_LOGIN).ifPresent(userRepository::delete);
         assertThat(userRepository.count()).isEqualTo(numberOfUsers);
         numberOfUsers = null;
     }

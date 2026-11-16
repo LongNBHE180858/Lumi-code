@@ -8,7 +8,6 @@ import com.lumi.IntegrationTest;
 import com.lumi.domain.User;
 import com.lumi.repository.UserRepository;
 import com.lumi.security.AuthoritiesConstants;
-import com.lumi.service.AdminService;
 import java.util.Objects;
 import java.util.Set;
 import org.junit.jupiter.api.AfterEach;
@@ -35,9 +34,6 @@ class PublicUserResourceIT {
     private UserRepository userRepository;
 
     @Autowired
-    private AdminService adminService;
-
-    @Autowired
     private CacheManager cacheManager;
 
     @Autowired
@@ -60,7 +56,7 @@ class PublicUserResourceIT {
             .map(cacheName -> this.cacheManager.getCache(cacheName))
             .filter(Objects::nonNull)
             .forEach(Cache::clear);
-        adminService.deleteUser(user.getLogin());
+        userRepository.findOneByLogin(user.getLogin()).ifPresent(userRepository::delete);
         assertThat(userRepository.count()).isEqualTo(numberOfUsers);
         numberOfUsers = null;
     }

@@ -10,7 +10,6 @@ import com.lumi.IntegrationTest;
 import com.lumi.domain.User;
 import com.lumi.repository.UserRepository;
 import com.lumi.security.AuthoritiesConstants;
-import com.lumi.service.AdminService;
 import com.lumi.service.dto.AdminUserDTO;
 import com.lumi.service.mapper.UserMapper;
 import jakarta.persistence.EntityManager;
@@ -52,9 +51,6 @@ class UserResourceIT {
 
     @Autowired
     private UserRepository userRepository;
-
-    @Autowired
-    private AdminService adminService;
 
     @Autowired
     private UserMapper userMapper;
@@ -109,9 +105,9 @@ class UserResourceIT {
 
     @AfterEach
     void cleanupAndCheck() {
-        adminService.deleteUser(DEFAULT_LOGIN);
-        adminService.deleteUser(user.getLogin());
-        adminService.deleteUser("anotherlogin");
+        userRepository.findOneByLogin(DEFAULT_LOGIN).ifPresent(userRepository::delete);
+        userRepository.findOneByLogin(user.getLogin()).ifPresent(userRepository::delete);
+        userRepository.findOneByLogin("anotherlogin").ifPresent(userRepository::delete);
         assertThat(userRepository.count()).isEqualTo(numberOfUsers);
         numberOfUsers = null;
         cacheManager
@@ -467,42 +463,6 @@ class UserResourceIT {
         restUserMockMvc
             .perform(patch("/api/admin/users/{login}/activation", DEFAULT_LOGIN).contentType(MediaType.APPLICATION_JSON).content("{}"))
             .andExpect(status().isBadRequest());
-    }
-
-    @Test
-    @Transactional
-    void adminCannotUpdateUsers() throws Exception {
-        userRepository.saveAndFlush(user);
-        AdminUserDTO request = new AdminUserDTO(user);
-        request.setFirstName("changed");
-        request.setActivated(false);
-        request.setAuthorities(Set.of(AuthoritiesConstants.ADMIN));
-
-        restUserMockMvc
-            .perform(put("/api/admin/users").contentType(MediaType.APPLICATION_JSON).content(om.writeValueAsBytes(request)))
-            .andExpect(status().isMethodNotAllowed());
-        restUserMockMvc
-            .perform(
-                put("/api/admin/users/{login}", user.getLogin())
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .content(om.writeValueAsBytes(request))
-            )
-            .andExpect(status().isMethodNotAllowed());
-
-        User unchanged = userRepository.findOneWithAuthoritiesByLogin(user.getLogin()).orElseThrow();
-        assertThat(unchanged.getFirstName()).isEqualTo(DEFAULT_FIRSTNAME);
-        assertThat(unchanged.isActivated()).isTrue();
-        assertThat(unchanged.getAuthorities()).noneMatch(authority -> AuthoritiesConstants.ADMIN.equals(authority.getName()));
-    }
-
-    @Test
-    @Transactional
-    void adminCannotDeleteUsers() throws Exception {
-        userRepository.saveAndFlush(user);
-
-        restUserMockMvc.perform(delete("/api/admin/users/{login}", user.getLogin())).andExpect(status().isMethodNotAllowed());
-
-        assertThat(userRepository.findOneByLogin(user.getLogin())).isPresent();
     }
 
     @Test

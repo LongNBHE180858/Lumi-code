@@ -2,7 +2,7 @@
 - Giữ API của Tài khoản, Đơn giảng viên và Danh mục dưới `/api/admin/...` theo `AdminResource`/`AdminService`; FE gọi qua `user-api.ts`, `instructor-applications-api.ts`, `catalog-api.ts`.
 - Dùng `ROLE_INSTRUCTOR` và `ROLE_PARENT` ở cả BE/FE; `ROLE_TEACHER` và `ROLE_PARENTS` là tên cũ dễ làm lệch phân quyền.
 - Dùng `InstructorApplicationStatus` cho đơn giảng viên; đừng thay bằng `RecordStatus` của khóa học.
-- Hệ thống chỉ duy trì một tài khoản admin khởi tạo sẵn; không cho tạo thêm tài khoản `ROLE_ADMIN` từ UI/API. Quản lý tài khoản admin cho tạo, xem và kích hoạt/tạm khóa tài khoản thường qua API trạng thái riêng; không cho sửa thông tin, đổi role hoặc xóa qua UI/API. Tài khoản admin hiện có không được tạm khóa hay mất quyền.
+- Hệ thống chỉ duy trì một tài khoản admin khởi tạo sẵn; không cho tạo thêm tài khoản `ROLE_ADMIN` từ UI/API. Quản lý tài khoản admin cho tạo, xem và kích hoạt/tạm khóa tài khoản thường qua API trạng thái riêng; không triển khai sửa thông tin, đổi role hoặc xóa tài khoản trong `AdminService` và UI/API admin. Tài khoản admin hiện có không được tạm khóa hay mất quyền.
 - Giữ giao diện admin hiện tại khi nối API hoặc tách component; dùng icon Lucide thay cho ảnh icon trong khu vực này.
 - Không thêm ghi chú vào mã nguồn dưới bất kỳ hình thức nào (comment dòng, comment khối, TODO, Javadoc hoặc chú thích JSX/TSX), trừ khi người dùng yêu cầu rõ.
 - Support Ticket là kênh trao đổi riêng, tách khỏi Feedback. Mọi tài khoản đã đăng nhập có role hợp lệ trong hệ thống đều được tạo ticket; `ROLE_USER` là quyền nền hợp lệ, không bắt buộc thêm role nghiệp vụ. Chỉ người tạo ticket và admin được xem, gửi tin nhắn; không cho xóa ticket hoặc tin nhắn qua UI/API nghiệp vụ.

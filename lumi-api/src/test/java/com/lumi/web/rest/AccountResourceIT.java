@@ -73,6 +73,10 @@ class AccountResourceIT {
         numberOfUsers = null;
     }
 
+    private void deleteTestUser(String login) {
+        userRepository.findOneByLogin(login).ifPresent(userRepository::delete);
+    }
+
     @Test
     @WithUnauthenticatedMockUser
     void testNonAuthenticatedUser() throws Exception {
@@ -114,7 +118,7 @@ class AccountResourceIT {
             .andExpect(jsonPath("$.authorities", org.hamcrest.Matchers.hasItems(AuthoritiesConstants.ADMIN, AuthoritiesConstants.USER)));
 
         org.springframework.security.core.context.SecurityContextHolder.clearContext();
-        adminService.deleteUser(TEST_USER_LOGIN);
+        deleteTestUser(TEST_USER_LOGIN);
     }
 
     @Test
@@ -145,7 +149,7 @@ class AccountResourceIT {
             .extracting(authority -> authority.getName())
             .containsExactlyInAnyOrder(AuthoritiesConstants.USER, AuthoritiesConstants.STUDENT);
 
-        adminService.deleteUser("test-register-valid");
+        deleteTestUser("test-register-valid");
     }
 
     @Test
@@ -260,7 +264,7 @@ class AccountResourceIT {
             .perform(post("/api/register").contentType(MediaType.APPLICATION_JSON).content(om.writeValueAsBytes(secondUser)))
             .andExpect(status().is4xxClientError());
 
-        adminService.deleteUser("alice");
+        deleteTestUser("alice");
     }
 
     @Test
@@ -329,14 +333,14 @@ class AccountResourceIT {
         assertThat(testUser4.orElseThrow().getEmail()).isEqualTo("test-register-duplicate-email@example.com");
 
         testUser4.orElseThrow().setActivated(true);
-        adminService.updateUser(new AdminUserDTO(testUser4.orElseThrow()));
+        userRepository.saveAndFlush(testUser4.orElseThrow());
 
         // Register 4th (already activated) user
         restAccountMockMvc
             .perform(post("/api/register").contentType(MediaType.APPLICATION_JSON).content(om.writeValueAsBytes(secondUser)))
             .andExpect(status().is4xxClientError());
 
-        adminService.deleteUser("test-register-duplicate-email-3");
+        deleteTestUser("test-register-duplicate-email-3");
     }
 
     @Test
@@ -363,7 +367,7 @@ class AccountResourceIT {
             .extracting(authority -> authority.getName())
             .containsExactlyInAnyOrder(AuthoritiesConstants.USER, AuthoritiesConstants.STUDENT);
 
-        adminService.deleteUser("badguy");
+        deleteTestUser("badguy");
     }
 
     @Test
@@ -384,7 +388,7 @@ class AccountResourceIT {
         user = userRepository.findOneByLogin(user.getLogin()).orElse(null);
         assertThat(user.isActivated()).isTrue();
 
-        adminService.deleteUser("activate-account");
+        deleteTestUser("activate-account");
     }
 
     @Test
@@ -428,7 +432,7 @@ class AccountResourceIT {
         assertThat(updatedUser.isActivated()).isTrue();
         assertThat(updatedUser.getAuthorities()).isEmpty();
 
-        adminService.deleteUser("save-account");
+        deleteTestUser("save-account");
     }
 
     @Test
@@ -459,7 +463,7 @@ class AccountResourceIT {
 
         assertThat(userRepository.findOneByEmailIgnoreCase("invalid email")).isNotPresent();
 
-        adminService.deleteUser("save-invalid-email");
+        deleteTestUser("save-invalid-email");
     }
 
     @Test
@@ -498,8 +502,8 @@ class AccountResourceIT {
         User updatedUser = userRepository.findOneByLogin("save-existing-email").orElseThrow();
         assertThat(updatedUser.getEmail()).isEqualTo("save-existing-email@example.com");
 
-        adminService.deleteUser("save-existing-email");
-        adminService.deleteUser("save-existing-email2");
+        deleteTestUser("save-existing-email");
+        deleteTestUser("save-existing-email2");
     }
 
     @Test
@@ -530,7 +534,7 @@ class AccountResourceIT {
         User updatedUser = userRepository.findOneByLogin("save-existing-email-and-login").orElse(null);
         assertThat(updatedUser.getEmail()).isEqualTo("save-existing-email-and-login@example.com");
 
-        adminService.deleteUser("save-existing-email-and-login");
+        deleteTestUser("save-existing-email-and-login");
     }
 
     @Test
@@ -556,7 +560,7 @@ class AccountResourceIT {
         assertThat(passwordEncoder.matches("new password", updatedUser.getPassword())).isFalse();
         assertThat(passwordEncoder.matches(currentPassword, updatedUser.getPassword())).isTrue();
 
-        adminService.deleteUser("change-password-wrong-existing-password");
+        deleteTestUser("change-password-wrong-existing-password");
     }
 
     @Test
@@ -581,7 +585,7 @@ class AccountResourceIT {
         User updatedUser = userRepository.findOneByLogin("change-password").orElse(null);
         assertThat(passwordEncoder.matches("new password", updatedUser.getPassword())).isTrue();
 
-        adminService.deleteUser("change-password");
+        deleteTestUser("change-password");
     }
 
     @Test
@@ -608,7 +612,7 @@ class AccountResourceIT {
         User updatedUser = userRepository.findOneByLogin("change-password-too-small").orElse(null);
         assertThat(updatedUser.getPassword()).isEqualTo(user.getPassword());
 
-        adminService.deleteUser("change-password-too-small");
+        deleteTestUser("change-password-too-small");
     }
 
     @Test
@@ -635,7 +639,7 @@ class AccountResourceIT {
         User updatedUser = userRepository.findOneByLogin("change-password-too-long").orElse(null);
         assertThat(updatedUser.getPassword()).isEqualTo(user.getPassword());
 
-        adminService.deleteUser("change-password-too-long");
+        deleteTestUser("change-password-too-long");
     }
 
     @Test
@@ -660,7 +664,7 @@ class AccountResourceIT {
         User updatedUser = userRepository.findOneByLogin("change-password-empty").orElse(null);
         assertThat(updatedUser.getPassword()).isEqualTo(user.getPassword());
 
-        adminService.deleteUser("change-password-empty");
+        deleteTestUser("change-password-empty");
     }
 
     @Test
@@ -678,7 +682,7 @@ class AccountResourceIT {
             .perform(post("/api/account/reset-password/init").content("password-reset@example.com"))
             .andExpect(status().isOk());
 
-        adminService.deleteUser("password-reset");
+        deleteTestUser("password-reset");
     }
 
     @Test
@@ -696,7 +700,7 @@ class AccountResourceIT {
             .perform(post("/api/account/reset-password/init").content("password-reset-upper-case@EXAMPLE.COM"))
             .andExpect(status().isOk());
 
-        adminService.deleteUser("password-reset-upper-case");
+        deleteTestUser("password-reset-upper-case");
     }
 
     @Test
@@ -744,7 +748,7 @@ class AccountResourceIT {
         User updatedUser = userRepository.findOneByLogin(user.getLogin()).orElse(null);
         assertThat(passwordEncoder.matches(keyAndPassword.getNewPassword(), updatedUser.getPassword())).isTrue();
 
-        adminService.deleteUser("finish-password-reset");
+        deleteTestUser("finish-password-reset");
     }
 
     @Test
@@ -773,7 +777,7 @@ class AccountResourceIT {
         User updatedUser = userRepository.findOneByLogin(user.getLogin()).orElse(null);
         assertThat(passwordEncoder.matches(keyAndPassword.getNewPassword(), updatedUser.getPassword())).isFalse();
 
-        adminService.deleteUser("finish-password-reset-too-small");
+        deleteTestUser("finish-password-reset-too-small");
     }
 
     @Test

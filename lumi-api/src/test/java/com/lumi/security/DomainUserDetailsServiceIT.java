@@ -5,9 +5,8 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 import com.lumi.IntegrationTest;
 import com.lumi.domain.User;
+import com.lumi.repository.AuthorityRepository;
 import com.lumi.repository.UserRepository;
-import com.lumi.service.AdminService;
-import com.lumi.service.dto.AdminUserDTO;
 import java.util.Locale;
 import java.util.Set;
 import org.apache.commons.lang3.RandomStringUtils;
@@ -38,7 +37,7 @@ class DomainUserDetailsServiceIT {
     private UserRepository userRepository;
 
     @Autowired
-    private AdminService adminService;
+    private AuthorityRepository authorityRepository;
 
     @Autowired
     @Qualifier("userDetailsService")
@@ -89,9 +88,9 @@ class DomainUserDetailsServiceIT {
 
     @AfterEach
     void cleanup() {
-        adminService.deleteUser(USER_ONE_LOGIN);
-        adminService.deleteUser(USER_TWO_LOGIN);
-        adminService.deleteUser(USER_THREE_LOGIN);
+        userRepository.findOneByLogin(USER_ONE_LOGIN).ifPresent(userRepository::delete);
+        userRepository.findOneByLogin(USER_TWO_LOGIN).ifPresent(userRepository::delete);
+        userRepository.findOneByLogin(USER_THREE_LOGIN).ifPresent(userRepository::delete);
     }
 
     @Test
@@ -104,9 +103,13 @@ class DomainUserDetailsServiceIT {
     @Test
     void assignedInstructorRoleIsLoadedForAuthentication() {
         User user = userRepository.findOneByLogin(USER_ONE_LOGIN).orElseThrow();
-        AdminUserDTO update = new AdminUserDTO(user);
-        update.setAuthorities(Set.of(AuthoritiesConstants.INSTRUCTOR));
-        adminService.updateUser(update);
+        user.setAuthorities(
+            Set.of(
+                authorityRepository.findById(AuthoritiesConstants.USER).orElseThrow(),
+                authorityRepository.findById(AuthoritiesConstants.INSTRUCTOR).orElseThrow()
+            )
+        );
+        userRepository.saveAndFlush(user);
 
         UserDetails userDetails = domainUserDetailsService.loadUserByUsername(USER_ONE_LOGIN);
         assertThat(userDetails.getAuthorities())
