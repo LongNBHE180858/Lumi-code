@@ -4,6 +4,7 @@ import com.lumi.domain.*;
 import com.lumi.domain.enumeration.InstructorApplicationStatus;
 import com.lumi.domain.enumeration.RecordStatus;
 import com.lumi.repository.*;
+import com.lumi.security.AuthoritiesConstants;
 import com.lumi.security.SecurityUtils;
 import com.lumi.service.dto.InstructorExamDTOs.*;
 import com.lumi.service.mapper.ExamMapper;
@@ -19,7 +20,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 @Service
 @Transactional
-public class InstructorCourseExamService {
+public class InstructorCourseExamServiceImpl {
 
     private final CourseRepository courses;
     private final ChapterRepository chapters;
@@ -32,7 +33,7 @@ public class InstructorCourseExamService {
     private final UserProfileRepository profiles;
     private final ExamMapper examMapper;
 
-    public InstructorCourseExamService(
+    public InstructorCourseExamServiceImpl(
         CourseRepository courses,
         ChapterRepository chapters,
         LessonRepository lessons,
@@ -59,12 +60,13 @@ public class InstructorCourseExamService {
     private User currentInstructor() {
         String login = SecurityUtils.getCurrentUserLogin().orElseThrow(() -> new AccessDeniedException("Authentication required"));
         User user = users.findOneByLogin(login).orElseThrow(() -> new AccessDeniedException("Account not found"));
-        boolean admin = SecurityUtils.hasCurrentUserThisAuthority("ROLE_ADMIN");
+        boolean admin = SecurityUtils.hasCurrentUserThisAuthority(AuthoritiesConstants.ADMIN);
+        boolean reviewer = SecurityUtils.hasCurrentUserThisAuthority(AuthoritiesConstants.REVIEWER);
         boolean instructor = profiles
             .findOneByUserId(user.getId())
             .map(p -> p.getInstructorStatus() == InstructorApplicationStatus.ACTIVE)
             .orElse(false);
-        if (!user.isActivated() || (!admin && !instructor)) {
+        if (!user.isActivated() || (!admin && !reviewer && !instructor)) {
             throw new AccessDeniedException("Active instructor required");
         }
         return user;
@@ -73,8 +75,17 @@ public class InstructorCourseExamService {
     @Transactional(readOnly = true)
     public Course ownedCourse(Long courseId) {
         User user = currentInstructor();
+        boolean admin = SecurityUtils.hasCurrentUserThisAuthority(AuthoritiesConstants.ADMIN);
+        boolean reviewer = SecurityUtils.hasCurrentUserThisAuthority(AuthoritiesConstants.REVIEWER);
         Course course = courses.findById(courseId).orElseThrow(() -> InstructorCourseHelper.missing("Course"));
-        if (Boolean.TRUE.equals(course.getIsDeleted()) || !course.getAuthor().getId().equals(user.getId())) {
+        if (Boolean.TRUE.equals(course.getIsDeleted())) {
+            throw InstructorCourseHelper.missing("Course");
+        }
+        if (Boolean.TRUE.equals(course.getIsSystemCourse())) {
+            if (!admin && !reviewer && !course.getAuthor().getId().equals(user.getId())) {
+                throw InstructorCourseHelper.missing("Course");
+            }
+        } else if (!admin && !course.getAuthor().getId().equals(user.getId())) {
             throw InstructorCourseHelper.missing("Course");
         }
         return course;

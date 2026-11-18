@@ -63,6 +63,8 @@ public class CourseDTO implements Serializable {
 
     private Boolean isDeleted;
 
+    private Boolean isSystemCourse;
+
     private Instant createdAt;
 
     private Instant updatedAt;
@@ -213,6 +215,14 @@ public class CourseDTO implements Serializable {
 
     public void setIsDeleted(Boolean isDeleted) {
         this.isDeleted = isDeleted;
+    }
+
+    public Boolean getIsSystemCourse() {
+        return isSystemCourse;
+    }
+
+    public void setIsSystemCourse(Boolean isSystemCourse) {
+        this.isSystemCourse = isSystemCourse;
     }
 
     public Instant getCreatedAt() {

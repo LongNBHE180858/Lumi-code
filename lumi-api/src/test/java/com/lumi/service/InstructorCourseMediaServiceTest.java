@@ -8,7 +8,7 @@ import com.lumi.domain.*;
 import com.lumi.repository.CourseMaterialRepository;
 import com.lumi.service.dto.InstructorCourseDTOs.Builder;
 import com.lumi.service.impl.InstructorCourseMediaService;
-import com.lumi.service.impl.InstructorCourseService;
+import com.lumi.service.impl.InstructorCourseServiceImpl;
 import com.lumi.service.storage.*;
 import com.lumi.service.storage.CourseFileValidator.Kind;
 import jakarta.persistence.EntityManager;
@@ -29,7 +29,7 @@ import org.springframework.web.server.ResponseStatusException;
 class InstructorCourseMediaServiceTest {
 
     @Mock
-    InstructorCourseService courses;
+    InstructorCourseServiceImpl courses;
 
     @Mock
     CourseMaterialRepository materials;

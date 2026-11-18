@@ -6,7 +6,7 @@ import static org.mockito.Mockito.*;
 import com.lumi.domain.*;
 import com.lumi.repository.LessonRepository;
 import com.lumi.service.dto.InstructorCourseDTOs.*;
-import com.lumi.service.impl.InstructorCourseService;
+import com.lumi.service.impl.InstructorCourseServiceImpl;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -23,7 +23,7 @@ class InstructorLessonMoveTest {
 
     @Spy
     @InjectMocks
-    InstructorCourseService service;
+    InstructorCourseServiceImpl service;
 
     private final Course course = new Course().id(1L);
     private final Chapter source = new Chapter().id(10L);

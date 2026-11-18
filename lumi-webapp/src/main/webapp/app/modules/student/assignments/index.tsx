@@ -1,5 +1,5 @@
 ﻿import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router';
 import { StudentAssignmentsPage } from './StudentAssignmentsPage';
 import { INITIAL_ASSIGNMENTS, INITIAL_CLASSES, AssignmentItem, ClassItem } from '../types';
 import '../student-classroom.scss';
@@ -9,7 +9,7 @@ export const StudentAssignments: React.FC = () => {
   const [assignments, setAssignments] = useState<AssignmentItem[]>(INITIAL_ASSIGNMENTS);
   const [allClasses] = useState<ClassItem[]>(INITIAL_CLASSES);
 
-  const handleRequestJoinClass = (classItem: ClassItem, password?: string) => {
+  const handleRequestJoinClass = () => {
     alert('Đã gửi yêu cầu tham gia lớp.');
   };
 

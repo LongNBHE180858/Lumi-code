@@ -1,6 +1,7 @@
 # Quy ước riêng
 - Giữ API của Tài khoản, Đơn giảng viên và Danh mục dưới `/api/admin/...` theo `AdminResource`/`AdminService`; FE gọi qua `user-api.ts`, `instructor-applications-api.ts`, `catalog-api.ts`.
 - Dùng `ROLE_INSTRUCTOR` và `ROLE_PARENT` ở cả BE/FE; `ROLE_TEACHER` và `ROLE_PARENTS` là tên cũ dễ làm lệch phân quyền.
+- Admin được tạo tài khoản `ROLE_REVIEWER` với quyền nền `ROLE_USER`; mỗi tài khoản quản lý chỉ có một vai trò nghiệp vụ. Bộ lọc người dùng phân biệt Reviewer với Student và các vai trò khác. Reviewer chỉ thấy điều hướng duyệt khóa học trong khu vực admin.
 - Dùng `InstructorApplicationStatus` cho đơn giảng viên; đừng thay bằng `RecordStatus` của khóa học.
 - Hệ thống chỉ duy trì một tài khoản admin khởi tạo sẵn; không cho tạo thêm tài khoản `ROLE_ADMIN` từ UI/API. Quản lý tài khoản admin cho tạo, xem và kích hoạt/tạm khóa tài khoản thường qua API trạng thái riêng; không triển khai sửa thông tin, đổi role hoặc xóa tài khoản trong `AdminService` và UI/API admin. Tài khoản admin hiện có không được tạm khóa hay mất quyền.
 - Giữ giao diện admin hiện tại khi nối API hoặc tách component; dùng icon Lucide thay cho ảnh icon trong khu vực này.

@@ -145,4 +145,11 @@
     <include file="config/liquibase/changelog/20261104000000_ai_vector_json_types.xml" relativeToChangelogFile="false"/>
     <include file="config/liquibase/changelog/20261109010000_add_order_buyer.xml" relativeToChangelogFile="false"/>
     <include file="config/liquibase/changelog/20261110010000_sepay_webhook_events.xml" relativeToChangelogFile="false"/>
+
+    <include file="config/liquibase/changelog/20261116000000_add_course_material_summary.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20261116010000_extend_notifications.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20261117000000_add_course_is_system_course.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20261116000000_class_material_progress.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20261117000000_remove_class_material_progress.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20261117010000_class_assignment_media.xml" relativeToChangelogFile="false"/>
 </databaseChangeLog>

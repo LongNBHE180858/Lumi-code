@@ -13,9 +13,10 @@ import { isBuilderReadOnly } from '../course-lifecycle';
 interface CourseBasicInfoProps {
   onSaved: (courseId: number, goNext: boolean) => void;
   onDirtyChange: (dirty: boolean) => void;
+  isSystemCourse?: boolean;
 }
 
-export const CourseBasicInfo = ({ onSaved, onDirtyChange }: CourseBasicInfoProps) => {
+export const CourseBasicInfo = ({ onSaved, onDirtyChange, isSystemCourse }: CourseBasicInfoProps) => {
   const saveInProgressRef = useRef(false);
   const hydratedCourseIdRef = useRef<number | null>(null);
   const [infoDirty, setInfoDirty] = useState(false);
@@ -110,7 +111,9 @@ export const CourseBasicInfo = ({ onSaved, onDirtyChange }: CourseBasicInfoProps
 
       // Chưa có ID: tạo draft trước.
       if (!currentCourse?.id) {
-        const created = await dispatch(createDraft(formData.title)).unwrap();
+        const created = await dispatch(
+          createDraft(isSystemCourse ? { title: formData.title, isSystemCourse: true } : formData.title),
+        ).unwrap();
         currentCourse = created.course;
       }
       // Có ID và version rồi mới lưu thông tin.

@@ -18,7 +18,7 @@ import org.springframework.web.server.ResponseStatusException;
 @Transactional
 public class InstructorCourseMediaService {
 
-    private final InstructorCourseService courses;
+    private final InstructorCourseServiceImpl courses;
     private final CourseMaterialRepository materials;
     private final CourseFileValidator validator;
     private final CourseObjectStorage storage;
@@ -26,7 +26,7 @@ public class InstructorCourseMediaService {
     private final EntityManager em;
 
     public InstructorCourseMediaService(
-        InstructorCourseService courses,
+        InstructorCourseServiceImpl courses,
         CourseMaterialRepository materials,
         CourseFileValidator validator,
         CourseObjectStorage storage,
@@ -67,7 +67,18 @@ public class InstructorCourseMediaService {
         material.setFileName(upload.fileName());
         material.setMimeType(upload.mimeType());
         material.setFileSizeBytes(upload.size());
-        material.setFileType(upload.mimeType().equals("application/pdf") ? "PDF" : "DOCX");
+        material.setFileType(
+            upload.mimeType().equals("application/pdf") ? "PDF" : upload.mimeType().contains("presentation") ? "PPTX" : "DOCX"
+        );
+        material.setUpdatedAt(Instant.now());
+        materials.save(material);
+        return courses.changed(course);
+    }
+
+    public Builder updateMaterialSummary(Long courseId, Long lessonId, Long materialId, Long version, String summary) {
+        Course course = courses.editable(courseId, version);
+        CourseMaterial material = courses.material(courseId, lessonId, materialId);
+        material.setSummary(summary);
         material.setUpdatedAt(Instant.now());
         materials.save(material);
         return courses.changed(course);

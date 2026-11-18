@@ -1,5 +1,6 @@
-# ===================================================================
+it add# ===================================================================
 # Spring Boot configuration.
+...
 #
 # This configuration will be overridden by the Spring profile you use,
 # for example application-dev.yml if you use the "dev" profile.
@@ -101,9 +102,9 @@ spring:
     openai:
       # Gemini's OpenAI-compatible API; no credential is stored in the repository.
       base-url: https://generativelanguage.googleapis.com/v1beta/openai/
-      api-key: ${GEMINI_API_KEY:disabled}
+      api-key: ${LUMI_AI_API_KEY:${GEMINI_API_KEY:disabled}}
       chat:
-        model: gemini-3.5-flash-lite
+        model: ${LUMI_AI_MODEL:gemini-3.5-flash-lite}
     google:
       genai:
         embedding:
@@ -253,7 +254,7 @@ jhipster:
 spring:
   config:
     # Optional local R2 credentials; never commit this file.
-    import: 'optional:file:D:/FU Learning/9 - Fall 2026/SEP460/lumi-platform/lumi-api/r2-local.properties'
+    import: 'optional:file:D:/FU Learning/9 - Fall 2026/SEP460/lumi-platform/lumi-api/r2-local.properties,optional:file:D:/FileZalo/r2-local.properties'
   servlet:
     multipart:
       max-file-size: ${COURSE_UPLOAD_MAX_FILE_SIZE:1GB}
@@ -280,3 +281,11 @@ course-storage:
   access-key: ${COURSE_STORAGE_ACCESS_KEY:}
   secret-key: ${COURSE_STORAGE_SECRET_KEY:}
   signed-url-seconds: ${COURSE_STORAGE_SIGNED_URL_SECONDS:300}
+
+classroom-storage:
+  enabled: ${course-storage.enabled:false}
+  endpoint: ${course-storage.endpoint:}
+  bucket: ${course-storage.bucket:}
+  access-key: ${course-storage.access-key:}
+  secret-key: ${course-storage.secret-key:}
+  signed-url-seconds: ${course-storage.signed-url-seconds:300}

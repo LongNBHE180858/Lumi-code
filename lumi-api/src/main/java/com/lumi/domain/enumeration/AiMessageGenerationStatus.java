@@ -4,5 +4,7 @@ package com.lumi.domain.enumeration;
 public enum AiMessageGenerationStatus {
     NOT_APPLICABLE,
     ANSWERED,
+    SOCIAL,
+    CLARIFICATION,
     INSUFFICIENT_CONTEXT,
 }

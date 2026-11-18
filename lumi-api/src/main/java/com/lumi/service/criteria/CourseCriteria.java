@@ -72,6 +72,8 @@ public class CourseCriteria implements Serializable, Criteria {
 
     private BooleanFilter isDeleted;
 
+    private BooleanFilter isSystemCourse;
+
     private InstantFilter createdAt;
 
     private InstantFilter updatedAt;
@@ -104,6 +106,7 @@ public class CourseCriteria implements Serializable, Criteria {
         this.version = other.optionalVersion().map(LongFilter::copy).orElse(null);
         this.status = other.optionalStatus().map(RecordStatusFilter::copy).orElse(null);
         this.isDeleted = other.optionalIsDeleted().map(BooleanFilter::copy).orElse(null);
+        this.isSystemCourse = other.optionalIsSystemCourse().map(BooleanFilter::copy).orElse(null);
         this.createdAt = other.optionalCreatedAt().map(InstantFilter::copy).orElse(null);
         this.updatedAt = other.optionalUpdatedAt().map(InstantFilter::copy).orElse(null);
         this.storageLimitBytes = other.optionalStorageLimitBytes().map(LongFilter::copy).orElse(null);
@@ -403,6 +406,25 @@ public class CourseCriteria implements Serializable, Criteria {
         this.isDeleted = isDeleted;
     }
 
+    public BooleanFilter getIsSystemCourse() {
+        return isSystemCourse;
+    }
+
+    public Optional<BooleanFilter> optionalIsSystemCourse() {
+        return Optional.ofNullable(isSystemCourse);
+    }
+
+    public BooleanFilter isSystemCourse() {
+        if (isSystemCourse == null) {
+            setIsSystemCourse(new BooleanFilter());
+        }
+        return isSystemCourse;
+    }
+
+    public void setIsSystemCourse(BooleanFilter isSystemCourse) {
+        this.isSystemCourse = isSystemCourse;
+    }
+
     public InstantFilter getCreatedAt() {
         return createdAt;
     }
@@ -561,6 +583,7 @@ public class CourseCriteria implements Serializable, Criteria {
             Objects.equals(version, that.version) &&
             Objects.equals(status, that.status) &&
             Objects.equals(isDeleted, that.isDeleted) &&
+            Objects.equals(isSystemCourse, that.isSystemCourse) &&
             Objects.equals(createdAt, that.createdAt) &&
             Objects.equals(updatedAt, that.updatedAt) &&
             Objects.equals(storageLimitBytes, that.storageLimitBytes) &&
@@ -589,6 +612,7 @@ public class CourseCriteria implements Serializable, Criteria {
             version,
             status,
             isDeleted,
+            isSystemCourse,
             createdAt,
             updatedAt,
             storageLimitBytes,
@@ -618,6 +642,7 @@ public class CourseCriteria implements Serializable, Criteria {
             optionalVersion().map(f -> "version=" + f + ", ").orElse("") +
             optionalStatus().map(f -> "status=" + f + ", ").orElse("") +
             optionalIsDeleted().map(f -> "isDeleted=" + f + ", ").orElse("") +
+            optionalIsSystemCourse().map(f -> "isSystemCourse=" + f + ", ").orElse("") +
             optionalCreatedAt().map(f -> "createdAt=" + f + ", ").orElse("") +
             optionalUpdatedAt().map(f -> "updatedAt=" + f + ", ").orElse("") +
             optionalStorageLimitBytes().map(f -> "storageLimitBytes=" + f + ", ").orElse("") +

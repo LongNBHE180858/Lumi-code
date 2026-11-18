@@ -8,8 +8,10 @@ import com.lumi.security.AuthoritiesConstants;
 import com.lumi.security.SecurityUtils;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
+@Transactional(readOnly = true)
 public class InstructorAccessService {
 
     private final UserRepository users;
@@ -22,23 +24,31 @@ public class InstructorAccessService {
 
     public boolean canUseInstructorFeatures() {
         return SecurityUtils.getCurrentUserLogin()
-            .flatMap(users::findOneByLogin)
+            .flatMap(users::findOneWithAuthoritiesByLogin)
             .filter(User::isActivated)
             .map(user -> {
-                if (
-                    user
-                        .getAuthorities()
-                        .stream()
-                        .anyMatch(authority -> AuthoritiesConstants.ADMIN.equals(authority.getName()))
-                ) {
+                boolean isStaff =
+                    SecurityUtils.hasCurrentUserAnyOfAuthorities(AuthoritiesConstants.ADMIN, AuthoritiesConstants.REVIEWER) ||
+                    (user.getAuthorities() != null &&
+                        user
+                            .getAuthorities()
+                            .stream()
+                            .anyMatch(
+                                authority ->
+                                    AuthoritiesConstants.ADMIN.equals(authority.getName()) ||
+                                    AuthoritiesConstants.REVIEWER.equals(authority.getName())
+                            ));
+                if (isStaff) {
                     return true;
                 }
-                if (
-                    user
-                        .getAuthorities()
-                        .stream()
-                        .noneMatch(authority -> AuthoritiesConstants.INSTRUCTOR.equals(authority.getName()))
-                ) {
+                boolean hasInstructorRole =
+                    SecurityUtils.hasCurrentUserThisAuthority(AuthoritiesConstants.INSTRUCTOR) ||
+                    (user.getAuthorities() != null &&
+                        user
+                            .getAuthorities()
+                            .stream()
+                            .anyMatch(authority -> AuthoritiesConstants.INSTRUCTOR.equals(authority.getName())));
+                if (!hasInstructorRole) {
                     return false;
                 }
                 return profiles

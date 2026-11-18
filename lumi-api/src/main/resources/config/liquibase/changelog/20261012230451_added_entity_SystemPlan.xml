@@ -10,6 +10,7 @@
         Added the entity SystemPlan.
     -->
     <changeSet id="20261012230451-1" author="jhipster">
+        <validCheckSum>any</validCheckSum>
         <createTable tableName="system_plans" remarks="Lưu gói dịch vụ, giá, thời hạn và hạn mức quyền lợi.">
             <column name="id" type="bigint">
                 <constraints primaryKey="true" nullable="false"/>

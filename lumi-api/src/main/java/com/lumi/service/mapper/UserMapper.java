@@ -25,6 +25,9 @@ public class UserMapper {
     }
 
     public UserDTO userToUserDTO(User user) {
+        if (user == null) {
+            return null;
+        }
         return new UserDTO(user);
     }
 
@@ -33,6 +36,9 @@ public class UserMapper {
     }
 
     public AdminUserDTO userToAdminUserDTO(User user) {
+        if (user == null) {
+            return null;
+        }
         return new AdminUserDTO(user);
     }
 

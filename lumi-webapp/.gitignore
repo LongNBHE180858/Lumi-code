@@ -61,8 +61,15 @@ classes/
 /src/main/webapp/app/modules/student/classes/*
 !/src/main/webapp/app/modules/student/classes/index.tsx
 !/src/main/webapp/app/modules/student/classes/student-classroom.tsx
+!/src/main/webapp/app/modules/student/classes/student-classroom.spec.tsx
 !/src/main/webapp/app/modules/student/classes/student-class-exams.tsx
 !/src/main/webapp/app/modules/student/classes/student-class-exams.spec.tsx
+!/src/main/webapp/app/modules/student/classes/student-exam-hub.tsx
+!/src/main/webapp/app/modules/student/classes/student-exam-result.tsx
+!/src/main/webapp/app/modules/student/classes/student-exam-take.tsx
+!/src/main/webapp/app/modules/student/classes/student-exam-take.spec.tsx
+!/src/main/webapp/app/modules/student/classes/student-exam-result.spec.tsx
+!/src/main/webapp/app/modules/student/classes/student-exam-pages.scss
 out/
 
 ######################

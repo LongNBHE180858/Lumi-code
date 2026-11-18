@@ -11,11 +11,11 @@ import org.mapstruct.*;
 /**
  * Mapper for the entity {@link CourseReviewRequest} and its DTO {@link CourseReviewRequestDTO}.
  */
-@Mapper(componentModel = "spring")
+@Mapper(componentModel = "spring", uses = { CourseMapper.class, UserMapper.class })
 public interface CourseReviewRequestMapper extends EntityMapper<CourseReviewRequestDTO, CourseReviewRequest> {
-    @Mapping(target = "course", source = "course", qualifiedByName = "courseId")
-    @Mapping(target = "submittedBy", source = "submittedBy", qualifiedByName = "userLogin")
-    @Mapping(target = "reviewedBy", source = "reviewedBy", qualifiedByName = "userLogin")
+    @Mapping(target = "course", source = "course")
+    @Mapping(target = "submittedBy", source = "submittedBy")
+    @Mapping(target = "reviewedBy", source = "reviewedBy")
     CourseReviewRequestDTO toDto(CourseReviewRequest s);
 
     @Named("courseId")

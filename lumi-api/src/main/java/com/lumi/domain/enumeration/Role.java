@@ -7,7 +7,8 @@ public enum Role {
     ROLE_ADMIN,
     ROLE_INSTRUCTOR,
     ROLE_STUDENT,
-    ROLE_PARENT;
+    ROLE_PARENT,
+    ROLE_REVIEWER;
 
     public String getRoleName() {
         return name();

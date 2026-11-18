@@ -8,6 +8,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="theme-color" content="#000000" />
     <base href="/" />
+    <script>
+      window.global = window;
+    </script>
     <link rel="icon" href="/favicon.ico" />
     <link rel="manifest" href="/manifest.webapp" />
     <link rel="stylesheet" href="/content/css/loading.css" />
@@ -102,6 +105,10 @@
       <h1>You must enable JavaScript to view this page.</h1>
     </noscript>
     <script type="text/javascript">
+      // Auto-reload on dynamic import / chunk load error (recommended by Vite docs)
+      window.addEventListener('vite:preloadError', () => {
+        window.location.reload();
+      });
       // show an error message if the app loading takes more than 4 sec
       window.onload = function () {
         setTimeout(showError, 4000);

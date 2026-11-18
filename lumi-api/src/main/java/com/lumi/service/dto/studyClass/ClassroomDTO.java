@@ -18,7 +18,16 @@ public record ClassroomDTO(
 
     public record Material(Long id, String title, String fileType, String fileUrl, Instant uploadedAt, Integer orderIndex) {}
 
-    public record Task(Long id, String title, String instructions, Instant dueAt, String status) {}
+    public record Task(
+        Long id,
+        String title,
+        String instructions,
+        Instant dueAt,
+        String status,
+        String fileName,
+        String fileType,
+        Long fileSizeBytes
+    ) {}
 
     public record JoinedClass(Long id, String name, String description, String membershipStatus) {}
 

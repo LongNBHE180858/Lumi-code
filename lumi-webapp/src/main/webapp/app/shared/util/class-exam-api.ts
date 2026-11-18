@@ -7,9 +7,19 @@ export interface ExamSummary {
   title: string;
   durationMinutes: number;
   passScore: number;
-  status: 'ACTIVE' | 'ARCHIVED';
+  status: 'ACTIVE' | 'ARCHIVED' | 'AVAILABLE' | 'UPCOMING' | 'CLOSED' | 'COMPLETED';
   questionCount: number;
-  assignedStudentId: number | null;
+  assignedStudentId?: number | null;
+  assessmentType?: 'EXAM' | 'PRACTICE';
+  maxAttempts?: number | null;
+  usedAttempts?: number;
+  remainingAttempts?: number | null;
+  inProgressAttemptId?: number | null;
+  resultReleaseMode?: 'IMMEDIATE' | 'AFTER_CLOSE';
+  answerReleaseMode?: 'AFTER_SUBMIT' | 'AFTER_CLOSE' | 'NEVER';
+  opensAt?: string | null;
+  closesAt?: string | null;
+  shuffleQuestions?: boolean | null;
 }
 
 export interface ExamQuestionInput {
@@ -37,15 +47,20 @@ export interface ExamEditor {
 export interface ExamAttempt {
   attemptId: number;
   examId: number;
-  deadlineAt: string;
+  deadlineAt: string | null;
   questions: { id: number; content: string; points: number; options: { id: number; content: string }[] }[];
+  savedAnswers?: { questionId: number; optionId: number | null }[];
+  remainingAttempts?: number | null;
 }
 
 export interface ExamResult {
   attemptId: number;
-  score: number;
-  passed: boolean;
+  status: 'SUBMITTED' | 'AUTO_SUBMITTED';
+  score: number | null;
+  passed: boolean | null;
   submittedAt: string;
+  resultAvailableAt: string;
+  answersAvailableAt: string | null;
   feedback: {
     questionId: number;
     question: string;
@@ -53,6 +68,7 @@ export interface ExamResult {
     correct: string;
     isCorrect: boolean;
     explanation: string | null;
+    options?: string[];
   }[];
 }
 
@@ -98,6 +114,9 @@ export const updateClassExam = async (
 ): Promise<ExamSummary> =>
   unwrap((await axios.put<ApiResponse<ExamSummary>>(`api/instructor/classes/${classId}/exams/${examId}`, values)).data);
 
+export const updateClassExamStatus = async (classId: number, examId: number, status: 'ACTIVE' | 'ARCHIVED'): Promise<ExamSummary> =>
+  unwrap((await axios.patch<ApiResponse<ExamSummary>>(`api/instructor/classes/${classId}/exams/${examId}/status`, { status })).data);
+
 export interface MatrixRow {
   topic?: string;
   difficulty?: number;
@@ -130,6 +149,13 @@ export interface CreateFromMatrixRequest {
   bankId: number;
   questionIds: number[];
   pointsPerQuestion?: number;
+  assessmentType: 'EXAM' | 'PRACTICE';
+  maxAttempt: number | null;
+  resultReleaseMode: 'IMMEDIATE' | 'AFTER_CLOSE';
+  answerReleaseMode: 'AFTER_SUBMIT' | 'AFTER_CLOSE' | 'NEVER';
+  shuffleQuestions: boolean;
+  openAt: string;
+  closesAt: string;
 }
 
 export const generateExamPreview = async (classId: number, values: GeneratePreviewRequest): Promise<PickedQuestion[]> =>
@@ -147,6 +173,9 @@ export const getStudentExams = async (classId: number): Promise<ExamSummary[]> =
 export const getStudentExamResults = async (classId: number, examId: number): Promise<ExamResult[]> =>
   unwrap((await axios.get<ApiResponse<ExamResult[]>>(`api/student/classes/${classId}/exams/${examId}/results`)).data);
 
+export const getStudentExamResult = async (classId: number, examId: number, attemptId: number): Promise<ExamResult> =>
+  unwrap((await axios.get<ApiResponse<ExamResult>>(`api/student/classes/${classId}/exams/${examId}/attempts/${attemptId}/result`)).data);
+
 export const startClassExam = async (classId: number, examId: number): Promise<ExamAttempt> =>
   unwrap((await axios.post<ApiResponse<ExamAttempt>>(`api/student/classes/${classId}/exams/${examId}/attempts`)).data);
 
@@ -154,9 +183,13 @@ export const submitClassExam = async (
   classId: number,
   examId: number,
   attemptId: number,
-  answers: { questionId: number; optionId: number | null }[],
+  answers?: { questionId: number; optionId: number | null }[],
 ): Promise<ExamResult> =>
   unwrap(
-    (await axios.post<ApiResponse<ExamResult>>(`api/student/classes/${classId}/exams/${examId}/attempts/${attemptId}/submit`, { answers }))
-      .data,
+    (
+      await axios.post<ApiResponse<ExamResult>>(
+        `api/student/classes/${classId}/exams/${examId}/attempts/${attemptId}/submit`,
+        answers === undefined ? undefined : { answers },
+      )
+    ).data,
   );

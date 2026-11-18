@@ -8,11 +8,12 @@ import java.math.BigDecimal;
 import java.util.List;
 
 /** One set of submission rules for builder responses and the atomic submit operation. */
-final class CourseReviewChecklist {
+final class CourseReviewChecklistImpl {
 
-    private CourseReviewChecklist() {}
+    private CourseReviewChecklistImpl() {}
 
     static ReviewState evaluate(CourseDTO course, List<ChapterNode> chapters, CourseReviewRequest request) {
+        boolean isSystem = Boolean.TRUE.equals(course.getIsSystemCourse());
         List<LessonNode> lessons = chapters
             .stream()
             .flatMap(node -> node.lessons().stream())
@@ -43,7 +44,7 @@ final class CourseReviewChecklist {
                 text(course.getTargetAudience()) &&
                     course.getLearningObjectives() != null &&
                     !course.getLearningObjectives().isEmpty() &&
-                    course.getLearningObjectives().stream().allMatch(CourseReviewChecklist::text)
+                    course.getLearningObjectives().stream().allMatch(CourseReviewChecklistImpl::text)
             ),
             check("thumbnail", "basic-info", "Ảnh bìa khóa học", true, text(course.getThumbnailUrl())),
             check(
@@ -54,9 +55,9 @@ final class CourseReviewChecklist {
                 !chapters.isEmpty() &&
                     chapters.stream().allMatch(node -> text(node.chapter().getTitle()) && !node.lessons().isEmpty()) &&
                     !lessons.isEmpty() &&
-                    lessons.stream().allMatch(CourseReviewChecklist::lessonReady)
+                    lessons.stream().allMatch(CourseReviewChecklistImpl::lessonReady)
             ),
-            check("pricing", "pricing", "Học phí và thời hạn truy cập", true, pricingReady(course)),
+            check("pricing", "pricing", "Học phí và thời hạn truy cập", !isSystem, isSystem || pricingReady(course)),
             check("intro", "basic-info", "Video giới thiệu", false, text(course.getIntroVideoUrl())),
             check(
                 "preview",
@@ -69,7 +70,7 @@ final class CourseReviewChecklist {
         );
         boolean pending = request != null && request.getStatus() == CourseReviewRequestStatus.PENDING;
         boolean canSubmit =
-            course.getStatus() == RecordStatus.DRAFT &&
+            (isSystem || course.getStatus() == RecordStatus.DRAFT) &&
             !pending &&
             checks.stream().filter(ReviewCheck::required).allMatch(ReviewCheck::complete);
         ReviewSummary summary =

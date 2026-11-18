@@ -163,14 +163,58 @@ public class QuestionBankService {
     public QuestionBankDTO.QuestionItem addQuestion(Long bankId, QuestionBankDTO.CreateQuestion input) {
         User instructor = currentInstructor();
         QuestionBank bank = getOwnedBank(bankId, instructor);
-
+        validateQuestionInput(input);
         if (questionRepository.existsByBankIdAndContentIgnoreCaseAndIsDeletedFalse(bankId, input.content().trim())) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Câu hỏi này đã có trong ngân hàng");
         }
-        if (input.correctIndex() < 0 || input.correctIndex() >= input.options().size()) {
+        return saveQuestion(bank, instructor, input, null);
+    }
+
+    public QuestionBankDTO.QuestionItem updateQuestion(Long bankId, Long questionId, QuestionBankDTO.CreateQuestion input) {
+        User instructor = currentInstructor();
+        QuestionBank bank = getOwnedBank(bankId, instructor);
+        Question previous = questionRepository
+            .findByIdForUpdate(questionId)
+            .filter(
+                question ->
+                    !Boolean.TRUE.equals(question.getIsDeleted()) &&
+                    question.getBank() != null &&
+                    Objects.equals(question.getBank().getId(), bankId)
+            )
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Không tìm thấy câu hỏi trong ngân hàng"));
+        validateQuestionInput(input);
+        if (questionRepository.existsByBankIdAndContentIgnoreCaseAndIsDeletedFalseAndIdNot(bankId, input.content().trim(), questionId)) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Câu hỏi này đã có trong ngân hàng");
+        }
+        return saveQuestion(bank, instructor, input, previous);
+    }
+
+    private void validateQuestionInput(QuestionBankDTO.CreateQuestion input) {
+        if (input.content() == null || input.content().isBlank()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Nội dung câu hỏi không được để trống");
+        }
+        if (
+            input.options() == null ||
+            input.options().size() < 2 ||
+            input.options().size() > 10 ||
+            input
+                .options()
+                .stream()
+                .anyMatch(option -> option == null || option.isBlank())
+        ) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Cần từ 2 đến 10 lựa chọn có nội dung");
+        }
+        if (input.correctIndex() == null || input.correctIndex() < 0 || input.correctIndex() >= input.options().size()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Đáp án đúng không hợp lệ");
         }
+    }
 
+    private QuestionBankDTO.QuestionItem saveQuestion(
+        QuestionBank bank,
+        User instructor,
+        QuestionBankDTO.CreateQuestion input,
+        Question previous
+    ) {
         Instant now = Instant.now();
         Question question = new Question()
             .bank(bank)
@@ -180,11 +224,12 @@ public class QuestionBankService {
             .explanation(input.explanation() != null ? input.explanation().trim() : "")
             .sourceType("INSTRUCTOR")
             .visibility("PRIVATE")
-            .version(1L)
+            .version(previous == null ? 1L : previous.getVersion() + 1L)
             .isDeleted(false)
             .createdAt(now)
             .updatedAt(now)
-            .createdBy(instructor);
+            .createdBy(instructor)
+            .previousQuestion(previous);
         question = questionRepository.saveAndFlush(question);
 
         List<QuestionBankDTO.OptionItem> optionItems = new ArrayList<>();
@@ -206,6 +251,12 @@ public class QuestionBankService {
         });
         QuestionKnowledgeLink link = new QuestionKnowledgeLink().question(question).knowledgeNode(node).weight(BigDecimal.ONE);
         questionKnowledgeLinkRepository.save(link);
+
+        if (previous != null) {
+            previous.setIsDeleted(true);
+            previous.setUpdatedAt(now);
+            questionRepository.save(previous);
+        }
 
         bank.setUpdatedAt(now);
         questionBankRepository.save(bank);
@@ -262,7 +313,7 @@ public class QuestionBankService {
             row1.createCell(4).setCellValue("Hải Phòng");
             row1.createCell(5).setCellValue("A");
             row1.createCell(6).setCellValue(1);
-            row1.createCell(7).setCellValue("Địa lý");
+            row1.createCell(7).setCellValue("Lịch sử");
             row1.createCell(8).setCellValue("Hà Nội là thủ đô của Việt Nam.");
 
             // Dòng mẫu 2

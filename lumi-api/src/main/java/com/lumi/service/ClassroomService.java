@@ -18,6 +18,10 @@ import com.lumi.repository.UserRepository;
 import com.lumi.security.AuthoritiesConstants;
 import com.lumi.security.SecurityUtils;
 import com.lumi.service.dto.studyClass.ClassroomDTO;
+import com.lumi.service.storage.ClassroomObjectStorage;
+import com.lumi.service.storage.ClassroomStorageCleanup;
+import com.lumi.service.storage.CourseFileValidator;
+import java.io.IOException;
 import java.time.Instant;
 import java.util.List;
 import java.util.Objects;
@@ -27,6 +31,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
 @Service
@@ -39,6 +44,9 @@ public class ClassroomService {
     private final AssignmentRepository assignments;
     private final AssignmentStudentRepository recipients;
     private final UserRepository users;
+    private final CourseFileValidator fileValidator;
+    private final ClassroomObjectStorage fileStorage;
+    private final ClassroomStorageCleanup fileCleanup;
 
     public ClassroomService(
         StudyClassRepository classes,
@@ -46,7 +54,10 @@ public class ClassroomService {
         ClassMaterialRepository materials,
         AssignmentRepository assignments,
         AssignmentStudentRepository recipients,
-        UserRepository users
+        UserRepository users,
+        CourseFileValidator fileValidator,
+        ClassroomObjectStorage fileStorage,
+        ClassroomStorageCleanup fileCleanup
     ) {
         this.classes = classes;
         this.members = members;
@@ -54,6 +65,9 @@ public class ClassroomService {
         this.assignments = assignments;
         this.recipients = recipients;
         this.users = users;
+        this.fileValidator = fileValidator;
+        this.fileStorage = fileStorage;
+        this.fileCleanup = fileCleanup;
     }
 
     private User currentUser(String authority) {
@@ -95,7 +109,10 @@ public class ClassroomService {
             assignment.getTitle(),
             assignment.getInstructions(),
             assignment.getDueAt(),
-            assignment.getStatus()
+            assignment.getStatus(),
+            assignment.getFileName(),
+            assignment.getFileType(),
+            assignment.getFileSizeBytes()
         );
     }
 
@@ -104,7 +121,7 @@ public class ClassroomService {
             item.getId(),
             item.getTitle(),
             item.getFileType(),
-            item.getFileUrl(),
+            "/api/classes/" + item.getStudyClass().getId() + "/materials/" + item.getId() + "/file",
             item.getUploadedAt(),
             item.getOrderIndex()
         );
@@ -211,8 +228,20 @@ public class ClassroomService {
     }
 
     public ClassroomDTO.Task createTask(Long classId, ClassroomDTO.CreateTaskRequest request) {
+        return createTask(classId, request, null);
+    }
+
+    public ClassroomDTO.Task createTask(Long classId, ClassroomDTO.CreateTaskRequest request, MultipartFile file) {
         User instructor = currentUser(AuthoritiesConstants.INSTRUCTOR);
         StudyClass studyClass = ownedClass(classId, instructor);
+        if (
+            request.title() == null ||
+            request.title().isBlank() ||
+            request.title().length() > 255 ||
+            (request.instructions() != null && request.instructions().length() > 5000)
+        ) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Bài tập không hợp lệ");
+        }
         Instant now = Instant.now();
         Assignment assignment = new Assignment()
             .title(request.title().trim())
@@ -225,6 +254,27 @@ public class ClassroomService {
             .updatedAt(now)
             .studyClass(studyClass)
             .assignedBy(instructor);
+        if (file != null) {
+            if (file.isEmpty()) throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Tệp bài tập trống");
+            String name = file.getOriginalFilename();
+            CourseFileValidator.Kind kind;
+            if (name != null && name.toLowerCase(java.util.Locale.ROOT).endsWith(".pdf")) kind = CourseFileValidator.Kind.DOCUMENT;
+            else if (name != null && name.toLowerCase(java.util.Locale.ROOT).endsWith(".mp4")) kind = CourseFileValidator.Kind.VIDEO;
+            else throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Chỉ hỗ trợ PDF hoặc MP4");
+            if (file.getSize() > (kind == CourseFileValidator.Kind.DOCUMENT ? 25L : 500L) * 1024 * 1024) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Tệp vượt quá dung lượng cho phép");
+            }
+            try (var validated = fileValidator.validate(file, kind)) {
+                var uploaded = fileStorage.upload(classId, kind, validated.path(), validated.name(), validated.mimeType());
+                fileCleanup.onRollback(classId, uploaded.url());
+                assignment.setFileUrl(uploaded.url());
+                assignment.setFileName(uploaded.fileName());
+                assignment.setFileType(kind == CourseFileValidator.Kind.DOCUMENT ? "PDF" : "VIDEO");
+                assignment.setFileSizeBytes(uploaded.size());
+            } catch (IOException error) {
+                throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Không lưu được tệp bài tập");
+            }
+        }
         assignment = assignments.save(assignment);
         for (ClassMember member : members.findByStudyClassIdOrderByRequestedAtAsc(classId)) {
             if (ClassMemberStatus.ACTIVE.name().equals(member.getStatus())) {

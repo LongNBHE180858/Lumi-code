@@ -8,6 +8,7 @@ export const courseLifecycle = (data: IBuilderAggregate | null) => {
   if (data?.review?.request?.status === 'PENDING' || status === 'PENDING')
     return { label: 'Đang chờ duyệt', description: 'Đã gửi duyệt • Chưa xuất bản' };
   if (status === 'ACTIVE') return { label: 'Đã xuất bản', description: 'Khóa học đang hoạt động' };
+  if (status === 'HIDDEN') return { label: 'Đã tạm ẩn', description: 'Khóa học tạm ẩn khỏi danh mục công khai' };
   if (status && status !== 'DRAFT') return { label: status, description: 'Khóa học hiện không thể chỉnh sửa' };
   return {
     label: 'Bản nháp',

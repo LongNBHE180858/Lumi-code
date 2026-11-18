@@ -19,6 +19,9 @@ export const getRoleLabel = (authorities: string[] = []): string => {
   if (authorities.includes('ROLE_ADMIN')) {
     return 'Quản trị viên';
   }
+  if (authorities.includes('ROLE_REVIEWER')) {
+    return 'Kiểm duyệt viên';
+  }
   if (authorities.includes('ROLE_INSTRUCTOR')) {
     return 'Giảng viên';
   }
@@ -68,6 +71,7 @@ export const getInitials = (name: string): string => {
 const accountMenuItemsAuthenticated = (account: any = {}, instructorApproved = false) => {
   const authorities: string[] = account?.authorities || [];
   const isAdmin = authorities.includes('ROLE_ADMIN');
+  const isReviewer = authorities.includes('ROLE_REVIEWER') && !isAdmin;
   const isInstructor = authorities.includes('ROLE_INSTRUCTOR') || (!isAdmin && authorities.length === 0);
   const isParent = authorities.includes('ROLE_PARENT');
 
@@ -97,6 +101,11 @@ const accountMenuItemsAuthenticated = (account: any = {}, instructorApproved = f
       {isAdmin && (
         <MenuItem icon="users-cog" to="/admin/dashboard" data-cy="adminManagement">
           Quản trị hệ thống
+        </MenuItem>
+      )}
+      {isReviewer && (
+        <MenuItem icon="book" to="/admin/course-review" data-cy="reviewerManagement">
+          Duyệt khóa học
         </MenuItem>
       )}
 

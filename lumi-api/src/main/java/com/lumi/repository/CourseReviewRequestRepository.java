@@ -50,18 +50,36 @@ public interface CourseReviewRequestRepository
     }
 
     @Query(
-        value = "select courseReviewRequest from CourseReviewRequest courseReviewRequest left join fetch courseReviewRequest.submittedBy left join fetch courseReviewRequest.reviewedBy",
-        countQuery = "select count(courseReviewRequest) from CourseReviewRequest courseReviewRequest"
+        value = "select r from CourseReviewRequest r " +
+            "left join fetch r.course c " +
+            "left join fetch c.subject " +
+            "left join fetch c.grade " +
+            "left join fetch c.author " +
+            "left join fetch r.submittedBy " +
+            "left join fetch r.reviewedBy",
+        countQuery = "select count(r) from CourseReviewRequest r"
     )
     Page<CourseReviewRequest> findAllWithToOneRelationships(Pageable pageable);
 
     @Query(
-        "select courseReviewRequest from CourseReviewRequest courseReviewRequest left join fetch courseReviewRequest.submittedBy left join fetch courseReviewRequest.reviewedBy"
+        "select r from CourseReviewRequest r " +
+            "left join fetch r.course c " +
+            "left join fetch c.subject " +
+            "left join fetch c.grade " +
+            "left join fetch c.author " +
+            "left join fetch r.submittedBy " +
+            "left join fetch r.reviewedBy"
     )
     List<CourseReviewRequest> findAllWithToOneRelationships();
 
     @Query(
-        "select courseReviewRequest from CourseReviewRequest courseReviewRequest left join fetch courseReviewRequest.submittedBy left join fetch courseReviewRequest.reviewedBy where courseReviewRequest.id =:id"
+        "select r from CourseReviewRequest r " +
+            "left join fetch r.course c " +
+            "left join fetch c.subject " +
+            "left join fetch c.grade " +
+            "left join fetch c.author " +
+            "left join fetch r.submittedBy " +
+            "left join fetch r.reviewedBy where r.id =:id"
     )
     Optional<CourseReviewRequest> findOneWithToOneRelationships(@Param("id") Long id);
 }

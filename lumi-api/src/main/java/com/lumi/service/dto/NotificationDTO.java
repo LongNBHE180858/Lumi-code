@@ -1,5 +1,6 @@
 package com.lumi.service.dto;
 
+import com.lumi.domain.enumeration.NotificationCategory;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.Lob;
 import jakarta.validation.constraints.*;
@@ -37,6 +38,11 @@ public class NotificationDTO implements Serializable {
     private Long targetId;
 
     private Instant readAt;
+
+    private NotificationCategory category = NotificationCategory.COURSE;
+
+    @Size(max = 500)
+    private String actionUrl;
 
     @NotNull
     private UserDTO user;
@@ -121,6 +127,22 @@ public class NotificationDTO implements Serializable {
         this.user = user;
     }
 
+    public NotificationCategory getCategory() {
+        return category;
+    }
+
+    public void setCategory(NotificationCategory category) {
+        this.category = category;
+    }
+
+    public String getActionUrl() {
+        return actionUrl;
+    }
+
+    public void setActionUrl(String actionUrl) {
+        this.actionUrl = actionUrl;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -155,6 +177,8 @@ public class NotificationDTO implements Serializable {
             ", targetType='" + getTargetType() + "'" +
             ", targetId=" + getTargetId() +
             ", readAt='" + getReadAt() + "'" +
+            ", category='" + getCategory() + "'" +
+            ", actionUrl='" + getActionUrl() + "'" +
             ", user=" + getUser() +
             "}";
     }

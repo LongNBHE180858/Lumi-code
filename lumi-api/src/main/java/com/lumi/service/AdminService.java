@@ -315,7 +315,8 @@ public class AdminService {
             Role.ROLE_ADMIN.name(),
             Role.ROLE_INSTRUCTOR.name(),
             Role.ROLE_STUDENT.name(),
-            Role.ROLE_PARENT.name()
+            Role.ROLE_PARENT.name(),
+            Role.ROLE_REVIEWER.name()
         );
         long selectedBusinessRoles = roles
             .stream()

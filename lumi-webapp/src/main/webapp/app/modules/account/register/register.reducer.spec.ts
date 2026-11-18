@@ -60,7 +60,7 @@ describe('Creating account tests', () => {
     ).toEqual({
       ...initialState,
       registrationSuccess: true,
-          registeredEmail: 'test@lumi.edu.vn',
+      registeredEmail: 'test@lumi.edu.vn',
       successMessage: 'Đăng ký thành công! Vui lòng xác thực tài khoản.',
     });
   });

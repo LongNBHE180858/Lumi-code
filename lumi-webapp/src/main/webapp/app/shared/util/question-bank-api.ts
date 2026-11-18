@@ -91,6 +91,11 @@ export const addBankQuestion = async (bankId: number, values: CreateQuestion): P
   return unwrap(res.data);
 };
 
+export const updateBankQuestion = async (bankId: number, questionId: number, values: CreateQuestion): Promise<QuestionItem> => {
+  const res = await axios.put<ApiResponse<QuestionItem>>(`api/instructor/question-banks/${bankId}/questions/${questionId}`, values);
+  return unwrap(res.data);
+};
+
 export const downloadBankTemplate = async (): Promise<void> => {
   const res = await axios.get('api/instructor/question-banks/template', { responseType: 'blob' });
   const url = window.URL.createObjectURL(new Blob([res.data]));

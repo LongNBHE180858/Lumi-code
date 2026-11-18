@@ -9,7 +9,7 @@ import com.lumi.domain.enumeration.InstructorApplicationStatus;
 import com.lumi.domain.enumeration.RecordStatus;
 import com.lumi.repository.*;
 import com.lumi.service.dto.InstructorExamDTOs.*;
-import com.lumi.service.impl.InstructorCourseExamService;
+import com.lumi.service.impl.InstructorCourseExamServiceImpl;
 import com.lumi.service.mapper.ExamMapper;
 import java.math.BigDecimal;
 import java.util.List;
@@ -61,7 +61,7 @@ class InstructorCourseExamServiceTest {
 
     @Spy
     @InjectMocks
-    InstructorCourseExamService service;
+    InstructorCourseExamServiceImpl service;
 
     private User teacher;
     private Course course;

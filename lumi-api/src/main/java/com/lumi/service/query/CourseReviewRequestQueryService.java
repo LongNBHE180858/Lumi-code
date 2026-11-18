@@ -74,7 +74,13 @@ public class CourseReviewRequestQueryService extends QueryService<CourseReviewRe
         Specification<CourseReviewRequest> specification = Specification.unrestricted();
         specification = specification.and((root, query, builder) -> {
             if (Long.class != query.getResultType()) {
-                root.fetch(CourseReviewRequest_.course, JoinType.LEFT);
+                jakarta.persistence.criteria.Fetch<CourseReviewRequest, Course> courseFetch = root.fetch(
+                    CourseReviewRequest_.course,
+                    JoinType.LEFT
+                );
+                courseFetch.fetch(Course_.subject, JoinType.LEFT);
+                courseFetch.fetch(Course_.grade, JoinType.LEFT);
+                courseFetch.fetch(Course_.author, JoinType.LEFT);
                 root.fetch(CourseReviewRequest_.submittedBy, JoinType.LEFT);
                 root.fetch(CourseReviewRequest_.reviewedBy, JoinType.LEFT);
             }

@@ -16,6 +16,7 @@ import org.springframework.stereotype.Repository;
  */
 @Repository
 public interface AiConversationRepository extends JpaRepository<AiConversation, Long>, JpaSpecificationExecutor<AiConversation> {
+    Optional<AiConversation> findByIdAndUser_Login(Long id, String login);
     @Query("select aiConversation from AiConversation aiConversation where aiConversation.user.login = ?#{authentication.name}")
     List<AiConversation> findByUserIsCurrentUser();
 

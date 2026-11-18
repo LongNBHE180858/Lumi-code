@@ -2,7 +2,13 @@ import React, { useEffect, useRef, useState } from 'react';
 import { Alert, Row, Col, Card, Form, Button, Modal, Spinner } from 'react-bootstrap';
 import { toast } from 'react-toastify';
 import { useAppDispatch, useAppSelector } from 'app/config/store';
-import { getCourseBuilder, submitCourseReview, withdrawCourseReview } from '../course-builder.reducer';
+import {
+  getCourseBuilder,
+  submitCourseReview,
+  withdrawCourseReview,
+  publishSystemCourse,
+  unpublishSystemCourse,
+} from '../course-builder.reducer';
 import { isBuilderReadOnly } from '../course-lifecycle';
 import { builderErrorText } from '../course-builder-error';
 import { ReviewChecklist, ReviewCourseSummary, ReviewRequestStatus, type ReviewEditTab } from './review-sections';
@@ -12,6 +18,7 @@ interface CourseReviewSubmitProps {
   onBack: () => void;
   onNavigateTab?: (tab: ReviewEditTab) => void;
   onSubmitSuccess?: () => void;
+  isSystemCourse?: boolean;
 }
 
 interface WithdrawModalProps {
@@ -204,10 +211,11 @@ const getReviewErrorMessage = (errorStatus: number | null | undefined, errorMess
   return errorMessage;
 };
 
-export const CourseReviewSubmit = ({ onBack, onNavigateTab, onSubmitSuccess }: CourseReviewSubmitProps) => {
+export const CourseReviewSubmit = ({ onBack, onNavigateTab, onSubmitSuccess, isSystemCourse }: CourseReviewSubmitProps) => {
   const dispatch = useAppDispatch();
   const { data, loading, saving, errorStatus, errorMessage } = useAppSelector(state => state.courseBuilder);
   const courseId = data?.course.id;
+  const isSystem = isSystemCourse || Boolean(data?.course?.isSystemCourse);
   const [note, setNote] = useReviewNote(courseId);
   const [confirmedRights, setConfirmedRights] = useState(false);
   const [confirmationVersion, setConfirmationVersion] = useState<number | null>(null);
@@ -215,6 +223,34 @@ export const CourseReviewSubmit = ({ onBack, onNavigateTab, onSubmitSuccess }: C
   const [showWithdraw, setShowWithdraw] = useState(false);
   const [withdrawing, setWithdrawing] = useState(false);
   const [withdrawError, setWithdrawError] = useState(false);
+
+  const handlePublishSystem = async () => {
+    if (!data || requestRef.current) return;
+    requestRef.current = true;
+    try {
+      await dispatch(publishSystemCourse({ courseId: data.course.id, version: data.course.version })).unwrap();
+      toast.success('Xuất bản khóa học hệ thống thành công! Khóa học đã mở cho học sinh.');
+      onSubmitSuccess?.();
+    } catch (err: any) {
+      toast.error(err?.message || 'Không thể xuất bản khóa học.');
+    } finally {
+      requestRef.current = false;
+    }
+  };
+
+  const handleUnpublishSystem = async () => {
+    if (!data || requestRef.current) return;
+    requestRef.current = true;
+    try {
+      await dispatch(unpublishSystemCourse({ courseId: data.course.id, version: data.course.version })).unwrap();
+      toast.success('Đã tạm ẩn khóa học hệ thống.');
+      onSubmitSuccess?.();
+    } catch (err: any) {
+      toast.error(err?.message || 'Không thể tạm ẩn khóa học.');
+    } finally {
+      requestRef.current = false;
+    }
+  };
 
   const closeWithdraw = () => {
     if (!requestRef.current) setShowWithdraw(false);
@@ -332,7 +368,7 @@ export const CourseReviewSubmit = ({ onBack, onNavigateTab, onSubmitSuccess }: C
             ) : (
               <Alert variant="warning">Chưa tải được danh sách kiểm tra. Hãy tải lại trước khi gửi.</Alert>
             )}
-            {!readOnly && (
+            {!readOnly && !isSystem && (
               <ReviewNotesAndRights
                 note={note}
                 setNote={setNote}
@@ -348,14 +384,42 @@ export const CourseReviewSubmit = ({ onBack, onNavigateTab, onSubmitSuccess }: C
           <ReviewCourseSummary data={data} preview={() => edit('preview')} />
         </Col>
       </Row>
-      <ReviewSubmitActionCard
-        readOnly={readOnly}
-        canSubmit={canSubmit}
-        canSubmitReview={review?.canSubmit}
-        saving={saving}
-        isPendingRequest={review?.request?.status === 'PENDING'}
-        onOpenConfirmation={() => setConfirmationVersion(data.course.version)}
-      />
+      {isSystem ? (
+        <Card className="review-card p-4 d-flex flex-row flex-wrap justify-content-between align-items-center gap-3">
+          <div>
+            <h5 className="fw-bold mb-1">
+              {data.course.status === 'ACTIVE' ? 'Khóa học đang hoạt động trên hệ thống' : 'Xuất bản khóa học hệ thống'}
+            </h5>
+            <div className="text-muted small">
+              {data.course.status === 'ACTIVE'
+                ? 'Khóa học hiện đang mở cho học sinh có gói học kỳ truy cập học tập.'
+                : review?.canSubmit
+                  ? 'Tất cả điều kiện bắt buộc đã hoàn tất. Bạn có thể xuất bản ngay mà không cần gửi duyệt.'
+                  : 'Hãy hoàn thiện các mục bắt buộc trong danh sách kiểm tra trước khi xuất bản.'}
+            </div>
+          </div>
+          <div className="d-flex gap-2">
+            {data.course.status === 'ACTIVE' ? (
+              <Button variant="outline-warning" disabled={saving} onClick={handleUnpublishSystem}>
+                {saving ? 'Đang xử lý...' : 'Tạm ẩn khóa học'}
+              </Button>
+            ) : (
+              <Button variant="success" disabled={!review?.canSubmit || saving} onClick={handlePublishSystem}>
+                {saving ? 'Đang xuất bản...' : 'Xuất bản khóa học ngay'}
+              </Button>
+            )}
+          </div>
+        </Card>
+      ) : (
+        <ReviewSubmitActionCard
+          readOnly={readOnly}
+          canSubmit={canSubmit}
+          canSubmitReview={review?.canSubmit}
+          saving={saving}
+          isPendingRequest={review?.request?.status === 'PENDING'}
+          onOpenConfirmation={() => setConfirmationVersion(data.course.version)}
+        />
+      )}
       <Button variant="link" className="text-start px-0" disabled={saving} onClick={onBack}>
         ← Quay lại Xem trước
       </Button>

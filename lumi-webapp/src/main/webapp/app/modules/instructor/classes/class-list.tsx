@@ -11,6 +11,7 @@ import {
   type InstructorClass,
 } from './class-management.api';
 import ClassFormModal from './components/class-form-modal';
+import InstructorPagination from './components/instructor-pagination';
 
 const statusLabels: Record<ClassStatus, string> = {
   DRAFT: 'Bản nháp',
@@ -114,6 +115,28 @@ export const ClassList: React.FC = () => {
       setNotice('Đã sao chép liên kết tham gia lớp.');
     } catch {
       setNotice('Không sao chép được liên kết. Vui lòng thử lại.');
+    }
+  };
+
+  const changeJoinMode = async (item: InstructorClass) => {
+    setSaving(true);
+    setListError(null);
+    try {
+      const nextMode = item.joinMode === 'INVITE_ONLY' ? 'CODE_APPROVAL' : 'INVITE_ONLY';
+      await updateInstructorClass(item.id, {
+        name: item.name,
+        description: item.description ?? '',
+        joinMode: nextMode,
+        status: item.status,
+        maxStudents: item.maxStudents,
+      });
+      await loadClasses(page);
+      setSelectedId(item.id);
+      setNotice(nextMode === 'INVITE_ONLY' ? 'Đã tạm dừng tham gia bằng mã lớp.' : 'Đã mở lại tham gia bằng mã, học sinh cần được duyệt.');
+    } catch (cause) {
+      setListError(errorMessage(cause));
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -233,17 +256,15 @@ export const ClassList: React.FC = () => {
             </div>
           )}
           {totalPages > 1 && !listError && (
-            <nav className="class-pagination" aria-label="Phân trang lớp học">
-              <button type="button" onClick={() => void loadClasses(page - 1)} disabled={loading || page === 0}>
-                Trang trước
-              </button>
-              <span>
-                Trang {page + 1} / {totalPages}
-              </span>
-              <button type="button" onClick={() => void loadClasses(page + 1)} disabled={loading || page + 1 >= totalPages}>
-                Trang sau
-              </button>
-            </nav>
+            <InstructorPagination
+              page={page}
+              totalPages={totalPages}
+              totalItems={totalElements}
+              itemLabel="lớp"
+              label="Phân trang lớp học"
+              disabled={loading}
+              onPageChange={next => void loadClasses(next)}
+            />
           )}
           {selectedClass && !listError && (
             <section className="inline-class-detail-card" aria-label={`Chi tiết lớp ${selectedClass.name}`}>
@@ -292,6 +313,27 @@ export const ClassList: React.FC = () => {
                   <span className="ov-stat-label">Sĩ số tối đa</span>
                   <strong className="ov-stat-value">{selectedClass.maxStudents ?? 'Không giới hạn'}</strong>
                 </div>
+              </div>
+              <div className="class-code-controls">
+                <div>
+                  <strong>Kiểm soát mã tham gia</strong>
+                  <p>
+                    {selectedClass.joinMode === 'INVITE_ONLY'
+                      ? 'Học sinh tạm thời không thể dùng mã để vào lớp.'
+                      : 'Học sinh có thể dùng mã hoặc liên kết để vào lớp.'}
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  className="classroom-secondary-action"
+                  disabled={saving}
+                  onClick={() => void changeJoinMode(selectedClass)}
+                >
+                  {selectedClass.joinMode === 'INVITE_ONLY' ? 'Mở lại bằng mã' : 'Tạm dừng dùng mã'}
+                </button>
+                <button type="button" className="classroom-secondary-action" disabled title="Máy chủ chưa hỗ trợ tạo lại mã lớp">
+                  Tạo lại mã (chưa hỗ trợ)
+                </button>
               </div>
             </section>
           )}

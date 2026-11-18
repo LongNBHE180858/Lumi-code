@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+    <changeSet id="20261116010000-1" author="lumi">
+        <preConditions onFail="MARK_RAN">
+            <not><columnExists tableName="notifications" columnName="category"/></not>
+        </preConditions>
+        <addColumn tableName="notifications">
+            <column name="category" type="varchar(50)" defaultValue="COURSE">
+                <constraints nullable="false"/>
+            </column>
+        </addColumn>
+    </changeSet>
+
+    <changeSet id="20261116010000-2" author="lumi">
+        <preConditions onFail="MARK_RAN">
+            <not><columnExists tableName="notifications" columnName="action_url"/></not>
+        </preConditions>
+        <addColumn tableName="notifications">
+            <column name="action_url" type="varchar(500)"/>
+        </addColumn>
+    </changeSet>
+
+    <changeSet id="20261116010000-3" author="lumi">
+        <preConditions onFail="MARK_RAN">
+            <not><indexExists indexName="idx_notifications_user_read" tableName="notifications"/></not>
+        </preConditions>
+        <createIndex indexName="idx_notifications_user_read" tableName="notifications">
+            <column name="user_id"/>
+            <column name="is_read"/>
+        </createIndex>
+    </changeSet>
+
+    <changeSet id="20261116010000-4" author="lumi">
+        <preConditions onFail="MARK_RAN">
+            <not><indexExists indexName="idx_notifications_user_category" tableName="notifications"/></not>
+        </preConditions>
+        <createIndex indexName="idx_notifications_user_category" tableName="notifications">
+            <column name="user_id"/>
+            <column name="category"/>
+        </createIndex>
+    </changeSet>
+</databaseChangeLog>

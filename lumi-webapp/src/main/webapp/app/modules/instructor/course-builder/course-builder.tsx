@@ -1,7 +1,7 @@
 import { toast } from 'react-toastify';
 import React, { useState, useEffect, useRef } from 'react';
-import { Alert, Button, Card, Badge, Nav, Spinner } from 'react-bootstrap';
-import { Link, useNavigate, useParams, useSearchParams } from 'react-router';
+import { Alert, Button, Card, Badge, Nav, Spinner, Modal, Form } from 'react-bootstrap';
+import { Link, useLocation, useNavigate, useParams, useSearchParams } from 'react-router';
 import { useStore } from 'react-redux';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
@@ -15,10 +15,11 @@ import {
   faLayerGroup,
   faBookOpen,
   faVideo,
+  faPencilAlt,
 } from '@fortawesome/free-solid-svg-icons';
 
 import { useAppDispatch, useAppSelector, type IRootState } from 'app/config/store';
-import { getCourseBuilder, resetCourseBuilder } from './course-builder.reducer';
+import { getCourseBuilder, resetCourseBuilder, requestCourseEdit } from './course-builder.reducer';
 
 import CourseBasicInfo from './basic-info/course-basic-info';
 import CurriculumTab, { CurriculumNavigation } from './curriculum/curriculum-tab';
@@ -65,9 +66,14 @@ const BuilderActions = ({
   </div>
 );
 
-export const CourseBuilder = () => {
+interface CourseBuilderProps {
+  mode?: 'instructor' | 'system';
+}
+
+export const CourseBuilder = ({ mode }: CourseBuilderProps = {}) => {
   const { id } = useParams<{ id: string }>();
   const courseId = id ? parseInt(id, 10) : undefined;
+  const location = useLocation();
 
   const dispatch = useAppDispatch();
   const store = useStore<IRootState>();
@@ -78,6 +84,8 @@ export const CourseBuilder = () => {
   const course = builderData?.course;
   const lifecycle = courseLifecycle(builderData);
   const readOnly = isBuilderReadOnly(builderData);
+  const isSystemMode = mode === 'system' || location.pathname.includes('/admin/system-courses') || Boolean(course?.isSystemCourse);
+  const homeUrl = isSystemMode ? '/admin/system-courses' : '/instructor/courses';
 
   const [activeTab, setActiveTab] = useState<BuilderTabType>(() => initialBuilderTab(searchParams.get('step')));
   useEffect(() => {
@@ -108,6 +116,25 @@ export const CourseBuilder = () => {
   const [preparedRoute, setPreparedRoute] = useState<string | null>(null);
   const justSavedCourseIdRef = useRef<number | null>(null);
 
+  const [showRequestEditModal, setShowRequestEditModal] = useState(false);
+  const [editReason, setEditReason] = useState('');
+  const [submittingEdit, setSubmittingEdit] = useState(false);
+
+  const handleRequestEdit = async () => {
+    if (!course?.id || !editReason.trim()) return;
+    setSubmittingEdit(true);
+    try {
+      await dispatch(requestCourseEdit({ courseId: course.id, reason: editReason.trim() })).unwrap();
+      toast.success('Đã chuyển khóa học về bản nháp. Bạn có thể bắt đầu chỉnh sửa.');
+      setShowRequestEditModal(false);
+      setEditReason('');
+    } catch (err: any) {
+      toast.error(err?.message || 'Không thể yêu cầu chỉnh sửa khóa học.');
+    } finally {
+      setSubmittingEdit(false);
+    }
+  };
+
   // Only load on a course route change. Media responses must not reset the form.
   useEffect(() => {
     if (!courseId) {
@@ -125,13 +152,13 @@ export const CourseBuilder = () => {
     request.then(action => {
       if (getCourseBuilder.rejected.match(action) && !action.meta.aborted) {
         toast.error(action.error.message || 'Khóa học không tồn tại hoặc bạn không có quyền truy cập.');
-        navigate('/instructor/courses');
+        navigate(homeUrl);
       }
     });
     return () => {
       request.abort();
     };
-  }, [courseId, dispatch, store]);
+  }, [courseId, dispatch, store, homeUrl]);
 
   const handleBasicInfoSaved = (savedCourseId: number, goNext: boolean) => {
     const nextTab = goNext ? 'curriculum' : 'basic-info';
@@ -139,7 +166,8 @@ export const CourseBuilder = () => {
     setActiveTab(nextTab);
     if (courseId !== savedCourseId) {
       justSavedCourseIdRef.current = savedCourseId;
-      navigate(`/instructor/courses/${savedCourseId}/builder?step=${nextTab}`, { replace: true });
+      const basePath = isSystemMode ? '/admin/system-courses' : '/instructor/courses';
+      navigate(`${basePath}/${savedCourseId}/builder?step=${nextTab}`, { replace: true });
     }
   };
 
@@ -178,24 +206,28 @@ export const CourseBuilder = () => {
       {/* 2. Tiêu đề */}
       <div className="d-flex justify-content-between align-items-center mb-4">
         <div>
-          <h2 className="fw-bold mb-1">Xây dựng khóa học</h2>
-          <span className="text-muted small">Tạo nội dung, thiết lập học phí và gửi duyệt trong cùng một không gian.</span>
+          <h2 className="fw-bold mb-1">{isSystemMode ? 'Quản lý khóa học hệ thống (SGK)' : 'Xây dựng khóa học'}</h2>
+          <span className="text-muted small">
+            {isSystemMode
+              ? 'Biên soạn nội dung chuẩn SGK và xuất bản trực tiếp vào kho học liệu hệ thống.'
+              : 'Tạo nội dung, thiết lập học phí và gửi duyệt trong cùng một không gian.'}
+          </span>
         </div>
         <Link
-          to="/instructor/courses"
+          to={homeUrl}
           onClick={event => {
             if (activeTab === 'curriculum' && curriculumNavigationRef.current) {
               event.preventDefault();
-              curriculumNavigationRef.current.requestLeave(() => navigate('/instructor/courses'));
+              curriculumNavigationRef.current.requestLeave(() => navigate(homeUrl));
             } else if (activeTab === 'pricing' && pricingNavigationRef.current) {
               event.preventDefault();
-              pricingNavigationRef.current.requestLeave(() => navigate('/instructor/courses'));
+              pricingNavigationRef.current.requestLeave(() => navigate(homeUrl));
             }
           }}
           className="btn btn-outline-secondary btn-sm rounded-pill px-3 py-2 fw-semibold d-inline-flex align-items-center shadow-sm"
         >
           <FontAwesomeIcon icon={faArrowLeft} className="me-2" />
-          Khóa học của tôi
+          {isSystemMode ? 'Khóa học hệ thống' : 'Khóa học của tôi'}
         </Link>
       </div>
 
@@ -297,8 +329,37 @@ export const CourseBuilder = () => {
       </Card>
 
       {readOnly && (
-        <Alert variant="info" className="rounded-4">
-          Khóa học hiện chỉ có thể xem. Kiểm tra trạng thái và yêu cầu phê duyệt tại tab Gửi duyệt.
+        <Alert
+          variant={course?.status === 'ACTIVE' || course?.status === 'HIDDEN' ? 'warning' : 'info'}
+          className="rounded-4 d-flex flex-wrap align-items-center justify-content-between gap-3 p-3 mb-4"
+        >
+          <div>
+            <div className="fw-bold">
+              {course?.status === 'ACTIVE'
+                ? 'Khóa học đã được xuất bản và đang hoạt động.'
+                : course?.status === 'HIDDEN'
+                  ? 'Khóa học đang tạm ẩn khỏi danh mục công khai.'
+                  : 'Khóa học hiện chỉ có thể xem.'}
+            </div>
+            <div className="small text-muted mt-1">
+              {course?.status === 'ACTIVE' || course?.status === 'HIDDEN'
+                ? 'Để bổ sung bài học, sửa đổi tài liệu hoặc điều chỉnh học phí, bạn có thể đưa khóa học về bản nháp để chỉnh sửa và gửi duyệt lại.'
+                : 'Khóa học đang chờ xét duyệt hoặc không trong trạng thái chỉnh sửa. Kiểm tra chi tiết tại tab Gửi duyệt.'}
+            </div>
+          </div>
+          {(course?.status === 'ACTIVE' || course?.status === 'HIDDEN') && (
+            <Button
+              variant="primary"
+              className="rounded-pill px-4 fw-semibold shadow-sm text-nowrap"
+              onClick={() => {
+                setEditReason('');
+                setShowRequestEditModal(true);
+              }}
+            >
+              <FontAwesomeIcon icon={faPencilAlt} className="me-2" />
+              Yêu cầu chỉnh sửa khóa học
+            </Button>
+          )}
         </Alert>
       )}
 
@@ -334,16 +395,18 @@ export const CourseBuilder = () => {
             Đề kiểm tra
           </Nav.Link>
         </Nav.Item>
-        <Nav.Item>
-          <Nav.Link
-            disabled={saving}
-            active={activeTab === 'pricing'}
-            onClick={() => requestTabChange('pricing')}
-            className="fw-bold px-4 py-3"
-          >
-            Học phí
-          </Nav.Link>
-        </Nav.Item>
+        {!isSystemMode && (
+          <Nav.Item>
+            <Nav.Link
+              disabled={saving}
+              active={activeTab === 'pricing'}
+              onClick={() => requestTabChange('pricing')}
+              className="fw-bold px-4 py-3"
+            >
+              Học phí
+            </Nav.Link>
+          </Nav.Item>
+        )}
         <Nav.Item>
           <Nav.Link
             disabled={saving}
@@ -361,14 +424,14 @@ export const CourseBuilder = () => {
             onClick={() => requestTabChange('review')}
             className="fw-bold px-4 py-3"
           >
-            Gửi duyệt
+            {isSystemMode ? 'Xuất bản' : 'Gửi duyệt'}
           </Nav.Link>
         </Nav.Item>
       </Nav>
 
       {/* 5. Nội dung Tab hiển thị */}
       <div hidden={activeTab !== 'basic-info'}>
-        <CourseBasicInfo onSaved={handleBasicInfoSaved} onDirtyChange={setHasUnsavedInfo} />
+        <CourseBasicInfo onSaved={handleBasicInfoSaved} onDirtyChange={setHasUnsavedInfo} isSystemCourse={isSystemMode} />
       </div>
       {activeTab === 'curriculum' && (
         <CurriculumTab
@@ -382,10 +445,10 @@ export const CourseBuilder = () => {
           courseId={course.id}
           disabled={readOnly}
           onBack={() => setActiveTab('curriculum')}
-          onNext={() => setActiveTab('pricing')}
+          onNext={() => setActiveTab(isSystemMode ? 'preview' : 'pricing')}
         />
       )}
-      {activeTab === 'pricing' && (
+      {!isSystemMode && activeTab === 'pricing' && (
         <CoursePricing
           key={course?.id ?? 'new'}
           navigationRef={pricingNavigationRef}
@@ -395,14 +458,66 @@ export const CourseBuilder = () => {
       )}
       {activeTab === 'preview' && (
         <CoursePreview
-          onBack={() => setActiveTab('pricing')}
+          onBack={() => setActiveTab(isSystemMode ? 'exams' : 'pricing')}
           onNext={() => setActiveTab('review')}
           onNavigateTab={tab => setActiveTab(tab)}
         />
       )}
       {activeTab === 'review' && (
-        <CourseReviewSubmit key={course?.id ?? 'new'} onBack={() => setActiveTab('preview')} onNavigateTab={tab => setActiveTab(tab)} />
+        <CourseReviewSubmit
+          key={course?.id ?? 'new'}
+          onBack={() => setActiveTab('preview')}
+          onNavigateTab={tab => setActiveTab(tab)}
+          isSystemCourse={isSystemMode}
+        />
       )}
+
+      {/* Modal Yêu cầu chỉnh sửa khóa học */}
+      <Modal show={showRequestEditModal} onHide={() => !submittingEdit && setShowRequestEditModal(false)} centered backdrop="static">
+        <Modal.Header closeButton={!submittingEdit}>
+          <Modal.Title className="h5 fw-bold mb-0">Yêu cầu chỉnh sửa khóa học</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <p className="mb-2">
+            Khóa học <strong>{course?.title}</strong> sẽ được chuyển sang trạng thái <strong>Bản nháp (DRAFT)</strong> để bạn chỉnh sửa bài
+            giảng, tài liệu hoặc học phí và gửi duyệt lại.
+          </p>
+          <Alert variant="info" className="small py-2 mb-3">
+            Học viên đã mua khóa học trước đó vẫn tiếp tục học bình thường. Thay đổi học phí (nếu có) sẽ chỉ áp dụng cho học viên đăng ký
+            mới.
+          </Alert>
+          <Form.Group>
+            <Form.Label className="small fw-bold">
+              Lý do chỉnh sửa nội dung <span className="text-danger">*</span>:
+            </Form.Label>
+            <Form.Control
+              as="textarea"
+              rows={4}
+              placeholder="Vui lòng nêu rõ lý do hoặc các nội dung dự kiến bổ sung/chỉnh sửa (tối thiểu 5 ký tự)..."
+              value={editReason}
+              onChange={e => setEditReason(e.target.value)}
+              disabled={submittingEdit}
+              maxLength={2000}
+            />
+            <div className="small text-muted text-end mt-1">{editReason.length}/2000 ký tự</div>
+          </Form.Group>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={() => setShowRequestEditModal(false)} disabled={submittingEdit}>
+            Hủy
+          </Button>
+          <Button variant="primary" onClick={handleRequestEdit} disabled={submittingEdit || editReason.trim().length < 5}>
+            {submittingEdit ? (
+              <>
+                <Spinner animation="border" size="sm" className="me-2" />
+                Đang xử lý...
+              </>
+            ) : (
+              'Xác nhận chuyển sang bản nháp'
+            )}
+          </Button>
+        </Modal.Footer>
+      </Modal>
     </div>
   );
 };

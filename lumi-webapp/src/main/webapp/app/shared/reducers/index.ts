@@ -15,6 +15,7 @@ import authentication from './authentication';
 import locale from './locale';
 import courseBuilder from 'app/modules/instructor/course-builder/course-builder.reducer';
 import knowledgeGraph from 'app/modules/administration/knowledge-graph/knowledge-graph.reducer';
+import userNotification from 'app/shared/notification/notification.reducer';
 
 /* jhipster-needle-add-reducer-import - JHipster will add reducer here */
 
@@ -34,6 +35,7 @@ const rootReducer: ReducersMapObject = {
   courseBuilder,
   /* jhipster-needle-add-reducer-combine - JHipster will add reducer here */
   ...entitiesReducers,
+  userNotification,
 };
 
 export default rootReducer;

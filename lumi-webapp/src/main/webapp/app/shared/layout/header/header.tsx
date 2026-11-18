@@ -9,6 +9,7 @@ import { useAppSelector } from 'app/config/store';
 import { AccountMenu, AdminMenu, EntitiesMenu } from '../menus';
 
 import { Brand, Home, LumiNavItem } from './header-components';
+import NotificationDropdown from 'app/shared/notification/notification-dropdown';
 
 export interface IHeaderProps {
   isAuthenticated: boolean;
@@ -46,6 +47,7 @@ const Header = (props: IHeaderProps) => {
             <Nav className="lumi-nav-links mx-auto">
               <Home />
               <LumiNavItem to="/courses" label="Khóa học" />
+              {props.isAuthenticated && account?.authorities?.includes('ROLE_STUDENT') && <LumiNavItem to="/ai-chat" label="Trợ lý AI" />}
               <LumiNavItem
                 to={account?.authorities?.includes('ROLE_STUDENT') ? '/student/classes' : '/instructor/classes'}
                 label="Lớp học"
@@ -67,35 +69,7 @@ const Header = (props: IHeaderProps) => {
 
             {/* Right Action Buttons & Account */}
             <div className="lumi-header-actions">
-              {props.isAuthenticated && (
-                <button type="button" className="lumi-notification-btn" aria-label="Thông báo" title="Thông báo" data-cy="notificationBtn">
-                  <svg
-                    width="18"
-                    height="20"
-                    viewBox="0 0 18 20"
-                    fill="none"
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="lumi-bell-icon"
-                    aria-hidden="true"
-                  >
-                    <path
-                      d="M14.25 6.75C14.25 3.85 11.9 1.5 9 1.5C6.1 1.5 3.75 3.85 3.75 6.75C3.75 11.25 1.5 12.75 1.5 14.25H16.5C16.5 12.75 14.25 11.25 14.25 6.75Z"
-                      stroke="#102B59"
-                      strokeWidth="1.5"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-                    <path
-                      d="M7.28 16.5C7.62 17.38 8.24 18 9 18C9.76 18 10.38 17.38 10.72 16.5"
-                      stroke="#102B59"
-                      strokeWidth="1.5"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-                  </svg>
-                  <span className="lumi-notification-dot" />
-                </button>
-              )}
+              {props.isAuthenticated && <NotificationDropdown />}
               <AccountMenu isAuthenticated={props.isAuthenticated} account={account} />
             </div>
           </Navbar.Collapse>

@@ -2,7 +2,7 @@ package com.lumi.web.rest;
 
 import com.lumi.service.criteria.CourseCriteria;
 import com.lumi.service.dto.InstructorCourseDTOs.*;
-import com.lumi.service.impl.InstructorCourseService;
+import com.lumi.service.impl.InstructorCourseServiceImpl;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 import java.net.URI;
@@ -22,9 +22,9 @@ import tech.jhipster.web.util.PaginationUtil;
 @RequestMapping("/api/instructor/courses")
 public class InstructorCourseResource {
 
-    private final InstructorCourseService service;
+    private final InstructorCourseServiceImpl service;
 
-    public InstructorCourseResource(InstructorCourseService service) {
+    public InstructorCourseResource(InstructorCourseServiceImpl service) {
         this.service = service;
     }
 
@@ -41,6 +41,31 @@ public class InstructorCourseResource {
         return ResponseEntity.ok()
             .headers(PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page))
             .body(page.getContent());
+    }
+
+    @GetMapping("/system")
+    public ResponseEntity<List<ManageCourse>> listSystem(
+        CourseCriteria criteria,
+        @org.springdoc.core.annotations.ParameterObject @PageableDefault(
+            size = 20,
+            sort = { "updatedAt", "id" },
+            direction = Sort.Direction.DESC
+        ) Pageable pageable
+    ) {
+        var page = service.listSystemCourses(criteria, pageable);
+        return ResponseEntity.ok()
+            .headers(PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page))
+            .body(page.getContent());
+    }
+
+    @PostMapping("/{courseId}/publish-system")
+    public Builder publishSystem(@PathVariable Long courseId, @Valid @RequestBody PublishSystemCourse input) {
+        return service.publishSystemCourse(courseId, input.version());
+    }
+
+    @PostMapping("/{courseId}/unpublish-system")
+    public Builder unpublishSystem(@PathVariable Long courseId, @Valid @RequestBody PublishSystemCourse input) {
+        return service.unpublishSystemCourse(courseId, input.version());
     }
 
     @DeleteMapping("/{courseId}")
@@ -79,6 +104,12 @@ public class InstructorCourseResource {
     @PostMapping("/{courseId}/review-requests/withdraw")
     public Builder withdrawReview(@PathVariable Long courseId, @Valid @RequestBody WithdrawReview input) {
         return service.withdrawReview(courseId, input);
+    }
+
+    @PostMapping("/{courseId}/request-edit")
+    public Builder requestEdit(@PathVariable Long courseId, @RequestBody(required = false) java.util.Map<String, String> body) {
+        String reason = body != null ? body.get("reason") : null;
+        return service.requestEdit(courseId, reason);
     }
 
     @PutMapping("/{courseId}/pricing")

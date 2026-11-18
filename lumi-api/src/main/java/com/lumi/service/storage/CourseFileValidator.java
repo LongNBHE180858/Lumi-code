@@ -70,14 +70,23 @@ public class CourseFileValidator {
             }
             return "application/pdf";
         }
-        if (!extension.equals("docx")) throw invalid("Lesson documents must be PDF or DOCX");
+        if (!extension.equals("docx") && !extension.equals("pptx")) throw invalid("Lesson documents must be PDF, DOCX or PPTX");
+        boolean isPptx = extension.equals("pptx");
+        String mainPart = isPptx ? "ppt/presentation.xml" : "word/document.xml";
+        String mainContentType = isPptx
+            ? "application/vnd.openxmlformats-officedocument.presentationml.presentation.main+xml"
+            : "application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml";
+        String mimeType = isPptx
+            ? "application/vnd.openxmlformats-officedocument.presentationml.presentation"
+            : "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
+        String vbaPart = isPptx ? "ppt/vbaProject.bin" : "word/vbaProject.bin";
+        String docLabel = isPptx ? "PPTX" : "DOCX";
+
         try (ZipFile zip = new ZipFile(file.toFile())) {
             if (
-                zip.getEntry("[Content_Types].xml") == null ||
-                zip.getEntry("word/document.xml") == null ||
-                zip.getEntry("_rels/.rels") == null
-            ) throw invalid("Invalid DOCX package");
-            if (zip.getEntry("word/vbaProject.bin") != null) throw invalid("Macro-enabled documents are not supported");
+                zip.getEntry("[Content_Types].xml") == null || zip.getEntry(mainPart) == null || zip.getEntry("_rels/.rels") == null
+            ) throw invalid("Invalid " + docLabel + " package");
+            if (zip.getEntry(vbaPart) != null) throw invalid("Macro-enabled documents are not supported");
             var factory = DocumentBuilderFactory.newInstance();
             factory.setNamespaceAware(true);
             factory.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
@@ -89,22 +98,19 @@ public class CourseFileValidator {
             try (var input = zip.getInputStream(zip.getEntry("[Content_Types].xml"))) {
                 content = input.readNBytes(1024 * 1024 + 1);
             }
-            if (content.length > 1024 * 1024) throw invalid("DOCX manifest is too large");
+            if (content.length > 1024 * 1024) throw invalid(docLabel + " manifest is too large");
             var document = factory.newDocumentBuilder().parse(new ByteArrayInputStream(content));
             var entries = document.getElementsByTagNameNS("http://schemas.openxmlformats.org/package/2006/content-types", "Override");
-            boolean word = false;
+            boolean validMain = false;
             for (int i = 0; i < entries.getLength(); i++) {
                 var entry = (org.w3c.dom.Element) entries.item(i);
                 if (
-                    "/word/document.xml".equals(entry.getAttribute("PartName")) &&
-                    "application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml".equals(
-                        entry.getAttribute("ContentType")
-                    )
-                ) word = true;
+                    ("/" + mainPart).equals(entry.getAttribute("PartName")) && mainContentType.equals(entry.getAttribute("ContentType"))
+                ) validMain = true;
             }
-            if (!word) throw invalid("Invalid DOCX content type");
+            if (!validMain) throw invalid("Invalid " + docLabel + " content type");
         }
-        return "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
+        return mimeType;
     }
 
     private String video(Path file, String extension) throws IOException {

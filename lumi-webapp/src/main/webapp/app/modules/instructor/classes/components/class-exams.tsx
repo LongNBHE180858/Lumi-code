@@ -4,7 +4,7 @@ import {
   createExamFromMatrix,
   generateExamPreview,
   getInstructorExams,
-  updateClassExam,
+  updateClassExamStatus,
   type ExamSummary,
   type MatrixRow,
   type PickedQuestion,
@@ -14,6 +14,7 @@ import { getBankTopics, getQuestionBanks, type BankSummary, type TopicSummary } 
 interface Props {
   classId: number;
   lessons: ClassroomMaterial[];
+  initialPracticeMaterialId?: number | null;
 }
 
 const difficultyLabels: Record<number, string> = {
@@ -24,7 +25,11 @@ const difficultyLabels: Record<number, string> = {
   5: '5 - Nâng cao',
 };
 
-export const ClassExams: React.FC<Props> = ({ classId, lessons }) => {
+const localDateTime = (date: Date): string => new Date(date.getTime() - date.getTimezoneOffset() * 60_000).toISOString().slice(0, 16);
+
+const initialClosesAt = (): string => localDateTime(new Date(Date.now() + 7 * 24 * 60 * 60 * 1000));
+
+export const ClassExams: React.FC<Props> = ({ classId, lessons, initialPracticeMaterialId = null }) => {
   const [exams, setExams] = useState<ExamSummary[]>([]);
   const [students, setStudents] = useState<ClassroomMember[]>([]);
   const [banks, setBanks] = useState<BankSummary[]>([]);
@@ -33,15 +38,23 @@ export const ClassExams: React.FC<Props> = ({ classId, lessons }) => {
   const [notice, setNotice] = useState<string | null>(null);
 
   // Chế độ tạo đề theo ma trận
-  const [isCreating, setIsCreating] = useState(false);
+  const [isCreating, setIsCreating] = useState(initialPracticeMaterialId != null);
   const [step, setStep] = useState<1 | 2 | 3 | 4>(1);
 
   // Bước 1: Thông tin bài kiểm tra
   const [title, setTitle] = useState('');
-  const [materialId, setMaterialId] = useState<number | null>(null);
+  const [materialId, setMaterialId] = useState<number | null>(initialPracticeMaterialId);
   const [durationMinutes, setDurationMinutes] = useState(15);
   const [passScore, setPassScore] = useState(50);
   const [assignedStudentId, setAssignedStudentId] = useState<number | null>(null);
+  const [assessmentType, setAssessmentType] = useState<'EXAM' | 'PRACTICE'>(initialPracticeMaterialId == null ? 'EXAM' : 'PRACTICE');
+  const [maxAttempt, setMaxAttempt] = useState(1);
+  const [unlimitedAttempts, setUnlimitedAttempts] = useState(false);
+  const [resultReleaseMode, setResultReleaseMode] = useState<'IMMEDIATE' | 'AFTER_CLOSE'>('IMMEDIATE');
+  const [answerReleaseMode, setAnswerReleaseMode] = useState<'AFTER_SUBMIT' | 'AFTER_CLOSE' | 'NEVER'>('AFTER_SUBMIT');
+  const [shuffleQuestions, setShuffleQuestions] = useState(false);
+  const [openAt, setOpenAt] = useState(() => localDateTime(new Date()));
+  const [closesAt, setClosesAt] = useState(initialClosesAt);
 
   // Bước 2: Chọn ngân hàng
   const [selectedBankId, setSelectedBankId] = useState<number | null>(null);
@@ -97,6 +110,14 @@ export const ClassExams: React.FC<Props> = ({ classId, lessons }) => {
     setDurationMinutes(15);
     setPassScore(50);
     setAssignedStudentId(null);
+    setAssessmentType('EXAM');
+    setMaxAttempt(1);
+    setUnlimitedAttempts(false);
+    setResultReleaseMode('IMMEDIATE');
+    setAnswerReleaseMode('AFTER_SUBMIT');
+    setShuffleQuestions(false);
+    setOpenAt(localDateTime(new Date()));
+    setClosesAt(initialClosesAt());
     setMatrixRows([{ topic: 'ALL', difficulty: undefined, count: 5, points: 1 }]);
     setPreviewQuestions([]);
   };
@@ -106,13 +127,7 @@ export const ClassExams: React.FC<Props> = ({ classId, lessons }) => {
     setSaving(true);
     setError(null);
     try {
-      await updateClassExam(classId, exam.id, {
-        title: exam.title,
-        durationMinutes: exam.durationMinutes,
-        passScore: exam.passScore,
-        assignedStudentId: exam.assignedStudentId,
-        status: exam.status === 'ACTIVE' ? 'ARCHIVED' : 'ACTIVE',
-      });
+      await updateClassExamStatus(classId, exam.id, exam.status === 'ACTIVE' ? 'ARCHIVED' : 'ACTIVE');
       setExams(await getInstructorExams(classId));
       setNotice(`Đã chuyển trạng thái bài kiểm tra "${exam.title}".`);
     } catch (cause) {
@@ -192,6 +207,16 @@ export const ClassExams: React.FC<Props> = ({ classId, lessons }) => {
       setError('Chưa có câu hỏi nào trong bộ đề.');
       return;
     }
+    const opensAtTime = new Date(openAt).getTime();
+    const closesAtTime = new Date(closesAt).getTime();
+    if (!Number.isFinite(opensAtTime) || !Number.isFinite(closesAtTime) || opensAtTime >= closesAtTime) {
+      setError('Giờ đóng đề phải sau giờ mở đề.');
+      return;
+    }
+    if (assessmentType === 'EXAM' && !unlimitedAttempts && (!Number.isInteger(maxAttempt) || maxAttempt < 1 || maxAttempt > 10)) {
+      setError('Số lượt làm phải từ 1 đến 10.');
+      return;
+    }
     setSaving(true);
     setError(null);
     try {
@@ -204,6 +229,13 @@ export const ClassExams: React.FC<Props> = ({ classId, lessons }) => {
         bankId: selectedBankId,
         questionIds: previewQuestions.map(q => q.questionId),
         pointsPerQuestion: 1,
+        assessmentType,
+        maxAttempt: assessmentType === 'PRACTICE' || unlimitedAttempts ? null : maxAttempt,
+        resultReleaseMode,
+        answerReleaseMode,
+        shuffleQuestions,
+        openAt: new Date(opensAtTime).toISOString(),
+        closesAt: new Date(closesAtTime).toISOString(),
       });
       setExams(await getInstructorExams(classId));
       setNotice(`Đã tạo thành công bài kiểm tra "${title}".`);
@@ -362,75 +394,320 @@ export const ClassExams: React.FC<Props> = ({ classId, lessons }) => {
 
           {/* BƯỚC 1: THÔNG TIN BÀI KIỂM TRA */}
           {step === 1 && (
-            <div style={{ maxWidth: '640px' }}>
-              <h3 style={{ marginTop: 0 }}>Bước 1: Thiết lập thông tin bài kiểm tra</h3>
-              <div style={{ marginBottom: '1rem' }}>
-                <label style={{ display: 'block', fontWeight: 600, marginBottom: '0.35rem' }}>Tên bài kiểm tra (*):</label>
-                <input
-                  type="text"
-                  required
-                  placeholder="VD: Kiểm tra 15 phút: Đại số chương 1"
-                  style={{ width: '100%', padding: '0.55rem', borderRadius: '6px', border: '1px solid #cbd5e1' }}
-                  value={title}
-                  onChange={e => setTitle(e.target.value)}
-                />
-              </div>
+            <div>
+              <h3 style={{ marginTop: 0, marginBottom: '1rem', color: '#0f172a', fontSize: '1.2rem' }}>
+                Bước 1: Thiết lập thông tin bài kiểm tra
+              </h3>
 
-              <div style={{ marginBottom: '1rem' }}>
-                <label style={{ display: 'block', fontWeight: 600, marginBottom: '0.35rem' }}>Gắn với bài học (tùy chọn):</label>
-                <select
-                  style={{ width: '100%', padding: '0.55rem', borderRadius: '6px', border: '1px solid #cbd5e1' }}
-                  value={materialId ?? ''}
-                  onChange={e => setMaterialId(e.target.value ? Number(e.target.value) : null)}
+              <div
+                style={{
+                  display: 'grid',
+                  gridTemplateColumns: 'repeat(auto-fit, minmax(340px, 1fr))',
+                  gap: '1.25rem',
+                  alignItems: 'start',
+                  marginBottom: '1.25rem',
+                }}
+              >
+                {/* CỘT TRÁI: THÔNG TIN CHUNG */}
+                <div
+                  style={{
+                    display: 'grid',
+                    gap: '0.9rem',
+                    padding: '1.1rem',
+                    background: '#f8fafc',
+                    border: '1px solid #e2e8f0',
+                    borderRadius: '10px',
+                  }}
                 >
-                  <option value="">Bài kiểm tra chung của lớp (không gắn bài học đơn lẻ)</option>
-                  {lessons.map(l => (
-                    <option key={l.id} value={l.id}>
-                      {l.title} ({l.fileType})
-                    </option>
-                  ))}
-                </select>
-              </div>
+                  <label style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem', fontWeight: 600, color: '#1e293b' }}>
+                    <span>Tên bài kiểm tra (*):</span>
+                    <input
+                      type="text"
+                      required
+                      placeholder="VD: Kiểm tra 15 phút: Đại số chương 1"
+                      style={{
+                        width: '100%',
+                        padding: '0.55rem 0.75rem',
+                        borderRadius: '8px',
+                        border: '1px solid #cbd5e1',
+                        background: '#fff',
+                        fontSize: '0.92rem',
+                        boxSizing: 'border-box',
+                      }}
+                      value={title}
+                      onChange={e => setTitle(e.target.value)}
+                    />
+                  </label>
 
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
-                <div>
-                  <label style={{ display: 'block', fontWeight: 600, marginBottom: '0.35rem' }}>Thời gian làm bài (phút):</label>
-                  <input
-                    type="number"
-                    min={1}
-                    max={180}
-                    style={{ width: '100%', padding: '0.55rem', borderRadius: '6px', border: '1px solid #cbd5e1' }}
-                    value={durationMinutes}
-                    onChange={e => setDurationMinutes(Number(e.target.value))}
-                  />
-                </div>
-                <div>
-                  <label style={{ display: 'block', fontWeight: 600, marginBottom: '0.35rem' }}>Điểm đạt (%):</label>
-                  <input
-                    type="number"
-                    min={0}
-                    max={100}
-                    style={{ width: '100%', padding: '0.55rem', borderRadius: '6px', border: '1px solid #cbd5e1' }}
-                    value={passScore}
-                    onChange={e => setPassScore(Number(e.target.value))}
-                  />
-                </div>
-              </div>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: '0.85rem' }}>
+                    <label style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem', fontWeight: 600, color: '#1e293b' }}>
+                      <span>Gắn với bài học:</span>
+                      <select
+                        style={{
+                          width: '100%',
+                          padding: '0.55rem 0.75rem',
+                          borderRadius: '8px',
+                          border: '1px solid #cbd5e1',
+                          background: '#fff',
+                          fontSize: '0.92rem',
+                          boxSizing: 'border-box',
+                        }}
+                        value={materialId ?? ''}
+                        onChange={e => setMaterialId(e.target.value ? Number(e.target.value) : null)}
+                      >
+                        <option value="">Bài kiểm tra chung của lớp</option>
+                        {lessons.map(l => (
+                          <option key={l.id} value={l.id}>
+                            {l.title} ({l.fileType})
+                          </option>
+                        ))}
+                      </select>
+                    </label>
 
-              <div style={{ marginBottom: '1.5rem' }}>
-                <label style={{ display: 'block', fontWeight: 600, marginBottom: '0.35rem' }}>Gao cho học sinh:</label>
-                <select
-                  style={{ width: '100%', padding: '0.55rem', borderRadius: '6px', border: '1px solid #cbd5e1' }}
-                  value={assignedStudentId ?? ''}
-                  onChange={e => setAssignedStudentId(e.target.value ? Number(e.target.value) : null)}
+                    <label style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem', fontWeight: 600, color: '#1e293b' }}>
+                      <span>Giao cho học sinh:</span>
+                      <select
+                        style={{
+                          width: '100%',
+                          padding: '0.55rem 0.75rem',
+                          borderRadius: '8px',
+                          border: '1px solid #cbd5e1',
+                          background: '#fff',
+                          fontSize: '0.92rem',
+                          boxSizing: 'border-box',
+                        }}
+                        value={assignedStudentId ?? ''}
+                        onChange={e => setAssignedStudentId(e.target.value ? Number(e.target.value) : null)}
+                      >
+                        <option value="">Cả lớp ({students.length} học sinh)</option>
+                        {students.map(s => (
+                          <option key={s.studentId} value={s.studentId}>
+                            {s.name} ({s.email})
+                          </option>
+                        ))}
+                      </select>
+                    </label>
+                  </div>
+
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: '0.85rem' }}>
+                    <label style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem', fontWeight: 600, color: '#1e293b' }}>
+                      <span>Thời gian làm bài (phút):</span>
+                      <input
+                        type="number"
+                        min={1}
+                        max={180}
+                        style={{
+                          width: '100%',
+                          padding: '0.55rem 0.75rem',
+                          borderRadius: '8px',
+                          border: '1px solid #cbd5e1',
+                          background: '#fff',
+                          fontSize: '0.92rem',
+                          boxSizing: 'border-box',
+                        }}
+                        value={durationMinutes}
+                        onChange={e => setDurationMinutes(Number(e.target.value))}
+                      />
+                    </label>
+                    <label style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem', fontWeight: 600, color: '#1e293b' }}>
+                      <span>Điểm đạt (%):</span>
+                      <input
+                        type="number"
+                        min={0}
+                        max={100}
+                        style={{
+                          width: '100%',
+                          padding: '0.55rem 0.75rem',
+                          borderRadius: '8px',
+                          border: '1px solid #cbd5e1',
+                          background: '#fff',
+                          fontSize: '0.92rem',
+                          boxSizing: 'border-box',
+                        }}
+                        value={passScore}
+                        onChange={e => setPassScore(Number(e.target.value))}
+                      />
+                    </label>
+                  </div>
+
+                  <label
+                    style={{
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: '0.6rem',
+                      padding: '0.6rem 0.8rem',
+                      background: '#ffffff',
+                      border: '1px solid #cbd5e1',
+                      borderRadius: '8px',
+                      fontWeight: 600,
+                      color: '#1e293b',
+                      cursor: 'pointer',
+                    }}
+                  >
+                    <input
+                      type="checkbox"
+                      style={{ width: '17px', height: '17px', accentColor: '#0284c7', margin: 0, cursor: 'pointer' }}
+                      checked={shuffleQuestions}
+                      onChange={e => setShuffleQuestions(e.target.checked)}
+                    />
+                    <span>Trộn câu hỏi ngẫu nhiên giữa các lượt làm</span>
+                  </label>
+                </div>
+
+                {/* CỘT PHẢI: QUY TẮC & THỜI GIAN MỞ/ĐÓNG */}
+                <div
+                  style={{
+                    display: 'grid',
+                    gap: '0.9rem',
+                    padding: '1.1rem',
+                    background: '#f8fafc',
+                    border: '1px solid #e2e8f0',
+                    borderRadius: '10px',
+                  }}
                 >
-                  <option value="">Toàn bộ học sinh trong lớp ({students.length} học sinh)</option>
-                  {students.map(s => (
-                    <option key={s.studentId} value={s.studentId}>
-                      {s.name} ({s.email})
-                    </option>
-                  ))}
-                </select>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: '0.85rem' }}>
+                    <label
+                      style={{
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: '0.35rem',
+                        fontWeight: 600,
+                        color: '#1e293b',
+                        gridColumn: assessmentType === 'EXAM' ? 'auto' : '1 / -1',
+                      }}
+                    >
+                      <span>Loại bài:</span>
+                      <select
+                        style={{
+                          width: '100%',
+                          padding: '0.55rem 0.75rem',
+                          borderRadius: '8px',
+                          border: '1px solid #cbd5e1',
+                          background: '#fff',
+                          fontSize: '0.92rem',
+                          boxSizing: 'border-box',
+                        }}
+                        value={assessmentType}
+                        onChange={e => {
+                          const type = e.target.value as 'EXAM' | 'PRACTICE';
+                          setAssessmentType(type);
+                          setResultReleaseMode('IMMEDIATE');
+                          setAnswerReleaseMode('AFTER_SUBMIT');
+                        }}
+                      >
+                        <option value="EXAM">Kiểm tra</option>
+                        <option value="PRACTICE">Luyện tập</option>
+                      </select>
+                    </label>
+                    {assessmentType === 'EXAM' && (
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem', fontWeight: 600, color: '#1e293b' }}>
+                        <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontWeight: 500 }}>
+                          <input type="checkbox" checked={unlimitedAttempts} onChange={e => setUnlimitedAttempts(e.target.checked)} />
+                          Không giới hạn lượt làm
+                        </label>
+                        <label style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
+                          Số lượt tối đa:
+                          <input
+                            type="number"
+                            min={1}
+                            max={10}
+                            disabled={unlimitedAttempts}
+                            style={{
+                              width: '100%',
+                              padding: '0.55rem 0.75rem',
+                              borderRadius: '8px',
+                              border: '1px solid #cbd5e1',
+                              background: '#fff',
+                              fontSize: '0.92rem',
+                              boxSizing: 'border-box',
+                            }}
+                            value={unlimitedAttempts ? '' : maxAttempt}
+                            onChange={e => setMaxAttempt(Number(e.target.value))}
+                          />
+                        </label>
+                      </div>
+                    )}
+                  </div>
+
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: '0.85rem' }}>
+                    <label style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem', fontWeight: 600, color: '#1e293b' }}>
+                      <span>Mở đề lúc:</span>
+                      <input
+                        type="datetime-local"
+                        style={{
+                          width: '100%',
+                          padding: '0.55rem 0.75rem',
+                          borderRadius: '8px',
+                          border: '1px solid #cbd5e1',
+                          background: '#fff',
+                          fontSize: '0.92rem',
+                          boxSizing: 'border-box',
+                        }}
+                        value={openAt}
+                        onChange={e => setOpenAt(e.target.value)}
+                      />
+                    </label>
+                    <label style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem', fontWeight: 600, color: '#1e293b' }}>
+                      <span>Đóng đề lúc:</span>
+                      <input
+                        type="datetime-local"
+                        style={{
+                          width: '100%',
+                          padding: '0.55rem 0.75rem',
+                          borderRadius: '8px',
+                          border: '1px solid #cbd5e1',
+                          background: '#fff',
+                          fontSize: '0.92rem',
+                          boxSizing: 'border-box',
+                        }}
+                        value={closesAt}
+                        onChange={e => setClosesAt(e.target.value)}
+                      />
+                    </label>
+                  </div>
+
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: '0.85rem' }}>
+                    <label style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem', fontWeight: 600, color: '#1e293b' }}>
+                      <span>Công bố điểm:</span>
+                      <select
+                        style={{
+                          width: '100%',
+                          padding: '0.55rem 0.75rem',
+                          borderRadius: '8px',
+                          border: '1px solid #cbd5e1',
+                          background: '#fff',
+                          fontSize: '0.92rem',
+                          boxSizing: 'border-box',
+                        }}
+                        value={resultReleaseMode}
+                        onChange={e => setResultReleaseMode(e.target.value as 'IMMEDIATE' | 'AFTER_CLOSE')}
+                      >
+                        <option value="IMMEDIATE">Ngay sau khi nộp</option>
+                        {assessmentType === 'EXAM' && <option value="AFTER_CLOSE">Sau khi đóng đề</option>}
+                      </select>
+                    </label>
+                    <label style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem', fontWeight: 600, color: '#1e293b' }}>
+                      <span>Công bố đáp án:</span>
+                      <select
+                        style={{
+                          width: '100%',
+                          padding: '0.55rem 0.75rem',
+                          borderRadius: '8px',
+                          border: '1px solid #cbd5e1',
+                          background: '#fff',
+                          fontSize: '0.92rem',
+                          boxSizing: 'border-box',
+                        }}
+                        value={answerReleaseMode}
+                        onChange={e => setAnswerReleaseMode(e.target.value as 'AFTER_SUBMIT' | 'AFTER_CLOSE' | 'NEVER')}
+                      >
+                        <option value="AFTER_SUBMIT">Ngay sau khi nộp</option>
+                        {assessmentType === 'EXAM' && <option value="AFTER_CLOSE">Sau khi đóng đề</option>}
+                        {assessmentType === 'EXAM' && <option value="NEVER">Không công bố</option>}
+                      </select>
+                    </label>
+                  </div>
+                </div>
               </div>
 
               <div style={{ display: 'flex', justifyContent: 'space-between' }}>

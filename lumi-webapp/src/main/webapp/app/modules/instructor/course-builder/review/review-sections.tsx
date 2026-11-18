@@ -73,12 +73,21 @@ export const ReviewCourseSummary = ({ data, preview }: { data: IBuilderAggregate
         {data.chapters.length} chương • {data.totalLessons} bài học • {data.totalMaterials} tài liệu
       </div>
       <div className="small text-muted mb-3">{chapterDuration(lessons)}</div>
-      <div className="fw-bold fs-4 text-primary">{pricing.priceText}</div>
-      <div className="small text-muted mb-3">
-        {[pricing.paymentText, pricing.durationValid ? `Truy cập ${pricing.durationText}` : pricing.durationText]
-          .filter(Boolean)
-          .join(' • ')}
-      </div>
+      {course.isSystemCourse ? (
+        <div className="mb-3">
+          <div className="fw-bold fs-5 text-primary">Gói học kỳ hệ thống</div>
+          <div className="small text-muted">Bao gồm trong gói học phí học kỳ / cả năm cho học sinh</div>
+        </div>
+      ) : (
+        <>
+          <div className="fw-bold fs-4 text-primary">{pricing.priceText}</div>
+          <div className="small text-muted mb-3">
+            {[pricing.paymentText, pricing.durationValid ? `Truy cập ${pricing.durationText}` : pricing.durationText]
+              .filter(Boolean)
+              .join(' • ')}
+          </div>
+        </>
+      )}
       <Badge bg="info" className="text-primary bg-info-subtle py-2 mb-3">
         {courseLifecycle(data).label}
       </Badge>

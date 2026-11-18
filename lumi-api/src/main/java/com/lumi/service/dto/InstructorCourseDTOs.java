@@ -12,9 +12,15 @@ public final class InstructorCourseDTOs {
 
     private InstructorCourseDTOs() {}
 
-    public record CreateDraft(@Size(max = 255) String title) {}
+    public record CreateDraft(@Size(max = 255) String title, Boolean isSystemCourse) {
+        public CreateDraft(String title) {
+            this(title, false);
+        }
+    }
 
     public record WithdrawReview(@NotNull @Min(0) Long version) {}
+
+    public record PublishSystemCourse(@NotNull @Min(0) Long version) {}
 
     public record ManageCourse(
         Long id,
@@ -33,8 +39,50 @@ public final class InstructorCourseDTOs {
         long lessonCount,
         long videoCount,
         long totalDurationSeconds,
-        double totalDurationHours
-    ) {}
+        double totalDurationHours,
+        Boolean isSystemCourse
+    ) {
+        public ManageCourse(
+            Long id,
+            Long version,
+            String title,
+            SubjectDTO subject,
+            GradeDTO grade,
+            String bookSeries,
+            com.lumi.domain.enumeration.RecordStatus status,
+            BigDecimal price,
+            Integer accessDurationValue,
+            String accessDurationUnit,
+            Instant updatedAt,
+            String thumbnailUrl,
+            long chapterCount,
+            long lessonCount,
+            long videoCount,
+            long totalDurationSeconds,
+            double totalDurationHours
+        ) {
+            this(
+                id,
+                version,
+                title,
+                subject,
+                grade,
+                bookSeries,
+                status,
+                price,
+                accessDurationValue,
+                accessDurationUnit,
+                updatedAt,
+                thumbnailUrl,
+                chapterCount,
+                lessonCount,
+                videoCount,
+                totalDurationSeconds,
+                totalDurationHours,
+                false
+            );
+        }
+    }
 
     public record BasicInfo(
         @NotNull @Min(0) Long version,
@@ -75,6 +123,8 @@ public final class InstructorCourseDTOs {
     public record CurriculumOrder(@NotNull @Min(0) Long version, @NotNull List<@NotNull @Valid ChapterOrder> chapters) {}
 
     public record MaterialInput(@NotNull @Min(0) Long version, @Size(max = 255) String displayName) {}
+
+    public record MaterialSummaryInput(@NotNull @Min(0) Long version, String summary) {}
 
     public record MaterialOrder(@NotNull @Min(0) Long version, @NotNull List<@NotNull Long> materialIds) {}
 

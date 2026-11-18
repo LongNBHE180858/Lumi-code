@@ -24,6 +24,7 @@ public class ChatConversationService {
 
     private final AiConversationRepository conversationRepository;
     private final UserRepository userRepository;
+    private final ChatContextService contexts;
 
     public record CreatedConversation(
         Long conversationId,
@@ -33,7 +34,11 @@ public class ChatConversationService {
 
     @Transactional
     @PreAuthorize("isAuthenticated()")
-    public CreatedConversation create() {
+    public CreatedConversation create() { return create(null); }
+
+    @Transactional
+    @PreAuthorize("isAuthenticated()")
+    public CreatedConversation create(Long lessonId) {
         String login = SecurityUtils.getCurrentUserLogin()
             .orElseThrow(() -> new ResponseStatusException(
                 HttpStatus.UNAUTHORIZED,
@@ -50,6 +55,7 @@ public class ChatConversationService {
 
         AiConversation conversation = new AiConversation()
             .type(AiConversationType.RAG_TUTOR.name())
+            .lesson(contexts.requireLesson(lessonId, login))
             .user(user)
             .createdAt(now)
             .updatedAt(now);

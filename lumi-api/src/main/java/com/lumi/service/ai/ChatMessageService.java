@@ -38,6 +38,7 @@ public class ChatMessageService {
     private final AiMessageRepository messageRepository;
     private final RagChatService ragChatService;
     private final PlatformTransactionManager transactionManager;
+    private final ChatContextService contexts;
 
     @Value("${spring.ai.openai.chat.model}")
     private String chatModelName;
@@ -76,7 +77,10 @@ public class ChatMessageService {
         Instant questionTime = Instant.now();
 
         // 2. Gọi Gemini ngoài transaction ghi DB.
-        var result = ragChatService.chat(login, normalizedQuestion);
+        var snapshot = contexts.snapshot(conversationId, login, normalizedQuestion);
+        var result = snapshot.lesson().isBlank() && snapshot.history().isBlank()
+            ? ragChatService.chat(login, normalizedQuestion)
+            : ragChatService.chat(login, normalizedQuestion, snapshot);
 
         // 3. Chỉ mở transaction khi đã có kết quả RAG.
         return new TransactionTemplate(transactionManager).execute(tx -> {
@@ -85,6 +89,14 @@ public class ChatMessageService {
                 .findByIdAndUser_LoginAndTypeIn(conversationId, login, SUPPORTED_CONVERSATION_TYPES)
                 .orElseThrow(this::conversationNotFound);
 
+            Long currentLast = messageRepository.findFirstByConversation_IdOrderByCreatedAtDescIdDesc(conversationId)
+                .map(AiMessage::getId).orElse(null);
+            Long currentLesson = conversation.getLesson() == null ? null : conversation.getLesson().getId();
+            if (!java.util.Objects.equals(currentLast, snapshot.lastMessageId())
+                || !java.util.Objects.equals(currentLesson, snapshot.lessonId())) {
+                throw new ResponseStatusException(HttpStatus.CONFLICT, "Hội thoại đã thay đổi. Vui lòng gửi lại.");
+            }
+            contexts.requireLesson(currentLesson, login);
             Instant now = Instant.now();
 
             AiMessage userMessage = new AiMessage()
@@ -146,7 +158,8 @@ public class ChatMessageService {
         String senderRole,
         String content,
         List<Map<String, Object>> citations,
-        Instant createdAt
+        Instant createdAt,
+        String generationStatus
     ) {}
 
     @Transactional(readOnly = true)
@@ -180,7 +193,8 @@ public class ChatMessageService {
                 message.getSenderRole(),
                 message.getContent(),
                 message.getCitations(),
-                message.getCreatedAt()
+                message.getCreatedAt(),
+                message.getGenerationStatus()
             ))
             .toList();
     }

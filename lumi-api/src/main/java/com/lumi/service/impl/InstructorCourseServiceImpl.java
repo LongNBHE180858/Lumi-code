@@ -3,7 +3,9 @@ package com.lumi.service.impl;
 import com.lumi.domain.*;
 import com.lumi.domain.enumeration.*;
 import com.lumi.repository.*;
-import com.lumi.service.InstructorAccessService;
+import com.lumi.security.AuthoritiesConstants;
+import com.lumi.security.SecurityUtils;
+import com.lumi.service.NotificationService;
 import com.lumi.service.criteria.CourseCriteria;
 import com.lumi.service.dto.InstructorCourseDTOs.*;
 import com.lumi.service.mapper.*;
@@ -17,19 +19,21 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 @Service
 @Transactional
-public class InstructorCourseService {
+public class InstructorCourseServiceImpl {
 
     private final CourseRepository courses;
     private final ChapterRepository chapters;
     private final LessonRepository lessons;
     private final CourseMaterialRepository materials;
-    private final InstructorAccessService instructorAccess;
+    private final UserRepository users;
+    private final UserProfileRepository profiles;
     private final CourseReviewRequestRepository reviews;
     private final CourseMapper courseMapper;
     private final CourseQueryService courseQuery;
@@ -38,13 +42,17 @@ public class InstructorCourseService {
     private final CourseMaterialMapper materialMapper;
     private final EntityManager em;
     private final com.lumi.service.storage.CourseStorageCleanup cleanup;
+    private final NotificationService notificationService;
+    private final NotificationRepository notificationRepository;
+    private final NotificationWebSocketService notificationWebSocketService;
 
-    public InstructorCourseService(
+    public InstructorCourseServiceImpl(
         CourseRepository courses,
         ChapterRepository chapters,
         LessonRepository lessons,
         CourseMaterialRepository materials,
-        InstructorAccessService instructorAccess,
+        UserRepository users,
+        UserProfileRepository profiles,
         CourseReviewRequestRepository reviews,
         CourseMapper courseMapper,
         CourseQueryService courseQuery,
@@ -52,14 +60,18 @@ public class InstructorCourseService {
         LessonMapper lessonMapper,
         CourseMaterialMapper materialMapper,
         EntityManager em,
-        com.lumi.service.storage.CourseStorageCleanup cleanup
+        com.lumi.service.storage.CourseStorageCleanup cleanup,
+        NotificationService notificationService,
+        NotificationRepository notificationRepository,
+        NotificationWebSocketService notificationWebSocketService
     ) {
         this.cleanup = cleanup;
         this.courses = courses;
         this.chapters = chapters;
         this.lessons = lessons;
         this.materials = materials;
-        this.instructorAccess = instructorAccess;
+        this.users = users;
+        this.profiles = profiles;
         this.reviews = reviews;
         this.courseMapper = courseMapper;
         this.courseQuery = courseQuery;
@@ -67,17 +79,39 @@ public class InstructorCourseService {
         this.lessonMapper = lessonMapper;
         this.materialMapper = materialMapper;
         this.em = em;
+        this.notificationService = notificationService;
+        this.notificationRepository = notificationRepository;
+        this.notificationWebSocketService = notificationWebSocketService;
     }
 
     private User currentInstructor() {
-        return instructorAccess.requireActiveInstructor();
+        String login = SecurityUtils.getCurrentUserLogin().orElseThrow(() -> new AccessDeniedException("Authentication required"));
+        User user = users.findOneByLogin(login).orElseThrow(() -> new AccessDeniedException("Account not found"));
+        boolean admin = SecurityUtils.hasCurrentUserThisAuthority(AuthoritiesConstants.ADMIN);
+        boolean reviewer = SecurityUtils.hasCurrentUserThisAuthority(AuthoritiesConstants.REVIEWER);
+        boolean instructor = profiles
+            .findOneByUserId(user.getId())
+            .map(p -> p.getInstructorStatus() == InstructorApplicationStatus.ACTIVE)
+            .orElse(false);
+        if (!user.isActivated() || (!admin && !reviewer && !instructor)) throw new AccessDeniedException(
+            "Active instructor or reviewer required"
+        );
+        return user;
     }
 
     @Transactional(readOnly = true)
     public Course owned(Long id) {
         User user = currentInstructor();
         Course course = courses.findById(id).orElseThrow(() -> missing("Course"));
-        if (Boolean.TRUE.equals(course.getIsDeleted()) || !course.getAuthor().getId().equals(user.getId())) throw missing("Course");
+        boolean admin = SecurityUtils.hasCurrentUserThisAuthority(AuthoritiesConstants.ADMIN);
+        boolean reviewer = SecurityUtils.hasCurrentUserThisAuthority(AuthoritiesConstants.REVIEWER);
+        boolean isStaff = admin || reviewer;
+        if (Boolean.TRUE.equals(course.getIsDeleted())) throw missing("Course");
+        if (Boolean.TRUE.equals(course.getIsSystemCourse())) {
+            if (!isStaff && !course.getAuthor().getId().equals(user.getId())) throw missing("Course");
+        } else {
+            if (!admin && !course.getAuthor().getId().equals(user.getId())) throw missing("Course");
+        }
         return course;
     }
 
@@ -85,10 +119,21 @@ public class InstructorCourseService {
     public Course editable(Long id, Long version) {
         Course course = courses.findForBuilderUpdate(id).orElseThrow(() -> missing("Course"));
         User user = currentInstructor();
-        if (Boolean.TRUE.equals(course.getIsDeleted()) || !course.getAuthor().getId().equals(user.getId())) throw missing("Course");
-        if (
-            course.getStatus() != RecordStatus.DRAFT || reviews.existsByCourseIdAndStatus(id, CourseReviewRequestStatus.PENDING)
-        ) throw conflict("Course is not editable");
+        boolean admin = SecurityUtils.hasCurrentUserThisAuthority(AuthoritiesConstants.ADMIN);
+        boolean reviewer = SecurityUtils.hasCurrentUserThisAuthority(AuthoritiesConstants.REVIEWER);
+        boolean isStaff = admin || reviewer;
+        if (Boolean.TRUE.equals(course.getIsDeleted())) throw missing("Course");
+        if (Boolean.TRUE.equals(course.getIsSystemCourse())) {
+            if (!isStaff && !course.getAuthor().getId().equals(user.getId())) throw missing("Course");
+            if (course.getStatus() == RecordStatus.BLOCKED || course.getStatus() == RecordStatus.ARCHIVED) {
+                throw conflict("Course is not editable");
+            }
+        } else {
+            if (!course.getAuthor().getId().equals(user.getId())) throw missing("Course");
+            if (
+                course.getStatus() != RecordStatus.DRAFT || reviews.existsByCourseIdAndStatus(id, CourseReviewRequestStatus.PENDING)
+            ) throw conflict("Course is not editable");
+        }
         if (version == null || !version.equals(course.getVersion())) throw conflict("Stale course version; reload before saving");
         return course;
     }
@@ -96,10 +141,18 @@ public class InstructorCourseService {
     public Builder create(CreateDraft input) {
         User author = currentInstructor();
         String title = input == null || input.title() == null || input.title().isBlank() ? "Khóa học chưa đặt tên" : input.title().trim();
+        boolean isSystemCourse = input != null && Boolean.TRUE.equals(input.isSystemCourse());
+        boolean isStaff =
+            SecurityUtils.hasCurrentUserThisAuthority(AuthoritiesConstants.ADMIN) ||
+            SecurityUtils.hasCurrentUserThisAuthority(AuthoritiesConstants.REVIEWER);
+        if (isSystemCourse && !isStaff) {
+            throw new AccessDeniedException("Only reviewers or administrators can create system courses");
+        }
         Course course = new Course()
             .title(title)
             .author(author)
             .status(RecordStatus.DRAFT)
+            .isSystemCourse(isSystemCourse)
             .isDeleted(false)
             .createdAt(Instant.now())
             .updatedAt(Instant.now());
@@ -127,7 +180,7 @@ public class InstructorCourseService {
             .collect(Collectors.toMap(CourseRepository.CurriculumStats::getCourseId, Function.identity()));
         return page.map(c -> {
             var s = stats.get(c.getId());
-            long duration = s.getTotalDurationSeconds();
+            long duration = s != null && s.getTotalDurationSeconds() != null ? s.getTotalDurationSeconds() : 0;
             return new ManageCourse(
                 c.getId(),
                 c.getVersion(),
@@ -141,13 +194,75 @@ public class InstructorCourseService {
                 c.getAccessDurationUnit(),
                 c.getUpdatedAt(),
                 c.getThumbnailUrl(),
-                s.getChapterCount(),
-                s.getLessonCount(),
-                s.getVideoCount(),
+                s != null && s.getChapterCount() != null ? s.getChapterCount() : 0,
+                s != null && s.getLessonCount() != null ? s.getLessonCount() : 0,
+                s != null && s.getVideoCount() != null ? s.getVideoCount() : 0,
                 duration,
-                duration / 3600.0
+                duration / 3600.0,
+                c.getIsSystemCourse()
             );
         });
+    }
+
+    @Transactional(readOnly = true)
+    public Page<ManageCourse> listSystemCourses(CourseCriteria criteria, Pageable pageable) {
+        currentInstructor();
+        Page<com.lumi.service.dto.CourseDTO> page = courseQuery.findSystemCourses(criteria, pageable);
+        if (page.isEmpty()) return new PageImpl<>(List.of(), pageable, page.getTotalElements());
+        Map<Long, CourseRepository.CurriculumStats> stats = courses
+            .findCurriculumStats(page.getContent().stream().map(com.lumi.service.dto.CourseDTO::getId).toList())
+            .stream()
+            .collect(Collectors.toMap(CourseRepository.CurriculumStats::getCourseId, Function.identity()));
+        return page.map(c -> {
+            var s = stats.get(c.getId());
+            long duration = s != null && s.getTotalDurationSeconds() != null ? s.getTotalDurationSeconds() : 0;
+            return new ManageCourse(
+                c.getId(),
+                c.getVersion(),
+                c.getTitle(),
+                c.getSubject(),
+                c.getGrade(),
+                c.getBookSeries(),
+                c.getStatus(),
+                c.getPrice(),
+                c.getAccessDurationValue(),
+                c.getAccessDurationUnit(),
+                c.getUpdatedAt(),
+                c.getThumbnailUrl(),
+                s != null && s.getChapterCount() != null ? s.getChapterCount() : 0,
+                s != null && s.getLessonCount() != null ? s.getLessonCount() : 0,
+                s != null && s.getVideoCount() != null ? s.getVideoCount() : 0,
+                duration,
+                duration / 3600.0,
+                c.getIsSystemCourse()
+            );
+        });
+    }
+
+    public Builder publishSystemCourse(Long id, Long version) {
+        Course course = editable(id, version);
+        if (!Boolean.TRUE.equals(course.getIsSystemCourse())) {
+            throw invalid("Only system courses can be directly published");
+        }
+        Builder current = builder(course);
+        if (!current.review().canSubmit()) {
+            throw invalid("Complete all required review checklist items before publishing");
+        }
+        course.setStatus(RecordStatus.ACTIVE);
+        course.setUpdatedAt(Instant.now());
+        courses.saveAndFlush(course);
+        return builder(course);
+    }
+
+    public Builder unpublishSystemCourse(Long id, Long version) {
+        Course course = editable(id, version);
+        if (!Boolean.TRUE.equals(course.getIsSystemCourse())) {
+            throw invalid("Only system courses can be unpublished");
+        }
+        course.setStatus(RecordStatus.HIDDEN);
+        course.setUpdatedAt(Instant.now());
+        courses.saveAndFlush(course);
+        return builder(course);
     }
 
     public void delete(Long id, Long version) {
@@ -205,6 +320,55 @@ public class InstructorCourseService {
         request.setSubmittedAt(now);
         request.setRightsConfirmedAt(now);
         reviews.saveAndFlush(request);
+
+        // 1. Notify submitter (teacher)
+        if (course.getAuthor() != null) {
+            notificationService.createAndSendNotification(
+                course.getAuthor(),
+                "Đã gửi duyệt khóa học",
+                "Khóa học \"" + course.getTitle() + "\" đã được gửi đến ban kiểm duyệt. Vui lòng chờ phản hồi.",
+                NotificationCategory.COURSE,
+                "COURSE_SUBMITTED",
+                "/instructor/courses",
+                "COURSE",
+                course.getId()
+            );
+        }
+
+        // 2. Notify content reviewers (admins)
+        try {
+            List<User> reviewers = em
+                .createQuery("select distinct u from User u join u.authorities a where a.name = :role", User.class)
+                .setParameter("role", AuthoritiesConstants.ADMIN)
+                .getResultList();
+
+            String authorName =
+                course.getAuthor() != null
+                    ? course.getAuthor().getFirstName() != null
+                        ? (
+                              course.getAuthor().getFirstName() +
+                              " " +
+                              (course.getAuthor().getLastName() != null ? course.getAuthor().getLastName() : "")
+                          ).trim()
+                        : course.getAuthor().getLogin()
+                    : "Giảng viên";
+
+            for (User reviewer : reviewers) {
+                notificationService.createAndSendNotification(
+                    reviewer,
+                    "Yêu cầu duyệt khóa học mới",
+                    "Giảng viên " + authorName + " vừa gửi duyệt khóa học \"" + course.getTitle() + "\".",
+                    NotificationCategory.COURSE,
+                    "COURSE_REVIEW_REQUEST",
+                    "/admin/course-review/" + request.getId(),
+                    "COURSE_REVIEW_REQUEST",
+                    request.getId()
+                );
+            }
+        } catch (Exception e) {
+            // Notification dispatch failure should not prevent course submission
+        }
+
         return builder(course);
     }
 
@@ -218,6 +382,150 @@ public class InstructorCourseService {
         request.setStatus(CourseReviewRequestStatus.WITHDRAWN);
         reviews.saveAndFlush(request);
         course.setStatus(RecordStatus.DRAFT);
+
+        // 1. Update previous submission notifications for reviewers to show [Đã rút lại]
+        try {
+            List<Notification> oldNotifications = notificationRepository.findByTargetTypeAndTargetId(
+                "COURSE_REVIEW_REQUEST",
+                request.getId()
+            );
+            for (Notification oldNotif : oldNotifications) {
+                if (oldNotif.getTitle() != null && !oldNotif.getTitle().startsWith("[Đã rút lại]")) {
+                    oldNotif.setTitle("[Đã rút lại] " + oldNotif.getTitle());
+                }
+            }
+            if (!oldNotifications.isEmpty()) {
+                notificationRepository.saveAll(oldNotifications);
+            }
+        } catch (Exception e) {
+            // Non-fatal
+        }
+
+        // 2. Notify content reviewers (admins) about withdrawal
+        try {
+            List<User> reviewers = em
+                .createQuery("select u from User u join u.authorities a where a.name = 'ROLE_ADMIN'", User.class)
+                .getResultList();
+            for (User reviewer : reviewers) {
+                notificationService.createAndSendNotification(
+                    reviewer,
+                    "Yêu cầu duyệt đã rút lại",
+                    (user.getFirstName() != null ? user.getFirstName() : user.getLogin()) +
+                        " đã rút lại yêu cầu duyệt khóa học: " +
+                        course.getTitle() +
+                        " để chỉnh sửa thêm.",
+                    NotificationCategory.COURSE,
+                    "COURSE_REVIEW_WITHDRAWN",
+                    "/admin/course-review/" + request.getId(),
+                    "COURSE_REVIEW_REQUEST",
+                    request.getId()
+                );
+            }
+        } catch (Exception e) {
+            // Non-fatal
+        }
+
+        // 3. Notify the instructor themselves
+        try {
+            notificationService.createAndSendNotification(
+                user,
+                "Đã rút lại yêu cầu duyệt",
+                "Bạn đã rút lại yêu cầu duyệt khóa học: " + course.getTitle() + ". Khóa học đã chuyển về trạng thái bản nháp.",
+                NotificationCategory.COURSE,
+                "COURSE_WITHDRAWN",
+                "/instructor/courses",
+                "COURSE",
+                course.getId()
+            );
+        } catch (Exception e) {
+            // Non-fatal
+        }
+
+        // 4. Real-time broadcast to review detail topic for any reviewer currently inspecting the course
+        try {
+            notificationWebSocketService.broadcastToTopic(
+                "/topic/course-review/" + request.getId(),
+                Map.of(
+                    "id",
+                    request.getId(),
+                    "courseId",
+                    course.getId(),
+                    "status",
+                    "WITHDRAWN",
+                    "action",
+                    "WITHDRAWN",
+                    "courseTitle",
+                    course.getTitle()
+                )
+            );
+        } catch (Exception e) {
+            // Non-fatal
+        }
+
+        return changed(course);
+    }
+
+    public Builder requestEdit(Long id, String reason) {
+        User user = currentInstructor();
+        Course course = courses.findForBuilderUpdate(id).orElseThrow(() -> missing("Course"));
+        if (Boolean.TRUE.equals(course.getIsDeleted()) || !course.getAuthor().getId().equals(user.getId())) {
+            throw missing("Course");
+        }
+        if (course.getStatus() != RecordStatus.ACTIVE && course.getStatus() != RecordStatus.HIDDEN) {
+            throw conflict("Chỉ có thể yêu cầu chỉnh sửa khóa học đã xuất bản hoặc đang tạm ẩn");
+        }
+        if (reviews.existsByCourseIdAndStatus(id, CourseReviewRequestStatus.PENDING)) {
+            throw conflict("Khóa học đang có yêu cầu duyệt chờ xử lý");
+        }
+
+        // Change status to DRAFT so that instructor can edit course contents
+        course.setStatus(RecordStatus.DRAFT);
+        courses.saveAndFlush(course);
+
+        // 1. Notify Content Reviewers (admins)
+        try {
+            List<User> reviewers = em
+                .createQuery("select u from User u join u.authorities a where a.name = 'ROLE_ADMIN'", User.class)
+                .getResultList();
+            String reasonText = reason != null && !reason.isBlank() ? reason.trim() : "Cập nhật nội dung khóa học";
+            for (User reviewer : reviewers) {
+                notificationService.createAndSendNotification(
+                    reviewer,
+                    "Giáo viên yêu cầu sửa khóa học",
+                    (user.getFirstName() != null ? user.getFirstName() : user.getLogin()) +
+                        " đã mở chỉnh sửa khóa học: '" +
+                        course.getTitle() +
+                        "'. Lý do: " +
+                        reasonText,
+                    NotificationCategory.COURSE,
+                    "COURSE_EDIT_REQUESTED",
+                    "/admin/course-review",
+                    "COURSE",
+                    course.getId()
+                );
+            }
+        } catch (Exception e) {
+            // Non-fatal
+        }
+
+        // 2. Notify instructor confirmation
+        try {
+            notificationService.createAndSendNotification(
+                user,
+                "Đã mở chế độ chỉnh sửa",
+                "Khóa học '" +
+                    course.getTitle() +
+                    "' đã được chuyển về bản nháp để bạn chỉnh sửa. Sau khi hoàn tất cập nhật, hãy nhấn 'Gửi duyệt lại'.",
+                NotificationCategory.COURSE,
+                "COURSE_EDIT_OPENED",
+                "/instructor/courses/" + id + "/builder",
+                "COURSE",
+                course.getId()
+            );
+        } catch (Exception e) {
+            // Non-fatal
+        }
+
         return changed(course);
     }
 
@@ -463,7 +771,7 @@ public class InstructorCourseService {
                 .stream()
                 .filter(l -> l.getVideoUrl() != null)
                 .count(),
-            CourseReviewChecklist.evaluate(courseDto, nodes, latest)
+            CourseReviewChecklistImpl.evaluate(courseDto, nodes, latest)
         );
     }
 

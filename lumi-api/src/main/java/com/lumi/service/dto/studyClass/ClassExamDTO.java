@@ -35,8 +35,18 @@ public final class ClassExamDTO {
         @NotNull @DecimalMin("0") @DecimalMax("100") BigDecimal passScore,
         Long assignedStudentId,
         @NotBlank String status,
-        List<@Valid QuestionInput> questions
+        List<@Valid QuestionInput> questions,
+
+        @NotBlank @Size(max = 255) String assessmentType,
+        Integer maxAttempt,
+        @NotBlank String resultReleaseMode,
+        @NotBlank String answerReleaseMode,
+        Boolean shuffleQuestions,
+        @NotNull Instant openAt,
+        @NotNull Instant closesAt
     ) {}
+
+    public record UpdateStatus(@NotBlank String status) {}
 
     public record Editor(Summary summary, List<QuestionInput> questions) {}
 
@@ -44,12 +54,50 @@ public final class ClassExamDTO {
         Long id,
         Long materialId,
         String title,
-        int durationMinutes,
+        Integer durationMinutes,
         BigDecimal passScore,
         String status,
         int questionCount,
-        Long assignedStudentId
+        Long assignedStudentId,
+
+        String assessmentType,
+        Integer maxAttempts,
+        String resultReleaseMode,
+        String answerReleaseMode,
+        Instant opensAt,
+        Instant closesAt,
+        Boolean shuffleQuestions
     ) {}
+
+    // DTO danh sách đề dành riêng cho học sinh
+    public record StudentExamSummary(
+        Long id,
+        Long materialId,
+        String title,
+        Integer durationMinutes,
+        BigDecimal passScore,
+        int questionCount,
+        String assessmentType,
+        Integer maxAttempts,
+        int usedAttempts,
+        Integer remainingAttempts,
+        Instant opensAt,
+        Instant closesAt,
+        String status, // "AVAILABLE", "UPCOMING", "CLOSED", "COMPLETED"
+        Long inProgressAttemptId
+    ) {}
+
+    // DTO xem lượt làm bài (bổ sung savedAnswers và remainingAttempts)
+    public record AttemptView(
+        Long attemptId,
+        Long examId,
+        Instant deadlineAt,
+        List<QuestionView> questions,
+        List<AnswerInput> savedAnswers,
+        Integer remainingAttempts
+    ) {}
+
+    public record SaveDraftResult(int savedCount, Instant lastSavedAt) {}
 
     public record MatrixRow(String topic, Integer difficulty, @NotNull @Min(1) Integer count, BigDecimal points) {}
 
@@ -74,22 +122,47 @@ public final class ClassExamDTO {
         Long materialId,
         @NotNull Long bankId,
         @NotEmpty List<Long> questionIds,
-        BigDecimal pointsPerQuestion
+        BigDecimal pointsPerQuestion,
+
+        @NotBlank @Size(max = 255) String assessmentType,
+        Integer maxAttempt,
+        @NotBlank String resultReleaseMode,
+        @NotBlank String answerReleaseMode,
+        Boolean shuffleQuestions,
+        @NotNull Instant openAt,
+        @NotNull Instant closesAt
     ) {}
 
     public record Option(Long id, String content) {}
 
     public record QuestionView(Long id, String content, BigDecimal points, List<Option> options) {}
 
-    public record AttemptView(Long attemptId, Long examId, Instant deadlineAt, List<QuestionView> questions) {}
-
     public record AnswerInput(@NotNull Long questionId, Long optionId) {}
 
     public record Submit(@NotNull List<@Valid AnswerInput> answers) {}
 
-    public record Feedback(Long questionId, String question, String selected, String correct, boolean isCorrect, String explanation) {}
+    public record SubmitExam(@Size(max = 100) List<@Valid AnswerInput> answers) {}
 
-    public record Result(Long attemptId, BigDecimal score, boolean passed, Instant submittedAt, List<Feedback> feedback) {}
+    public record Feedback(
+        Long questionId,
+        String question,
+        String selected,
+        String correct,
+        boolean isCorrect,
+        String explanation,
+        List<String> options
+    ) {}
+
+    public record Result(
+        Long attemptId,
+        String status,
+        BigDecimal score,
+        Boolean passed,
+        Instant submittedAt,
+        Instant resultAvailableAt,
+        Instant answersAvailableAt,
+        List<Feedback> feedback
+    ) {}
 
     public record Mistake(Long examId, String examTitle, String question, String selected, String correct, String explanation) {}
 
@@ -104,4 +177,18 @@ public final class ClassExamDTO {
     ) {}
 
     public record Progress(List<StudentProgress> students, BigDecimal classAverageScore, int totalExams) {}
+
+    public record AssessmentRulesConfig(
+        String type,
+        int defaultMaxAttempts,
+        Integer maxAllowedAttempts,
+        boolean allowUnlimitedAttempts,
+        int defaultDurationMinutes,
+        boolean requireDuration,
+        int defaultPassScore,
+        String defaultResultReleaseMode,
+        String defaultAnswerReleaseMode,
+        List<String> availableResultModes,
+        List<String> availableAnswerModes
+    ) {}
 }

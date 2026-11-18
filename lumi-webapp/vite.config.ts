@@ -60,6 +60,7 @@ const config = defineConfig({
     tsconfigPaths: true,
   },
   define: {
+    global: 'window',
     DEVELOPMENT: JSON.stringify(development),
     // APP_VERSION is passed as an environment variable from the Gradle / Maven build tasks.
     VERSION: JSON.stringify(process.env.APP_VERSION || 'DEV'),
@@ -74,10 +75,11 @@ const config = defineConfig({
     host: true,
     port: 9000,
     proxy: Object.fromEntries(
-      ['/api', '/services', '/management', '/v3/api-docs'].map(res => [
+      ['/api', '/services', '/management', '/v3/api-docs', '/websocket'].map(res => [
         res,
         {
           target: 'http://localhost:8080',
+          ws: res === '/websocket',
         },
       ]),
     ),

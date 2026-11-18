@@ -52,6 +52,19 @@ describe('AccountMenu', () => {
     expect(html).not.toContain('/logout');
   });
 
+  it('should show Reviewer role and course review link', async () => {
+    const { container } = render(
+      <MemoryRouter>
+        <AccountMenu isAuthenticated account={{ authorities: ['ROLE_USER', 'ROLE_REVIEWER'] }} />
+      </MemoryRouter>,
+    );
+
+    await waitFor(() => expect(container.querySelector('[data-cy="reviewerManagement"]')).not.toBeNull());
+    expect(container.querySelector('.lumi-user-role')?.textContent).toBe('Kiểm duyệt viên');
+    expect(container.querySelector('[data-cy="reviewerManagement"]')?.getAttribute('href')).toBe('/admin/course-review');
+    expect(container.querySelector('[data-cy="adminManagement"]')).toBeNull();
+  });
+
   it('should only highlight "Tạo khóa học mới" and not "Khóa học của tôi" when at /instructor/courses/new', async () => {
     const { container } = render(
       <MemoryRouter initialEntries={['/instructor/courses/new']}>

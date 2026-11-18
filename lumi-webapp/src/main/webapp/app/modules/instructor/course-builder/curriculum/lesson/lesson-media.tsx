@@ -1,8 +1,8 @@
 import React, { useRef, useState } from 'react';
-import { Button, Card, Form, Modal, ProgressBar, Spinner } from 'react-bootstrap';
+import { Button, Card, Form, Modal, ProgressBar } from 'react-bootstrap';
 import { useStore } from 'react-redux';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faPause, faPlay, faEye, faTrash, faVideo, faPen, faCheck, faInfoCircle } from '@fortawesome/free-solid-svg-icons';
+import { faPause, faPlay, faEye, faTrash, faVideo, faPen, faCheck, faInfoCircle, faRobot } from '@fortawesome/free-solid-svg-icons';
 import { toast } from 'react-toastify';
 import { IRootState, useAppDispatch, useAppSelector } from 'app/config/store';
 import { builderErrorStatus, builderErrorText } from '../../course-builder-error';
@@ -27,84 +27,10 @@ import {
 } from '../../course-builder.reducer';
 import { QuestionEditorModal } from './question-editor-modal';
 import { QuestionDetailModal } from './question-detail-modal';
-
-// =========================================================================
-// Component Modal Xem Trước Tài Liệu (PDF / DOCX)
-// =========================================================================
-interface IMaterialPreviewState {
-  isOpen: boolean;
-  name: string;
-  fileType: string;
-  url: string;
-  loading: boolean;
-  error: string;
-}
-
-const MaterialPreviewModal = ({
-  preview,
-  onClose,
-  onDownload,
-}: {
-  preview: IMaterialPreviewState;
-  onClose: () => void;
-  onDownload: () => void;
-}) => {
-  const isPdf = preview.fileType?.toUpperCase() === 'PDF' || preview.name?.toLowerCase().endsWith('.pdf');
-
-  return (
-    <Modal show={preview.isOpen} onHide={onClose} size="xl" centered backdrop="static">
-      <Modal.Header closeButton>
-        <Modal.Title className="text-truncate" style={{ maxWidth: '80%' }}>
-          {preview.name || 'Xem trước tài liệu'}
-        </Modal.Title>
-      </Modal.Header>
-      <Modal.Body style={{ minHeight: '500px', maxHeight: '80vh', overflowY: 'auto' }} className="p-2">
-        {preview.loading && (
-          <div className="d-flex flex-column align-items-center justify-content-center py-5">
-            <Spinner animation="border" variant="primary" />
-            <div className="mt-3 text-muted">Đang tải tài liệu xem trước...</div>
-          </div>
-        )}
-
-        {preview.error && (
-          <div className="alert alert-danger my-3" role="alert">
-            {preview.error}
-          </div>
-        )}
-
-        {!preview.loading &&
-          !preview.error &&
-          preview.url &&
-          (isPdf ? (
-            /* Hiển thị PDF trực tiếp bằng trình đọc của trình duyệt */
-            <iframe src={preview.url} title={preview.name} width="100%" height="700px" style={{ border: 'none', borderRadius: '4px' }} />
-          ) : (
-            /* Hiển thị DOCX qua Office Viewer */
-            <div className="w-100 h-100">
-              <iframe
-                src={`https://view.officeapps.live.com/op/embed.aspx?src=${encodeURIComponent(preview.url)}`}
-                title={preview.name}
-                width="100%"
-                height="700px"
-                style={{ border: 'none', borderRadius: '4px' }}
-              />
-            </div>
-          ))}
-      </Modal.Body>
-      <Modal.Footer>
-        <Button variant="outline-secondary" onClick={onDownload}>
-          Tải xuống tệp gốc
-        </Button>
-        <Button variant="secondary" onClick={onClose}>
-          Đóng
-        </Button>
-      </Modal.Footer>
-    </Modal>
-  );
-};
+import MaterialPreviewModal, { type IMaterialPreviewState } from './material-preview-modal';
 
 const errorText = (error: unknown) => {
-  if (builderErrorStatus(error) === 400) return 'Tệp không hợp lệ. Video cần là MP4; tài liệu cần là PDF hoặc DOCX hợp lệ.';
+  if (builderErrorStatus(error) === 400) return 'Tệp không hợp lệ. Video cần là MP4; tài liệu cần là PDF, DOCX hoặc PPTX hợp lệ.';
   return builderErrorText(error);
 };
 
@@ -147,9 +73,9 @@ const MediaUpload = ({
       setError('Chọn tệp có nội dung và tên không vượt quá 255 ký tự.');
       return;
     }
-    const valid = isVideo ? /\.mp4$/i.test(selected.name) : /\.(pdf|docx)$/i.test(selected.name);
+    const valid = isVideo ? /\.mp4$/i.test(selected.name) : /\.(pdf|docx|pptx)$/i.test(selected.name);
     if (!valid) {
-      setError(isVideo ? 'Vui lòng chọn video MP4.' : 'Vui lòng chọn tài liệu PDF hoặc DOCX.');
+      setError(isVideo ? 'Vui lòng chọn video MP4.' : 'Vui lòng chọn tài liệu PDF, PPTX hoặc DOCX.');
       return;
     }
     busyRef.current = true;
@@ -176,7 +102,7 @@ const MediaUpload = ({
         type="file"
         className="d-none"
         aria-label={ariaLabel || label}
-        accept={isVideo ? '.mp4' : '.pdf,.docx'}
+        accept={isVideo ? '.mp4' : '.pdf,.pptx,.docx'}
         disabled={disabled || uploading}
         onChange={event => {
           const selected = event.target.files?.[0];
@@ -832,13 +758,22 @@ export const LessonMedia = ({ lessonId, disabled = false }: { lessonId: number; 
     error: '',
   });
 
-  // Hàm xử lý khi bấm nút "Xem tài liệu"
+  // Hàm xử lý khi bấm nút "Xem tài liệu" hoặc "Tóm tắt"
   const handlePreviewMaterial = async (
     target: ILessonMediaTarget,
-    material: { displayName?: string; fileName?: string; fileType?: string },
+    material: { id?: number; displayName?: string; fileName?: string; fileType?: string; summary?: string | null },
+    openSummary = false,
   ) => {
     const name = material.displayName || material.fileName || 'Tài liệu';
-    const fileType = material.fileType || (name.toLowerCase().endsWith('.pdf') ? 'PDF' : 'DOCX');
+    const isPdf =
+      material.fileType?.toUpperCase() === 'PDF' ||
+      material.fileName?.toLowerCase().endsWith('.pdf') ||
+      (material.displayName ? material.displayName.toLowerCase().endsWith('.pdf') : false);
+    const isPptx =
+      material.fileType?.toUpperCase() === 'PPTX' ||
+      material.fileName?.toLowerCase().endsWith('.pptx') ||
+      (material.displayName ? material.displayName.toLowerCase().endsWith('.pptx') : false);
+    const fileType = material.fileType || (isPdf ? 'PDF' : isPptx ? 'PPTX' : 'DOCX');
 
     setPreviewMaterial({
       isOpen: true,
@@ -847,6 +782,9 @@ export const LessonMedia = ({ lessonId, disabled = false }: { lessonId: number; 
       url: '',
       loading: true,
       error: '',
+      materialId: material.id,
+      initialSummary: material.summary || '',
+      showSummaryPanel: openSummary,
     });
 
     try {
@@ -918,8 +856,23 @@ export const LessonMedia = ({ lessonId, disabled = false }: { lessonId: number; 
                 </div>
                 <div className="d-flex flex-wrap gap-2">
                   {/* Nút Xem tài liệu */}
-                  <Button size="sm" variant="outline-info" disabled={disabled} onClick={() => void handlePreviewMaterial(target, material)}>
+                  <Button
+                    size="sm"
+                    variant="outline-info"
+                    disabled={disabled}
+                    onClick={() => void handlePreviewMaterial(target, material, false)}
+                  >
                     Xem tài liệu
+                  </Button>
+                  {/* Nút Xem tóm tắt / Tóm tắt */}
+                  <Button
+                    size="sm"
+                    variant={material.summary ? 'outline-success' : 'outline-primary'}
+                    disabled={disabled}
+                    onClick={() => void handlePreviewMaterial(target, material, true)}
+                  >
+                    <FontAwesomeIcon icon={faRobot} className="me-1" />
+                    {material.summary ? 'Xem tóm tắt' : 'Tóm tắt'}
                   </Button>
                   {/* Nút Thay thế tài liệu */}
                   <MediaUpload target={target} disabled={disabled} label="Thay thế" ariaLabel={name} />
@@ -1035,6 +988,9 @@ export const LessonMedia = ({ lessonId, disabled = false }: { lessonId: number; 
       {/* Modal Xem trước tài liệu */}
       <MaterialPreviewModal
         preview={previewMaterial}
+        courseId={data.course.id}
+        lessonId={lessonId}
+        courseVersion={data.course.version}
         onClose={() => setPreviewMaterial(prev => ({ ...prev, isOpen: false }))}
         onDownload={() => {
           if (previewMaterial.url) {

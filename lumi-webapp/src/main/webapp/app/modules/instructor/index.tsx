@@ -4,7 +4,7 @@ import ErrorBoundaryRoutes from 'app/shared/error/error-boundary-routes';
 
 import { CourseList } from './courses/course-list';
 import { CourseBuilder } from './course-builder/course-builder';
-import { ClassList } from './classes';
+import { ClassList } from './classes/class-list';
 import InstructorClassroom from './classes/instructor-classroom';
 import InstructorFinance from 'app/modules/finance/instructor-finance';
 

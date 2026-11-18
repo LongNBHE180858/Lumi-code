@@ -29,13 +29,27 @@ import ParentRefunds from 'app/modules/finance/parent-refunds';
 
 const loading = <div>loading ...</div>;
 
-const Account = React.lazy(() => import('app/modules/account'));
+const lazyWithRetry = <T extends React.ComponentType<any>>(componentImport: () => Promise<{ default: T }>) =>
+  React.lazy(async () => {
+    try {
+      return await componentImport();
+    } catch (error) {
+      console.error(error);
+      // Retry once after a brief delay if dev server restarted or network momentarily dropped
+      await new Promise(resolve => setTimeout(resolve, 800));
+      return await componentImport();
+    }
+  });
 
-const Admin = React.lazy(() => import('app/modules/administration'));
+const AiChat = lazyWithRetry(() => import('app/modules/ai-chat/ai-chat'));
 
-const Instructor = React.lazy(() => import('app/modules/instructor'));
+const Account = lazyWithRetry(() => import('app/modules/account'));
 
-const Student = React.lazy(() => import('app/modules/student'));
+const Admin = lazyWithRetry(() => import('app/modules/administration'));
+
+const Instructor = lazyWithRetry(() => import('app/modules/instructor'));
+
+const Student = lazyWithRetry(() => import('app/modules/student'));
 
 const AppRoutes = () => {
   return (
@@ -44,9 +58,17 @@ const AppRoutes = () => {
         <ErrorBoundaryRoutes>
           <Route index element={<Home />} />
           <Route
+            path="ai-chat"
+            element={
+              <PrivateRoute hasAnyAuthorities={[Authority.STUDENT]}>
+                <AiChat />
+              </PrivateRoute>
+            }
+          />
+          <Route
             path="admin/dashboard"
             element={
-              <PrivateRoute hasAnyAuthorities={[Authority.ADMIN]}>
+              <PrivateRoute hasAnyAuthorities={[Authority.ADMIN, Authority.REVIEWER]}>
                 <AdminDashboard />
               </PrivateRoute>
             }
@@ -152,7 +174,7 @@ const AppRoutes = () => {
           <Route
             path="admin/*"
             element={
-              <PrivateRoute hasAnyAuthorities={[Authority.ADMIN]}>
+              <PrivateRoute hasAnyAuthorities={[Authority.ADMIN, Authority.REVIEWER]}>
                 <Admin />
               </PrivateRoute>
             }

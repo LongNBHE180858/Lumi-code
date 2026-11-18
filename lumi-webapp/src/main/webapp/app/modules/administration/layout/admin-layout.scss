@@ -212,7 +212,7 @@ $admin-pale: #e6f5ff;
   border: 1px solid $admin-border;
   border-radius: 12px;
 
-  >svg {
+  > svg {
     color: $admin-muted;
   }
 
@@ -382,7 +382,7 @@ $admin-pale: #e6f5ff;
   }
 
   .admin-profile-label,
-  .admin-profile-button>svg,
+  .admin-profile-button > svg,
   .admin-header-divider {
     display: none;
   }

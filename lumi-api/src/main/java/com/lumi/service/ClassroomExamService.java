@@ -117,7 +117,14 @@ public class ClassroomExamService {
             exam.getPassScore(),
             exam.getStatus().name(),
             (int) examQuestions.countByExamId(exam.getId()),
-            exam.getAssignedStudent() == null ? null : exam.getAssignedStudent().getId()
+            exam.getAssignedStudent() == null ? null : exam.getAssignedStudent().getId(),
+            exam.getAssessmentType(),
+            exam.getMaxAttempts(),
+            exam.getResultReleaseMode(),
+            exam.getAnswerReleaseMode(),
+            exam.getOpensAt(),
+            exam.getClosesAt(),
+            exam.getShuffleQuestions()
         );
     }
 
@@ -156,28 +163,79 @@ public class ClassroomExamService {
     }
 
     @Transactional(readOnly = true)
-    public List<ClassExamDTO.Summary> studentExams(Long classId) {
+    public List<ClassExamDTO.StudentExamSummary> studentExams(Long classId) {
         User student = currentUser();
         joinedClass(classId, student);
         Instant now = Instant.now();
+
         return exams
             .findByStudyClassIdAndIsDeletedFalseOrderByCreatedAtDesc(classId)
             .stream()
             .filter(exam -> {
-                boolean submitted = attempts
-                    .findByExamIdAndStudentIdOrderByStartTimeDesc(exam.getId(), student.getId())
-                    .stream()
-                    .anyMatch(attempt -> "SUBMITTED".equals(attempt.getStatus()));
-                boolean available =
-                    exam.getStatus() == RecordStatus.ACTIVE &&
-                    (exam.getAssignedStudent() == null || Objects.equals(exam.getAssignedStudent().getId(), student.getId())) &&
-                    (exam.getOpensAt() == null || !exam.getOpensAt().isAfter(now)) &&
-                    (exam.getClosesAt() == null || exam.getClosesAt().isAfter(now)) &&
-                    exam.getClassMaterial() != null &&
-                    "PUBLISHED".equals(exam.getClassMaterial().getStatus());
-                return submitted || available;
+                // 1. Chỉ lấy đề giao cho cả lớp hoặc giao riêng cho học sinh này
+                boolean forStudent =
+                    exam.getAssignedStudent() == null || Objects.equals(exam.getAssignedStudent().getId(), student.getId());
+                if (!forStudent) return false;
+
+                // 2. Tài liệu đính kèm (nếu có) phải PUBLISHED; đề không gắn tài liệu vẫn hợp lệ
+                boolean materialValid = exam.getClassMaterial() == null || "PUBLISHED".equals(exam.getClassMaterial().getStatus());
+                if (!materialValid) return false;
+
+                // 3. Kiểm tra xem học sinh đã từng có lượt làm nào chưa
+                boolean hasHistory = !attempts.findByExamIdAndStudentIdOrderByStartTimeDesc(exam.getId(), student.getId()).isEmpty();
+
+                // 4. Đề còn hiệu lực để làm
+                boolean isActive = exam.getStatus() == RecordStatus.ACTIVE;
+                boolean notClosed = exam.getClosesAt() == null || exam.getClosesAt().isAfter(now);
+
+                return hasHistory || (isActive && notClosed);
             })
-            .map(this::summary)
+            .map(exam -> {
+                List<ExamAttempt> userAttempts = attempts.findByExamIdAndStudentIdOrderByStartTimeDesc(exam.getId(), student.getId());
+                Long inProgressAttemptId = userAttempts
+                    .stream()
+                    .filter(
+                        item ->
+                            "IN_PROGRESS".equals(item.getStatus()) && (item.getDeadlineAt() == null || item.getDeadlineAt().isAfter(now))
+                    )
+                    .map(ExamAttempt::getId)
+                    .findFirst()
+                    .orElse(null);
+                int usedAttempts = userAttempts.size();
+                Integer maxAttempts = exam.getMaxAttempts();
+                Integer remainingAttempts = maxAttempts == null ? null : Math.max(0, maxAttempts - usedAttempts);
+
+                // Xác định trạng thái
+                String status;
+                if (exam.getOpensAt() != null && exam.getOpensAt().isAfter(now)) {
+                    status = "UPCOMING";
+                } else if (exam.getClosesAt() != null && !exam.getClosesAt().isAfter(now)) {
+                    status = "CLOSED";
+                } else if (exam.getStatus() != RecordStatus.ACTIVE) {
+                    status = "CLOSED";
+                } else if (inProgressAttemptId == null && maxAttempts != null && usedAttempts >= maxAttempts) {
+                    status = "COMPLETED";
+                } else {
+                    status = "AVAILABLE";
+                }
+
+                return new ClassExamDTO.StudentExamSummary(
+                    exam.getId(),
+                    exam.getClassMaterial() == null ? null : exam.getClassMaterial().getId(),
+                    exam.getTitle(),
+                    exam.getDurationMinutes(),
+                    exam.getPassScore(),
+                    (int) examQuestions.countByExamId(exam.getId()),
+                    exam.getAssessmentType(),
+                    maxAttempts,
+                    usedAttempts,
+                    remainingAttempts,
+                    exam.getOpensAt(),
+                    exam.getClosesAt(),
+                    status,
+                    inProgressAttemptId
+                );
+            })
             .toList();
     }
 
@@ -360,6 +418,22 @@ public class ClassroomExamService {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Danh sách câu hỏi không được rỗng");
         }
 
+        if (!input.openAt().isBefore(input.closesAt())) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Giờ đóng đề phải sau giờ mở đề");
+        }
+        if (!Set.of("EXAM", "PRACTICE").contains(input.assessmentType())) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Loại bài kiểm tra không hợp lệ");
+        }
+        if (
+            !Set.of("IMMEDIATE", "AFTER_CLOSE").contains(input.resultReleaseMode()) ||
+            !Set.of("AFTER_SUBMIT", "AFTER_CLOSE", "NEVER").contains(input.answerReleaseMode())
+        ) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Cấu hình công bố kết quả không hợp lệ");
+        }
+        if (input.maxAttempt() != null && (input.maxAttempt() < 1 || input.maxAttempt() > 10)) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Số lượt làm phải từ 1 đến 10 hoặc không giới hạn");
+        }
+
         Exam exam = exams.saveAndFlush(
             new Exam()
                 .studyClass(studyClass)
@@ -369,15 +443,17 @@ public class ClassroomExamService {
                 .title(input.title().trim())
                 .durationMinutes(input.durationMinutes())
                 .passScore(input.passScore())
-                .maxAttempts(3)
-                .shuffleQuestions(false)
+                .maxAttempts(input.maxAttempt())
+                .shuffleQuestions(input.shuffleQuestions())
+                .opensAt(input.openAt())
+                .closesAt(input.closesAt())
                 .status(RecordStatus.ACTIVE)
                 .isDeleted(false)
-                .resultReleaseMode("IMMEDIATE")
-                .answerReleaseMode("AFTER_SUBMIT")
+                .resultReleaseMode(input.resultReleaseMode())
+                .answerReleaseMode(input.answerReleaseMode())
                 .version(1L)
                 .createdAt(Instant.now())
-                .assessmentType("EXAM")
+                .assessmentType(input.assessmentType())
                 .assessmentConfig("{}")
                 .securityConfig("{}")
         );
@@ -397,6 +473,42 @@ public class ClassroomExamService {
         }
 
         return summary(exam);
+    }
+
+    @Transactional(readOnly = true)
+    public ClassExamDTO.AssessmentRulesConfig getAssessmentRuleDefaults(String type) {
+        String assessmentType = type != null && type.equalsIgnoreCase("PRACTICE") ? "PRACTICE" : "EXAM";
+
+        if ("PRACTICE".equals(assessmentType)) {
+            return new ClassExamDTO.AssessmentRulesConfig(
+                "PRACTICE",
+                0,
+                10,
+                true,
+                0,
+                false,
+                50,
+                "IMMEDIATE",
+                "AFTER_SUBMIT",
+                List.of("IMMEDIATE"),
+                List.of("AFTER_SUBMIT")
+            );
+        }
+
+        // Mặc định là EXAM (Bài kiểm tra)
+        return new ClassExamDTO.AssessmentRulesConfig(
+            "EXAM",
+            1,
+            3,
+            false,
+            15,
+            true,
+            50,
+            "IMMEDIATE",
+            "AFTER_SUBMIT",
+            List.of("IMMEDIATE", "AFTER_CLOSE"),
+            List.of("AFTER_SUBMIT", "AFTER_CLOSE", "NEVER")
+        );
     }
 
     private void saveQuestions(Exam exam, User instructor, List<ClassExamDTO.QuestionInput> inputQuestions) {
@@ -444,11 +556,18 @@ public class ClassroomExamService {
         ) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Học sinh chưa tham gia lớp");
         }
+        if (!input.openAt().isBefore(input.closesAt())) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Giờ đóng đề phải sau giờ mở đề");
+        }
         if (
             attempts.existsByExamId(examId) &&
             (input.questions() != null ||
-                exam.getDurationMinutes().intValue() != input.durationMinutes() ||
+                !Objects.equals(exam.getDurationMinutes(), input.durationMinutes()) ||
                 exam.getPassScore().compareTo(input.passScore()) != 0 ||
+                (exam.getAssessmentType() != null && !Objects.equals(exam.getAssessmentType(), input.assessmentType())) ||
+                (exam.getResultReleaseMode() != null && !Objects.equals(exam.getResultReleaseMode(), input.resultReleaseMode())) ||
+                (exam.getAnswerReleaseMode() != null && !Objects.equals(exam.getAnswerReleaseMode(), input.answerReleaseMode())) ||
+                !Objects.equals(exam.getMaxAttempts(), input.maxAttempt()) ||
                 !Objects.equals(exam.getAssignedStudent() == null ? null : exam.getAssignedStudent().getId(), input.assignedStudentId()))
         ) {
             throw new ResponseStatusException(
@@ -481,6 +600,25 @@ public class ClassroomExamService {
         exam.setPassScore(input.passScore());
         exam.setAssignedStudent(input.assignedStudentId() == null ? null : users.findById(input.assignedStudentId()).orElseThrow());
         exam.setStatus(RecordStatus.valueOf(input.status()));
+        exam.setAssessmentType(input.assessmentType());
+        exam.setMaxAttempts(input.maxAttempt());
+        exam.setResultReleaseMode(input.resultReleaseMode());
+        exam.setAnswerReleaseMode(input.answerReleaseMode());
+        exam.setShuffleQuestions(Boolean.TRUE.equals(input.shuffleQuestions()));
+        exam.setOpensAt(input.openAt());
+        exam.setClosesAt(input.closesAt());
+        exam.setVersion(exam.getVersion() + 1);
+        return summary(exams.save(exam));
+    }
+
+    public ClassExamDTO.Summary updateStatus(Long classId, Long examId, ClassExamDTO.UpdateStatus input) {
+        User instructor = currentUser();
+        ownedClass(classId, instructor);
+        Exam exam = classExam(classId, examId);
+        if (!Set.of("ACTIVE", "ARCHIVED").contains(input.status())) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Trạng thái bài kiểm tra không hợp lệ");
+        }
+        exam.setStatus(RecordStatus.valueOf(input.status()));
         exam.setVersion(exam.getVersion() + 1);
         return summary(exams.save(exam));
     }
@@ -488,9 +626,12 @@ public class ClassroomExamService {
     public ClassExamDTO.AttemptView startAttempt(Long classId, Long examId) {
         User student = currentUser();
         joinedClass(classId, student);
+
+        // Khóa bi quan để chống tạo 2 lượt cùng lúc khi học sinh click nhanh
         Exam exam = exams
             .findByIdForUpdate(examId)
             .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Không tìm thấy bài kiểm tra"));
+
         if (
             Boolean.TRUE.equals(exam.getIsDeleted()) ||
             exam.getStudyClass() == null ||
@@ -498,157 +639,429 @@ public class ClassroomExamService {
         ) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Không tìm thấy bài kiểm tra");
         }
+
         Instant now = Instant.now();
+
+        // Kiểm tra quyền và thời gian mở đề
         if (
             exam.getStatus() != RecordStatus.ACTIVE ||
             (exam.getAssignedStudent() != null && !Objects.equals(exam.getAssignedStudent().getId(), student.getId())) ||
             (exam.getOpensAt() != null && exam.getOpensAt().isAfter(now)) ||
             (exam.getClosesAt() != null && !exam.getClosesAt().isAfter(now)) ||
-            exam.getClassMaterial() == null ||
-            !"PUBLISHED".equals(exam.getClassMaterial().getStatus())
+            (exam.getClassMaterial() != null && !"PUBLISHED".equals(exam.getClassMaterial().getStatus()))
         ) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Bài kiểm tra chưa mở cho bạn");
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Bài kiểm tra chưa mở hoặc đã kết thúc");
         }
+
         List<ExamAttempt> previous = attempts.findByExamIdAndStudentIdOrderByStartTimeDesc(examId, student.getId());
+
+        for (ExamAttempt previousAttempt : previous) {
+            if (
+                "IN_PROGRESS".equals(previousAttempt.getStatus()) &&
+                previousAttempt.getDeadlineAt() != null &&
+                !now.isBefore(previousAttempt.getDeadlineAt())
+            ) {
+                ExamAttempt locked = attempts.findByIdForUpdate(previousAttempt.getId()).orElseThrow();
+                if ("IN_PROGRESS".equals(locked.getStatus())) {
+                    completeAttempt(locked, exam, null, true, now);
+                }
+            }
+        }
+
+        // Kiểm tra xem có lượt nào đang làm dở (IN_PROGRESS) và còn trong thời hạn không
         ExamAttempt attempt = previous
             .stream()
-            .filter(item -> "IN_PROGRESS".equals(item.getStatus()) && item.getDeadlineAt().isAfter(now))
+            .filter(item -> "IN_PROGRESS".equals(item.getStatus()) && (item.getDeadlineAt() == null || item.getDeadlineAt().isAfter(now)))
             .findFirst()
             .orElse(null);
+
+        // Nếu chưa có lượt dở thì tạo lượt mới
         if (attempt == null) {
             if (exam.getMaxAttempts() != null && previous.size() >= exam.getMaxAttempts()) {
                 throw new ResponseStatusException(HttpStatus.CONFLICT, "Bạn đã dùng hết số lần làm bài");
             }
+
+            // Tính deadline chuẩn
+            Instant deadline = null;
+            if (exam.getDurationMinutes() != null && exam.getDurationMinutes() > 0) {
+                deadline = now.plusSeconds(exam.getDurationMinutes() * 60L);
+                // Deadline không được vượt quá thời điểm đóng đề
+                if (exam.getClosesAt() != null && deadline.isAfter(exam.getClosesAt())) {
+                    deadline = exam.getClosesAt();
+                }
+            } else if (exam.getClosesAt() != null) {
+                deadline = exam.getClosesAt();
+            }
+
             attempt = attempts.save(
                 new ExamAttempt()
                     .exam(exam)
                     .student(student)
                     .startTime(now)
-                    .deadlineAt(now.plusSeconds(exam.getDurationMinutes() * 60L))
+                    .deadlineAt(deadline)
                     .status("IN_PROGRESS")
                     .rowVersion(0L)
                     .monitoringStatus("NONE")
             );
         }
-        List<ClassExamDTO.QuestionView> views = examQuestions
-            .findByExamIdOrderByOrderIndexAsc(examId)
-            .stream()
-            .map(item ->
-                new ClassExamDTO.QuestionView(
-                    item.getQuestion().getId(),
-                    item.getQuestion().getContent(),
-                    item.getScore(),
-                    options
-                        .findByQuestionIdOrderByOrderIndexAsc(item.getQuestion().getId())
-                        .stream()
-                        .map(option -> new ClassExamDTO.Option(option.getId(), option.getContent()))
-                        .toList()
+
+        // Lấy danh sách câu hỏi (chỉ lấy nội dung, điểm và lựa chọn, không có đáp án đúng)
+        List<ClassExamDTO.QuestionView> views = new ArrayList<>(
+            examQuestions
+                .findByExamIdOrderByOrderIndexAsc(examId)
+                .stream()
+                .map(item ->
+                    new ClassExamDTO.QuestionView(
+                        item.getQuestion().getId(),
+                        item.getQuestion().getContent(),
+                        item.getScore(),
+                        options
+                            .findByQuestionIdOrderByOrderIndexAsc(item.getQuestion().getId())
+                            .stream()
+                            .map(option -> new ClassExamDTO.Option(option.getId(), option.getContent()))
+                            .toList()
+                    )
                 )
-            )
+                .toList()
+        );
+
+        // Đảo câu hỏi nếu giáo viên bật shuffleQuestions
+        if (Boolean.TRUE.equals(exam.getShuffleQuestions())) {
+            Collections.shuffle(views, new java.util.Random(attempt.getId()));
+        }
+
+        // Lấy danh sách câu trả lời đã lưu trước đó của lượt này
+        List<ClassExamDTO.AnswerInput> savedAnswers = answers
+            .findByAttemptId(attempt.getId())
+            .stream()
+            .map(ans -> new ClassExamDTO.AnswerInput(ans.getQuestion().getId(), ans.getOption() == null ? null : ans.getOption().getId()))
             .toList();
-        return new ClassExamDTO.AttemptView(attempt.getId(), examId, attempt.getDeadlineAt(), views);
+
+        // Tính số lượt còn lại sau lượt này
+        int totalUsed = previous.contains(attempt) ? previous.size() : previous.size() + 1;
+        Integer remaining = exam.getMaxAttempts() == null ? null : Math.max(0, exam.getMaxAttempts() - totalUsed);
+
+        return new ClassExamDTO.AttemptView(attempt.getId(), examId, attempt.getDeadlineAt(), views, savedAnswers, remaining);
     }
 
-    public ClassExamDTO.Result submit(Long classId, Long examId, Long attemptId, ClassExamDTO.Submit input) {
+    public ClassExamDTO.Result submit(Long classId, Long examId, Long attemptId, ClassExamDTO.SubmitExam input) {
         User student = currentUser();
         joinedClass(classId, student);
         Exam exam = classExam(classId, examId);
         ExamAttempt attempt = attempts
             .findByIdForUpdate(attemptId)
             .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Không tìm thấy lượt làm bài"));
-        Instant now = Instant.now();
-        if (
-            !Objects.equals(attempt.getExam().getId(), examId) ||
-            !Objects.equals(attempt.getStudent().getId(), student.getId()) ||
-            !"IN_PROGRESS".equals(attempt.getStatus()) ||
-            !attempt.getDeadlineAt().isAfter(now)
-        ) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Lượt làm bài đã hết hạn hoặc đã nộp");
+        if (!Objects.equals(attempt.getExam().getId(), examId) || !Objects.equals(attempt.getStudent().getId(), student.getId())) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Không tìm thấy lượt làm bài");
         }
-        List<ExamQuestion> examItems = examQuestions.findByExamIdOrderByOrderIndexAsc(examId);
-        Map<Long, Long> submitted = new HashMap<>();
-        for (ClassExamDTO.AnswerInput answer : input.answers()) {
-            if (submitted.putIfAbsent(answer.questionId(), answer.optionId() == null ? -1L : answer.optionId()) != null) {
-                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Câu hỏi được trả lời nhiều lần");
+        if (isCompleted(attempt)) {
+            return studentResultView(attempt, exam);
+        }
+        if (!"IN_PROGRESS".equals(attempt.getStatus())) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Lượt làm bài không còn ở trạng thái đang làm");
+        }
+        Instant now = Instant.now();
+        boolean expired = attempt.getDeadlineAt() == null || !now.isBefore(attempt.getDeadlineAt());
+        List<ClassExamDTO.AnswerInput> submittedAnswers = expired || input == null ? null : input.answers();
+        completeAttempt(attempt, exam, submittedAnswers, expired, now);
+        return studentResultView(attempt, exam);
+    }
+
+    private boolean isCompleted(ExamAttempt attempt) {
+        return "SUBMITTED".equals(attempt.getStatus()) || "AUTO_SUBMITTED".equals(attempt.getStatus());
+    }
+
+    private void completeAttempt(
+        ExamAttempt attempt,
+        Exam exam,
+        List<ClassExamDTO.AnswerInput> submittedAnswers,
+        boolean autoSubmitted,
+        Instant now
+    ) {
+        List<ExamQuestion> examItems = examQuestions.findByExamIdOrderByOrderIndexAsc(exam.getId());
+        Map<Long, ExamQuestion> examItemsByQuestion = new HashMap<>();
+        for (ExamQuestion item : examItems) {
+            examItemsByQuestion.put(item.getQuestion().getId(), item);
+        }
+
+        List<ExamAnswer> savedRows = answers.findByAttemptId(attempt.getId());
+        Map<Long, ExamAnswer> savedByQuestion = new HashMap<>();
+        for (ExamAnswer row : savedRows) {
+            if (savedByQuestion.put(row.getQuestion().getId(), row) != null) {
+                throw new ResponseStatusException(HttpStatus.CONFLICT, "Dữ liệu đáp án của lượt làm bị trùng");
             }
         }
-        if (
-            submitted
-                .keySet()
-                .stream()
-                .anyMatch(id -> examItems.stream().noneMatch(item -> Objects.equals(item.getQuestion().getId(), id)))
-        ) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Đáp án không thuộc bài kiểm tra");
+
+        Map<Long, Long> selectedIds = new HashMap<>();
+        if (submittedAnswers == null) {
+            for (ExamAnswer row : savedRows) {
+                selectedIds.put(row.getQuestion().getId(), row.getOption() == null ? null : row.getOption().getId());
+            }
+        } else {
+            if (submittedAnswers.size() > examItemsByQuestion.size()) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Số đáp án vượt quá số câu của đề");
+            }
+            for (ClassExamDTO.AnswerInput answer : submittedAnswers) {
+                if (!examItemsByQuestion.containsKey(answer.questionId())) {
+                    throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Câu hỏi không thuộc đề");
+                }
+                if (selectedIds.containsKey(answer.questionId())) {
+                    throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Câu hỏi được trả lời nhiều lần");
+                }
+                selectedIds.put(answer.questionId(), answer.optionId());
+            }
         }
+
+        Map<Long, QuestionOption> selectedOptions = new HashMap<>();
         BigDecimal earned = BigDecimal.ZERO;
         BigDecimal total = BigDecimal.ZERO;
         for (ExamQuestion item : examItems) {
             Long questionId = item.getQuestion().getId();
-            List<QuestionOption> choices = options.findByQuestionIdOrderByOrderIndexAsc(questionId);
-            Long selectedId = submitted.get(questionId);
-            QuestionOption selected =
-                selectedId == null || selectedId == -1L
-                    ? null
-                    : choices
-                          .stream()
-                          .filter(choice -> Objects.equals(choice.getId(), selectedId))
-                          .findFirst()
-                          .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Lựa chọn không thuộc câu hỏi"));
-            boolean correct = selected != null && Boolean.TRUE.equals(selected.getIsCorrect());
+            Long optionId = selectedIds.get(questionId);
+            QuestionOption selected = null;
+            if (optionId != null) {
+                selected = options
+                    .findByQuestionIdOrderByOrderIndexAsc(questionId)
+                    .stream()
+                    .filter(option -> Objects.equals(option.getId(), optionId))
+                    .findFirst()
+                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Lựa chọn không thuộc câu hỏi"));
+            }
+            selectedOptions.put(questionId, selected);
             total = total.add(item.getScore());
-            if (correct) earned = earned.add(item.getScore());
-            answers.save(
-                new ExamAnswer()
-                    .attempt(attempt)
-                    .question(item.getQuestion())
-                    .option(selected)
-                    .isCorrect(correct)
-                    .score(correct ? item.getScore() : BigDecimal.ZERO)
-                    .updatedAt(now)
-                    .rowVersion(0L)
-            );
+            if (selected != null && Boolean.TRUE.equals(selected.getIsCorrect())) {
+                earned = earned.add(item.getScore());
+            }
         }
+
+        List<ExamAnswer> gradedRows = new ArrayList<>();
+        for (ExamQuestion item : examItems) {
+            Long questionId = item.getQuestion().getId();
+            QuestionOption selected = selectedOptions.get(questionId);
+            boolean correct = selected != null && Boolean.TRUE.equals(selected.getIsCorrect());
+            ExamAnswer row = savedByQuestion.get(questionId);
+            if (row == null) {
+                row = new ExamAnswer().attempt(attempt).question(item.getQuestion()).rowVersion(0L);
+            } else {
+                row.setRowVersion((row.getRowVersion() == null ? 0L : row.getRowVersion()) + 1);
+            }
+            row.setOption(selected);
+            row.setIsCorrect(correct);
+            row.setScore(correct ? item.getScore() : BigDecimal.ZERO);
+            row.setUpdatedAt(now);
+            gradedRows.add(row);
+        }
+        answers.saveAll(gradedRows);
+
         attempt.setScore(
             total.signum() == 0 ? BigDecimal.ZERO : earned.multiply(BigDecimal.valueOf(100)).divide(total, 2, RoundingMode.HALF_UP)
         );
-        attempt.setStatus("SUBMITTED");
+        attempt.setStatus(autoSubmitted ? "AUTO_SUBMITTED" : "SUBMITTED");
         attempt.setSubmittedAt(now);
         attempt.setEndTime(now);
+        attempt.setRowVersion((attempt.getRowVersion() == null ? 0L : attempt.getRowVersion()) + 1);
         attempts.save(attempt);
-        return result(attempt, exam);
     }
 
-    @Transactional(readOnly = true)
+    @Transactional
+    public ClassExamDTO.SaveDraftResult saveDraftAnswers(Long classId, Long examId, Long attemptId, ClassExamDTO.Submit input) {
+        User student = currentUser();
+        joinedClass(classId, student);
+        Exam exam = classExam(classId, examId);
+        var now = Instant.now();
+        ExamAttempt attempt = attempts
+            .findByIdForUpdate(attemptId)
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Không tìm thấy lượt làm bài"));
+
+        if (attempt.getStatus().equals("SUBMITTED")) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Bạn lưu được bản nháp vì phần thi đã hoàn thành");
+        }
+        if (!Objects.equals(attempt.getExam().getId(), examId) || !Objects.equals(attempt.getStudent().getId(), student.getId())) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Bạn lưu được bản nháp vì phần thi không phải của bạn");
+        }
+        if (attempt.getDeadlineAt().isBefore(now)) throw new ResponseStatusException(
+            HttpStatus.FORBIDDEN,
+            "Bạn lưu được bản nháp vì phần thi đã kết thúc"
+        );
+
+        // lấy danh sách câu bộ câu hỏi
+        List<ExamQuestion> examItems = examQuestions.findByExamIdOrderByOrderIndexAsc(examId);
+        Set<Long> allowedQuestionIds = examItems
+            .stream()
+            .map(item -> item.getQuestion().getId())
+            .collect(Collectors.toSet());
+
+        if (input.answers().size() > allowedQuestionIds.size()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Quá số câu của đề");
+        }
+
+        // kiểm tra câu hỏi có bị trùng hay không
+        Set<Long> seen = new HashSet<>();
+
+        for (ClassExamDTO.AnswerInput answer : input.answers()) {
+            if (!seen.add(answer.questionId())) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "questionId bị trùng");
+            }
+            if (!allowedQuestionIds.contains(answer.questionId())) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Câu hỏi không thuộc đề");
+            }
+        }
+        // kiểm tra option có thuộc question không
+        Map<Long, QuestionOption> selectedOptions = new HashMap<>();
+
+        for (ClassExamDTO.AnswerInput answerInput : input.answers()) {
+            if (answerInput.optionId() == null) {
+                continue;
+            }
+
+            QuestionOption selected = options
+                .findByQuestionIdOrderByOrderIndexAsc(answerInput.questionId())
+                .stream()
+                .filter(option -> Objects.equals(option.getId(), answerInput.optionId()))
+                .findFirst()
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Lựa chọn không thuộc câu hỏi"));
+
+            selectedOptions.put(answerInput.questionId(), selected);
+        }
+
+        // lấy bản nháp đã lưu ở trong exam_answers
+        List<ExamAnswer> existingAnswers = answers.findByAttemptId(attemptId);
+        Map<Long, ExamAnswer> existingByQuestion = new HashMap<>();
+
+        for (ExamAnswer existing : existingAnswers) {
+            Long questionId = existing.getQuestion().getId();
+
+            if (existingByQuestion.put(questionId, existing) != null) {
+                // Trường hợp DB đã có dữ liệu trùng từ trước.
+                throw new ResponseStatusException(HttpStatus.CONFLICT, "Dữ liệu đáp án của lượt làm bị trùng");
+            }
+        }
+
+        // 8. Câu không còn trong request PUT sẽ bị xóa.
+        List<ExamAnswer> rowsToDelete = existingAnswers
+            .stream()
+            .filter(existing -> !seen.contains(existing.getQuestion().getId()))
+            .toList();
+
+        // 9. Câu có trong request được cập nhật hoặc tạo mới.
+        List<ExamAnswer> rowsToSave = new ArrayList<>();
+
+        for (ClassExamDTO.AnswerInput answerInput : input.answers()) {
+            Long questionId = answerInput.questionId();
+
+            ExamAnswer row = existingByQuestion.get(questionId);
+
+            if (row == null) {
+                row = new ExamAnswer()
+                    .attempt(attempt)
+                    .question(questions.findById(questionId).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND)))
+                    .rowVersion(0L);
+            } else {
+                long answerVersion = row.getRowVersion() == null ? 0L : row.getRowVersion();
+
+                row.setRowVersion(answerVersion + 1);
+            }
+
+            row.setOption(selectedOptions.get(questionId));
+            row.setUpdatedAt(now);
+
+            // Chỉ lưu bản nháp; chưa chấm điểm.
+            row.setIsCorrect(null);
+            row.setScore(null);
+
+            rowsToSave.add(row);
+        }
+
+        answers.deleteAll(rowsToDelete);
+        answers.saveAll(rowsToSave);
+
+        // 10. Cập nhật metadata của lượt làm.
+        attempt.setLastSavedAt(now);
+        attempts.save(attempt);
+
+        return new ClassExamDTO.SaveDraftResult(rowsToSave.size(), now);
+    }
+
+    @Transactional
     public ClassExamDTO.Result studentResult(Long classId, Long examId, Long attemptId) {
         User student = currentUser();
         joinedClass(classId, student);
         Exam exam = classExam(classId, examId);
-        ExamAttempt attempt = attempts.findById(attemptId).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
-        if (
-            !Objects.equals(attempt.getExam().getId(), examId) ||
-            !Objects.equals(attempt.getStudent().getId(), student.getId()) ||
-            !"SUBMITTED".equals(attempt.getStatus())
-        ) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Bạn không được xem kết quả này");
+        ExamAttempt attempt = attempts.findByIdForUpdate(attemptId).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+        if (!Objects.equals(attempt.getExam().getId(), examId) || !Objects.equals(attempt.getStudent().getId(), student.getId())) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Không tìm thấy lượt làm bài");
         }
-        return result(attempt, exam);
+        if ("IN_PROGRESS".equals(attempt.getStatus())) {
+            Instant now = Instant.now();
+            if (attempt.getDeadlineAt() != null && !now.isBefore(attempt.getDeadlineAt())) {
+                completeAttempt(attempt, exam, null, true, now);
+            } else {
+                throw new ResponseStatusException(HttpStatus.CONFLICT, "Bài làm chưa hoàn tất");
+            }
+        }
+        if (!isCompleted(attempt)) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Bài làm chưa có kết quả");
+        }
+        return studentResultView(attempt, exam);
     }
 
-    @Transactional(readOnly = true)
+    @Transactional
     public List<ClassExamDTO.Result> studentResults(Long classId, Long examId) {
         User student = currentUser();
         joinedClass(classId, student);
         Exam exam = classExam(classId, examId);
-        return attempts
-            .findByExamIdAndStudentIdOrderByStartTimeDesc(examId, student.getId())
-            .stream()
-            .filter(attempt -> "SUBMITTED".equals(attempt.getStatus()))
-            .map(attempt -> result(attempt, exam))
-            .toList();
+        List<ClassExamDTO.Result> results = new ArrayList<>();
+        for (ExamAttempt item : attempts.findByExamIdAndStudentIdOrderByStartTimeDesc(examId, student.getId())) {
+            ExamAttempt attempt = item;
+            if ("IN_PROGRESS".equals(item.getStatus())) {
+                Instant now = Instant.now();
+                if (item.getDeadlineAt() != null && !now.isBefore(item.getDeadlineAt())) {
+                    attempt = attempts.findByIdForUpdate(item.getId()).orElseThrow();
+                    if ("IN_PROGRESS".equals(attempt.getStatus())) {
+                        completeAttempt(attempt, exam, null, true, now);
+                    }
+                }
+            }
+            if (isCompleted(attempt)) {
+                results.add(studentResultView(attempt, exam));
+            }
+        }
+        return results;
     }
 
-    private ClassExamDTO.Result result(ExamAttempt attempt, Exam exam) {
-        List<ClassExamDTO.Feedback> feedback = answers
+    private ClassExamDTO.Result studentResultView(ExamAttempt attempt, Exam exam) {
+        Instant now = Instant.now();
+        Instant resultAvailableAt = switch (exam.getResultReleaseMode()) {
+            case "IMMEDIATE" -> attempt.getSubmittedAt();
+            case "AFTER_CLOSE" -> exam.getClosesAt();
+            default -> throw new ResponseStatusException(HttpStatus.CONFLICT, "Cấu hình công bố điểm không hợp lệ");
+        };
+        if (resultAvailableAt == null) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Bài thi chưa có thời điểm công bố điểm");
+        }
+        boolean scoreVisible = !now.isBefore(resultAvailableAt);
+        Instant answersAvailableAt = switch (exam.getAnswerReleaseMode()) {
+            case "AFTER_SUBMIT" -> attempt.getSubmittedAt();
+            case "AFTER_CLOSE" -> exam.getClosesAt();
+            case "NEVER" -> null;
+            default -> throw new ResponseStatusException(HttpStatus.CONFLICT, "Cấu hình công bố đáp án không hợp lệ");
+        };
+        boolean feedbackVisible = scoreVisible && answersAvailableAt != null && !now.isBefore(answersAvailableAt);
+        List<ClassExamDTO.Feedback> feedback = feedbackVisible ? buildStudentFeedback(attempt) : List.of();
+        return new ClassExamDTO.Result(
+            attempt.getId(),
+            attempt.getStatus(),
+            scoreVisible ? attempt.getScore() : null,
+            scoreVisible ? attempt.getScore().compareTo(exam.getPassScore()) >= 0 : null,
+            attempt.getSubmittedAt(),
+            resultAvailableAt,
+            answersAvailableAt,
+            feedback
+        );
+    }
+
+    private List<ClassExamDTO.Feedback> buildStudentFeedback(ExamAttempt attempt) {
+        return answers
             .findByAttemptId(attempt.getId())
             .stream()
             .map(answer -> {
@@ -665,24 +1078,18 @@ public class ClassroomExamService {
                     answer.getOption() == null ? null : answer.getOption().getContent(),
                     correct,
                     Boolean.TRUE.equals(answer.getIsCorrect()),
-                    answer.getQuestion().getExplanation()
+                    answer.getQuestion().getExplanation(),
+                    choices.stream().map(QuestionOption::getContent).toList()
                 );
             })
             .toList();
-        return new ClassExamDTO.Result(
-            attempt.getId(),
-            attempt.getScore(),
-            attempt.getScore().compareTo(exam.getPassScore()) >= 0,
-            attempt.getSubmittedAt(),
-            feedback
-        );
     }
 
     @Transactional(readOnly = true)
     public ClassExamDTO.Progress progress(Long classId) {
         ownedClass(classId, currentUser());
         List<Exam> classExams = exams.findByStudyClassIdAndIsDeletedFalseOrderByCreatedAtDesc(classId);
-        List<ExamAttempt> submitted = attempts.findByExamStudyClassIdAndStatus(classId, "SUBMITTED");
+        List<ExamAttempt> submitted = attempts.findByExamStudyClassIdAndStatusIn(classId, List.of("SUBMITTED", "AUTO_SUBMITTED"));
         List<ClassExamDTO.StudentProgress> students = members
             .findByStudyClassIdOrderByRequestedAtAsc(classId)
             .stream()
@@ -763,13 +1170,17 @@ public class ClassroomExamService {
                 );
             })
             .toList();
-        BigDecimal classAverage = students.isEmpty()
+        List<ClassExamDTO.StudentProgress> completedStudents = students
+            .stream()
+            .filter(student -> student.completedExams() > 0)
+            .toList();
+        BigDecimal classAverage = completedStudents.isEmpty()
             ? BigDecimal.ZERO
-            : students
+            : completedStudents
                   .stream()
                   .map(ClassExamDTO.StudentProgress::averageScore)
                   .reduce(BigDecimal.ZERO, BigDecimal::add)
-                  .divide(BigDecimal.valueOf(students.size()), 2, RoundingMode.HALF_UP);
+                  .divide(BigDecimal.valueOf(completedStudents.size()), 2, RoundingMode.HALF_UP);
         return new ClassExamDTO.Progress(students, classAverage, classExams.size());
     }
 }

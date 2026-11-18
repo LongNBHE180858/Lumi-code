@@ -54,6 +54,15 @@ public class QuestionBankResource {
         return result(HttpStatus.CREATED, questionBankService.addQuestion(bankId, input));
     }
 
+    @PutMapping("/{bankId}/questions/{questionId}")
+    public ResponseEntity<APIResponse<QuestionBankDTO.QuestionItem>> updateQuestion(
+        @PathVariable Long bankId,
+        @PathVariable Long questionId,
+        @Valid @RequestBody QuestionBankDTO.CreateQuestion input
+    ) {
+        return result(HttpStatus.OK, questionBankService.updateQuestion(bankId, questionId, input));
+    }
+
     @GetMapping("/template")
     public ResponseEntity<byte[]> downloadTemplate() {
         byte[] excelBytes = questionBankService.generateExcelTemplate();

@@ -1,6 +1,14 @@
 import React, { useState } from 'react';
 import { Accordion, Badge, Button, Card, Col, Modal, Row } from 'react-bootstrap';
-import type { IBuilderAggregate, IChapterNode, ICourseData, ILessonNode } from '../course-builder.reducer';
+import { toast } from 'react-toastify';
+import {
+  getLessonMediaAccess,
+  type IBuilderAggregate,
+  type IChapterNode,
+  type ICourseData,
+  type ILessonNode,
+} from '../course-builder.reducer';
+import MaterialPreviewModal, { type IMaterialPreviewState } from '../curriculum/lesson/material-preview-modal';
 import { chapterDuration, formatDuration, lessonSeconds } from '../curriculum/lesson/video-duration';
 import { savedPricing } from '../pricing/saved-pricing';
 import { PreviewMedia } from './preview-media';
@@ -321,19 +329,90 @@ const PreviewMaterial = ({
   lessonId: number;
   material: ILessonNode['materials'][number];
 }) => {
-  const [open, setOpen] = useState(false);
+  const [preview, setPreview] = useState<IMaterialPreviewState>({
+    isOpen: false,
+    name: '',
+    fileType: '',
+    url: '',
+    loading: false,
+    error: '',
+  });
+
   const name = material.displayName || material.fileName || 'Tài liệu';
-  const isPdf = name.toLowerCase().endsWith('.pdf');
+  const isPdf =
+    material.fileType?.toUpperCase() === 'PDF' ||
+    material.fileName?.toLowerCase().endsWith('.pdf') ||
+    (material.displayName ? material.displayName.toLowerCase().endsWith('.pdf') : false);
+
   if (!material.fileUrl || material.id == null) return <div className="text-muted small py-1">{name} — Chưa có tệp.</div>;
+
+  const handleOpenPreview = async () => {
+    const fileType = material.fileType || (isPdf ? 'PDF' : 'DOCX');
+    setPreview({
+      isOpen: true,
+      name,
+      fileType,
+      url: '',
+      loading: true,
+      error: '',
+    });
+
+    try {
+      const access = await getLessonMediaAccess({ courseId, lessonId, materialId: material.id, kind: 'material' }, true);
+      if (access && access.url) {
+        setPreview(prev => ({
+          ...prev,
+          url: access.url,
+          loading: false,
+        }));
+      } else {
+        throw new Error('Không nhận được URL xem trước');
+      }
+    } catch (failure) {
+      console.error('Lỗi khi lấy liên kết xem trước:', failure);
+      setPreview(prev => ({
+        ...prev,
+        loading: false,
+        error: 'Không thể lấy liên kết xem trước tài liệu. Vui lòng thử lại hoặc tải xuống.',
+      }));
+    }
+  };
+
+  const handleDownload = async () => {
+    try {
+      const access = await getLessonMediaAccess({
+        courseId,
+        lessonId,
+        materialId: material.id,
+        kind: 'material',
+      });
+      if (access?.url) {
+        const link = document.createElement('a');
+        link.href = access.url;
+        link.rel = 'noopener';
+        link.download = '';
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+      }
+    } catch {
+      toast.error('Không thể tải tệp tài liệu.');
+    }
+  };
+
   return (
     <div className="py-1">
-      {open ? (
-        <PreviewMedia target={{ courseId, lessonId, materialId: material.id, kind: 'material', source: material.fileUrl }} label={name} />
-      ) : (
-        <Button size="sm" variant="outline-primary" className="rounded-pill px-3" onClick={() => setOpen(true)}>
-          <FontAwesomeIcon icon={isPdf ? faFilePdf : faFileLines} className="me-1.5" />
-          Xem tài liệu: {name}
-        </Button>
+      <Button size="sm" variant="outline-primary" className="rounded-pill px-3" onClick={() => void handleOpenPreview()}>
+        <FontAwesomeIcon icon={isPdf ? faFilePdf : faFileLines} className="me-1.5" />
+        Xem tài liệu: {name}
+      </Button>
+
+      {preview.isOpen && (
+        <MaterialPreviewModal
+          preview={preview}
+          onClose={() => setPreview(prev => ({ ...prev, isOpen: false }))}
+          onDownload={() => void handleDownload()}
+        />
       )}
     </div>
   );

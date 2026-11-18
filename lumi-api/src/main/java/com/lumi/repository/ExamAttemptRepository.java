@@ -1,6 +1,7 @@
 package com.lumi.repository;
 
 import com.lumi.domain.ExamAttempt;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.data.domain.Page;
@@ -19,6 +20,8 @@ public interface ExamAttemptRepository extends JpaRepository<ExamAttempt, Long>,
     boolean existsByExamId(Long examId);
 
     List<ExamAttempt> findByExamStudyClassIdAndStatus(Long classId, String status);
+
+    List<ExamAttempt> findByExamStudyClassIdAndStatusIn(Long classId, Collection<String> statuses);
 
     @Lock(jakarta.persistence.LockModeType.PESSIMISTIC_WRITE)
     @Query("select a from ExamAttempt a where a.id = :id")

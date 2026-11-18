@@ -11,7 +11,7 @@ import com.lumi.domain.*;
 import com.lumi.domain.enumeration.*;
 import com.lumi.repository.*;
 import com.lumi.service.dto.InstructorCourseDTOs.*;
-import com.lumi.service.impl.InstructorCourseService;
+import com.lumi.service.impl.InstructorCourseServiceImpl;
 import com.lumi.service.storage.*;
 import jakarta.persistence.EntityManager;
 import java.nio.file.Files;
@@ -49,7 +49,7 @@ class InstructorCourseResourceIT {
     EntityManager em;
 
     @Autowired
-    InstructorCourseService service;
+    InstructorCourseServiceImpl service;
 
     @Autowired
     CourseRepository courses;

@@ -70,6 +70,25 @@ class AdminServiceUserTest {
     }
 
     @Test
+    void createsReviewerWithBasicRole() {
+        AdminUserDTO request = new AdminUserDTO();
+        request.setLogin("reviewer");
+        request.setAuthorities(Set.of(AuthoritiesConstants.USER, AuthoritiesConstants.REVIEWER));
+        when(passwordEncoder.encode(any(String.class))).thenReturn("encoded-password");
+        when(authorities.findById(AuthoritiesConstants.USER)).thenReturn(Optional.of(new Authority().name(AuthoritiesConstants.USER)));
+        when(authorities.findById(AuthoritiesConstants.REVIEWER)).thenReturn(
+            Optional.of(new Authority().name(AuthoritiesConstants.REVIEWER))
+        );
+        when(users.save(any(User.class))).thenAnswer(call -> call.getArgument(0));
+
+        User created = service.createUser(request);
+
+        assertThat(created.getAuthorities())
+            .extracting(Authority::getName)
+            .containsExactlyInAnyOrder(AuthoritiesConstants.USER, AuthoritiesConstants.REVIEWER);
+    }
+
+    @Test
     void rejectsMoreThanOneBusinessRole() {
         AdminUserDTO request = new AdminUserDTO();
         request.setLogin("learner");
@@ -94,7 +113,8 @@ class AdminServiceUserTest {
         assertThat(service.getManagedRoles()).containsExactly(
             AuthoritiesConstants.INSTRUCTOR,
             AuthoritiesConstants.STUDENT,
-            AuthoritiesConstants.PARENT
+            AuthoritiesConstants.PARENT,
+            AuthoritiesConstants.REVIEWER
         );
     }
 
@@ -144,6 +164,17 @@ class AdminServiceUserTest {
         assertThat(service.getAllUsers(Role.ROLE_STUDENT, "  LuCiA%_  ", pageable).getContent())
             .extracting(AdminUserDTO::getLogin)
             .containsExactly("learner");
+    }
+
+    @Test
+    void searchesReviewerAccounts() {
+        User reviewer = user(4L, "reviewer", AuthoritiesConstants.REVIEWER);
+        PageRequest pageable = PageRequest.of(0, 10);
+        when(users.findAllByManagedRoleAndSearch("ROLE_REVIEWER", "%", pageable)).thenReturn(new PageImpl<>(List.of(reviewer)));
+
+        assertThat(service.getAllUsers(Role.ROLE_REVIEWER, null, pageable).getContent())
+            .extracting(AdminUserDTO::getLogin)
+            .containsExactly("reviewer");
     }
 
     private User user(Long id, String login, String role) {

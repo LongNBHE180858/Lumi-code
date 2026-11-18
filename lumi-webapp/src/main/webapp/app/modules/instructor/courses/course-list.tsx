@@ -31,7 +31,7 @@ import {
 } from './course-list.reducer';
 import './course-list.scss';
 
-type StatusFilterTab = 'ALL' | 'DRAFT' | 'PENDING' | 'ACTIVE';
+type StatusFilterTab = 'ALL' | 'DRAFT' | 'PENDING' | 'ACTIVE' | 'HIDDEN';
 type SortBy = 'updated_desc' | 'updated_asc' | 'title_asc' | 'price_desc' | 'price_asc';
 const sorts: Record<SortBy, string> = {
   updated_desc: 'updatedAt,desc',
@@ -113,7 +113,7 @@ export const CourseList = () => {
   const [availableSubjects, setAvailableSubjects] = useState<{ id: number; name: string }[]>([]);
   const [availableGrades, setAvailableGrades] = useState<{ id: number; name: string }[]>([]);
   const [catalogError, setCatalogError] = useState(false);
-  const [tabCounts, setTabCounts] = useState({ all: 0, draft: 0, pending: 0, active: 0 });
+  const [tabCounts, setTabCounts] = useState({ all: 0, draft: 0, pending: 0, active: 0, hidden: 0 });
   const [countsReady, setCountsReady] = useState(false);
 
   useEffect(() => {
@@ -158,7 +158,7 @@ export const CourseList = () => {
     const controller = new AbortController();
     setCountsReady(false);
     Promise.all(
-      ['ALL', 'DRAFT', 'PENDING', 'ACTIVE'].map(status =>
+      ['ALL', 'DRAFT', 'PENDING', 'ACTIVE', 'HIDDEN'].map(status =>
         fetchCoursePage(
           {
             page: 0,
@@ -169,9 +169,9 @@ export const CourseList = () => {
         ),
       ),
     )
-      .then(([all, draft, pending, active]) => {
+      .then(([all, draft, pending, active, hidden]) => {
         if (!controller.signal.aborted) {
-          setTabCounts({ all: all.total, draft: draft.total, pending: pending.total, active: active.total });
+          setTabCounts({ all: all.total, draft: draft.total, pending: pending.total, active: active.total, hidden: hidden.total });
           setCountsReady(true);
         }
       })
@@ -379,6 +379,16 @@ export const CourseList = () => {
             <span>Đã xuất bản</span>
             <span className="mc-tab-badge">{countsReady ? tabCounts.active : '—'}</span>
           </button>
+          <button
+            className={`mc-tab-btn ${statusTab === 'HIDDEN' ? 'active' : ''}`}
+            onClick={() => {
+              setStatusTab('HIDDEN');
+              setCurrentPage(1);
+            }}
+          >
+            <span>Tạm ẩn</span>
+            <span className="mc-tab-badge">{countsReady ? tabCounts.hidden : '—'}</span>
+          </button>
         </div>
 
         {/* Toolbar: Search, Filters & Sorting */}
@@ -577,7 +587,9 @@ export const CourseList = () => {
                           ? 'Chưa gửi duyệt'
                           : course.status === 'ACTIVE'
                             ? 'Đang hiển thị cho học viên'
-                            : courseStatusLabels[course.status]}
+                            : course.status === 'HIDDEN'
+                              ? 'Tạm ẩn khỏi danh mục'
+                              : courseStatusLabels[course.status]}
                       </div>
                     </div>
                   </div>
@@ -628,6 +640,16 @@ export const CourseList = () => {
                         >
                           <FontAwesomeIcon icon={faPencilAlt} />
                           <span>Sửa</span>
+                        </button>
+                      )}
+                      {(course.status === 'ACTIVE' || course.status === 'HIDDEN') && (
+                        <button
+                          onClick={() => navigate(`/instructor/courses/${course.id}/builder`)}
+                          className="btn-act btn-act-edit"
+                          title="Yêu cầu chỉnh sửa khóa học"
+                        >
+                          <FontAwesomeIcon icon={faPencilAlt} />
+                          <span>Yêu cầu sửa</span>
                         </button>
                       )}
 

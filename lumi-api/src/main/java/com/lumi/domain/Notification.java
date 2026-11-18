@@ -1,5 +1,6 @@
 package com.lumi.domain;
 
+import com.lumi.domain.enumeration.NotificationCategory;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import java.io.Serial;
@@ -51,6 +52,15 @@ public class Notification implements Serializable {
 
     @Column(name = "read_at")
     private Instant readAt;
+
+    @NotNull
+    @Enumerated(EnumType.STRING)
+    @Column(name = "category", length = 50, nullable = false)
+    private NotificationCategory category = NotificationCategory.COURSE;
+
+    @Size(max = 500)
+    @Column(name = "action_url", length = 500)
+    private String actionUrl;
 
     @ManyToOne(optional = false)
     @NotNull
@@ -188,6 +198,32 @@ public class Notification implements Serializable {
         return this;
     }
 
+    public NotificationCategory getCategory() {
+        return this.category;
+    }
+
+    public Notification category(NotificationCategory category) {
+        this.setCategory(category);
+        return this;
+    }
+
+    public void setCategory(NotificationCategory category) {
+        this.category = category;
+    }
+
+    public String getActionUrl() {
+        return this.actionUrl;
+    }
+
+    public Notification actionUrl(String actionUrl) {
+        this.setActionUrl(actionUrl);
+        return this;
+    }
+
+    public void setActionUrl(String actionUrl) {
+        this.actionUrl = actionUrl;
+    }
+
     // jhipster-needle-entity-add-getters-setters - JHipster will add getters and setters here
 
     @Override
@@ -220,6 +256,8 @@ public class Notification implements Serializable {
             ", targetType='" + getTargetType() + "'" +
             ", targetId=" + getTargetId() +
             ", readAt='" + getReadAt() + "'" +
+            ", category='" + getCategory() + "'" +
+            ", actionUrl='" + getActionUrl() + "'" +
             "}";
     }
 }

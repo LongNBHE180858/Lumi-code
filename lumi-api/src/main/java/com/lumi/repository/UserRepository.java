@@ -8,8 +8,8 @@ import java.util.Optional;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.*;
 import org.springframework.data.jpa.repository.EntityGraph;
-import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -64,14 +64,17 @@ public interface UserRepository extends JpaRepository<User, Long> {
                or lower(u.email) like :search escape '!')
           and (:role = ''
            or (:role = 'ROLE_ADMIN' and exists (select a from u.authorities a where a.name = 'ROLE_ADMIN'))
+           or (:role = 'ROLE_REVIEWER'
+               and exists (select a from u.authorities a where a.name = 'ROLE_REVIEWER')
+               and not exists (select a from u.authorities a where a.name = 'ROLE_ADMIN'))
            or (:role = 'ROLE_INSTRUCTOR'
                and exists (select a from u.authorities a where a.name = 'ROLE_INSTRUCTOR')
-               and not exists (select a from u.authorities a where a.name = 'ROLE_ADMIN'))
+               and not exists (select a from u.authorities a where a.name in ('ROLE_ADMIN', 'ROLE_REVIEWER')))
            or (:role = 'ROLE_PARENT'
                and exists (select a from u.authorities a where a.name = 'ROLE_PARENT')
-               and not exists (select a from u.authorities a where a.name in ('ROLE_ADMIN', 'ROLE_INSTRUCTOR')))
+               and not exists (select a from u.authorities a where a.name in ('ROLE_ADMIN', 'ROLE_REVIEWER', 'ROLE_INSTRUCTOR')))
            or (:role = 'ROLE_STUDENT'
-               and not exists (select a from u.authorities a where a.name in ('ROLE_ADMIN', 'ROLE_INSTRUCTOR', 'ROLE_PARENT'))))
+               and not exists (select a from u.authorities a where a.name in ('ROLE_ADMIN', 'ROLE_REVIEWER', 'ROLE_INSTRUCTOR', 'ROLE_PARENT'))))
         """
     )
     Page<User> findAllByManagedRoleAndSearch(@Param("role") String role, @Param("search") String search, Pageable pageable);

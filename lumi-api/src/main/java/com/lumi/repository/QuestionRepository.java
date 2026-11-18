@@ -46,4 +46,10 @@ public interface QuestionRepository extends JpaRepository<Question, Long>, JpaSp
     long countByBankIdAndIsDeletedFalse(Long bankId);
 
     boolean existsByBankIdAndContentIgnoreCaseAndIsDeletedFalse(Long bankId, String content);
+
+    boolean existsByBankIdAndContentIgnoreCaseAndIsDeletedFalseAndIdNot(Long bankId, String content, Long id);
+
+    @Lock(jakarta.persistence.LockModeType.PESSIMISTIC_WRITE)
+    @Query("select question from Question question where question.id = :id")
+    Optional<Question> findByIdForUpdate(@Param("id") Long id);
 }

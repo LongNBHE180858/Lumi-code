@@ -6,6 +6,7 @@ import com.lumi.service.ai.ChatMessageService;
 import com.lumi.service.ai.ChatConversationService;
 import com.lumi.service.ai.RagChatService;
 
+import com.lumi.service.dto.ai.CreateConversationRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -49,12 +50,12 @@ public class RagChatResource {
 
     @PostMapping("/conversations")
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<ChatConversationService.CreatedConversation>
-    createConversation() {
-
+    public ResponseEntity<ChatConversationService.CreatedConversation> createConversation(
+        @Valid @RequestBody(required = false) CreateConversationRequest request
+    ) {
         return ResponseEntity
             .status(HttpStatus.CREATED)
-            .body(conversationService.create());
+            .body(request == null || request.lessonId() == null ? conversationService.create() : conversationService.create(request.lessonId()));
     }
 
     @PostMapping("/conversations/{conversationId}/messages")

@@ -55,4 +55,29 @@ public interface CourseReviewRequestService {
      * @param id the id of the entity.
      */
     void delete(Long id);
+
+    /**
+     * Approves a course review request and activates the course.
+     */
+    CourseReviewRequestDTO approve(Long id, String feedback);
+
+    /**
+     * Rejects a course review request and reverts the course to draft.
+     */
+    CourseReviewRequestDTO reject(Long id, String reason);
+
+    /**
+     * Temporarily hides an active course with a reason.
+     */
+    CourseReviewRequestDTO hideCourse(Long courseId, String reason);
+
+    /**
+     * Unhides a hidden course, returning it to ACTIVE status.
+     */
+    CourseReviewRequestDTO unhideCourse(Long courseId);
+
+    /**
+     * Requests revision from the instructor, reverting course to DRAFT for edits.
+     */
+    CourseReviewRequestDTO requestRevision(Long courseId, String reason);
 }

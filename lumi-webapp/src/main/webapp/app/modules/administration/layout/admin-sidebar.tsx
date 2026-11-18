@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router';
+import { useAppSelector } from 'app/config/store';
+import { Authority } from 'app/shared/jhipster/constants';
 import {
   Bell,
   BookOpen,
@@ -34,7 +36,7 @@ const navigation: { title: string; items: NavItem[] }[] = [
       { label: 'Giảng viên', icon: ContactRound, to: '/admin/instructor-applications' },
       { label: 'Khóa học', icon: BookOpen, to: '/admin/course-review' },
       { label: 'Cây tri thức', icon: GitFork, to: '/admin/knowledge-graph' },
-      { label: 'Nội dung học tập', icon: NotebookPen },
+      { label: 'Nội dung học tập', icon: NotebookPen, to: '/admin/system-courses' },
       { label: 'Môn học & Khối lớp', icon: Folder, to: '/admin/catalog' },
     ],
   },
@@ -60,6 +62,13 @@ const navigation: { title: string; items: NavItem[] }[] = [
 const AdminSidebar = () => {
   const [mobileNavigationOpen, setMobileNavigationOpen] = useState(false);
   const { pathname } = useLocation();
+  const authorities = useAppSelector(state => state.authentication.account.authorities ?? []);
+  const reviewerOnly = authorities.includes(Authority.REVIEWER) && !authorities.includes(Authority.ADMIN);
+  const visibleNavigation = reviewerOnly
+    ? navigation
+        .map(group => ({ ...group, items: group.items.filter(item => item.to === '/admin/course-review') }))
+        .filter(group => group.items.length > 0)
+    : navigation;
 
   return (
     <aside className={`admin-sidebar${mobileNavigationOpen ? ' admin-sidebar-open' : ''}`} aria-label="Điều hướng quản trị">
@@ -82,7 +91,7 @@ const AdminSidebar = () => {
         </button>
       </div>
       <nav className="admin-sidebar-nav">
-        {navigation.map(group => (
+        {visibleNavigation.map(group => (
           <div className="admin-nav-group" key={group.title}>
             <h2>{group.title}</h2>
             {group.items.map(item => {

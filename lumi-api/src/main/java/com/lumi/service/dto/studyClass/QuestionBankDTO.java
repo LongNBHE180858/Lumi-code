@@ -19,9 +19,9 @@ public final class QuestionBankDTO {
     public record CreateQuestion(
         @NotBlank String content,
         @Min(1) @Max(5) Integer difficulty,
-        String topic,
+        @Size(max = 255) String topic,
         String explanation,
-        @NotEmpty @Size(min = 2, max = 6) List<String> options,
+        @NotEmpty @Size(min = 2, max = 10) List<@NotBlank String> options,
         @NotNull @Min(0) Integer correctIndex
     ) {}
 

@@ -10,6 +10,8 @@ import com.lumi.repository.StudyClassRepository;
 import com.lumi.repository.UserRepository;
 import com.lumi.security.SecurityUtils;
 import com.lumi.service.dto.studyClass.ClassroomDTO;
+import com.lumi.service.storage.ClassroomObjectStorage;
+import com.lumi.service.storage.ClassroomStorageCleanup;
 import com.lumi.service.storage.CourseFileValidator;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -18,7 +20,6 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
-import java.util.UUID;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
@@ -37,6 +38,8 @@ public class ClassroomMaterialService {
     private final ClassMaterialRepository materials;
     private final UserRepository users;
     private final CourseFileValidator validator;
+    private final ClassroomObjectStorage storage;
+    private final ClassroomStorageCleanup cleanup;
     private final Path uploadRoot;
 
     public ClassroomMaterialService(
@@ -45,6 +48,8 @@ public class ClassroomMaterialService {
         ClassMaterialRepository materials,
         UserRepository users,
         CourseFileValidator validator,
+        ClassroomObjectStorage storage,
+        ClassroomStorageCleanup cleanup,
         @Value("${lumi.classroom-upload-dir:uploads/classrooms}") String uploadRoot
     ) {
         this.classes = classes;
@@ -52,6 +57,8 @@ public class ClassroomMaterialService {
         this.materials = materials;
         this.users = users;
         this.validator = validator;
+        this.storage = storage;
+        this.cleanup = cleanup;
         this.uploadRoot = Path.of(uploadRoot).toAbsolutePath().normalize();
     }
 
@@ -73,6 +80,9 @@ public class ClassroomMaterialService {
             name != null && name.toLowerCase(java.util.Locale.ROOT).endsWith(".pdf")
                 ? CourseFileValidator.Kind.DOCUMENT
                 : CourseFileValidator.Kind.VIDEO;
+        if (kind == CourseFileValidator.Kind.VIDEO && (name == null || !name.toLowerCase(java.util.Locale.ROOT).endsWith(".mp4"))) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Chỉ hỗ trợ PDF hoặc MP4");
+        }
         try (var validated = validator.validate(file, kind)) {
             if (
                 (kind == CourseFileValidator.Kind.DOCUMENT && file.getSize() > 25 * 1024 * 1024L) ||
@@ -80,47 +90,38 @@ public class ClassroomMaterialService {
             ) {
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Tệp vượt quá dung lượng cho phép");
             }
-            Files.createDirectories(uploadRoot);
-            String key = UUID.randomUUID() + (kind == CourseFileValidator.Kind.DOCUMENT ? ".pdf" : ".mp4");
-            Path destination = uploadRoot.resolve(key);
-            Files.copy(validated.path(), destination);
-            try {
-                int nextIndex =
-                    materials
-                        .findByStudyClassIdOrderByOrderIndexAscIdAsc(classId)
-                        .stream()
-                        .map(ClassMaterial::getOrderIndex)
-                        .filter(Objects::nonNull)
-                        .mapToInt(Integer::intValue)
-                        .max()
-                        .orElse(-1) + 1;
-                Instant now = Instant.now();
-                ClassMaterial material = new ClassMaterial()
-                    .studyClass(studyClass)
-                    .title(title.trim())
-                    .fileType(kind == CourseFileValidator.Kind.DOCUMENT ? "PDF" : "VIDEO")
-                    .fileSizeBytes(file.getSize())
-                    .fileObjectKey(key)
-                    .orderIndex(nextIndex)
-                    .status("PUBLISHED")
-                    .uploadedAt(now)
-                    .updatedAt(now)
-                    .fileUrl("pending");
-                material = materials.saveAndFlush(material);
-                material.setFileUrl("/api/classes/" + classId + "/materials/" + material.getId() + "/file");
-                materials.save(material);
-                return new ClassroomDTO.Material(
-                    material.getId(),
-                    material.getTitle(),
-                    material.getFileType(),
-                    material.getFileUrl(),
-                    material.getUploadedAt(),
-                    material.getOrderIndex()
-                );
-            } catch (RuntimeException error) {
-                Files.deleteIfExists(destination);
-                throw error;
-            }
+            var uploaded = storage.upload(classId, kind, validated.path(), validated.name(), validated.mimeType());
+            cleanup.onRollback(classId, uploaded.url());
+            int nextIndex =
+                materials
+                    .findByStudyClassIdOrderByOrderIndexAscIdAsc(classId)
+                    .stream()
+                    .map(ClassMaterial::getOrderIndex)
+                    .filter(Objects::nonNull)
+                    .mapToInt(Integer::intValue)
+                    .max()
+                    .orElse(-1) + 1;
+            Instant now = Instant.now();
+            ClassMaterial material = new ClassMaterial()
+                .studyClass(studyClass)
+                .title(title.trim())
+                .fileType(kind == CourseFileValidator.Kind.DOCUMENT ? "PDF" : "VIDEO")
+                .fileSizeBytes(uploaded.size())
+                .fileObjectKey(null)
+                .orderIndex(nextIndex)
+                .status("PUBLISHED")
+                .uploadedAt(now)
+                .updatedAt(now)
+                .fileUrl(uploaded.url());
+            material = materials.saveAndFlush(material);
+            return new ClassroomDTO.Material(
+                material.getId(),
+                material.getTitle(),
+                material.getFileType(),
+                publicUrl(classId, material.getId()),
+                material.getUploadedAt(),
+                material.getOrderIndex()
+            );
         } catch (IOException error) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Không lưu được tệp bài học");
         }
@@ -165,7 +166,7 @@ public class ClassroomMaterialService {
                     item.getId(),
                     item.getTitle(),
                     item.getFileType(),
-                    item.getFileUrl(),
+                    publicUrl(classId, item.getId()),
                     item.getUploadedAt(),
                     item.getOrderIndex()
                 )
@@ -175,6 +176,41 @@ public class ClassroomMaterialService {
 
     @Transactional(readOnly = true)
     public FileAccess access(Long classId, Long materialId) {
+        ClassMaterial material = authorizedMaterial(classId, materialId);
+        String key = material.getFileObjectKey();
+        if (key == null || !key.matches("[a-f0-9-]{36}\\.(pdf|mp4)")) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Tệp cũ không tồn tại");
+        }
+        Path path = uploadRoot.resolve(key).normalize();
+        if (!path.startsWith(uploadRoot) || !Files.isRegularFile(path)) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Tệp bài học không tồn tại");
+        }
+        try {
+            Resource resource = new UrlResource(path.toUri());
+            return new FileAccess(resource, "PDF".equals(material.getFileType()) ? "application/pdf" : "video/mp4");
+        } catch (java.net.MalformedURLException error) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Không đọc được tệp bài học");
+        }
+    }
+
+    @Transactional(readOnly = true)
+    public ClassroomObjectStorage.Access accessUrl(Long classId, Long materialId) {
+        ClassMaterial material = authorizedMaterial(classId, materialId);
+        if (material.getFileObjectKey() != null && material.getFileObjectKey().matches("[a-f0-9-]{36}\\.(pdf|mp4)")) {
+            return new ClassroomObjectStorage.Access(publicUrl(classId, materialId), Instant.now().plusSeconds(300));
+        }
+        return storage.access(
+            classId,
+            material.getFileUrl(),
+            material.getTitle() + ("PDF".equals(material.getFileType()) ? ".pdf" : ".mp4")
+        );
+    }
+
+    private String publicUrl(Long classId, Long materialId) {
+        return "/api/classes/" + classId + "/materials/" + materialId + "/file";
+    }
+
+    private ClassMaterial authorizedMaterial(Long classId, Long materialId) {
         User user = users
             .findOneByLogin(SecurityUtils.getCurrentUserLogin().orElse(""))
             .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED));
@@ -195,20 +231,7 @@ public class ClassroomMaterialService {
         if (!owner && (!enrolled || !"PUBLISHED".equals(material.getStatus()))) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Bạn không được xem bài học này");
         }
-        String key = material.getFileObjectKey();
-        if (key == null || !key.matches("[a-f0-9-]{36}\\.(pdf|mp4)")) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Tệp bài học không tồn tại");
-        }
-        Path path = uploadRoot.resolve(key).normalize();
-        if (!path.startsWith(uploadRoot) || !Files.isRegularFile(path)) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Tệp bài học không tồn tại");
-        }
-        try {
-            Resource resource = new UrlResource(path.toUri());
-            return new FileAccess(resource, "PDF".equals(material.getFileType()) ? "application/pdf" : "video/mp4");
-        } catch (java.net.MalformedURLException error) {
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Không đọc được tệp bài học");
-        }
+        return material;
     }
 
     public record FileAccess(Resource resource, String mimeType) {}

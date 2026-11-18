@@ -9,14 +9,14 @@ import com.lumi.domain.enumeration.*;
 import com.lumi.repository.*;
 import com.lumi.service.dto.CourseDTO;
 import com.lumi.service.dto.InstructorCourseDTOs.*;
-import com.lumi.service.impl.InstructorCourseService;
+import com.lumi.service.impl.InstructorCourseServiceImpl;
+import com.lumi.service.impl.NotificationWebSocketService;
 import com.lumi.service.mapper.*;
 import com.lumi.service.query.CourseQueryService;
 import com.lumi.service.storage.CourseStorageCleanup;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.TypedQuery;
 import java.math.BigDecimal;
-import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.AfterEach;
@@ -76,9 +76,15 @@ class InstructorCourseServiceTest {
     @Mock
     CourseMaterialMapper materialMapper;
 
+    @Mock
+    NotificationRepository notificationRepository;
+
+    @Mock
+    NotificationWebSocketService notificationWebSocketService;
+
     @Spy
     @InjectMocks
-    InstructorCourseService service;
+    InstructorCourseServiceImpl service;
 
     private User teacher;
     private Course course;
@@ -125,14 +131,14 @@ class InstructorCourseServiceTest {
 
     @Test
     void create_ValidTitle_Normal() {
-        CreateDraft input = new CreateDraft("Lập trình Java căn bản");
+        CreateDraft input = new CreateDraft("Toán Lớp 2 - Phép cộng có nhớ");
 
         service.create(input);
 
         ArgumentCaptor<Course> captor = ArgumentCaptor.forClass(Course.class);
         verify(courses).saveAndFlush(captor.capture());
         Course saved = captor.getValue();
-        assertThat(saved.getTitle()).isEqualTo("Lập trình Java căn bản");
+        assertThat(saved.getTitle()).isEqualTo("Toán Lớp 2 - Phép cộng có nhớ");
         assertThat(saved.getStatus()).isEqualTo(RecordStatus.DRAFT);
         assertThat(saved.getAuthor()).isSameAs(teacher);
         assertThat(saved.getIsDeleted()).isFalse();

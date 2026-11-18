@@ -137,10 +137,13 @@ it('opens only preview lessons and requests authorized video/material links on d
   expect(axios.get).toHaveBeenCalledWith('/api/instructor/courses/7/lessons/101/video/playback');
   expect(axios.get).not.toHaveBeenCalledWith('/api/instructor/courses/7/lessons/101/materials/55/download');
   fireEvent.click(dialog.getByRole('button', { name: 'Xem tài liệu: Bài tập PDF' }));
-  const link = await dialog.findByRole('link', { name: 'Mở/tải tài liệu: Bài tập PDF' });
-  expect(link.getAttribute('href')).toBe('https://signed.example/file');
-  expect(link.getAttribute('rel')).toContain('noopener');
-  expect(axios.get).toHaveBeenCalledWith('/api/instructor/courses/7/lessons/101/materials/55/download');
+  await waitFor(() => expect(axios.get).toHaveBeenCalledWith('/api/instructor/courses/7/lessons/101/materials/55/preview'));
+  const iframe = await screen.findByTitle('Bài tập PDF');
+  expect(iframe.getAttribute('src')).toBe('https://signed.example/file');
+  fireEvent.click(screen.getByRole('button', { name: 'Tải xuống tệp gốc' }));
+  await waitFor(() => expect(axios.get).toHaveBeenCalledWith('/api/instructor/courses/7/lessons/101/materials/55/download'));
+  fireEvent.click(screen.getByRole('button', { name: 'Đóng' }));
+  await waitFor(() => expect(screen.queryByTitle('Bài tập PDF')).toBeNull());
   fireEvent.click(dialog.getByRole('button', { name: 'Đóng bài xem thử' }));
   await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
   fireEvent.click(screen.getByRole('button', { name: 'Xem bài học: Bài đọc thêm' }));

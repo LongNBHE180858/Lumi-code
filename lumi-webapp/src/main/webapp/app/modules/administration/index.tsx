@@ -20,6 +20,8 @@ import FeedbackAdminList from './feedback/feedback-admin-list';
 import FeedbackAdminDetail from './feedback/feedback-admin-detail';
 import KnowledgeGraphAdmin from './knowledge-graph/knowledge-graph';
 import { CourseReviewList, CourseReviewDetail } from './reviewer';
+import AdminSystemCourseList from './system-courses/system-course-list';
+import { CourseBuilder } from 'app/modules/instructor/course-builder/course-builder';
 import AdminFinance from 'app/modules/finance/admin-finance';
 
 const AdminUserManagement = () => {
@@ -41,6 +43,11 @@ const AdministrationRoutes = () => (
       <Route path="course-review/:id" element={<CourseReviewDetail />} />
       <Route path="course-reviews" element={<CourseReviewList />} />
       <Route path="course-reviews/:id" element={<CourseReviewDetail />} />
+      <Route path="system-courses" element={<AdminSystemCourseList />} />
+      <Route element={<CourseBuilder mode="system" />}>
+        <Route path="system-courses/new" element={<React.Fragment />} />
+        <Route path="system-courses/:id/builder" element={<React.Fragment />} />
+      </Route>
       <Route path="catalog" element={<AdminCatalog />} />
       <Route path="premium-packages" element={<AdminPremiumPackages />} />
       <Route path="audit-logs" element={<AdminAuditLogs />} />

@@ -59,6 +59,21 @@ public class CourseQueryService extends QueryService<Course> {
         Specification<Course> specification = createSpecification(scoped).and((root, query, cb) ->
             cb.and(
                 cb.equal(root.get(Course_.author).get(User_.id), authorId),
+                cb.or(cb.isFalse(root.get(Course_.isDeleted)), cb.isNull(root.get(Course_.isDeleted))),
+                cb.or(cb.isFalse(root.get(Course_.isSystemCourse)), cb.isNull(root.get(Course_.isSystemCourse)))
+            )
+        );
+        return courseRepository.findAll(specification, page).map(courseMapper::toDto);
+    }
+
+    @Transactional(readOnly = true)
+    public Page<CourseDTO> findSystemCourses(CourseCriteria criteria, Pageable page) {
+        CourseCriteria scoped = criteria == null ? new CourseCriteria() : criteria.copy();
+        scoped.setIsDeleted(null);
+        scoped.setIsSystemCourse(null);
+        Specification<Course> specification = createSpecification(scoped).and((root, query, cb) ->
+            cb.and(
+                cb.isTrue(root.get(Course_.isSystemCourse)),
                 cb.or(cb.isFalse(root.get(Course_.isDeleted)), cb.isNull(root.get(Course_.isDeleted)))
             )
         );
@@ -112,6 +127,7 @@ public class CourseQueryService extends QueryService<Course> {
                     buildRangeSpecification(criteria.getVersion(), Course_.version),
                     buildSpecification(criteria.getStatus(), Course_.status),
                     buildSpecification(criteria.getIsDeleted(), Course_.isDeleted),
+                    buildSpecification(criteria.getIsSystemCourse(), Course_.isSystemCourse),
                     buildRangeSpecification(criteria.getCreatedAt(), Course_.createdAt),
                     buildRangeSpecification(criteria.getUpdatedAt(), Course_.updatedAt),
                     buildRangeSpecification(criteria.getStorageLimitBytes(), Course_.storageLimitBytes),

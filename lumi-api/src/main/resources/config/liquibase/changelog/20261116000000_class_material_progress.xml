@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+    <changeSet id="20261116000000-1" author="codex">
+        <createTable tableName="class_material_progress">
+            <column name="id" type="bigint"><constraints primaryKey="true" nullable="false"/></column>
+            <column name="material_id" type="bigint"><constraints nullable="false"/></column>
+            <column name="student_id" type="bigint"><constraints nullable="false"/></column>
+            <column name="completed_at" type="${datetimeType}"/>
+        </createTable>
+        <addForeignKeyConstraint baseTableName="class_material_progress" baseColumnNames="material_id"
+                                 referencedTableName="class_materials" referencedColumnNames="id"
+                                 constraintName="fk_class_material_progress_material"/>
+        <addForeignKeyConstraint baseTableName="class_material_progress" baseColumnNames="student_id"
+                                 referencedTableName="jhi_user" referencedColumnNames="id"
+                                 constraintName="fk_class_material_progress_student"/>
+        <addUniqueConstraint tableName="class_material_progress" columnNames="material_id, student_id"
+                             constraintName="uk_class_material_progress_material_student"/>
+    </changeSet>
+</databaseChangeLog>

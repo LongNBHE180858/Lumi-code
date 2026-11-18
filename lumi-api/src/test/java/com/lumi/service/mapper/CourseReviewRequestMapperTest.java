@@ -13,6 +13,8 @@ class CourseReviewRequestMapperTest {
     @BeforeEach
     void setUp() {
         courseReviewRequestMapper = new CourseReviewRequestMapperImpl();
+        org.springframework.test.util.ReflectionTestUtils.setField(courseReviewRequestMapper, "courseMapper", new CourseMapperImpl());
+        org.springframework.test.util.ReflectionTestUtils.setField(courseReviewRequestMapper, "userMapper", new UserMapper());
     }
 
     @Test

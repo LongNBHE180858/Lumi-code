@@ -55,6 +55,7 @@ export interface ICourseData {
   author?: { id: number; login?: string; firstName?: string; lastName?: string };
   authorDisplayName?: string;
   validDurationDays?: number;
+  isSystemCourse?: boolean;
   subject?: { id: number; name: string };
   grade?: { id: number; name: string };
 }
@@ -222,8 +223,27 @@ const writeOptions = {
 
 export const createDraft = createAsyncThunk(
   'courseBuilder/create_draft',
-  async (title?: string) => {
-    const response = await axios.post<IBuilderAggregate>(API_BASE, { title });
+  async (payload?: string | { title?: string; isSystemCourse?: boolean }) => {
+    const data = typeof payload === 'string' ? { title: payload } : payload;
+    const response = await axios.post<IBuilderAggregate>(API_BASE, data);
+    return response.data;
+  },
+  writeOptions,
+);
+
+export const publishSystemCourse = createAsyncThunk(
+  'courseBuilder/publish_system',
+  async ({ courseId, version }: { courseId: number; version: number }) => {
+    const response = await axios.post<IBuilderAggregate>(`${API_BASE}/${courseId}/publish-system`, { version });
+    return response.data;
+  },
+  writeOptions,
+);
+
+export const unpublishSystemCourse = createAsyncThunk(
+  'courseBuilder/unpublish_system',
+  async ({ courseId, version }: { courseId: number; version: number }) => {
+    const response = await axios.post<IBuilderAggregate>(`${API_BASE}/${courseId}/unpublish-system`, { version });
     return response.data;
   },
   writeOptions,
@@ -268,6 +288,15 @@ export const withdrawCourseReview = createAsyncThunk(
       );
     },
   },
+);
+
+export const requestCourseEdit = createAsyncThunk(
+  'courseBuilder/request_edit',
+  async ({ courseId, reason }: { courseId: number; reason: string }) => {
+    const response = await axios.post<IBuilderAggregate>(`${API_BASE}/${courseId}/request-edit`, { reason });
+    return response.data;
+  },
+  writeOptions,
 );
 
 export const updatePricing = createAsyncThunk(
@@ -479,6 +508,35 @@ export const getLessonMediaAccess = async (args: ILessonMediaTarget, preview = f
   return (await axios.get<IMediaAccess>(`${lessonMediaPath(args)}/${action}`)).data;
 };
 
+export interface ILessonMaterialSummaryDTO {
+  summary: string;
+  classification?: {
+    isValid: boolean;
+    subject: string;
+    grade: number | null;
+    topic: string;
+    reason: string;
+  } | null;
+}
+
+export const summarizeLessonMaterial = async (materialId: number, validateCurriculum = true) =>
+  (await axios.post<ILessonMaterialSummaryDTO>(`/api/ai/materials/${materialId}/summarize?validateCurriculum=${validateCurriculum}`)).data;
+
+export const saveMaterialSummary = createAsyncThunk(
+  'courseBuilder/save_material_summary',
+  async (args: { courseId: number; lessonId: number; materialId: number; version: number; summary: string }) => {
+    const response = await axios.put<IBuilderAggregate>(
+      `${API_BASE}/${args.courseId}/lessons/${args.lessonId}/materials/${args.materialId}/summary`,
+      {
+        version: args.version,
+        summary: args.summary,
+      },
+    );
+    return response.data;
+  },
+  writeOptions,
+);
+
 export const reorderLessonMaterials = createAsyncThunk(
   'courseBuilder/reorder_lesson_materials',
   async (args: { courseId: number; lessonId: number; version: number; materialIds: number[] }) => {
@@ -647,6 +705,9 @@ export const CourseBuilderSlice = createSlice({
             updatePricing.fulfilled.type,
             submitCourseReview.fulfilled.type,
             withdrawCourseReview.fulfilled.type,
+            publishSystemCourse.fulfilled.type,
+            unpublishSystemCourse.fulfilled.type,
+            requestCourseEdit.fulfilled.type,
             uploadThumbnail.fulfilled.type,
             deleteThumbnail.fulfilled.type,
             uploadIntroVideo.fulfilled.type,
@@ -664,6 +725,7 @@ export const CourseBuilderSlice = createSlice({
             reorderLessonMaterials.fulfilled.type,
             moveLesson.fulfilled.type,
             updateVideoDuration.fulfilled.type,
+            saveMaterialSummary.fulfilled.type,
           ].includes(action.type),
         (state, action: any) => {
           state.saving = false;
@@ -684,6 +746,9 @@ export const CourseBuilderSlice = createSlice({
           updatePricing,
           submitCourseReview,
           withdrawCourseReview,
+          publishSystemCourse,
+          unpublishSystemCourse,
+          requestCourseEdit,
           uploadThumbnail,
           deleteThumbnail,
           uploadIntroVideo,
@@ -701,6 +766,7 @@ export const CourseBuilderSlice = createSlice({
           reorderLessonMaterials,
           moveLesson,
           updateVideoDuration,
+          saveMaterialSummary,
         ),
         state => {
           state.saving = true;
@@ -715,6 +781,9 @@ export const CourseBuilderSlice = createSlice({
           updatePricing,
           submitCourseReview,
           withdrawCourseReview,
+          publishSystemCourse,
+          unpublishSystemCourse,
+          requestCourseEdit,
           uploadThumbnail,
           deleteThumbnail,
           uploadIntroVideo,
@@ -732,6 +801,7 @@ export const CourseBuilderSlice = createSlice({
           reorderLessonMaterials,
           moveLesson,
           updateVideoDuration,
+          saveMaterialSummary,
         ),
         (state, action: any) => {
           if (getCourseBuilder.rejected.match(action)) {

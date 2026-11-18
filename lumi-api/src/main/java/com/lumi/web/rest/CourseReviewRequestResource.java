@@ -191,6 +191,75 @@ public class CourseReviewRequestResource {
     }
 
     /**
+     * {@code POST  /course-review-requests/:id/approve} : Approve a course review request.
+     */
+    @PostMapping("/{id}/approve")
+    public ResponseEntity<CourseReviewRequestDTO> approveCourseReviewRequest(
+        @PathVariable("id") Long id,
+        @RequestBody(required = false) java.util.Map<String, String> body
+    ) {
+        LOG.debug("REST request to approve CourseReviewRequest : {}", id);
+        String feedback = body != null ? body.get("feedback") : null;
+        CourseReviewRequestDTO result = courseReviewRequestService.approve(id, feedback);
+        return ResponseEntity.ok(result);
+    }
+
+    /**
+     * {@code POST  /course-review-requests/:id/reject} : Reject a course review request.
+     */
+    @PostMapping("/{id}/reject")
+    public ResponseEntity<CourseReviewRequestDTO> rejectCourseReviewRequest(
+        @PathVariable("id") Long id,
+        @RequestBody(required = false) java.util.Map<String, String> body
+    ) {
+        LOG.debug("REST request to reject CourseReviewRequest : {}", id);
+        String reason = body != null ? body.get("reason") : null;
+        if (reason == null && body != null) {
+            reason = body.get("feedback");
+        }
+        CourseReviewRequestDTO result = courseReviewRequestService.reject(id, reason);
+        return ResponseEntity.ok(result);
+    }
+
+    /**
+     * {@code POST  /courses/:courseId/hide} : Hide an active course.
+     */
+    @PostMapping("/courses/{courseId}/hide")
+    public ResponseEntity<CourseReviewRequestDTO> hideCourse(
+        @PathVariable("courseId") Long courseId,
+        @RequestBody(required = false) java.util.Map<String, String> body
+    ) {
+        LOG.debug("REST request to hide course : {}", courseId);
+        String reason = body != null ? body.get("reason") : null;
+        CourseReviewRequestDTO result = courseReviewRequestService.hideCourse(courseId, reason);
+        return ResponseEntity.ok(result);
+    }
+
+    /**
+     * {@code POST  /courses/:courseId/unhide} : Unhide a hidden course.
+     */
+    @PostMapping("/courses/{courseId}/unhide")
+    public ResponseEntity<CourseReviewRequestDTO> unhideCourse(@PathVariable("courseId") Long courseId) {
+        LOG.debug("REST request to unhide course : {}", courseId);
+        CourseReviewRequestDTO result = courseReviewRequestService.unhideCourse(courseId);
+        return ResponseEntity.ok(result);
+    }
+
+    /**
+     * {@code POST  /courses/:courseId/request-revision} : Request revision for a course.
+     */
+    @PostMapping("/courses/{courseId}/request-revision")
+    public ResponseEntity<CourseReviewRequestDTO> requestRevision(
+        @PathVariable("courseId") Long courseId,
+        @RequestBody(required = false) java.util.Map<String, String> body
+    ) {
+        LOG.debug("REST request to request revision for course : {}", courseId);
+        String reason = body != null ? body.get("reason") : null;
+        CourseReviewRequestDTO result = courseReviewRequestService.requestRevision(courseId, reason);
+        return ResponseEntity.ok(result);
+    }
+
+    /**
      * {@code DELETE  /course-review-requests/:id} : delete the "id" courseReviewRequest.
      *
      * @param id the id of the courseReviewRequestDTO to delete.

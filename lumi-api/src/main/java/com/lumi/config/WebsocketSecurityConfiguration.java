@@ -28,6 +28,8 @@ public class WebsocketSecurityConfiguration {
             // /topic/messages-user<id>)
             .simpDestMatchers("/topic/**")
             .authenticated()
+            .simpDestMatchers("/user/**")
+            .authenticated()
             // message types other than MESSAGE and SUBSCRIBE
             .simpTypeMatchers(SimpMessageType.MESSAGE, SimpMessageType.SUBSCRIBE)
             .denyAll()

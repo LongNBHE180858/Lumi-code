@@ -90,6 +90,8 @@ class ClassroomExamServiceTest {
             .durationMinutes(15)
             .passScore(BigDecimal.valueOf(50))
             .maxAttempts(3)
+            .resultReleaseMode("IMMEDIATE")
+            .answerReleaseMode("AFTER_SUBMIT")
             .isDeleted(false);
         service = new ClassroomExamService(
             classes,
@@ -186,21 +188,94 @@ class ClassroomExamServiceTest {
         QuestionOption wrong = new QuestionOption().id(71L).question(question).content("5").isCorrect(false);
         when(options.findByQuestionIdOrderByOrderIndexAsc(60L)).thenReturn(List.of(correct, wrong));
         List<ExamAnswer> saved = new ArrayList<>();
-        when(answers.save(any(ExamAnswer.class))).thenAnswer(invocation -> {
-            ExamAnswer answer = invocation.getArgument(0);
-            saved.add(answer);
-            return answer;
+        when(answers.saveAll(any())).thenAnswer(invocation -> {
+            List<ExamAnswer> graded = invocation.getArgument(0);
+            saved.addAll(graded);
+            return graded;
         });
         when(answers.findByAttemptId(50L)).thenAnswer(invocation -> saved);
 
-        var result = service.submit(20L, 40L, 50L, new ClassExamDTO.Submit(List.of(new ClassExamDTO.AnswerInput(60L, 71L))));
+        var result = service.submit(20L, 40L, 50L, new ClassExamDTO.SubmitExam(List.of(new ClassExamDTO.AnswerInput(60L, 71L))));
 
         assertThat(result.score()).isEqualByComparingTo(BigDecimal.ZERO);
         assertThat(result.feedback()).hasSize(1);
         assertThat(result.feedback().getFirst().correct()).isEqualTo("4");
+        assertThat(result.feedback().getFirst().options()).containsExactly("4", "5");
         assertThat(result.feedback().getFirst().isCorrect()).isFalse();
         assertThat(saved.getFirst().getIsCorrect()).isFalse();
         assertThat(attempt.getStatus()).isEqualTo("SUBMITTED");
+    }
+
+    @Test
+    void submitWithoutAnswersGradesTheSavedDraftAndReusesItsRow() {
+        actAsStudent();
+        when(exams.findById(40L)).thenReturn(Optional.of(exam));
+        ExamAttempt attempt = new ExamAttempt()
+            .id(50L)
+            .exam(exam)
+            .student(student)
+            .status("IN_PROGRESS")
+            .deadlineAt(Instant.now().plusSeconds(900));
+        when(attempts.findByIdForUpdate(50L)).thenReturn(Optional.of(attempt));
+        Question question = new Question().id(60L).content("2 + 2 = ?");
+        when(examQuestions.findByExamIdOrderByOrderIndexAsc(40L)).thenReturn(
+            List.of(new ExamQuestion().question(question).score(BigDecimal.valueOf(2)).orderIndex(0))
+        );
+        QuestionOption correct = new QuestionOption().id(70L).question(question).content("4").isCorrect(true);
+        when(options.findByQuestionIdOrderByOrderIndexAsc(60L)).thenReturn(List.of(correct));
+        ExamAnswer draft = new ExamAnswer().id(80L).attempt(attempt).question(question).option(correct).rowVersion(0L);
+        when(answers.findByAttemptId(50L)).thenReturn(List.of(draft));
+
+        ClassExamDTO.Result result = service.submit(20L, 40L, 50L, null);
+
+        assertThat(result.score()).isEqualByComparingTo(BigDecimal.valueOf(100));
+        assertThat(draft.getIsCorrect()).isTrue();
+        assertThat(draft.getScore()).isEqualByComparingTo(BigDecimal.valueOf(2));
+        verify(answers).saveAll(
+            argThat(rows -> {
+                List<ExamAnswer> graded = new ArrayList<>();
+                rows.forEach(graded::add);
+                return graded.size() == 1 && graded.getFirst() == draft;
+            })
+        );
+    }
+
+    @Test
+    void expiredSubmissionUsesSavedAnswersAndHidesUnreleasedResult() {
+        actAsStudent();
+        exam.setResultReleaseMode("AFTER_CLOSE");
+        exam.setAnswerReleaseMode("NEVER");
+        exam.setClosesAt(Instant.now().plusSeconds(3600));
+        when(exams.findById(40L)).thenReturn(Optional.of(exam));
+        ExamAttempt attempt = new ExamAttempt()
+            .id(50L)
+            .exam(exam)
+            .student(student)
+            .status("IN_PROGRESS")
+            .deadlineAt(Instant.now().minusSeconds(1));
+        when(attempts.findByIdForUpdate(50L)).thenReturn(Optional.of(attempt));
+        Question question = new Question().id(60L).content("2 + 2 = ?");
+        when(examQuestions.findByExamIdOrderByOrderIndexAsc(40L)).thenReturn(
+            List.of(new ExamQuestion().question(question).score(BigDecimal.ONE).orderIndex(0))
+        );
+        QuestionOption correct = new QuestionOption().id(70L).question(question).content("4").isCorrect(true);
+        ExamAnswer draft = new ExamAnswer().id(80L).attempt(attempt).question(question).option(correct).rowVersion(0L);
+        when(answers.findByAttemptId(50L)).thenReturn(List.of(draft));
+        when(options.findByQuestionIdOrderByOrderIndexAsc(60L)).thenReturn(List.of(correct));
+
+        ClassExamDTO.Result result = service.submit(
+            20L,
+            40L,
+            50L,
+            new ClassExamDTO.SubmitExam(List.of(new ClassExamDTO.AnswerInput(60L, null)))
+        );
+
+        assertThat(attempt.getStatus()).isEqualTo("AUTO_SUBMITTED");
+        assertThat(attempt.getScore()).isEqualByComparingTo(BigDecimal.valueOf(100));
+        assertThat(result.score()).isNull();
+        assertThat(result.passed()).isNull();
+        assertThat(result.feedback()).isEmpty();
+        verify(answers, times(1)).findByAttemptId(50L);
     }
 
     @Test
@@ -214,10 +289,128 @@ class ClassroomExamServiceTest {
             List.of(new ClassExamDTO.OptionInput("A"), new ClassExamDTO.OptionInput("B")),
             0
         );
-        var input = new ClassExamDTO.UpdateExam("Đề", 15, BigDecimal.valueOf(50), null, "ACTIVE", List.of(replacement));
+        var input = new ClassExamDTO.UpdateExam(
+            "Đề",
+            15,
+            BigDecimal.valueOf(50),
+            null,
+            "ACTIVE",
+            List.of(replacement),
+            "EXAM",
+            3,
+            "IMMEDIATE",
+            "AFTER_SUBMIT",
+            false,
+            Instant.now(),
+            Instant.now().plusSeconds(3600)
+        );
 
         assertThatThrownBy(() -> service.updateExam(20L, 40L, input)).isInstanceOf(ResponseStatusException.class);
         verify(examQuestions, never()).deleteAll(any());
+    }
+
+    @Test
+    void changesOnlyStatusForLegacyExamWithoutOpeningDates() {
+        exam.setVersion(1L);
+        when(exams.findById(40L)).thenReturn(Optional.of(exam));
+        when(exams.save(exam)).thenReturn(exam);
+
+        var result = service.updateStatus(20L, 40L, new ClassExamDTO.UpdateStatus("ARCHIVED"));
+
+        assertThat(result.status()).isEqualTo("ARCHIVED");
+        assertThat(exam.getOpensAt()).isNull();
+        assertThat(exam.getClosesAt()).isNull();
+        assertThat(exam.getVersion()).isEqualTo(2L);
+    }
+
+    @Test
+    void matrixExamPersistsOpeningAndClosingTimes() {
+        Instant opensAt = Instant.now().plusSeconds(60);
+        Instant closesAt = opensAt.plusSeconds(3600);
+        when(questionBanks.findById(5L)).thenReturn(Optional.of(new QuestionBank().id(5L).instructor(teacher)));
+        when(questions.findById(60L)).thenReturn(Optional.of(new Question().id(60L).isDeleted(false)));
+        when(exams.saveAndFlush(any(Exam.class))).thenAnswer(invocation -> {
+            Exam saved = invocation.getArgument(0);
+            saved.setId(40L);
+            return saved;
+        });
+        var input = new ClassExamDTO.CreateFromMatrixRequest(
+            "Đề ma trận",
+            15,
+            BigDecimal.valueOf(50),
+            null,
+            null,
+            5L,
+            List.of(60L),
+            BigDecimal.ONE,
+            "EXAM",
+            1,
+            "IMMEDIATE",
+            "AFTER_SUBMIT",
+            false,
+            opensAt,
+            closesAt
+        );
+
+        var result = service.createExamFromMatrix(20L, input);
+
+        assertThat(result.opensAt()).isEqualTo(opensAt);
+        assertThat(result.closesAt()).isEqualTo(closesAt);
+        assertThat(result.maxAttempts()).isEqualTo(1);
+    }
+
+    @Test
+    void matrixExamAllowsUnlimitedAttempts() {
+        Instant opensAt = Instant.now().plusSeconds(60);
+        Instant closesAt = opensAt.plusSeconds(3600);
+        when(questionBanks.findById(5L)).thenReturn(Optional.of(new QuestionBank().id(5L).instructor(teacher)));
+        when(questions.findById(60L)).thenReturn(Optional.of(new Question().id(60L).isDeleted(false)));
+        when(exams.saveAndFlush(any(Exam.class))).thenAnswer(invocation -> {
+            Exam saved = invocation.getArgument(0);
+            saved.setId(40L);
+            return saved;
+        });
+        var input = new ClassExamDTO.CreateFromMatrixRequest(
+            "Đề không giới hạn lượt",
+            15,
+            BigDecimal.valueOf(50),
+            null,
+            null,
+            5L,
+            List.of(60L),
+            BigDecimal.ONE,
+            "EXAM",
+            null,
+            "IMMEDIATE",
+            "AFTER_SUBMIT",
+            false,
+            opensAt,
+            closesAt
+        );
+
+        var result = service.createExamFromMatrix(20L, input);
+
+        assertThat(result.maxAttempts()).isNull();
+    }
+
+    @Test
+    void listsAnUnfinishedLastAttemptAsResumable() {
+        actAsStudent();
+        exam.setMaxAttempts(1);
+        ExamAttempt unfinished = new ExamAttempt()
+            .id(50L)
+            .exam(exam)
+            .student(student)
+            .status("IN_PROGRESS")
+            .deadlineAt(Instant.now().plusSeconds(600));
+        when(exams.findByStudyClassIdAndIsDeletedFalseOrderByCreatedAtDesc(20L)).thenReturn(List.of(exam));
+        when(attempts.findByExamIdAndStudentIdOrderByStartTimeDesc(40L, 11L)).thenReturn(List.of(unfinished));
+
+        var result = service.studentExams(20L).getFirst();
+
+        assertThat(result.status()).isEqualTo("AVAILABLE");
+        assertThat(result.inProgressAttemptId()).isEqualTo(50L);
+        assertThat(result.remainingAttempts()).isZero();
     }
 
     private void actAsStudent() {

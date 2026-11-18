@@ -23,7 +23,7 @@ public interface PdfChunkRepository extends JpaRepository<PdfChunk, Long>, JpaSp
         Double getDistance();
     }
     // <=> :tính khoảng cách cosine giữa hai vector.
-    // ORDER BY ... ASC LIMIT 1 :lấy đoạn có khoảng cách nhỏ nhất.
+    // Kho nguồn AI dùng chung; uploaded_by chỉ ghi nhận người nạp tài liệu.
     @Query(
         value = """
         SELECT
@@ -35,9 +35,7 @@ public interface PdfChunkRepository extends JpaRepository<PdfChunk, Long>, JpaSp
             c.embedding <=> CAST(:queryVector AS vector) AS "distance"
         FROM pdf_chunks c
         JOIN learning_documents d ON d.id = c.material_id
-        JOIN jhi_user u ON u.id = d.uploaded_by_id
-        WHERE u.login = :ownerLogin
-          AND d.source_type = 'DEMO'
+        WHERE d.source_type = 'DEMO'
           AND d.source_metadata ->> 'demoOnly' = 'true'
           AND d.embedding_model = 'gemini-embedding-001'
           AND c.index_version = 1
@@ -48,7 +46,6 @@ public interface PdfChunkRepository extends JpaRepository<PdfChunk, Long>, JpaSp
         nativeQuery = true
     )
     List<RetrievedChunk> findNearestChunks(
-        @Param("ownerLogin") String ownerLogin,
         @Param("queryVector") String queryVector
     );
 

@@ -1,6 +1,8 @@
 package com.lumi.repository;
 
 import com.lumi.domain.Notification;
+import com.lumi.domain.enumeration.NotificationCategory;
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.data.domain.Page;
@@ -40,4 +42,18 @@ public interface NotificationRepository extends JpaRepository<Notification, Long
 
     @Query("select notification from Notification notification left join fetch notification.user where notification.id =:id")
     Optional<Notification> findOneWithToOneRelationships(@Param("id") Long id);
+
+    long countByUserIdAndIsReadFalse(Long userId);
+
+    Page<Notification> findByUserIdOrderByCreatedAtDesc(Long userId, Pageable pageable);
+
+    Page<Notification> findByUserIdAndCategoryOrderByCreatedAtDesc(Long userId, NotificationCategory category, Pageable pageable);
+
+    List<Notification> findByTargetTypeAndTargetId(String targetType, Long targetId);
+
+    @Modifying
+    @Query(
+        "update Notification n set n.isRead = true, n.readAt = :now where n.user.id = :userId and (n.isRead = false or n.isRead is null)"
+    )
+    int markAllAsRead(@Param("userId") Long userId, @Param("now") Instant now);
 }

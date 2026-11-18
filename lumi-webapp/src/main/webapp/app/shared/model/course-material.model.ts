@@ -12,6 +12,7 @@ export interface ICourseMaterial {
   fileUrl?: string;
   fileSizeBytes?: number | null;
   fileObjectKey?: string | null;
+  summary?: string | null;
   updatedAt?: dayjs.Dayjs;
   lesson?: ILesson;
 }

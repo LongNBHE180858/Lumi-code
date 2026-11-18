@@ -1,5 +1,6 @@
 package com.lumi.web.rest;
 
+import com.lumi.domain.enumeration.NotificationCategory;
 import com.lumi.repository.NotificationRepository;
 import com.lumi.service.NotificationService;
 import com.lumi.service.criteria.NotificationCriteria;
@@ -202,5 +203,48 @@ public class NotificationResource {
         return ResponseEntity.noContent()
             .headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, id.toString()))
             .build();
+    }
+
+    /**
+     * {@code GET  /notifications/my} : get current user's notifications.
+     */
+    @GetMapping("/my")
+    public ResponseEntity<List<NotificationDTO>> getMyNotifications(
+        @RequestParam(name = "category", required = false) NotificationCategory category,
+        @org.springdoc.core.annotations.ParameterObject Pageable pageable
+    ) {
+        LOG.debug("REST request to get current user notifications, category: {}", category);
+        Page<NotificationDTO> page = notificationService.findMyNotifications(category, pageable);
+        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
+        return ResponseEntity.ok().headers(headers).body(page.getContent());
+    }
+
+    /**
+     * {@code GET  /notifications/unread-count} : get current user's unread notifications count.
+     */
+    @GetMapping("/unread-count")
+    public ResponseEntity<Long> getMyUnreadCount() {
+        LOG.debug("REST request to get current user unread notifications count");
+        return ResponseEntity.ok(notificationService.countMyUnreadNotifications());
+    }
+
+    /**
+     * {@code PATCH  /notifications/:id/read} : mark a notification as read.
+     */
+    @PatchMapping("/{id}/read")
+    public ResponseEntity<NotificationDTO> markAsRead(@PathVariable("id") Long id) {
+        LOG.debug("REST request to mark Notification as read : {}", id);
+        Optional<NotificationDTO> result = notificationService.markAsRead(id);
+        return ResponseUtil.wrapOrNotFound(result);
+    }
+
+    /**
+     * {@code POST  /notifications/mark-all-read} : mark all current user's notifications as read.
+     */
+    @PostMapping("/mark-all-read")
+    public ResponseEntity<java.util.Map<String, Object>> markAllAsRead() {
+        LOG.debug("REST request to mark all current user notifications as read");
+        int count = notificationService.markAllMyNotificationsAsRead();
+        return ResponseEntity.ok(java.util.Map.of("updatedCount", count));
     }
 }

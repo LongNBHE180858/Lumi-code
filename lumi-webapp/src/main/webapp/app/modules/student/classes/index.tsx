@@ -71,10 +71,15 @@ export const StudentClasses: React.FC = () => {
 
   return (
     <main className="classroom-page">
-      <header className="classroom-header">
+      <header className="classroom-header classroom-hero">
         <div>
+          <span className="classroom-eyebrow">HỌC TẬP CÙNG LUMI</span>
           <h1>Lớp học của tôi</h1>
           <p>Nhập mã hoặc mở liên kết giáo viên chia sẻ để tham gia lớp.</p>
+        </div>
+        <div className="classroom-hero-progress">
+          <strong>{totalElements}</strong>
+          <span>Lớp đã tham gia</span>
         </div>
       </header>
       <section className="classroom-panel">
@@ -108,25 +113,50 @@ export const StudentClasses: React.FC = () => {
           </p>
         )}
       </section>
+      <div className="classroom-metric-grid">
+        <div className="classroom-metric-card">
+          <span>Lớp của tôi</span>
+          <strong>{totalElements}</strong>
+          <small>Không gian học tập đang theo dõi</small>
+        </div>
+        <div className="classroom-metric-card">
+          <span>Trong trang này</span>
+          <strong>{classes.filter(item => item.membershipStatus === 'ACTIVE').length}</strong>
+          <small>Lớp có thể truy cập ngay</small>
+        </div>
+        <div className="classroom-metric-card">
+          <span>Chờ duyệt</span>
+          <strong>{classes.filter(item => item.membershipStatus === 'PENDING').length}</strong>
+          <small>Yêu cầu tham gia trong trang này</small>
+        </div>
+      </div>
       <section className="classroom-panel">
-        <h2>Danh sách lớp</h2>
+        <div className="classroom-section-heading">
+          <div>
+            <h2>Danh sách lớp</h2>
+            <p>Chọn một lớp để xem bài học, bài được giao và kết quả kiểm tra.</p>
+          </div>
+        </div>
         {loading && <p>Đang tải danh sách...</p>}
         {!loading && classes.length === 0 && <p>Bạn chưa tham gia lớp nào.</p>}
-        {classes.map(item => (
-          <div className="classroom-row" key={item.id}>
-            <div>
-              <strong>{item.name}</strong>
-              <small>{item.description || 'Chưa có mô tả.'}</small>
+        <div className="classroom-class-grid">
+          {classes.map(item => (
+            <div className="classroom-class-card" key={item.id}>
+              <span className="classroom-class-icon">{item.name.slice(0, 1).toLocaleUpperCase('vi-VN')}</span>
+              <div>
+                <strong>{item.name}</strong>
+                <small>{item.description || 'Chưa có mô tả.'}</small>
+              </div>
+              {item.membershipStatus === 'ACTIVE' ? (
+                <button type="button" onClick={() => navigate(`/student/classes/${item.id}`)}>
+                  Vào lớp
+                </button>
+              ) : (
+                <span className="classroom-status">Chờ duyệt</span>
+              )}
             </div>
-            {item.membershipStatus === 'ACTIVE' ? (
-              <button type="button" onClick={() => navigate(`/student/classes/${item.id}`)}>
-                Vào lớp
-              </button>
-            ) : (
-              <span>Chờ duyệt</span>
-            )}
-          </div>
-        ))}
+          ))}
+        </div>
         {totalPages > 1 && (
           <nav className="classroom-pagination" aria-label="Phân trang lớp học">
             <button type="button" disabled={loading || page === 0} onClick={() => void load(page - 1)}>

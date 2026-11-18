@@ -1,6 +1,7 @@
 package com.lumi.web.rest;
 
 import com.lumi.service.dto.InstructorCourseDTOs.Builder;
+import com.lumi.service.dto.InstructorCourseDTOs.MaterialSummaryInput;
 import com.lumi.service.dto.InstructorCourseDTOs.VideoDuration;
 import com.lumi.service.impl.InstructorCourseMediaService;
 import com.lumi.service.storage.CourseObjectStorage.Access;
@@ -43,6 +44,16 @@ public class InstructorCourseMediaResource {
         @RequestPart("file") MultipartFile file
     ) {
         return service.uploadMaterial(courseId, lessonId, materialId, version, file);
+    }
+
+    @PutMapping("/lessons/{lessonId}/materials/{materialId}/summary")
+    public Builder updateMaterialSummary(
+        @PathVariable Long courseId,
+        @PathVariable Long lessonId,
+        @PathVariable Long materialId,
+        @Valid @RequestBody MaterialSummaryInput input
+    ) {
+        return service.updateMaterialSummary(courseId, lessonId, materialId, input.version(), input.summary());
     }
 
     @PostMapping(value = "/thumbnail", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)

@@ -1,6 +1,7 @@
 package com.lumi.repository;
 
 import com.lumi.domain.Assignment;
+import jakarta.persistence.LockModeType;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.data.domain.Page;
@@ -15,6 +16,10 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface AssignmentRepository extends JpaRepository<Assignment, Long>, JpaSpecificationExecutor<Assignment> {
     List<Assignment> findByStudyClassIdAndIsDeletedFalseOrderByCreatedAtDesc(Long classId);
+
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("select a from Assignment a where a.id = :id")
+    Optional<Assignment> findByIdForUpdate(@Param("id") Long id);
 
     @Query("select assignment from Assignment assignment where assignment.assignedBy.login = ?#{authentication.name}")
     List<Assignment> findByAssignedByIsCurrentUser();

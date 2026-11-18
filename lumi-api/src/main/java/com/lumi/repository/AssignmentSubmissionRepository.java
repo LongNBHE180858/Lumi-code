@@ -16,6 +16,12 @@ import org.springframework.stereotype.Repository;
 public interface AssignmentSubmissionRepository
     extends JpaRepository<AssignmentSubmission, Long>, JpaSpecificationExecutor<AssignmentSubmission>
 {
+    List<AssignmentSubmission> findByAssignmentIdAndStudentIdOrderByIdDesc(Long assignmentId, Long studentId);
+
+    List<AssignmentSubmission> findByAssignmentIdOrderBySubmittedAtDescIdDesc(Long assignmentId);
+
+    List<AssignmentSubmission> findByAssignmentStudyClassId(Long classId);
+
     @Query(
         "select assignmentSubmission from AssignmentSubmission assignmentSubmission where assignmentSubmission.student.login = ?#{authentication.name}"
     )

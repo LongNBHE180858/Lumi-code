@@ -3,6 +3,7 @@ package com.lumi.web.rest;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.lumi.IntegrationTest;
 import com.lumi.domain.*;
@@ -136,5 +137,22 @@ class CourseReviewSubmissionIT {
         } finally {
             pool.shutdownNow();
         }
+    }
+
+    @Test
+    void staleVersionUpdateRejectsWithConflict409() throws Exception {
+        mvc.perform(
+            post("/api/instructor/courses/" + courseId + "/review-requests")
+                .with(user(login).roles("USER"))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"version\":" + version + ",\"confirmedRights\":true,\"note\":\"First submission\"}")
+        ).andExpect(status().isCreated());
+
+        mvc.perform(
+            post("/api/instructor/courses/" + courseId + "/review-requests")
+                .with(user(login).roles("USER"))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"version\":" + version + ",\"confirmedRights\":true,\"note\":\"Stale submission attempt\"}")
+        ).andExpect(status().isConflict());
     }
 }

@@ -39,6 +39,8 @@ public class CourseMaterialDTO implements Serializable {
     @Size(max = 1000)
     private String fileObjectKey;
 
+    private String summary;
+
     @NotNull
     private Instant updatedAt;
 
@@ -123,6 +125,14 @@ public class CourseMaterialDTO implements Serializable {
 
     public void setUpdatedAt(Instant updatedAt) {
         this.updatedAt = updatedAt;
+    }
+
+    public String getSummary() {
+        return summary;
+    }
+
+    public void setSummary(String summary) {
+        this.summary = summary;
     }
 
     public LessonDTO getLesson() {

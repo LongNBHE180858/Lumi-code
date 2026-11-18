@@ -5,6 +5,7 @@ import com.lumi.service.ClassroomService;
 import com.lumi.service.dto.APIResponse;
 import com.lumi.service.dto.studyClass.ClassroomDTO;
 import jakarta.validation.Valid;
+import java.net.URI;
 import java.util.List;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpStatus;
@@ -79,12 +80,25 @@ public class ClassroomResource {
     @GetMapping("/classes/{id}/materials/{materialId}/file")
     @PreAuthorize("hasAnyAuthority('ROLE_INSTRUCTOR', 'ROLE_STUDENT')")
     public ResponseEntity<Resource> materialFile(@PathVariable Long id, @PathVariable Long materialId) {
+        var access = materialService.accessUrl(id, materialId);
+        if (access.url().startsWith("https://")) {
+            return ResponseEntity.status(HttpStatus.FOUND).location(URI.create(access.url())).build();
+        }
         var file = materialService.access(id, materialId);
         return ResponseEntity.ok()
             .contentType(MediaType.parseMediaType(file.mimeType()))
             .header("Content-Disposition", "inline")
             .header("Cache-Control", "private, no-store")
             .body(file.resource());
+    }
+
+    @GetMapping("/classes/{id}/materials/{materialId}/access")
+    @PreAuthorize("hasAnyAuthority('ROLE_INSTRUCTOR', 'ROLE_STUDENT')")
+    public ResponseEntity<APIResponse<com.lumi.service.storage.ClassroomObjectStorage.Access>> materialAccess(
+        @PathVariable Long id,
+        @PathVariable Long materialId
+    ) {
+        return result(HttpStatus.OK, "Đã cấp URL xem bài học", materialService.accessUrl(id, materialId));
     }
 
     @PostMapping("/instructor/classes/{id}/members/{memberId}/approve")
@@ -114,6 +128,24 @@ public class ClassroomResource {
         @Valid @RequestBody ClassroomDTO.CreateTaskRequest request
     ) {
         return result(HttpStatus.CREATED, "Đã giao bài tập", service.createTask(id, request));
+    }
+
+    @PostMapping(value = "/instructor/classes/{id}/assignments/with-file", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PreAuthorize("hasAuthority('ROLE_INSTRUCTOR')")
+    public ResponseEntity<APIResponse<ClassroomDTO.Task>> createTaskWithFile(
+        @PathVariable Long id,
+        @RequestParam String title,
+        @RequestParam(required = false) String instructions,
+        @RequestParam(required = false) @org.springframework.format.annotation.DateTimeFormat(
+            iso = org.springframework.format.annotation.DateTimeFormat.ISO.DATE_TIME
+        ) java.time.Instant dueAt,
+        @RequestPart("file") MultipartFile file
+    ) {
+        return result(
+            HttpStatus.CREATED,
+            "Đã giao bài tập",
+            service.createTask(id, new ClassroomDTO.CreateTaskRequest(title, instructions, dueAt), file)
+        );
     }
 
     @GetMapping("/student/classes")

@@ -1,6 +1,7 @@
 package com.lumi.repository;
 
 import com.lumi.domain.ClassMaterial;
+import jakarta.persistence.LockModeType;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.data.domain.Page;
@@ -14,6 +15,10 @@ import org.springframework.stereotype.Repository;
  */
 @Repository
 public interface ClassMaterialRepository extends JpaRepository<ClassMaterial, Long>, JpaSpecificationExecutor<ClassMaterial> {
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("select m from ClassMaterial m where m.id = :id")
+    Optional<ClassMaterial> findByIdForUpdate(@Param("id") Long id);
+
     default Optional<ClassMaterial> findOneWithEagerRelationships(Long id) {
         return this.findOneWithToOneRelationships(id);
     }

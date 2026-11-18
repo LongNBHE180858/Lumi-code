@@ -33,6 +33,18 @@ public class Assignment implements Serializable {
     @Column(name = "instructions", columnDefinition = "text")
     private String instructions;
 
+    @Column(name = "file_url", length = 1024)
+    private String fileUrl;
+
+    @Column(name = "file_name", length = 255)
+    private String fileName;
+
+    @Column(name = "file_type", length = 20)
+    private String fileType;
+
+    @Column(name = "file_size_bytes")
+    private Long fileSizeBytes;
+
     @Column(name = "due_at")
     private Instant dueAt;
 
@@ -110,6 +122,38 @@ public class Assignment implements Serializable {
 
     public void setInstructions(String instructions) {
         this.instructions = instructions;
+    }
+
+    public String getFileUrl() {
+        return fileUrl;
+    }
+
+    public void setFileUrl(String fileUrl) {
+        this.fileUrl = fileUrl;
+    }
+
+    public String getFileName() {
+        return fileName;
+    }
+
+    public void setFileName(String fileName) {
+        this.fileName = fileName;
+    }
+
+    public String getFileType() {
+        return fileType;
+    }
+
+    public void setFileType(String fileType) {
+        this.fileType = fileType;
+    }
+
+    public Long getFileSizeBytes() {
+        return fileSizeBytes;
+    }
+
+    public void setFileSizeBytes(Long fileSizeBytes) {
+        this.fileSizeBytes = fileSizeBytes;
     }
 
     public Instant getDueAt() {

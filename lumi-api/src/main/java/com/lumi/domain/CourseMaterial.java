@@ -56,6 +56,9 @@ public class CourseMaterial implements Serializable {
     @Column(name = "file_object_key", length = 1000)
     private String fileObjectKey;
 
+    @Column(name = "summary", columnDefinition = "text")
+    private String summary;
+
     @NotNull
     @Column(name = "updated_at", nullable = false)
     private Instant updatedAt;
@@ -199,6 +202,19 @@ public class CourseMaterial implements Serializable {
 
     public void setUpdatedAt(Instant updatedAt) {
         this.updatedAt = updatedAt;
+    }
+
+    public String getSummary() {
+        return this.summary;
+    }
+
+    public CourseMaterial summary(String summary) {
+        this.setSummary(summary);
+        return this;
+    }
+
+    public void setSummary(String summary) {
+        this.summary = summary;
     }
 
     public Lesson getLesson() {

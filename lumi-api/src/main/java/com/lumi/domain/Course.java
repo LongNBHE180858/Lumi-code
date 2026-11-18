@@ -87,6 +87,9 @@ public class Course implements Serializable {
     @Column(name = "is_deleted")
     private Boolean isDeleted;
 
+    @Column(name = "is_system_course")
+    private Boolean isSystemCourse = false;
+
     @Column(name = "created_at")
     private Instant createdAt;
 
@@ -406,6 +409,19 @@ public class Course implements Serializable {
     public Course grade(Grade grade) {
         this.setGrade(grade);
         return this;
+    }
+
+    public Boolean getIsSystemCourse() {
+        return this.isSystemCourse;
+    }
+
+    public Course isSystemCourse(Boolean isSystemCourse) {
+        this.setIsSystemCourse(isSystemCourse);
+        return this;
+    }
+
+    public void setIsSystemCourse(Boolean isSystemCourse) {
+        this.isSystemCourse = isSystemCourse;
     }
 
     // jhipster-needle-entity-add-getters-setters - JHipster will add getters and setters here

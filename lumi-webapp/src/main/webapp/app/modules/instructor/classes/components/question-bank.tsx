@@ -7,6 +7,7 @@ import {
   getBankTopics,
   getQuestionBanks,
   importBankExcel,
+  updateBankQuestion,
   type BankSummary,
   type ImportError,
   type QuestionItem,
@@ -43,12 +44,16 @@ export const QuestionBankView: React.FC<Props> = ({ classId }) => {
 
   // Modal thêm câu hỏi thủ công
   const [showAddQuestionModal, setShowAddQuestionModal] = useState<boolean>(false);
+  const [editingQuestion, setEditingQuestion] = useState<QuestionItem | null>(null);
   const [newContent, setNewContent] = useState<string>('');
-  const [newTopic, setNewTopic] = useState<string>('');
+  const [topicChoice, setTopicChoice] = useState<string>('default');
+  const [customTopic, setCustomTopic] = useState<string>('');
   const [newDifficulty, setNewDifficulty] = useState<number>(1);
   const [newExplanation, setNewExplanation] = useState<string>('');
   const [newOptions, setNewOptions] = useState<string[]>(['', '', '', '']);
   const [newCorrectIndex, setNewCorrectIndex] = useState<number>(0);
+  const [formError, setFormError] = useState<string | null>(null);
+  const [savingQuestion, setSavingQuestion] = useState(false);
 
   // Import Excel state
   const [showImportModal, setShowImportModal] = useState<boolean>(false);
@@ -119,40 +124,82 @@ export const QuestionBankView: React.FC<Props> = ({ classId }) => {
     }
   };
 
-  // Xử lý thêm câu hỏi thủ công
-  const handleAddQuestion = async (e: React.FormEvent) => {
+  const openNewQuestion = () => {
+    setEditingQuestion(null);
+    setNewContent('');
+    setTopicChoice('default');
+    setCustomTopic('');
+    setNewDifficulty(1);
+    setNewExplanation('');
+    setNewOptions(['', '', '', '']);
+    setNewCorrectIndex(0);
+    setFormError(null);
+    setShowAddQuestionModal(true);
+  };
+
+  const openEditQuestion = (question: QuestionItem) => {
+    setEditingQuestion(question);
+    setNewContent(question.content);
+    setTopicChoice(
+      question.topic === 'Mặc định' ? 'default' : topics.some(item => item.topic === question.topic) ? question.topic : 'custom',
+    );
+    setCustomTopic(question.topic === 'Mặc định' ? '' : question.topic);
+    setNewDifficulty(question.difficulty);
+    setNewExplanation(question.explanation ?? '');
+    setNewOptions(question.options.map(option => option.content));
+    setNewCorrectIndex(
+      Math.max(
+        0,
+        question.options.findIndex(option => option.isCorrect),
+      ),
+    );
+    setFormError(null);
+    setShowAddQuestionModal(true);
+  };
+
+  const removeOption = (index: number) => {
+    if (newOptions.length <= 2) return;
+    setNewOptions(current => current.filter((_, optionIndex) => optionIndex !== index));
+    setNewCorrectIndex(current => (current === index ? 0 : current > index ? current - 1 : current));
+  };
+
+  const handleSaveQuestion = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedBankId) return;
-    const cleanOptions = newOptions.map(o => o.trim()).filter(Boolean);
-    if (cleanOptions.length < 2) {
-      setError('Vui lòng nhập ít nhất 2 lựa chọn.');
+    const cleanOptions = newOptions.map(option => option.trim());
+    if (cleanOptions.length < 2 || cleanOptions.length > 10 || cleanOptions.some(option => !option)) {
+      setFormError('Cần từ 2 đến 10 lựa chọn và mỗi ô phải có nội dung.');
       return;
     }
     if (newCorrectIndex >= cleanOptions.length) {
-      setError('Đáp án đúng không hợp lệ.');
+      setFormError('Đáp án đúng không hợp lệ.');
+      return;
+    }
+    if (topicChoice === 'custom' && !customTopic.trim()) {
+      setFormError('Hãy nhập chủ đề khác hoặc chọn chủ đề có sẵn.');
       return;
     }
     try {
-      setError(null);
-      await addBankQuestion(selectedBankId, {
+      setSavingQuestion(true);
+      setFormError(null);
+      const values = {
         content: newContent.trim(),
         difficulty: newDifficulty,
-        topic: newTopic.trim() || undefined,
+        topic: topicChoice === 'custom' ? customTopic.trim() : topicChoice === 'default' ? undefined : topicChoice,
         explanation: newExplanation.trim() || undefined,
         options: cleanOptions,
         correctIndex: newCorrectIndex,
-      });
+      };
+      if (editingQuestion) await updateBankQuestion(selectedBankId, editingQuestion.id, values);
+      else await addBankQuestion(selectedBankId, values);
       setShowAddQuestionModal(false);
-      setNewContent('');
-      setNewTopic('');
-      setNewExplanation('');
-      setNewOptions(['', '', '', '']);
-      setNewCorrectIndex(0);
-      setNotice('Đã thêm câu hỏi vào ngân hàng.');
+      setNotice(editingQuestion ? 'Đã lưu phiên bản mới của câu hỏi. Đề kiểm tra cũ vẫn giữ nguyên.' : 'Đã thêm câu hỏi vào ngân hàng.');
       await loadBankContent(selectedBankId);
       await loadBanks(selectedBankId);
     } catch (err: any) {
-      setError(err?.message || 'Không thể thêm câu hỏi.');
+      setFormError(err?.response?.data?.message || err?.message || 'Không thể lưu câu hỏi.');
+    } finally {
+      setSavingQuestion(false);
     }
   };
 
@@ -182,35 +229,34 @@ export const QuestionBankView: React.FC<Props> = ({ classId }) => {
 
   return (
     <section className="classroom-panel question-bank-container">
-      <div className="classroom-header" style={{ marginBottom: '1.25rem' }}>
-        <div>
-          <h2>Ngân hàng câu hỏi</h2>
-          <p style={{ color: '#64748b', fontSize: '0.9rem' }}>
+      <div
+        className="classroom-section-heading"
+        style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          gap: '1rem',
+          flexWrap: 'wrap',
+          marginBottom: '1.25rem',
+        }}
+      >
+        <div style={{ flex: '1 1 280px', minWidth: 0 }}>
+          <h2 style={{ marginBottom: '0.35rem' }}>Ngân hàng câu hỏi</h2>
+          <p style={{ color: '#64748b', fontSize: '0.9rem', margin: 0 }}>
             Quản lý kho câu hỏi trắc nghiệm, nhập từ Excel hoặc tự tạo câu hỏi để phục vụ lập ma trận đề.
           </p>
         </div>
-        <div style={{ display: 'flex', gap: '0.6rem', flexWrap: 'wrap', alignItems: 'center' }}>
+        <div style={{ display: 'flex', gap: '0.6rem', flexWrap: 'wrap', alignItems: 'center', flexShrink: 0 }}>
           <button
             type="button"
             className="btn-excel-download"
+            style={{ whiteSpace: 'nowrap' }}
             onClick={() => void downloadBankTemplate()}
             title="Tải file mẫu Excel chuẩn để điền câu hỏi"
           >
             ⬇ Tải mẫu Excel (.xlsx)
           </button>
-          <button
-            type="button"
-            className="btn-excel-upload"
-            onClick={() => {
-              setImportErrors([]);
-              setSelectedFile(null);
-              setShowImportModal(true);
-            }}
-            title="Tải file Excel câu hỏi lên ngân hàng"
-          >
-            ⬆ Đẩy câu hỏi lên (Excel)
-          </button>
-          <button type="button" className="btn-pill-primary" onClick={() => setShowCreateBankModal(true)}>
+          <button type="button" className="btn-pill-primary" style={{ whiteSpace: 'nowrap' }} onClick={() => setShowCreateBankModal(true)}>
             + Tạo ngân hàng mới
           </button>
         </div>
@@ -221,6 +267,7 @@ export const QuestionBankView: React.FC<Props> = ({ classId }) => {
           {error}
         </div>
       )}
+      {loading && <p>Đang tải ngân hàng câu hỏi...</p>}
       {notice && (
         <div className="classroom-notice" role="status" style={{ marginBottom: '1rem' }}>
           {notice}
@@ -228,12 +275,24 @@ export const QuestionBankView: React.FC<Props> = ({ classId }) => {
       )}
 
       {/* Thanh chọn Ngân hàng */}
-      <div style={{ background: '#f8fafc', padding: '1rem', borderRadius: '10px', marginBottom: '1.25rem', border: '1px solid #e2e8f0' }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '1rem' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flex: 1, minWidth: '260px' }}>
-            <label style={{ fontWeight: 600, color: '#334155', whiteSpace: 'nowrap' }}>Chọn ngân hàng:</label>
+      <div style={{ background: '#f8fafc', padding: '1rem', borderRadius: '12px', marginBottom: '1.25rem', border: '1px solid #e2e8f0' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.75rem' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flex: '1 1 280px', minWidth: 0 }}>
+            <label style={{ fontWeight: 600, color: '#334155', whiteSpace: 'nowrap', flexShrink: 0 }}>Chọn ngân hàng:</label>
             <select
-              style={{ padding: '0.5rem 0.75rem', borderRadius: '6px', border: '1px solid #cbd5e1', flex: 1 }}
+              style={{
+                padding: '0.55rem 0.75rem',
+                borderRadius: '8px',
+                border: '1px solid #cbd5e1',
+                background: '#fff',
+                flex: '1 1 0%',
+                minWidth: 0,
+                width: '100%',
+                maxWidth: '100%',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+                whiteSpace: 'nowrap',
+              }}
               value={selectedBankId ?? ''}
               onChange={e => setSelectedBankId(e.target.value ? Number(e.target.value) : null)}
             >
@@ -245,11 +304,12 @@ export const QuestionBankView: React.FC<Props> = ({ classId }) => {
               ))}
             </select>
           </div>
-          {selectedBankId && (
-            <div style={{ display: 'flex', gap: '0.5rem' }}>
+          {selectedBankId != null && (
+            <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', alignItems: 'center', flexShrink: 0 }}>
               <button
                 type="button"
                 className="btn-excel-upload"
+                style={{ whiteSpace: 'nowrap' }}
                 onClick={() => {
                   setImportErrors([]);
                   setSelectedFile(null);
@@ -258,7 +318,7 @@ export const QuestionBankView: React.FC<Props> = ({ classId }) => {
               >
                 ⬆ Đẩy câu hỏi lên (Excel)
               </button>
-              <button type="button" className="btn-pill-primary" onClick={() => setShowAddQuestionModal(true)}>
+              <button type="button" className="btn-pill-primary" style={{ whiteSpace: 'nowrap' }} onClick={openNewQuestion}>
                 + Thêm câu hỏi thủ công
               </button>
             </div>
@@ -328,7 +388,16 @@ export const QuestionBankView: React.FC<Props> = ({ classId }) => {
                     boxShadow: '0 1px 2px rgba(0,0,0,0.03)',
                   }}
                 >
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.5rem' }}>
+                  <div
+                    style={{
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      alignItems: 'flex-start',
+                      flexWrap: 'wrap',
+                      gap: '0.5rem',
+                      marginBottom: '0.5rem',
+                    }}
+                  >
                     <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
                       <span style={{ fontWeight: 700, color: '#0284c7' }}>Câu {idx + 1}.</span>
                       <span
@@ -355,6 +424,9 @@ export const QuestionBankView: React.FC<Props> = ({ classId }) => {
                         {difficultyLabels[q.difficulty] || `Độ khó ${q.difficulty}`}
                       </span>
                     </div>
+                    <button type="button" className="classroom-secondary-action" onClick={() => openEditQuestion(q)}>
+                      Sửa câu hỏi
+                    </button>
                   </div>
 
                   <p style={{ margin: '0.4rem 0 0.8rem 0', fontWeight: 500, color: '#1e293b', whiteSpace: 'pre-wrap' }}>{q.content}</p>
@@ -437,7 +509,7 @@ export const QuestionBankView: React.FC<Props> = ({ classId }) => {
                   onChange={e => setNewBankName(e.target.value)}
                 />
               </div>
-              {classId && (
+              {classId != null && (
                 <div style={{ marginBottom: '1rem' }}>
                   <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}>
                     <input type="checkbox" checked={newBankForClassOnly} onChange={e => setNewBankForClassOnly(e.target.checked)} />
@@ -461,6 +533,9 @@ export const QuestionBankView: React.FC<Props> = ({ classId }) => {
       {/* Modal Thêm câu hỏi */}
       {showAddQuestionModal && (
         <div
+          role="dialog"
+          aria-modal="true"
+          aria-label={editingQuestion ? 'Sửa câu hỏi' : 'Thêm câu hỏi'}
           style={{
             position: 'fixed',
             inset: 0,
@@ -482,11 +557,17 @@ export const QuestionBankView: React.FC<Props> = ({ classId }) => {
               overflowY: 'auto',
             }}
           >
-            <h3 style={{ marginTop: 0 }}>Thêm câu hỏi mới vào ngân hàng</h3>
-            <form onSubmit={e => void handleAddQuestion(e)}>
+            <h3 style={{ marginTop: 0 }}>{editingQuestion ? 'Sửa câu hỏi trong ngân hàng' : 'Thêm câu hỏi mới vào ngân hàng'}</h3>
+            {formError && (
+              <p className="classroom-error" role="alert">
+                {formError}
+              </p>
+            )}
+            <form onSubmit={e => void handleSaveQuestion(e)}>
               <div style={{ marginBottom: '0.75rem' }}>
                 <label style={{ display: 'block', fontWeight: 600, marginBottom: '0.25rem' }}>Nội dung câu hỏi (*):</label>
                 <textarea
+                  aria-label="Nội dung câu hỏi"
                   required
                   rows={3}
                   style={{ width: '100%', padding: '0.5rem', borderRadius: '6px', border: '1px solid #cbd5e1' }}
@@ -497,18 +578,42 @@ export const QuestionBankView: React.FC<Props> = ({ classId }) => {
 
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem', marginBottom: '0.75rem' }}>
                 <div>
-                  <label style={{ display: 'block', fontWeight: 600, marginBottom: '0.25rem' }}>Chủ đề:</label>
-                  <input
-                    type="text"
-                    placeholder="VD: Phân số, Hình học..."
+                  <label htmlFor="bank-question-topic" style={{ display: 'block', fontWeight: 600, marginBottom: '0.25rem' }}>
+                    Chủ đề:
+                  </label>
+                  <select
+                    id="bank-question-topic"
+                    value={topicChoice}
+                    onChange={e => setTopicChoice(e.target.value)}
                     style={{ width: '100%', padding: '0.45rem', borderRadius: '6px', border: '1px solid #cbd5e1' }}
-                    value={newTopic}
-                    onChange={e => setNewTopic(e.target.value)}
-                  />
+                  >
+                    <option value="default">Mặc định</option>
+                    {topics
+                      .filter(item => item.topic !== 'Mặc định')
+                      .map(item => (
+                        <option key={item.topic} value={item.topic}>
+                          {item.topic}
+                        </option>
+                      ))}
+                    <option value="custom">Khác (tự nhập)</option>
+                  </select>
+                  {topicChoice === 'custom' && (
+                    <input
+                      type="text"
+                      aria-label="Chủ đề khác"
+                      value={customTopic}
+                      maxLength={255}
+                      required
+                      placeholder="Nhập chủ đề mới"
+                      onChange={e => setCustomTopic(e.target.value)}
+                      style={{ width: '100%', marginTop: '0.4rem', padding: '0.45rem', borderRadius: '6px', border: '1px solid #cbd5e1' }}
+                    />
+                  )}
                 </div>
                 <div>
                   <label style={{ display: 'block', fontWeight: 600, marginBottom: '0.25rem' }}>Độ khó (*):</label>
                   <select
+                    aria-label="Độ khó"
                     style={{ width: '100%', padding: '0.45rem', borderRadius: '6px', border: '1px solid #cbd5e1' }}
                     value={newDifficulty}
                     onChange={e => setNewDifficulty(Number(e.target.value))}
@@ -538,24 +643,43 @@ export const QuestionBankView: React.FC<Props> = ({ classId }) => {
                     />
                     <strong style={{ minWidth: '1.25rem' }}>{String.fromCharCode(65 + oIdx)}.</strong>
                     <input
+                      aria-label={`Nội dung lựa chọn ${String.fromCharCode(65 + oIdx)}`}
                       type="text"
                       placeholder={`Lựa chọn ${String.fromCharCode(65 + oIdx)}`}
-                      style={{ flex: 1, padding: '0.4rem', borderRadius: '4px', border: '1px solid #cbd5e1' }}
+                      style={{ flex: 1, minWidth: 0, padding: '0.4rem', borderRadius: '4px', border: '1px solid #cbd5e1' }}
                       value={opt}
                       onChange={e => {
                         const next = [...newOptions];
                         next[oIdx] = e.target.value;
                         setNewOptions(next);
                       }}
-                      required={oIdx < 2}
+                      required
                     />
+                    <button
+                      type="button"
+                      className="classroom-secondary-action"
+                      disabled={newOptions.length <= 2}
+                      aria-label={`Xóa lựa chọn ${String.fromCharCode(65 + oIdx)}`}
+                      onClick={() => removeOption(oIdx)}
+                    >
+                      Xóa
+                    </button>
                   </div>
                 ))}
+                <button
+                  type="button"
+                  className="classroom-secondary-action"
+                  disabled={newOptions.length >= 10}
+                  onClick={() => setNewOptions(current => [...current, ''])}
+                >
+                  + Thêm lựa chọn
+                </button>
               </div>
 
               <div style={{ marginBottom: '1rem' }}>
                 <label style={{ display: 'block', fontWeight: 600, marginBottom: '0.25rem' }}>Giải thích chi tiết (tùy chọn):</label>
                 <textarea
+                  aria-label="Giải thích chi tiết"
                   rows={2}
                   style={{ width: '100%', padding: '0.45rem', borderRadius: '6px', border: '1px solid #cbd5e1' }}
                   value={newExplanation}
@@ -567,8 +691,8 @@ export const QuestionBankView: React.FC<Props> = ({ classId }) => {
                 <button type="button" className="classroom-secondary-action" onClick={() => setShowAddQuestionModal(false)}>
                   Hủy
                 </button>
-                <button type="submit" className="btn-pill-primary">
-                  Lưu câu hỏi
+                <button type="submit" className="btn-pill-primary" disabled={savingQuestion}>
+                  {savingQuestion ? 'Đang lưu...' : editingQuestion ? 'Lưu thay đổi' : 'Lưu câu hỏi'}
                 </button>
               </div>
             </form>

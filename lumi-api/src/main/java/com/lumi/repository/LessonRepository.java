@@ -14,6 +14,15 @@ import org.springframework.stereotype.Repository;
  */
 @Repository
 public interface LessonRepository extends JpaRepository<Lesson, Long>, JpaSpecificationExecutor<Lesson> {
+    @Query("""
+        select l from Lesson l join fetch l.chapter ch join fetch ch.course c
+        left join fetch c.subject left join fetch c.grade
+        where l.id = :id and l.status = com.lumi.domain.enumeration.RecordStatus.ACTIVE
+        and c.status = com.lumi.domain.enumeration.RecordStatus.ACTIVE and (c.isDeleted is null or c.isDeleted = false)
+        and exists (select e.id from CourseEnrollment e where e.course = c and e.student.login = :login
+            and e.status = 'ACTIVE' and (e.expiresAt is null or e.expiresAt > CURRENT_TIMESTAMP))
+        """)
+    Optional<Lesson> findAccessibleForAi(@Param("id") Long id, @Param("login") String login);
 
     List<Lesson> findByChapterCourseIdOrderByOrderIndexAscIdAsc(Long courseId);
     List<Lesson> findByChapterIdOrderByOrderIndexAscIdAsc(Long chapterId);

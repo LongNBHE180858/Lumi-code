@@ -1,7 +1,7 @@
 package com.lumi.web.rest;
 
 import com.lumi.service.dto.InstructorExamDTOs.*;
-import com.lumi.service.impl.InstructorCourseExamService;
+import com.lumi.service.impl.InstructorCourseExamServiceImpl;
 import jakarta.validation.Valid;
 import java.net.URI;
 import java.util.List;
@@ -14,9 +14,9 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/instructor/courses/{courseId}")
 public class InstructorCourseExamResource {
 
-    private final InstructorCourseExamService examService;
+    private final InstructorCourseExamServiceImpl examService;
 
-    public InstructorCourseExamResource(InstructorCourseExamService examService) {
+    public InstructorCourseExamResource(InstructorCourseExamServiceImpl examService) {
         this.examService = examService;
     }
 

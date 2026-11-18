@@ -4,5 +4,8 @@
 - Mô hình hiện hành chỉ có `subjects` và `grades` cho hai danh mục Môn học và Khối lớp; cả hai không có cột `active`. Kiểm tra `master.xml` để xác định changeset được áp dụng khi tạo DB mới.
 - Luồng duyệt đơn giảng viên dùng `user_profiles`, với `instructor_status`, `instructor_rejection_reason` và `instructor_reviewed_at`; không lưu người duyệt trong bảng này.
 - Kiểm tra đúng DB dev `lumig46` trên cổng 5436 trước khi hướng dẫn SQL; cấu hình nằm trong `application-dev.yml` và `postgresql.yml`.
+- Trước khi đề xuất hoặc tạo SQL, seed hay changeset để bổ sung dữ liệu, hãy kiểm tra trạng thái của đúng DB đích bằng truy vấn chỉ đọc hoặc bằng bằng chứng DB người dùng cung cấp; phân biệt dữ liệu đang có trong DB với dữ liệu khai báo trong CSV/JDL/Liquibase. Nếu chưa xác minh được, nêu rõ điều chưa biết, không suy đoán rằng dữ liệu còn thiếu.
+- Nếu không truy cập được DB hoặc thiếu quyền để kiểm tra, hãy nhờ người dùng cung cấp kết quả truy vấn chỉ đọc, ảnh hoặc thông tin kết nối cần thiết khi họ có thể cung cấp; chờ bằng chứng đó trước khi kết luận DB thiếu dữ liệu hay đề xuất thay đổi DB.
+- Chỉ tạo câu lệnh ghi dữ liệu, migration, bảng hoặc cột khi đã xác nhận nhu cầu thực tế và được người dùng yêu cầu; ưu tiên dùng cấu trúc và dữ liệu hiện có, không thêm changeset hay SQL dự phòng cho trường hợp giả định. Không chạy SQL ghi dữ liệu khi người dùng chỉ yêu cầu kiểm tra hoặc giải thích.
 - Đừng nhầm nhãn `.tag(...)` của metrics, `@Tag` của Swagger hoặc tag của Grafana với bảng Tag khóa học đã bỏ.
 - Chạy integration test có `DatabaseTestcontainer` khi Docker sẵn sàng; không coi unit test là bằng chứng migration đã chạy trên DB thật.

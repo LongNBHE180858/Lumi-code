@@ -16,6 +16,10 @@
 spring:
   # Tests have a separate application.yml and must also opt out of AI by default.
   ai:
+    google:
+      genai:
+        embedding:
+          api-key: disabled
     model:
       chat: none
       embedding: none

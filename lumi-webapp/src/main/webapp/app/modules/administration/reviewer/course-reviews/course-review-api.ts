@@ -30,7 +30,7 @@ export interface ICourseReviewCourse {
   thumbnailUrl?: string | null;
   price?: number | null;
   version: number;
-  status: 'DRAFT' | 'PENDING' | 'ACTIVE' | 'ARCHIVED';
+  status: 'DRAFT' | 'PENDING' | 'ACTIVE' | 'HIDDEN' | 'ARCHIVED' | 'BLOCKED';
   bookSeries?: string | null;
   targetAudience?: string | null;
   prerequisites?: string | null;
@@ -65,6 +65,57 @@ export interface ICourseReviewRequest {
   reviewedBy?: ICourseReviewUser | null;
 }
 
+export interface ICourseReviewMaterial {
+  id: number;
+  title?: string | null;
+  displayName?: string | null;
+  fileName?: string | null;
+  fileUrl?: string | null;
+  fileSizeBytes?: number | null;
+  fileType?: string | null;
+  materialType?: string | null;
+  orderIndex?: number | null;
+}
+
+export interface IReviewQuestionOption {
+  id?: number;
+  content: string;
+  isCorrect: boolean;
+  orderIndex?: number;
+}
+
+export interface IReviewQuestionDetail {
+  id: number;
+  content: string;
+  type?: string;
+  difficulty?: string;
+  explanation?: string;
+  score?: number;
+  orderIndex?: number;
+  options: IReviewQuestionOption[];
+}
+
+export interface IReviewExamSummary {
+  id: number;
+  title: string;
+  assessmentType: string;
+  durationMinutes?: number | null;
+  passScore?: number | null;
+  maxAttempts?: number | null;
+  shuffleQuestions?: boolean;
+  videoTriggerSeconds?: number | null;
+  courseId?: number | null;
+  chapterId?: number | null;
+  lessonId?: number | null;
+  questionCount: number;
+  totalScore?: number | null;
+  createdAt?: string;
+}
+
+export interface IReviewExamDetail extends IReviewExamSummary {
+  questions: IReviewQuestionDetail[];
+}
+
 export interface ICourseReviewLesson {
   id: number;
   title: string;
@@ -78,6 +129,9 @@ export interface ICourseReviewLesson {
   durationMinutes?: number | null;
   durationSeconds?: number | null;
   status?: string;
+  materials?: ICourseReviewMaterial[];
+  exams?: IReviewExamSummary[];
+  cuePoints?: IReviewExamSummary[];
   chapter?: {
     id: number;
     title: string;
@@ -92,6 +146,7 @@ export interface ICourseReviewChapter {
   description?: string | null;
   orderIndex: number;
   lessons: ICourseReviewLesson[];
+  exams?: IReviewExamSummary[];
 }
 
 export const reviewStatusLabels: Record<CourseReviewRequestStatus, string> = {
@@ -99,6 +154,15 @@ export const reviewStatusLabels: Record<CourseReviewRequestStatus, string> = {
   APPROVED: 'Đã duyệt',
   REJECTED: 'Đã từ chối',
   WITHDRAWN: 'Đã rút lại',
+};
+
+export const courseStatusLabels: Record<string, string> = {
+  DRAFT: 'Bản nháp',
+  PENDING: 'Chờ duyệt',
+  ACTIVE: 'Đã xuất bản',
+  HIDDEN: 'Đã tạm ẩn',
+  ARCHIVED: 'Lưu trữ',
+  BLOCKED: 'Bị khóa',
 };
 
 export const getSubjectGradient = (subjectName?: string): string => {
@@ -203,43 +267,125 @@ export const courseReviewApi = {
     }
   },
 
-  async approve(request: ICourseReviewRequest, feedback?: string) {
-    const reviewResponse = await axios.patch<ICourseReviewRequest>(`/api/course-review-requests/${request.id}`, {
-      id: request.id,
-      status: 'APPROVED',
-      reviewedAt: new Date().toISOString(),
-      reviewerFeedback: feedback || 'Đã kiểm tra và phê duyệt khóa học.',
-    });
-
+  async getCourseExams(courseId: number | string): Promise<IReviewExamSummary[]> {
     try {
-      await axios.patch(`/api/courses/${request.course.id}`, {
-        id: request.course.id,
-        status: 'ACTIVE',
-      });
+      const res = await axios.get<IReviewExamSummary[]>(`/api/instructor/courses/${courseId}/exams`);
+      return res.data || [];
     } catch {
-      /* Course status might be handled by backend hook or already active */
+      return [];
     }
+  },
 
-    return reviewResponse.data;
+  async getChapterExams(courseId: number | string, chapterId: number | string): Promise<IReviewExamSummary[]> {
+    try {
+      const res = await axios.get<IReviewExamSummary[]>(`/api/instructor/courses/${courseId}/chapters/${chapterId}/exams`);
+      return res.data || [];
+    } catch {
+      return [];
+    }
+  },
+
+  async getLessonExams(courseId: number | string, lessonId: number | string): Promise<IReviewExamSummary[]> {
+    try {
+      const res = await axios.get<IReviewExamSummary[]>(`/api/instructor/courses/${courseId}/lessons/${lessonId}/exams`);
+      return res.data || [];
+    } catch {
+      return [];
+    }
+  },
+
+  async getLessonCuePoints(courseId: number | string, lessonId: number | string): Promise<IReviewExamSummary[]> {
+    try {
+      const res = await axios.get<IReviewExamSummary[]>(`/api/instructor/courses/${courseId}/lessons/${lessonId}/cue-points`);
+      return res.data || [];
+    } catch {
+      return [];
+    }
+  },
+
+  async getExamDetail(courseId: number | string, examId: number | string): Promise<IReviewExamDetail | null> {
+    try {
+      const res = await axios.get<IReviewExamDetail>(`/api/instructor/courses/${courseId}/exams/${examId}`);
+      return res.data;
+    } catch {
+      return null;
+    }
+  },
+
+  async getVideoPlayback(courseId: number | string, lessonId: number | string): Promise<string | null> {
+    try {
+      const res = await axios.get<{ url: string }>(`/api/instructor/courses/${courseId}/lessons/${lessonId}/video/playback`);
+      return res.data.url;
+    } catch {
+      return null;
+    }
+  },
+
+  async getMaterialPreview(courseId: number | string, lessonId: number | string, materialId: number | string): Promise<string | null> {
+    try {
+      const res = await axios.get<{ url: string }>(
+        `/api/instructor/courses/${courseId}/lessons/${lessonId}/materials/${materialId}/preview`,
+      );
+      return res.data.url;
+    } catch {
+      return null;
+    }
+  },
+
+  async getMaterialDownload(courseId: number | string, lessonId: number | string, materialId: number | string): Promise<string | null> {
+    try {
+      const res = await axios.get<{ url: string }>(
+        `/api/instructor/courses/${courseId}/lessons/${lessonId}/materials/${materialId}/download`,
+      );
+      return res.data.url;
+    } catch {
+      return null;
+    }
+  },
+
+  async approve(request: ICourseReviewRequest, feedback?: string) {
+    try {
+      const res = await axios.post<ICourseReviewRequest>(`/api/course-review-requests/${request.id}/approve`, {
+        feedback: feedback || 'Đã kiểm tra và phê duyệt khóa học.',
+      });
+      return res.data;
+    } catch {
+      const reviewResponse = await axios.patch<ICourseReviewRequest>(`/api/course-review-requests/${request.id}`, {
+        id: request.id,
+        status: 'APPROVED',
+        reviewedAt: new Date().toISOString(),
+        reviewerFeedback: feedback || 'Đã kiểm tra và phê duyệt khóa học.',
+      });
+      return reviewResponse.data;
+    }
   },
 
   async reject(request: ICourseReviewRequest, reason: string) {
-    const reviewResponse = await axios.patch<ICourseReviewRequest>(`/api/course-review-requests/${request.id}`, {
-      id: request.id,
-      status: 'REJECTED',
-      reviewedAt: new Date().toISOString(),
-      reviewerFeedback: reason,
-    });
-
     try {
-      await axios.patch(`/api/courses/${request.course.id}`, {
-        id: request.course.id,
-        status: 'DRAFT',
+      const res = await axios.post<ICourseReviewRequest>(`/api/course-review-requests/${request.id}/reject`, {
+        reason,
       });
+      return res.data;
     } catch {
-      /* Course status might be handled by backend hook or already draft */
+      const reviewResponse = await axios.patch<ICourseReviewRequest>(`/api/course-review-requests/${request.id}`, {
+        id: request.id,
+        status: 'REJECTED',
+        reviewedAt: new Date().toISOString(),
+        reviewerFeedback: reason,
+      });
+      return reviewResponse.data;
     }
+  },
 
-    return reviewResponse.data;
+  async hideCourse(courseId: number | string, reason: string): Promise<void> {
+    await axios.post(`/api/course-review-requests/courses/${courseId}/hide`, { reason });
+  },
+
+  async unhideCourse(courseId: number | string): Promise<void> {
+    await axios.post(`/api/course-review-requests/courses/${courseId}/unhide`);
+  },
+
+  async requestRevision(courseId: number | string, reason: string): Promise<void> {
+    await axios.post(`/api/course-review-requests/courses/${courseId}/request-revision`, { reason });
   },
 };
