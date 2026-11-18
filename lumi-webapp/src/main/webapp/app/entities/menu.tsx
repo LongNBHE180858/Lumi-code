@@ -37,18 +37,6 @@ const EntitiesMenu = () => {
       <MenuItem icon="asterisk" to="/system-plan">
         <Translate contentKey="global.menu.entities.systemPlan" />
       </MenuItem>
-      <MenuItem icon="asterisk" to="/refund">
-        <Translate contentKey="global.menu.entities.refund" />
-      </MenuItem>
-      <MenuItem icon="asterisk" to="/instructor-wallet">
-        <Translate contentKey="global.menu.entities.instructorWallet" />
-      </MenuItem>
-      <MenuItem icon="asterisk" to="/wallet-transaction">
-        <Translate contentKey="global.menu.entities.walletTransaction" />
-      </MenuItem>
-      <MenuItem icon="asterisk" to="/payout-request">
-        <Translate contentKey="global.menu.entities.payoutRequest" />
-      </MenuItem>
       <MenuItem icon="asterisk" to="/pdf-chunk">
         <Translate contentKey="global.menu.entities.pdfChunk" />
       </MenuItem>

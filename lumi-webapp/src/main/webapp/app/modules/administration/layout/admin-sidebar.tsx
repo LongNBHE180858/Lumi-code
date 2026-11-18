@@ -42,7 +42,7 @@ const navigation: { title: string; items: NavItem[] }[] = [
     title: 'KINH DOANH',
     items: [
       { label: 'Gói Premium', icon: Package, to: '/admin/premium-packages' },
-      { label: 'Doanh thu & Thanh toán', icon: Wallet },
+      { label: 'Rút tiền & Hoàn tiền', icon: Wallet, to: '/admin/finance' },
       { label: 'Báo cáo & Thống kê', icon: ChartNoAxesCombined },
     ],
   },

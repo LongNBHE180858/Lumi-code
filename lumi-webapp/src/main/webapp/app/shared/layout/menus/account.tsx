@@ -69,6 +69,7 @@ const accountMenuItemsAuthenticated = (account: any = {}, instructorApproved = f
   const authorities: string[] = account?.authorities || [];
   const isAdmin = authorities.includes('ROLE_ADMIN');
   const isInstructor = authorities.includes('ROLE_INSTRUCTOR') || (!isAdmin && authorities.length === 0);
+  const isParent = authorities.includes('ROLE_PARENT');
 
   return (
     <>
@@ -86,6 +87,11 @@ const accountMenuItemsAuthenticated = (account: any = {}, instructorApproved = f
       <MenuItem icon="comment-dots" to="/support-tickets" data-cy="supportTicketsMenuItem">
         Yêu cầu hỗ trợ
       </MenuItem>
+      {isParent && (
+        <MenuItem icon="wallet" to="/refund-requests">
+          Yêu cầu hoàn tiền
+        </MenuItem>
+      )}
 
       {/* Menu dành cho Quản trị viên */}
       {isAdmin && (
@@ -106,6 +112,11 @@ const accountMenuItemsAuthenticated = (account: any = {}, instructorApproved = f
           <MenuItem icon="users" to="/instructor/classes" data-cy="instructorClasses">
             Quản lý lớp học
           </MenuItem>
+          {isInstructor && (
+            <MenuItem icon="wallet" to="/instructor/wallet">
+              Ví và rút tiền
+            </MenuItem>
+          )}
         </>
       )}
 

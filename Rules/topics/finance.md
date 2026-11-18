@@ -1,0 +1,12 @@
+# Ví giảng viên, rút tiền và hoàn tiền
+- Giai đoạn hiện tại, mỗi đơn mua khóa học có doanh thu cố định 80% cho giảng viên và 20% cho LUMI. Ghi nhận ví theo phần doanh thu giảng viên đã lưu trên đơn; chưa triển khai tỷ lệ riêng cho nguồn giới thiệu hoặc cấu hình tỷ lệ linh hoạt. Có thể mở rộng các chính sách này sau.
+- Luồng mua khóa học hiện do phụ huynh thanh toán cho học sinh. Chỉ phụ huynh đứng tên đơn được gửi yêu cầu hoàn tiền; quyền học của học sinh là đối tượng bị ảnh hưởng.
+- Khi yêu cầu hoàn tiền đang chờ duyệt, học sinh vẫn giữ quyền học. Chỉ thu hồi quyền học sau khi admin duyệt hoàn tiền.
+- Thời hạn hoàn tiền tính từ thời điểm thanh toán thành công đến thời điểm gửi yêu cầu. Yêu cầu gửi trước mốc 7 ngày được hoàn 80% số tiền phụ huynh thực trả; từ đúng mốc 7 ngày trở đi không được hoàn. Tỷ lệ được cố định tại thời điểm gửi, không thay đổi theo ngày admin duyệt. Không áp dụng mức 50% hoặc mốc 3 ngày.
+- Quy tắc đầy đủ còn yêu cầu học sinh đã học dưới 20% tổng thời lượng bài học của khóa. Vì luồng theo dõi tiến độ chưa hoàn thiện, giai đoạn hiện tại tạm chưa kiểm tra điều kiện 20%: yêu cầu đủ điều kiện thời hạn 7 ngày vẫn được xét hoàn 80%. Chỉ bật kiểm tra 20% sau khi có cách đo thời lượng học đáng tin cậy và được chốt riêng.
+- Khi hoàn tiền, đảo doanh thu giảng viên và nền tảng theo tỷ lệ phần thực nhận đã lưu trên đơn. Nếu yêu cầu hoàn tiền đang chờ duyệt, doanh thu của đơn đó tiếp tục bị giữ, chưa chuyển sang số dư có thể rút.
+- Phụ huynh nhập ngân hàng, số tài khoản và tên chủ tài khoản nhận tiền ngay khi gửi yêu cầu hoàn tiền.
+- Không thêm bảng hoặc cột DB cho nhóm chức năng này. Thông tin nhận hoàn tiền được lưu cùng lý do trong trường `refunds.reason` hiện có bằng JSON có phiên bản; vẫn đọc được lý do dạng văn bản của dữ liệu cũ.
+- Mỗi yêu cầu rút tiền có số tiền từ 50.000 đến 10.000.000 VND, không vượt số dư khả dụng của giảng viên. Mỗi giảng viên được gửi tối đa một yêu cầu rút tiền mỗi ngày.
+- Chưa tích hợp chuyển tiền tự động với ngân hàng. Việc rút tiền và hoàn tiền đều cần admin duyệt; khâu chuyển khoản được thực hiện thủ công. Cần ghi nhận kết quả chuyển khoản và mã tham chiếu trước khi đánh dấu đã hoàn tất.
+- Tài liệu `LUMI_Complete_Financial_Rules.docx` tổng hợp từ SRS là cơ sở nghiệp vụ để đối chiếu. Nếu tài liệu mâu thuẫn với các quyết định trên, áp dụng quyết định của người dùng. Các phần chưa được chốt trong tài liệu không tự động trở thành quy tắc triển khai.

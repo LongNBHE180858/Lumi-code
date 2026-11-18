@@ -25,6 +25,7 @@ import CoursePayment from 'app/modules/course-purchase/course-payment';
 import FeedbackSubmit from 'app/entities/feedback/feedback-submit';
 import TicketList from 'app/modules/support-tickets/ticket-list';
 import TicketDetail from 'app/modules/support-tickets/ticket-detail';
+import ParentRefunds from 'app/modules/finance/parent-refunds';
 
 const loading = <div>loading ...</div>;
 
@@ -64,6 +65,14 @@ const AppRoutes = () => {
             element={
               <PrivateRoute hasAnyAuthorities={[Authority.PARENT]}>
                 <CoursePayment />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="refund-requests"
+            element={
+              <PrivateRoute hasAnyAuthorities={[Authority.PARENT]}>
+                <ParentRefunds />
               </PrivateRoute>
             }
           />

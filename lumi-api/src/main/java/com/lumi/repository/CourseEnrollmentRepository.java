@@ -13,8 +13,7 @@ import org.springframework.stereotype.Repository;
  * Spring Data JPA repository for the CourseEnrollment entity.
  */
 @Repository
-public interface CourseEnrollmentRepository
-        extends JpaRepository<CourseEnrollment, Long>, JpaSpecificationExecutor<CourseEnrollment> {
+public interface CourseEnrollmentRepository extends JpaRepository<CourseEnrollment, Long>, JpaSpecificationExecutor<CourseEnrollment> {
     @Query("select courseEnrollment from CourseEnrollment courseEnrollment where courseEnrollment.student.login = ?#{authentication.name}")
     List<CourseEnrollment> findByStudentIsCurrentUser();
 
@@ -30,17 +29,25 @@ public interface CourseEnrollmentRepository
         return this.findAllWithToOneRelationships(pageable);
     }
 
-    @Query(value = "select courseEnrollment from CourseEnrollment courseEnrollment left join fetch courseEnrollment.student left join fetch courseEnrollment.course", countQuery = "select count(courseEnrollment) from CourseEnrollment courseEnrollment")
+    @Query(
+        value = "select courseEnrollment from CourseEnrollment courseEnrollment left join fetch courseEnrollment.student left join fetch courseEnrollment.course",
+        countQuery = "select count(courseEnrollment) from CourseEnrollment courseEnrollment"
+    )
     Page<CourseEnrollment> findAllWithToOneRelationships(Pageable pageable);
 
-    @Query("select courseEnrollment from CourseEnrollment courseEnrollment left join fetch courseEnrollment.student left join fetch courseEnrollment.course")
+    @Query(
+        "select courseEnrollment from CourseEnrollment courseEnrollment left join fetch courseEnrollment.student left join fetch courseEnrollment.course"
+    )
     List<CourseEnrollment> findAllWithToOneRelationships();
 
-    @Query("select courseEnrollment from CourseEnrollment courseEnrollment left join fetch courseEnrollment.student left join fetch courseEnrollment.course where courseEnrollment.id =:id")
+    @Query(
+        "select courseEnrollment from CourseEnrollment courseEnrollment left join fetch courseEnrollment.student left join fetch courseEnrollment.course where courseEnrollment.id =:id"
+    )
     Optional<CourseEnrollment> findOneWithToOneRelationships(@Param("id") Long id);
 
     @Query("select count(distinct c.course.id) from CourseEnrollment c where c.student.id = :studentId")
     long countDistinctCourseByStudentId(@Param("studentId") Long studentId);
 
     boolean existsByStudentIdAndCourseId(Long studentId, Long courseId);
+    Optional<CourseEnrollment> findByStudentIdAndCourseId(Long studentId, Long courseId);
 }

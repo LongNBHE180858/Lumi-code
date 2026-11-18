@@ -1,6 +1,7 @@
 package com.lumi.repository;
 
 import com.lumi.domain.Refund;
+import jakarta.persistence.LockModeType;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.data.domain.Page;
@@ -14,6 +15,14 @@ import org.springframework.stereotype.Repository;
  */
 @Repository
 public interface RefundRepository extends JpaRepository<Refund, Long>, JpaSpecificationExecutor<Refund> {
+    List<Refund> findByOrderBuyerIdOrderByCreatedAtDesc(Long buyerId);
+    List<Refund> findAllByOrderByCreatedAtDesc();
+    boolean existsByOrderIdAndStatusIn(Long orderId, List<String> statuses);
+
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("select r from Refund r where r.id = :id")
+    Optional<Refund> lockById(@Param("id") Long id);
+
     @Query("select refund from Refund refund where refund.processedBy.login = ?#{authentication.name}")
     List<Refund> findByProcessedByIsCurrentUser();
 

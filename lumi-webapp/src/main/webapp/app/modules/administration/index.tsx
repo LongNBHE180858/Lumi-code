@@ -20,6 +20,7 @@ import FeedbackAdminList from './feedback/feedback-admin-list';
 import FeedbackAdminDetail from './feedback/feedback-admin-detail';
 import KnowledgeGraphAdmin from './knowledge-graph/knowledge-graph';
 import { CourseReviewList, CourseReviewDetail } from './reviewer';
+import AdminFinance from 'app/modules/finance/admin-finance';
 
 const AdminUserManagement = () => {
   return (
@@ -43,6 +44,7 @@ const AdministrationRoutes = () => (
       <Route path="catalog" element={<AdminCatalog />} />
       <Route path="premium-packages" element={<AdminPremiumPackages />} />
       <Route path="audit-logs" element={<AdminAuditLogs />} />
+      <Route path="finance" element={<AdminFinance />} />
       <Route path="support-tickets" element={<TicketList admin />} />
       <Route path="support-tickets/:id" element={<TicketDetail admin />} />
       <Route path="feedback" element={<FeedbackAdminList />} />

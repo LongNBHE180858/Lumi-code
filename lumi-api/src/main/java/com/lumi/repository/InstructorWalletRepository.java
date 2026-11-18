@@ -1,6 +1,7 @@
 package com.lumi.repository;
 
 import com.lumi.domain.InstructorWallet;
+import jakarta.persistence.LockModeType;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.data.domain.Page;
@@ -14,6 +15,16 @@ import org.springframework.stereotype.Repository;
  */
 @Repository
 public interface InstructorWalletRepository extends JpaRepository<InstructorWallet, Long>, JpaSpecificationExecutor<InstructorWallet> {
+    Optional<InstructorWallet> findByInstructorId(Long instructorId);
+
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("select w from InstructorWallet w where w.instructor.id = :instructorId")
+    Optional<InstructorWallet> lockByInstructorId(@Param("instructorId") Long instructorId);
+
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("select w from InstructorWallet w where w.id = :id")
+    Optional<InstructorWallet> lockById(@Param("id") Long id);
+
     default Optional<InstructorWallet> findOneWithEagerRelationships(Long id) {
         return this.findOneWithToOneRelationships(id);
     }

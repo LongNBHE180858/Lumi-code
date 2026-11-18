@@ -232,7 +232,12 @@ const CoursePayment = () => {
                 <section className="purchase-panel payment-result" role="status">
                   <h2>{waitingForDeadline ? 'Đang xác nhận trạng thái đơn' : statusTitles[order.status]}</h2>
                   <p>{paymentResultMessage(order.status, studentName)}</p>
-                  {order.status === 'PAID' && <Link to="/courses">Quay lại danh sách khóa học →</Link>}
+                  {order.status === 'PAID' && (
+                    <>
+                      <Link to="/courses">Quay lại danh sách khóa học →</Link>{' '}
+                      <Link to={`/refund-requests?orderId=${order.orderId}`}>Yêu cầu hoàn tiền</Link>
+                    </>
+                  )}
                   {order.status === 'EXPIRED' && (
                     <button className="payment-secondary-button" type="button" onClick={restart}>
                       Chưa chuyển tiền? Quay lại xác nhận mua

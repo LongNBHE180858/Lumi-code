@@ -6,6 +6,7 @@ import { CourseList } from './courses/course-list';
 import { CourseBuilder } from './course-builder/course-builder';
 import { ClassList } from './classes';
 import InstructorClassroom from './classes/instructor-classroom';
+import InstructorFinance from 'app/modules/finance/instructor-finance';
 
 const InstructorRoutes = () => (
   <div>
@@ -15,6 +16,7 @@ const InstructorRoutes = () => (
       <Route path="courses" element={<CourseList />} />
       <Route path="classes" element={<ClassList />} />
       <Route path="classes/:id" element={<InstructorClassroom />} />
+      <Route path="wallet" element={<InstructorFinance />} />
 
       {/* Dùng chung builder để giữ form khi draft mới nhận được ID. */}
       <Route element={<CourseBuilder />}>

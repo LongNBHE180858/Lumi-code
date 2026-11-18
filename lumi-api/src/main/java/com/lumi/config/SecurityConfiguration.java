@@ -47,6 +47,7 @@ public class SecurityConfiguration {
                         .requestMatchers("/api/account/reset-password/init").permitAll()
                         .requestMatchers("/api/account/reset-password/finish").permitAll()
                         .requestMatchers("/api/admin/**").hasAuthority(AuthoritiesConstants.ADMIN)
+                        .requestMatchers("/api/instructor-wallets/**", "/api/instructor-wallets", "/api/wallet-transactions/**", "/api/wallet-transactions", "/api/payout-requests/**", "/api/payout-requests", "/api/refunds/**", "/api/refunds").denyAll()
                         .requestMatchers(HttpMethod.POST, "/api/payments/sepay/webhook").permitAll()
                         .requestMatchers("/api/parent-student-links", "/api/parent-student-links/**").hasAuthority(AuthoritiesConstants.ADMIN)
                         .requestMatchers("/api/course-orders", "/api/course-orders/**", "/api/courses/*/checkout", "/api/profile/linked-students").hasAuthority(AuthoritiesConstants.PARENT)

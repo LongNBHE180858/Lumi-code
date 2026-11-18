@@ -8,6 +8,7 @@ import com.lumi.domain.enumeration.SePayWebhookStatus;
 import com.lumi.repository.*;
 import com.lumi.security.AuthoritiesConstants;
 import com.lumi.service.dto.SePayWebhookRequestDTO;
+import com.lumi.service.finance.FinanceService;
 import com.lumi.service.payment.SePayWebhookProcessor;
 import java.math.BigDecimal;
 import java.time.*;
@@ -35,14 +36,22 @@ public class SePayWebhookProcessorImpl implements SePayWebhookProcessor {
     ParentStudentLinkRepository linkRepository;
     PaymentRepository paymentRepository;
     CourseEnrollmentRepository enrollmentRepository;
+    FinanceService financeService;
     SePayProperties properties;
 
     @Override
     @Transactional
     public void process(SePayWebhookRequestDTO request, Instant transactionAt, Instant receivedAt) {
         String eventId = request.getId().toString();
-        int inserted = eventRepository.reserveEvent(eventId, request.getReferenceCode(), request.getAccountNumber(),
-            request.getTransferType(), request.getTransferAmount(), transactionAt, receivedAt);
+        int inserted = eventRepository.reserveEvent(
+            eventId,
+            request.getReferenceCode(),
+            request.getAccountNumber(),
+            request.getTransferType(),
+            request.getTransferAmount(),
+            transactionAt,
+            receivedAt
+        );
         if (inserted == 0) return; // Transaction trước đã commit: trả ACK(xác nhận đã nhận và xử lý thông tin), không xử lý lại.
 
         SePayWebhookEvent event = eventRepository.findByProviderEventId(eventId).orElseThrow();
@@ -87,6 +96,7 @@ public class SePayWebhookProcessorImpl implements SePayWebhookProcessor {
         Payment payment = createPayment(order, request, transactionAt, receivedAt);
         createEnrollment(order, transactionAt, accessExpiresAt, receivedAt);
         markOrderPaid(order, transactionAt, accessExpiresAt, receivedAt);
+        financeService.creditSale(order, transactionAt);
 
         event.setPayment(payment);
         event.setProcessingStatus(SePayWebhookStatus.PROCESSED);
@@ -100,34 +110,66 @@ public class SePayWebhookProcessorImpl implements SePayWebhookProcessor {
         }
     }
 
-    private String getReviewReason(CourseOrder order, SePayWebhookRequestDTO request, Instant transactionAt,
-        Instant receivedAt, List<ParentStudentLink> links, CourseOrderRepository.PaymentParticipants participants) {
-        if (order.getBuyer() == null || order.getStudent() == null || order.getCourse() == null
-            || !order.getBuyer().getId().equals(participants.getBuyerId())
-            || !order.getStudent().getId().equals(participants.getStudentId())) return "ORDER_DATA_INVALID";
+    private String getReviewReason(
+        CourseOrder order,
+        SePayWebhookRequestDTO request,
+        Instant transactionAt,
+        Instant receivedAt,
+        List<ParentStudentLink> links,
+        CourseOrderRepository.PaymentParticipants participants
+    ) {
+        if (
+            order.getBuyer() == null ||
+            order.getStudent() == null ||
+            order.getCourse() == null ||
+            !order.getBuyer().getId().equals(participants.getBuyerId()) ||
+            !order.getStudent().getId().equals(participants.getStudentId())
+        ) return "ORDER_DATA_INVALID";
         if (order.getStatus() == OrderStatus.PAID) return "ORDER_ALREADY_PAID";
         if (order.getStatus() != OrderStatus.PENDING && order.getStatus() != OrderStatus.EXPIRED) return "ORDER_NOT_PAYABLE";
-        if (order.getFinalPrice() == null || order.getFinalPrice().signum() <= 0
-            || request.getTransferAmount().compareTo(order.getFinalPrice()) != 0) return "AMOUNT_MISMATCH";
-        if (order.getCreatedAt() == null || order.getExpiresAt() == null
-            || transactionAt.isBefore(order.getCreatedAt().truncatedTo(ChronoUnit.SECONDS))
-            || transactionAt.isAfter(receivedAt.truncatedTo(ChronoUnit.SECONDS))) return "TRANSACTION_TIME_INVALID";
+        if (
+            order.getFinalPrice() == null ||
+            order.getFinalPrice().signum() <= 0 ||
+            request.getTransferAmount().compareTo(order.getFinalPrice()) != 0
+        ) return "AMOUNT_MISMATCH";
+        if (
+            order.getCreatedAt() == null ||
+            order.getExpiresAt() == null ||
+            transactionAt.isBefore(order.getCreatedAt().truncatedTo(ChronoUnit.SECONDS)) ||
+            transactionAt.isAfter(receivedAt.truncatedTo(ChronoUnit.SECONDS))
+        ) return "TRANSACTION_TIME_INVALID";
         if (!transactionAt.isBefore(order.getExpiresAt())) return "PAYMENT_AFTER_DEADLINE";
 
         boolean linked = links.stream().anyMatch(link -> "LINKED".equals(link.getStatus()) && link.getRevokedAt() == null);
         if (!linked || order.getBuyer().getId().equals(order.getStudent().getId())) return "PARENT_LINK_INVALID";
-        if (!isActiveWithRole(order.getBuyer(), AuthoritiesConstants.PARENT)
-            || !isActiveWithRole(order.getStudent(), AuthoritiesConstants.STUDENT)) return "ACCOUNT_NOT_ELIGIBLE";
+        if (
+            !isActiveWithRole(order.getBuyer(), AuthoritiesConstants.PARENT) ||
+            !isActiveWithRole(order.getStudent(), AuthoritiesConstants.STUDENT)
+        ) return "ACCOUNT_NOT_ELIGIBLE";
         if (enrollmentRepository.existsByStudentIdAndCourseId(order.getStudent().getId(), order.getCourse().getId())) {
             return "ENROLLMENT_ALREADY_EXISTS";
         }
-        if (!orderRepository.findByStudentIdAndCourseIdAndOrderTypeAndStatus(
-            order.getStudent().getId(), order.getCourse().getId(), "COURSE", OrderStatus.PAID).isEmpty()) return "COURSE_ALREADY_PAID";
+        if (
+            !orderRepository
+                .findByStudentIdAndCourseIdAndOrderTypeAndStatus(
+                    order.getStudent().getId(),
+                    order.getCourse().getId(),
+                    "COURSE",
+                    OrderStatus.PAID
+                )
+                .isEmpty()
+        ) return "COURSE_ALREADY_PAID";
         return null;
     }
 
     private boolean isActiveWithRole(User user, String role) {
-        return user.isActivated() && user.getAuthorities().stream().anyMatch(authority -> role.equals(authority.getName()));
+        return (
+            user.isActivated() &&
+            user
+                .getAuthorities()
+                .stream()
+                .anyMatch(authority -> role.equals(authority.getName()))
+        );
     }
 
     private boolean isExpectedAccount(SePayWebhookRequestDTO request) {
@@ -137,8 +179,10 @@ public class SePayWebhookProcessorImpl implements SePayWebhookProcessor {
 
     private boolean isExpectedBank(String gateway) {
         String actual = normalizeBank(gateway);
-        return actual.equals(normalizeBank(properties.getBankCode()))
-            || (StringUtils.hasText(properties.getBankName()) && actual.equals(normalizeBank(properties.getBankName())));
+        return (
+            actual.equals(normalizeBank(properties.getBankCode())) ||
+            (StringUtils.hasText(properties.getBankName()) && actual.equals(normalizeBank(properties.getBankName())))
+        );
     }
 
     private String normalizeBank(String value) {
@@ -157,7 +201,9 @@ public class SePayWebhookProcessorImpl implements SePayWebhookProcessor {
                 if (orderId != null && orderId != candidate) return null;
                 orderId = candidate;
             }
-        } catch (NumberFormatException exception) { return null; }
+        } catch (NumberFormatException exception) {
+            return null;
+        }
         if (orderId == null) return null;
         if (StringUtils.hasText(request.getCode()) && !("LUMI" + orderId).equalsIgnoreCase(request.getCode().trim())) return null;
         return orderId;
@@ -165,14 +211,18 @@ public class SePayWebhookProcessorImpl implements SePayWebhookProcessor {
 
     private Instant calculateAccessExpiry(CourseOrder order, Instant startsAt) {
         try {
-            if (order.getAccessDurationValue() == null || order.getAccessDurationValue() <= 0 || order.getAccessDurationUnit() == null) return null;
+            if (
+                order.getAccessDurationValue() == null || order.getAccessDurationValue() <= 0 || order.getAccessDurationUnit() == null
+            ) return null;
             var start = startsAt.atZone(VIETNAM);
             return switch (AccessDurationUnit.valueOf(order.getAccessDurationUnit())) {
                 case DAY -> start.plusDays(order.getAccessDurationValue()).toInstant();
                 case MONTH -> start.plusMonths(order.getAccessDurationValue()).toInstant();
                 case YEAR -> start.plusYears(order.getAccessDurationValue()).toInstant();
             };
-        } catch (IllegalArgumentException | DateTimeException | ArithmeticException exception) { return null; }
+        } catch (IllegalArgumentException | DateTimeException | ArithmeticException exception) {
+            return null;
+        }
     }
 
     private Payment createPayment(CourseOrder order, SePayWebhookRequestDTO request, Instant transactionAt, Instant receivedAt) {

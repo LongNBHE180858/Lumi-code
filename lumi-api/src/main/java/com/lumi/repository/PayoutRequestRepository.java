@@ -1,6 +1,8 @@
 package com.lumi.repository;
 
 import com.lumi.domain.PayoutRequest;
+import jakarta.persistence.LockModeType;
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.data.domain.Page;
@@ -14,6 +16,14 @@ import org.springframework.stereotype.Repository;
  */
 @Repository
 public interface PayoutRequestRepository extends JpaRepository<PayoutRequest, Long>, JpaSpecificationExecutor<PayoutRequest> {
+    List<PayoutRequest> findByWalletInstructorIdOrderByCreatedAtDesc(Long instructorId);
+    List<PayoutRequest> findAllByOrderByCreatedAtDesc();
+    boolean existsByWalletIdAndCreatedAtGreaterThanEqualAndCreatedAtLessThan(Long walletId, Instant from, Instant to);
+
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("select p from PayoutRequest p where p.id = :id")
+    Optional<PayoutRequest> lockById(@Param("id") Long id);
+
     @Query("select payoutRequest from PayoutRequest payoutRequest where payoutRequest.processedBy.login = ?#{authentication.name}")
     List<PayoutRequest> findByProcessedByIsCurrentUser();
 

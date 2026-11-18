@@ -13,12 +13,8 @@ import ContentReport from './content-report';
 import Course from './course';
 import CourseEnrollment from './course-enrollment';
 import CourseReview from './course-review';
-import Refund from './refund';
-import InstructorWallet from './instructor-wallet';
 import TeacherVerification from './teacher-verification';
 import UserProfile from './user-profile';
-import WalletTransaction from './wallet-transaction';
-import PayoutRequest from './payout-request';
 import PdfChunk from './pdf-chunk';
 import Notification from './notification';
 import Lesson from './lesson';
@@ -46,10 +42,6 @@ export default () => {
         <Route path="/wishlist/*" element={<Wishlist />} />
         <Route path="/feedback/*" element={<FeedbackSubmit />} />
         <Route path="/course-review/*" element={<CourseReview />} />
-        <Route path="/refund/*" element={<Refund />} />
-        <Route path="/instructor-wallet/*" element={<InstructorWallet />} />
-        <Route path="/wallet-transaction/*" element={<WalletTransaction />} />
-        <Route path="/payout-request/*" element={<PayoutRequest />} />
         <Route path="/pdf-chunk/*" element={<PdfChunk />} />
         <Route path="/ai-conversation/*" element={<AiConversation />} />
         <Route path="/ai-message/*" element={<AiMessage />} />
