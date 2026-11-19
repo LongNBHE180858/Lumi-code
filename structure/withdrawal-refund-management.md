@@ -54,6 +54,7 @@ lumi-webapp/src/main/webapp/app/
 │  ├─ instructor-finance.tsx                     [CHÍNH] Ví, giao dịch, form rút và danh sách yêu cầu
 │  ├─ parent-refunds.tsx                         [CHÍNH] Form hoàn tiền và danh sách yêu cầu của phụ huynh
 │  ├─ admin-finance.tsx                          [CHÍNH] Hai danh sách, duyệt/từ chối, xác nhận chuyển khoản
+│  ├─ admin-finance-dialog.tsx                   Hộp thoại duyệt, nhập lý do từ chối và mã chuyển khoản
 │  ├─ finance-api.ts                             Kiểu dữ liệu, lời gọi /api/finance và nhãn hiển thị
 │  └─ finance.scss                              Kiểu dáng dùng chung
 ├─ modules/course-purchase/
